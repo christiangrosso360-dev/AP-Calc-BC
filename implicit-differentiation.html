@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Implicit Differentiation · Unit 3</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%231c0f18%27%2F%3E%3Cpath%20d%3D%27M5%2024%20C%2011%2022%2C%2017%2016%2C%2026%208%27%20stroke%3D%27%23f0843c%27%20stroke-width%3D%272.4%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%3Ccircle%20cx%3D%2719%27%20cy%3D%2713.8%27%20r%3D%272.6%27%20fill%3D%27%231c0f18%27%20stroke%3D%27%23f3a1cf%27%20stroke-width%3D%272%27%2F%3E%3C%2Fsvg%3E" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<style>
+/* ============================================================
+   shared base styles — Unit 10 guide (tool pages)
+   The universal dark palette, fonts, and core chrome.
+   Each page sets its own accent in a small :root override AFTER
+   linking this file:  --approx, --gold, --true, --glow, --wrap-max
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Spline+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap');
+
+:root{
+  /* universal dark palette (same on every page) */
+  --bg:#0d0c0a; --panel:#1a1813; --panel-2:#211e18; --ink:#ece7dd; --muted:#9a9183;
+  --line:#332e25; --line-2:#453f33; --conv:#3fd0b0; --div:#e0644f; --faint:#6b6457;
+  /* fonts */
+  --display:'Fraunces',Georgia,serif; --body:'Spline Sans',system-ui,sans-serif;
+  --mono:'Spline Sans Mono',ui-monospace,Menlo,monospace;
+  /* per-page accents have sensible fallbacks; pages override these */
+  --approx:#e8a13c; --gold:#e8a13c; --true:#3fd0b0;
+  --glow:rgba(232,161,60,.08);   /* hero glow tint, per page */
+  --wrap-max:1060px;             /* content column width, per page */
+}
+
+*{box-sizing:border-box}
+
+body{margin:0;
+  background:radial-gradient(ellipse 60% 50% at 15% -8%, var(--glow), transparent 55%), var(--bg);
+  color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased;
+  padding:30px 18px;line-height:1.6}
+
+.wrap{max-width:var(--wrap-max);margin:0 auto}
+
+.backlink{display:inline-block;font-family:var(--mono);font-size:12.5px;color:var(--muted);
+  text-decoration:none;margin-bottom:18px;padding:5px 11px;border:1px solid var(--line);
+  border-radius:20px;background:var(--panel);transition:border-color .15s,color .15s,transform .15s}
+.backlink:hover{border-color:var(--gold);color:var(--ink);transform:translateX(-2px)}
+
+header{margin-bottom:8px}
+h1{font-family:var(--display);font-weight:600;font-size:32px;margin:0;letter-spacing:-0.02em;line-height:1.05}
+h1 .em{color:var(--approx)}
+
+/* math renders in the light ink color on the dark background */
+.katex{color:var(--ink)}
+
+</style>
+
+<script>
+/* fallback for previewing without helpers.js — the repo's helpers.js takes precedence when present */
+if(typeof tex==="undefined"){
+  window.tex=function(latex,fallback,display){
+    if(window.katex){ try{ return katex.renderToString(latex,{displayMode:!!display,throwOnError:false}); }catch(e){} }
+    return '<span class="tex-fallback">'+(fallback||latex)+'</span>';
+  };
+}
+</script>
+<style>
+  :root{ --approx:#f0843c; --gold:#67d4e8; --true:#f0843c;
+         --glow:rgba(240,132,60,.10); --wrap-max:1060px; }
+  .sub{color:var(--muted);font-size:15px;margin-top:8px;max-width:640px}
+  h2{font-family:var(--display);font-weight:600;font-size:21px;margin:40px 0 8px;letter-spacing:-0.01em}
+  p.lead{font-size:15.5px;max-width:700px;margin:8px 0}
+  .big-idea{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:18px;max-width:780px}
+  .big-idea b{color:var(--approx)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -26px rgba(0,0,0,.7)}
+  .grid{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;margin-top:14px}
+  .left{flex:1 1 560px;min-width:300px}
+  .right{flex:1 1 270px;min-width:240px}
+  svg{width:100%;display:block;border-radius:10px}
+  .label{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  .series-btns{display:flex;flex-direction:column;gap:8px}
+  button{font-family:var(--body);cursor:pointer;border-radius:9px;border:1px solid var(--line);
+    background:var(--panel-2);color:var(--ink);padding:10px 13px;font-size:13.5px;text-align:left;
+    transition:transform .14s,border-color .14s,background .14s}
+  button:hover{border-color:var(--gold);transform:translateY(-1px)}
+  button:active{transform:translateY(0) scale(.99)}
+  button.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+  button.on .katex,button.on .sb-name{color:#16140f}
+  button:disabled{opacity:.4;cursor:default;transform:none}
+  button:disabled:hover{border-color:var(--line);transform:none}
+  .sb-name{font-weight:600;font-size:13.5px}
+  .sb-sub{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+  button.on .sb-sub{color:#6b6457}
+  .controls{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
+  .play{background:var(--approx);color:#fff;border-color:var(--approx);font-weight:600;text-align:center;
+    box-shadow:0 8px 18px -10px var(--approx)}
+  .play:hover{filter:brightness(1.06)}
+  .readout{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+  .callout{margin-top:12px;font-size:13.5px;min-height:20px;color:var(--ink);
+    border-left:3px solid var(--gold);padding-left:12px;opacity:0;transition:opacity .3s}
+  .callout.show{opacity:1}
+  .whypanel .why-title{font-family:var(--display);font-weight:600;font-size:16px;margin-bottom:4px}
+  .why-step{display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .why-step:last-child{border-bottom:none}
+  .why-n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--bg);color:var(--muted);
+    font-family:var(--mono);font-size:11px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .why-t{font-size:13px;line-height:1.5}
+  .why-m{margin-top:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:7px 10px;overflow-x:auto}
+  .stat{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .stat:last-child{border-bottom:none}
+  .stat .k{color:var(--muted)}
+  .stat .v{font-family:var(--mono);color:var(--ink)}
+  .sumline{margin-top:12px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
+    padding:12px 14px;overflow-x:auto;min-height:46px;font-size:14px}
+  .anatomy{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;max-width:820px}
+  .anatomy .m-big{text-align:center;padding:8px 0 14px;overflow-x:auto}
+  .m-big{text-align:center;padding:8px 0 14px;overflow-x:auto}
+  .maprow{display:flex;gap:14px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  .maprow:last-child{border-bottom:none}
+  .maprow .ph{color:var(--ink);flex:1 1 auto;line-height:1.45}
+  .maprow .sy{font-family:var(--mono);color:var(--muted);flex:none}
+  .concepts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+  @media(max-width:680px){.concepts{grid-template-columns:1fr}}
+  .concept{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;
+    transition:transform .2s,box-shadow .2s}
+  .concept:hover{transform:translateY(-3px);box-shadow:0 16px 30px -20px rgba(43,41,37,.45)}
+  .concept h3{font-family:var(--display);font-size:16px;margin:0 0 6px}
+  .concept p{font-size:13.5px;margin:6px 0;color:var(--ink)}
+  .concept .m{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:8px;text-align:center;overflow-x:auto}
+  .key{color:var(--approx);font-weight:600}
+  .whatsnext{max-width:700px;margin-top:18px;font-size:14px;color:var(--muted);
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+  .whatsnext a{color:var(--approx);text-decoration:none;font-weight:600}
+  .whatsnext a:hover{text-decoration:underline}
+  footer{color:var(--muted);font-size:12px;margin-top:44px;border-top:1px solid var(--line);padding-top:14px}
+  @keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .reveal{opacity:0;animation:riseIn .6s cubic-bezier(.2,.7,.2,1) forwards}
+  .tex-fallback{font-family:var(--mono);font-size:13px}
+  button:focus-visible, a:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:8px}
+  @media (prefers-reduced-motion:reduce){.reveal{animation:none;opacity:1}*{transition:none!important}}
+  .prob{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:14px}
+  .prob-tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--approx);font-weight:600}
+  .prob-q{font-size:14.5px;line-height:1.65;margin:6px 0 12px}
+  .soltoggle{font-size:13px;padding:7px 14px}
+  .sol{display:none;margin-top:12px;border-top:1px solid var(--line);padding-top:6px}
+  .sol.show{display:block}
+  .mistakes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  @media(max-width:680px){.mistakes{grid-template-columns:1fr}}
+  .mistake{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--div);border-radius:10px;padding:13px 16px}
+  .mistake h4{margin:0 0 4px;font-size:14px;font-family:var(--display)}
+  .mistake p{margin:0;font-size:13px;color:var(--muted);line-height:1.55}
+  .tipbox{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:14px 18px;max-width:780px}
+  .tipbox h4{margin:0 0 8px;font-size:14px;font-family:var(--display);color:var(--approx)}
+  .tipbox ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:var(--ink)}
+  .tipbox li{margin:5px 0}
+  .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .qtag{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .qtext{font-size:15px;font-weight:600;margin-bottom:12px;line-height:1.5}
+  .quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:520px){.quiz-opts{grid-template-columns:1fr}}
+  .quiz-opts button{font-size:14px;padding:11px 14px}
+  .quiz-opts button.correct{background:rgba(63,208,176,.16);border-color:var(--conv);color:var(--conv)}
+  .quiz-opts button.wrong{background:rgba(224,100,79,.16);border-color:var(--div);color:var(--div)}
+  .quiz-opts button:disabled{cursor:default;opacity:.92}
+  .quiz-opts button:disabled:hover{transform:none;border-color:var(--line)}
+  .quiz-opts button.correct:disabled:hover{border-color:var(--conv)}
+  .quiz-opts button.wrong:disabled:hover{border-color:var(--div)}
+  .feedback{margin-top:14px;font-size:14px;min-height:24px;line-height:1.5}
+  .score{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .next{background:var(--approx);color:#fff;border-color:var(--approx);font-weight:600;text-align:center;box-shadow:0 8px 18px -10px var(--approx)}
+  .next:hover{filter:brightness(1.06);border-color:var(--approx)}
+  .bc-badge{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:#0d1330;
+    background:var(--approx);border-radius:14px;padding:3px 11px;font-weight:600;vertical-align:middle;margin-left:10px}
+  /* tabular method table */
+  .ttab{border-collapse:collapse;margin:6px auto;font-size:15px}
+  .ttab th{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted);font-weight:500;
+    padding:6px 18px;border-bottom:1px solid var(--line)}
+  .ttab td{padding:9px 18px;text-align:center;font-size:15.5px}
+  .ttab td.sg{color:var(--approx);font-family:var(--mono);font-weight:600;font-size:14px}
+  .ttab td.ar{color:var(--true);font-family:var(--mono);font-size:15px;padding:0 4px}
+  .ttab tr.fresh td{animation:riseIn .4s cubic-bezier(.2,.7,.2,1)}
+
+  .looking{font-size:12px;color:var(--muted);font-style:italic;margin-top:8px;line-height:1.5}
+  .looking b{color:var(--ink);font-style:normal}
+  .reader{margin-top:10px;background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--gold);
+    border-radius:8px;padding:9px 12px;font-size:13px;color:var(--muted)}
+  .reader b{color:var(--ink)}
+  .vtable{border-collapse:collapse;margin:8px auto 0;font-family:var(--mono);font-size:13px}
+  .vtable th{font-size:10.5px;letter-spacing:.06em;color:var(--muted);font-weight:500;padding:4px 16px;border-bottom:1px solid var(--line)}
+  .vtable td{padding:5px 16px;text-align:center;color:var(--ink)}
+  .vtable tr.fresh td{animation:riseIn .4s cubic-bezier(.2,.7,.2,1)}
+  .vtable td.hot{color:var(--approx);font-weight:600}
+
+  /* data table for the estimate-from-a-table interactive */
+  .dtable{border-collapse:collapse;width:100%;margin-top:6px;font-family:var(--mono);font-size:14px}
+  .dtable th,.dtable td{border:1px solid var(--line);padding:9px 6px;text-align:center;min-width:38px}
+  .dtable th:first-child,.dtable td:first-child{text-align:left;color:var(--muted);font-weight:600;background:rgba(255,255,255,.02)}
+  .dtable thead th{color:var(--muted)}
+  .dtable .sel{background:rgba(240,132,60,.16);color:var(--gold);font-weight:700;border-color:var(--gold)}
+  .picker{font-family:var(--mono);font-size:14px;background:var(--panel);color:var(--ink);
+    border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer}
+  .picker:focus{outline:none;border-color:var(--gold)}
+
+  .exsel{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 14px}
+  .exsel button{font-family:var(--mono);font-size:14px;color:var(--muted);background:var(--panel);
+    border:1px solid var(--line);border-radius:10px;padding:7px 14px;cursor:pointer;transition:border-color .2s,color .2s,background .2s}
+  .exsel button:hover{border-color:var(--approx);color:var(--ink)}
+  .exsel button.on{border-color:var(--approx);background:rgba(240,132,60,.14);color:var(--ink)}
+  .exsel button.on .katex{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="unit3.html">← Unit 3 Guide</a>
+  <header class="reveal">
+    <h1><span class="em">Implicit</span> Differentiation</h1>
+    <div class="sub">Some curves can&rsquo;t be written as \(y=f(x)\) &mdash; a circle, an ellipse, the looping folium from
+      the unit cover. Implicit differentiation finds their slopes anyway, using the chain rule you just learned as its engine.</div>
+  </header>
+
+  <div class="big-idea reveal"> When an equation mixes \(x\) and \(y\) &mdash; like \(x^2+y^2=25\) &mdash; you often can&rsquo;t (or don&rsquo;t want to) solve for \(y\). <b>Implicit differentiation</b> gets \(\frac{dy}{dx}\) without solving: treat \(y\) as a function of \(x\), differentiate <b>both sides</b>, and apply the <b>chain rule to every \(y\)-term</b> &mdash; so \(y^2\) becomes \(2y\frac{dy}{dx}\). Then solve for \(\frac{dy}{dx}\). The whole method is the chain rule, used in reverse-gear. </div>
+
+  <h2 class="reveal">A curve that isn&rsquo;t a function</h2>
+  <p class="lead reveal">These three curves all fail the vertical-line test &mdash; no single \(y=f(x)\). Yet each has a
+    definite tangent at every point. Switch between them and drag along the curve: implicit differentiation reads
+    \(\frac{dy}{dx}\) straight off the equation, and the spots where the tangent turns
+    <span style="color:#ffcf6b;font-weight:600">vertical</span> or <span style="color:#8dd17a;font-weight:600">horizontal</span>
+    light up &mdash; places you could never reach by solving for \(y\).</p>
+
+  <div class="exsel reveal" id="impChips"></div>
+  <div class="grid reveal">
+    <div class="left">
+      <div class="card" style="display:flex;justify-content:center">
+        <svg id="impPlot" viewBox="0 0 320 320" preserveAspectRatio="xMidYMid meet" style="max-width:340px"></svg>
+      </div>
+      <div class="ctl" style="margin-top:10px">
+        <label for="impA">drag the point along the curve</label>
+        <input type="range" id="impA" min="0" max="1" step="0.005" value="0.12">
+      </div>
+    </div>
+    <div class="right">
+      <div class="card">
+        <div class="stat"><span class="k">curve</span><span class="v" id="impEq"></span></div>
+        <div class="stat"><span class="k">implicit slope \(\frac{dy}{dx}=\)</span><span class="v" style="color:var(--gold)" id="impForm"></span></div>
+        <div class="stat"><span class="k">at point \((x,y)\)</span><span class="v" id="impPt"></span></div>
+        <div class="stat" style="border:0"><span class="k">slope here</span><span class="v" style="color:var(--gold)" id="impSlope"></span></div>
+        <div class="callout show" id="impMsg" style="margin-top:10px"></div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="reveal">Every \(y\) is secretly a function of \(x\)</h2>
+  <p class="lead reveal">The whole method rests on one move. Because \(y\) depends on \(x\), differentiating any \(y\)-term needs the
+    <b>chain rule</b> &mdash; it picks up a factor of \(\frac{dy}{dx}\). An \(x\)-term doesn&rsquo;t. Practice spotting which is which.</p>
+
+  <div class="card reveal" id="chalCard" style="max-width:780px">
+    <div class="row" style="margin-bottom:10px">
+      <div class="qtag" id="chalProg">1 of 6</div>
+      <span class="score" id="chalScore">Score: 0 / 0</span>
+    </div>
+    <div class="qtext">Differentiate this term with respect to \(x\):</div>
+    <div class="bigeq" id="chalComp" style="margin:8px 0 16px"></div>
+    <div class="quiz-opts" id="chalOpts"></div>
+    <div class="feedback" id="chalFb"></div>
+    <div id="chalReveal"></div>
+    <button class="next" id="chalNext" style="margin-top:14px;width:100%;display:none">Next term &rarr;</button>
+  </div>
+
+  <h2 class="reveal">The process, in four moves</h2>
+  <div class="card reveal" style="max-width:820px">
+    <div class="bigeq" id="ruleEq"></div>
+    <p style="margin:14px 0 0;color:var(--muted);font-size:14.5px">Differentiate <b class="key">both sides</b> with respect to \(x\); every \(y\)-term gains a \(\frac{dy}{dx}\) from the chain rule while \(x\)-terms behave normally; <b class="key">gather</b> the \(\frac{dy}{dx}\) terms on one side; then <b class="key">factor and solve</b>. The two identities below are the only new thing &mdash; everything else is algebra.</p>
+    <div class="bigeq" id="ruleLeib" style="margin-top:14px"></div>
+  </div>
+
+  <h2 class="reveal">Worked example: the circle</h2>
+  <p class="lead reveal">Find \(\frac{dy}{dx}\) for \(x^2+y^2=25\). Press <b>step</b> to advance.</p>
+  <div class="grid reveal">
+    <div class="left">
+      <div class="card">
+        <div class="bigeq" id="wkLine"></div>
+        <div class="ctl" style="margin-top:12px">
+          <button class="play" id="wkStep">step &rarr;</button>
+          <button id="wkReset">&#8635; reset</button>
+          <span class="readout" id="wkRead">press step</span>
+        </div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="card whypanel"><div id="wkWork"></div></div>
+    </div>
+  </div>
+
+  <h2 class="reveal">A curve with a product term</h2>
+  <p class="lead reveal">The folium from the unit cover, \(x^3+y^3=6xy\), brings in a twist: the \(xy\) on the right needs the
+    <b>product rule</b> &mdash; and the \(y\)-factor still picks up its \(\frac{dy}{dx}\).</p>
+  <div class="card reveal" style="max-width:820px"><div id="nestWork"></div></div>
+
+  <h2 class="reveal">The whole idea on one card</h2>
+  <div class="anatomy reveal">
+    <div class="m-big" id="anatMain"></div>
+    <div class="maprow"><span class="ph">Differentiate both sides with respect to \(x\), leaving \(y\) as \(y(x)\)</span><span class="sy" id="anatA"></span></div>
+    <div class="maprow"><span class="ph">Each \(y\)-term gains a \(\frac{dy}{dx}\) from the chain rule; \(x\)-terms differentiate normally</span><span class="sy" id="anatB"></span></div>
+    <div class="maprow"><span class="ph">Collect every \(\frac{dy}{dx}\) term on one side, everything else on the other</span><span class="sy" id="anatC"></span></div>
+    <div class="maprow"><span class="ph">Factor out \(\frac{dy}{dx}\) and divide &mdash; the answer usually involves both \(x\) and \(y\)</span><span class="sy" id="anatD"></span></div>
+  </div>
+
+  <h2 class="reveal">The ideas everything else builds on</h2>
+  <div class="concepts reveal">
+    <div class="concept"><h3>Don&rsquo;t solve for \(y\)</h3><p>You differentiate the equation as it stands &mdash; no need to isolate \(y\) first.</p><div class="m" id="c1"></div></div>
+    <div class="concept"><h3>Every \(y\) gets a \(dy/dx\)</h3><p>It&rsquo;s the chain rule: \(y\) is a function of \(x\).</p><div class="m" id="c2"></div></div>
+    <div class="concept"><h3>\(x\)-terms are normal</h3><p>No \(\frac{dy}{dx}\) on a pure \(x\)-term; mixed \(xy\) needs the product rule.</p><div class="m" id="c3"></div></div>
+    <div class="concept"><h3>Then just solve</h3><p>Collect, factor, divide &mdash; the rest is algebra.</p><div class="m" id="c4"></div></div>
+  </div>
+
+  <h2 class="reveal">Your turn</h2>
+  <div class="reveal" id="practice"></div>
+
+  <h2 class="reveal">Quick quiz</h2>
+  <p class="lead reveal">Eight fast checks across the whole lesson.</p>
+  <div class="card reveal" id="quizCard">
+    <div class="row" style="margin-bottom:12px">
+      <div class="qtag" id="qProgress">Question 1 of 8</div>
+      <span class="score" id="qScore">Score: 0 / 0</span>
+    </div>
+    <div class="qtext" id="qText"></div>
+    <div class="quiz-opts" id="qOpts"></div>
+    <div class="feedback" id="qFb"></div>
+    <button class="next" id="qNext" style="margin-top:14px;width:100%;display:none">Next question &rarr;</button>
+  </div>
+
+  <h2 class="reveal">Common mistakes &amp; exam tips</h2>
+  <div class="mistakes reveal">
+    <div class="mistake"><h4>Forgetting the \(dy/dx\) on \(y\)-terms</h4><p>The defining error. \(\frac{d}{dx}(y^2)=2y\frac{dy}{dx}\), not \(2y\). Without that factor the whole method collapses.</p></div>
+    <div class="mistake"><h4>Treating \(y\) as a constant</h4><p>\(y\) is a function of \(x\), so it changes as \(x\) changes. That&rsquo;s exactly why its derivative isn&rsquo;t zero.</p></div>
+    <div class="mistake"><h4>Skipping the product rule on \(xy\)</h4><p>\(\frac{d}{dx}(xy)=y+x\frac{dy}{dx}\). The term is a product of two functions of \(x\), so the product rule applies.</p></div>
+    <div class="mistake"><h4>Trying to solve for \(y\) first</h4><p>For most implicit curves that&rsquo;s impossible or ugly. Differentiate the equation as written instead.</p></div>
+    <div class="mistake"><h4>Putting \(dy/dx\) on \(x\)-terms</h4><p>A pure \(x\)-term differentiates the ordinary way &mdash; no chain-rule factor.</p></div>
+  </div>
+  <div class="tipbox reveal">
+    <h4>On the AP exam</h4>
+    <ul>
+      <li>Every time you differentiate a \(y\), tack on \(\frac{dy}{dx}\). Then collect those terms and solve.</li>
+      <li>For a tangent line at a point, find \(\frac{dy}{dx}\) first, then substitute the point&rsquo;s \(x\) and \(y\).</li>
+      <li>A slope that comes out as \(\frac{0}{\text{something}}\) is a horizontal tangent; a zero in the denominator means a vertical tangent.</li>
+      <li>Mixed \(xy\) (or \(x^2y\), etc.) terms need the product rule &mdash; and the \(y\)-factor still carries its \(\frac{dy}{dx}\).</li>
+    </ul>
+  </div>
+  <div class="whatsnext reveal">
+    You can now differentiate any relation, solved for \(y\) or not. Next: a special, powerful case of exactly this idea &mdash;
+    differentiating a function&rsquo;s <b>inverse</b> by reflecting across \(y=x\), which hands you the derivatives of \(\arcsin\), \(\arctan\), and the rest.
+    <a href="inverse-derivatives.html">Inverse &amp; Inverse-Trig Derivatives</a> is next &mdash; or head back to the
+    <a href="unit3.html">Unit 3 Guide</a>.
+  </div>
+
+  <footer class="reveal">Implicit Differentiation · part of the Unit 3 guide · open in any browser, no install needed.</footer>
+</div>
+
+<script>
+const SVGNS="http://www.w3.org/2000/svg";
+const el=(t,a,txt)=>{const e=document.createElementNS(SVGNS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;};
+const T=(s)=>tex(s,s,false);
+const fmt=(v,d=2)=>{const s=v.toFixed(d); return s==="-0.00"?"0.00":s;};
+function shuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function mapper(dom,yr,W,H,P){ const x0=dom[0],x1=dom[1],y0=yr[0],y1=yr[1];
+  return { sx:x=>P+((x-x0)/(x1-x0))*(W-2*P), sy:v=>H-P-((v-y0)/(y1-y0))*(H-2*P), x0,x1,y0,y1 }; }
+function drawAxes(svg,M,W,H,P,xt,yt){ const sx=M.sx, sy=M.sy;
+  for(let g=0;g<=yt;g++){ const yy=M.y0+(g/yt)*(M.y1-M.y0), py=sy(yy);
+    svg.appendChild(el("line",{x1:P,y1:py,x2:W-P,y2:py,stroke:"#2b251a"}));
+    svg.appendChild(el("text",{x:P-6,y:py+3,fill:"#6b6457","font-size":9.5,"text-anchor":"end","font-family":"var(--mono)"},(+yy.toFixed(1)).toString())); }
+  for(let g=0;g<=xt;g++){ const xx=M.x0+(g/xt)*(M.x1-M.x0), px=sx(xx);
+    svg.appendChild(el("text",{x:px,y:H-P+14,fill:"#6b6457","font-size":9.5,"text-anchor":"middle","font-family":"var(--mono)"},(+xx.toFixed(1)).toString())); }
+  svg.appendChild(el("line",{x1:P,y1:sy(Math.max(0,M.y0)),x2:W-P,y2:sy(Math.max(0,M.y0)),stroke:"#4a4334","stroke-width":1.2}));
+  svg.appendChild(el("line",{x1:P,y1:sy(M.y1),x2:P,y2:sy(M.y0),stroke:"#4a4334","stroke-width":1.2}));
+}
+function curve(f,a,b,M,N=140){ let d="";
+  for(let k=0;k<=N;k++){ const x=a+(b-a)*k/N; d+=(k?"L":"M")+M.sx(x).toFixed(1)+" "+M.sy(f(x)).toFixed(1)+" "; }
+  return d; }
+const reduceMotion=()=> window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function mathify(html){ if(!window.katex) return html;
+  return html.replace(/\\\((.+?)\\\)/g,(m,t)=>{ try{ return katex.renderToString(t,{throwOnError:false}); }catch(e){ return m; } }); }
+function mathifyStatic(){ if(!window.katex) return;
+  document.querySelectorAll('.sub,.lead,.big-idea,.looking,.note,.maprow .ph,.mistake p,.tipbox li,.concept p,.whatsnext,.callout,.stat .k,.notadesc,.card > p,h2,h3,h4,.qtext,label').forEach(n=>{
+    if(n.dataset.mz) return;
+    if(n.innerHTML.indexOf('\\(')<0){ n.dataset.mz="1"; return; }
+    n.innerHTML=mathify(n.innerHTML); n.dataset.mz="1"; }); }
+
+const ACC="#f0843c", SEC="#67d4e8", DIM="#6b6457";
+
+/* ===================== 1 . DIFFERENTIATE-A-TERM CHALLENGE ===================== */
+const CHAL=[
+ {expr:"y^3", opts:["3y^2\\,\\dfrac{dy}{dx}","3y^2","3y^3","2y\\,\\dfrac{dy}{dx}"],
+  why:"\\(y\\) is a function of \\(x\\), so the chain rule applies: power rule gives \\(3y^2\\), then multiply by \\(\\frac{dy}{dx}\\)."},
+ {expr:"x^2", opts:["2x","2x\\,\\dfrac{dy}{dx}","x^2","2"],
+  why:"A pure \\(x\\)-term differentiates the ordinary way: \\(2x\\). There is no \\(\\frac{dy}{dx}\\) factor."},
+ {expr:"y", opts:["\\dfrac{dy}{dx}","1","y","y\\,\\dfrac{dy}{dx}"],
+  why:"\\(\\frac{d}{dx}(y)=\\frac{dy}{dx}\\) &mdash; that is literally what \\(\\frac{dy}{dx}\\) means."},
+ {expr:"5y", opts:["5\\,\\dfrac{dy}{dx}","5","5y","\\dfrac{dy}{dx}"],
+  why:"The constant rides along: \\(\\frac{d}{dx}(5y)=5\\frac{dy}{dx}\\)."},
+ {expr:"xy", opts:["y+x\\,\\dfrac{dy}{dx}","x\\,\\dfrac{dy}{dx}","\\dfrac{dy}{dx}","y"],
+  why:"A product of two functions of \\(x\\): product rule gives \\(y+x\\frac{dy}{dx}\\). The \\(y\\)-factor still picks up its \\(\\frac{dy}{dx}\\)."},
+ {expr:"x^3", opts:["3x^2","3x^2\\,\\dfrac{dy}{dx}","x^3","3x"],
+  why:"Pure \\(x\\)-term: \\(\\frac{d}{dx}(x^3)=3x^2\\), with no chain-rule factor."}
+];
+let chalI=0, chalScore=0, chalDone=0, chalAns=false;
+function renderChal(){
+  const card=document.getElementById("chalCard"); if(!card) return;
+  chalAns=false; const c=CHAL[chalI];
+  document.getElementById("chalProg").textContent=(chalI+1)+" of "+CHAL.length;
+  document.getElementById("chalScore").textContent="Score: "+chalScore+" / "+chalDone;
+  document.getElementById("chalComp").innerHTML=tex(c.expr,null,true);
+  document.getElementById("chalFb").innerHTML="";
+  document.getElementById("chalReveal").innerHTML="";
+  const nx=document.getElementById("chalNext"); nx.style.display="none";
+  nx.textContent = chalI<CHAL.length-1 ? "Next term \u2192" : "Start over \u21ba";
+  const opts=document.getElementById("chalOpts"); opts.innerHTML="";
+  const list=shuf(c.opts.map((t,i)=>({t:t,ok:i===0})));
+  list.forEach(o=>{ const b=document.createElement("button"); b.innerHTML=mathify("\\("+o.t+"\\)"); b._ok=o.ok;
+    b.onclick=()=>{ if(chalAns)return; chalAns=true; chalDone++;
+      [...opts.children].forEach(bb=>{ bb.disabled=true; if(bb._ok) bb.classList.add("correct"); });
+      if(o.ok) chalScore++; else b.classList.add("wrong");
+      document.getElementById("chalFb").innerHTML=(o.ok
+        ? '<span style="color:var(--conv);font-weight:600">\u2713 Yes.</span> '
+        : '<span style="color:var(--div);font-weight:600">\u2717 Not quite.</span> ')
+        + '<span style="color:var(--muted)">'+mathify(c.why)+'</span>';
+      document.getElementById("chalScore").textContent="Score: "+chalScore+" / "+chalDone;
+      nx.style.display="block";
+    };
+    opts.appendChild(b); });
+}
+(function(){ const nx=document.getElementById("chalNext"); if(!nx) return;
+  nx.onclick=()=>{ if(chalI<CHAL.length-1) chalI++; else { chalI=0; chalScore=0; chalDone=0; } renderChal(); }; })();
+
+/* ===================== 2 . SWAP-A-CURVE (signature) ===================== */
+const MV="#ffcf6b", MH="#8dd17a";
+const CURVES=[
+ {name:"Circle", eq:"x^2+y^2=25", form:"-\\dfrac{x}{y}", range:[-6,6],
+  pt:s=>{const th=2*Math.PI*s;return{x:5*Math.cos(th),y:5*Math.sin(th)};},
+  grad:(x,y)=>({fx:2*x,fy:2*y}),
+  spec:[{x:5,y:0,t:"v"},{x:-5,y:0,t:"v"},{x:0,y:5,t:"h"},{x:0,y:-5,t:"h"}]},
+ {name:"Ellipse", eq:"\\dfrac{x^2}{16}+\\dfrac{y^2}{4}=1", form:"-\\dfrac{x}{4y}", range:[-6,6],
+  pt:s=>{const th=2*Math.PI*s;return{x:4*Math.cos(th),y:2*Math.sin(th)};},
+  grad:(x,y)=>({fx:x/8,fy:y/2}),
+  spec:[{x:4,y:0,t:"v"},{x:-4,y:0,t:"v"},{x:0,y:2,t:"h"},{x:0,y:-2,t:"h"}]},
+ {name:"Folium", eq:"x^3+y^3=6xy", form:"\\dfrac{2y-x^2}{y^2-2x}", range:[-1.5,5.5],
+  pt:s=>{const ph=(Math.PI/2)*(0.025+0.95*s); const c=Math.cos(ph),si=Math.sin(ph); const r=6*c*si/(c*c*c+si*si*si); return{x:r*c,y:r*si};},
+  grad:(x,y)=>({fx:3*x*x-6*y,fy:3*y*y-6*x}),
+  spec:[{x:3.1748,y:2.5198,t:"v"},{x:2.5198,y:3.1748,t:"h"}]}
+];
+let impCurve=0, impS=0.12;
+function renderImp(){
+  const v=document.getElementById("impPlot"); if(!v) return;
+  const wrap=document.getElementById("impChips");
+  if(wrap && !wrap.children.length){ CURVES.forEach((c,i)=>{ const b=document.createElement("button"); b.textContent=c.name;
+    b.onclick=()=>{ impCurve=i; impS=0.12; const sl=document.getElementById("impA"); if(sl) sl.value=impS; renderImp(); }; wrap.appendChild(b); }); }
+  if(wrap) [...wrap.children].forEach((b,i)=>b.classList.toggle("on", i===impCurve));
+  const cur=CURVES[impCurve]; v.innerHTML="";
+  const W=320,H=320,P=30; const M=mapper(cur.range,cur.range,W,H,P);
+  drawAxes(v,M,W,H,P,6,6);
+  if(impCurve===2){ v.appendChild(el("line",{x1:M.sx(cur.range[0]),y1:M.sy(cur.range[0]),x2:M.sx(cur.range[1]),y2:M.sy(cur.range[1]),stroke:DIM,"stroke-width":1,"stroke-dasharray":"3 5",opacity:.45})); }
+  let d=""; const N=260; for(let k=0;k<=N;k++){ const p=cur.pt(k/N); d+=(k?"L":"M")+M.sx(p.x).toFixed(1)+" "+M.sy(p.y).toFixed(1)+" "; }
+  v.appendChild(el("path",{d:d,fill:"none",stroke:ACC,"stroke-width":2.6,"stroke-linecap":"round"}));
+  const pp=cur.pt(impS), g=cur.grad(pp.x,pp.y);
+  cur.spec.forEach(sp=>{ const near=Math.hypot(sp.x-pp.x,sp.y-pp.y)<0.7, col=sp.t==="v"?MV:MH;
+    v.appendChild(el("circle",{cx:M.sx(sp.x),cy:M.sy(sp.y),r:near?6.5:4,fill:near?col:"none",stroke:col,"stroke-width":near?2.4:1.5,opacity:near?1:.6})); });
+  let dx=g.fy, dy=-g.fx; const nn=Math.hypot(dx,dy)||1; dx/=nn; dy/=nn; const L=(impCurve===2)?2.4:4.6;
+  v.appendChild(el("line",{x1:M.sx(pp.x-dx*L),y1:M.sy(pp.y-dy*L),x2:M.sx(pp.x+dx*L),y2:M.sy(pp.y+dy*L),stroke:SEC,"stroke-width":2.2}));
+  v.appendChild(el("circle",{cx:M.sx(pp.x),cy:M.sy(pp.y),r:5.5,fill:SEC}));
+  document.getElementById("impEq").innerHTML=T(cur.eq);
+  document.getElementById("impForm").innerHTML=T(cur.form);
+  document.getElementById("impPt").textContent="("+fmt(pp.x,2)+", "+fmt(pp.y,2)+")";
+  const vert=Math.abs(g.fy)<1e-4, slope=vert?null:-g.fx/g.fy, horiz=(!vert)&&Math.abs(slope)<0.03;
+  document.getElementById("impSlope").textContent = vert?"undefined":(fmt(slope,3)+(horiz?"  (horizontal)":""));
+  document.getElementById("impMsg").innerHTML = vert
+    ? mathify("A <b style=\"color:#ffcf6b\">vertical tangent</b> &mdash; \\(\\frac{dy}{dx}\\) is undefined here. You could never even describe this point with \\(y=f(x)\\).")
+    : horiz
+    ? mathify("A <b style=\"color:#8dd17a\">horizontal tangent</b> &mdash; the numerator of \\(\\frac{dy}{dx}\\) is zero, so the slope is \\(0\\).")
+    : mathify("\\(\\frac{dy}{dx}="+cur.form+"="+fmt(slope,3)+"\\) &mdash; read straight from the equation, with no solving for \\(y\\).");
+}
+(function(){ const sl=document.getElementById("impA"); if(!sl) return;
+  sl.addEventListener("input",e=>{ impS=+e.target.value; renderImp(); }); })();
+
+/* ===================== 3 . THE PROCESS ===================== */
+function renderRule(){
+  const a=document.getElementById("ruleEq"); if(a) a.innerHTML=tex("\\frac{d}{dx}\\big[\\text{equation in }x,y\\big]\\ \\Longrightarrow\\ \\text{solve for }\\frac{dy}{dx}",null,true);
+  const b=document.getElementById("ruleLeib"); if(b) b.innerHTML=tex("\\frac{d}{dx}(y)=\\frac{dy}{dx}\\qquad\\frac{d}{dx}\\big(y^n\\big)=n\\,y^{\\,n-1}\\frac{dy}{dx}",null,true);
+}
+
+/* ===================== 4 . WORKED: THE CIRCLE ===================== */
+const WK=[
+ {t:"Differentiate both sides with respect to \\(x\\):", m:"\\frac{d}{dx}(x^2+y^2)=\\frac{d}{dx}(25)"},
+ {t:"\\(x^2\\to 2x\\); \\(y^2\\to 2y\\frac{dy}{dx}\\) by the chain rule; \\(25\\to 0\\):", m:"2x+2y\\frac{dy}{dx}=0"},
+ {t:"Isolate the \\(\\frac{dy}{dx}\\) term:", m:"2y\\frac{dy}{dx}=-2x"},
+ {t:"Divide to solve:", m:"\\frac{dy}{dx}=-\\frac{x}{y}"}
+];
+let wkN=0;
+function renderWk(){
+  const line=document.getElementById("wkLine"), read=document.getElementById("wkRead"), panel=document.getElementById("wkWork");
+  if(!line) return;
+  line.innerHTML=tex(wkN===0?"x^2+y^2=25":WK[Math.min(wkN,WK.length)-1].m,null,true);
+  if(wkN===0){ panel.innerHTML='<div class="why-t" style="color:var(--muted)">Differentiate both sides, let \\(y^2\\) pick up its \\(\\frac{dy}{dx}\\), then solve.</div>'; read.textContent="press step"; }
+  else { panel.innerHTML=mathify(WK.slice(0,wkN).map((st,j)=>'<div class="why-step"><div class="why-n">'+(j+1)+'</div><div><div class="why-t">'+st.t+'</div><div class="why-m">'+T(st.m)+'</div></div></div>').join(""));
+    read.textContent = wkN>=WK.length ? "done \u2713" : "step "+wkN+" of "+WK.length; }
+}
+(function(){ const st=document.getElementById("wkStep"), rs=document.getElementById("wkReset"); if(!st) return;
+  st.onclick=()=>{ if(wkN<WK.length){wkN++;renderWk();} };
+  rs.onclick=()=>{ wkN=0; renderWk(); }; })();
+
+/* ===================== 5 . FOLIUM (static) ===================== */
+function renderNest(){
+  const p=document.getElementById("nestWork"); if(!p) return;
+  const rows=[
+   {t:"Differentiate both sides. On the right, \\(6xy\\) is a product, so use the product rule:", m:"3x^2+3y^2\\frac{dy}{dx}=6\\Big(y+x\\frac{dy}{dx}\\Big)"},
+   {t:"Expand the right side:", m:"3x^2+3y^2\\frac{dy}{dx}=6y+6x\\frac{dy}{dx}"},
+   {t:"Gather the \\(\\frac{dy}{dx}\\) terms on one side:", m:"3y^2\\frac{dy}{dx}-6x\\frac{dy}{dx}=6y-3x^2"},
+   {t:"Factor out \\(\\frac{dy}{dx}\\) and divide:", m:"\\frac{dy}{dx}=\\frac{6y-3x^2}{3y^2-6x}=\\frac{2y-x^2}{y^2-2x}"}
+  ];
+  p.innerHTML=mathify(rows.map((st,j)=>'<div class="why-step"><div class="why-n">'+(j+1)+'</div><div><div class="why-t">'+st.t+'</div><div class="why-m">'+T(st.m)+'</div></div></div>').join(""));
+}
+
+/* ===================== 6 . ANATOMY ===================== */
+function renderAnatomy(){
+  const main=document.getElementById("anatMain"); if(main) main.innerHTML=tex("x^2+y^2=25\\ \\Longrightarrow\\ \\frac{dy}{dx}=-\\frac{x}{y}",null,true);
+  const set=[["anatA","\\tfrac{d}{dx}\\,[\\,\\cdots\\,]"],["anatB","y^2\\to 2y\\tfrac{dy}{dx}"],["anatC","\\text{collect }\\tfrac{dy}{dx}"],["anatD","\\tfrac{dy}{dx}=-\\tfrac{x}{y}"]];
+  set.forEach(([id,tx])=>{ const e=document.getElementById(id); if(e) e.innerHTML=tex(tx,tx,false); });
+}
+
+/* ===================== 7 . CONCEPT CARDS ===================== */
+function renderConcepts(){
+  const set=[["c1","x^2+y^2=25","leave it implicit"],
+   ["c2","y^2\\to 2y\\tfrac{dy}{dx}","chain rule on y"],
+   ["c3","\\tfrac{d}{dx}(xy)=y+x\\tfrac{dy}{dx}","product rule"],
+   ["c4","\\tfrac{dy}{dx}=-\\tfrac{x}{y}","then solve"]];
+  set.forEach(([id,tx,fb])=>{ const e=document.getElementById(id); if(e) e.innerHTML=tex(tx,fb||tx); });
+}
+
+/* ===================== practice ===================== */
+const PRAC=[
+ { tag:"Circle", q:()=>'Find \\(\\frac{dy}{dx}\\) for \\(x^2+y^2=16\\).',
+   sol:[{t:"Differentiate both sides:",m:"2x+2y\\frac{dy}{dx}=0"},{t:"Solve:",m:"\\frac{dy}{dx}=-\\frac{x}{y}"}] },
+ { tag:"Product term", q:()=>'Find \\(\\frac{dy}{dx}\\) for \\(xy=4\\).',
+   sol:[{t:"Product rule on the left, \\(0\\) on the right:",m:"y+x\\frac{dy}{dx}=0"},{t:"Solve:",m:"\\frac{dy}{dx}=-\\frac{y}{x}"}] },
+ { tag:"Mixed powers", q:()=>'Find \\(\\frac{dy}{dx}\\) for \\(y^2=x^3+1\\).',
+   sol:[{t:"Differentiate; \\(y^2\\) gains a \\(\\frac{dy}{dx}\\):",m:"2y\\frac{dy}{dx}=3x^2"},{t:"Solve:",m:"\\frac{dy}{dx}=\\frac{3x^2}{2y}"}] },
+ { tag:"Tangent slope", q:()=>'For \\(x^2+y^2=25\\), find the slope at \\((3,4)\\).',
+   sol:[{t:"The circle gives \\(\\frac{dy}{dx}=-\\frac{x}{y}\\):",m:"\\frac{dy}{dx}=-\\frac{x}{y}"},{t:"Substitute \\((3,4)\\):",m:"=-\\frac{3}{4}"}] },
+ { tag:"Both rules", q:()=>'Find \\(\\frac{dy}{dx}\\) for \\(x^2+xy+y^2=7\\).',
+   sol:[{t:"Differentiate; the \\(xy\\) needs the product rule:",m:"2x+\\Big(y+x\\frac{dy}{dx}\\Big)+2y\\frac{dy}{dx}=0"},
+        {t:"Collect the \\(\\frac{dy}{dx}\\) terms:",m:"(x+2y)\\frac{dy}{dx}=-(2x+y)"},
+        {t:"Solve:",m:"\\frac{dy}{dx}=-\\frac{2x+y}{x+2y}"}] }
+];
+function renderPractice(){
+  document.getElementById("practice").innerHTML=mathify(PRAC.map((p,i)=>{
+    const steps=p.sol.map((st,j)=>'<div class="why-step"><div class="why-n">'+(j+1)+'</div><div><div class="why-t">'+st.t+'</div>'+(st.m?'<div class="why-m">'+T(st.m)+'</div>':'')+'</div></div>').join("");
+    return '<div class="prob"><div class="prob-tag">'+p.tag+'</div><div class="prob-q">'+p.q()+'</div>'
+      +'<button class="soltoggle" data-i="'+i+'">Show solution</button><div class="sol" id="sol'+i+'">'+steps+'</div></div>';
+  }).join(""));
+  document.querySelectorAll(".soltoggle").forEach(btn=>{ btn.onclick=()=>{ const i=btn.getAttribute("data-i"), so=document.getElementById("sol"+i);
+    btn.textContent=so.classList.toggle("show")?"Hide solution":"Show solution"; }; });
+}
+
+/* ===================== quiz ===================== */
+const QUIZ=[
+ { q:()=>'In implicit differentiation, you treat \\(y\\) as &hellip;',
+   opts:[{h:()=>"a function of \\(x\\)",ok:true},{h:()=>"a constant",ok:false},{h:()=>"equal to \\(x\\)",ok:false},{h:()=>"zero",ok:false}],
+   fb:"\\(y\\) depends on \\(x\\), which is why differentiating it yields \\(\\frac{dy}{dx}\\)." },
+ { q:()=>'\\(\\dfrac{d}{dx}(y^3)=\\)',
+   opts:[{h:()=>"\\(3y^2\\frac{dy}{dx}\\)",ok:true},{h:()=>"\\(3y^2\\)",ok:false},{h:()=>"\\(3y^3\\)",ok:false},{h:()=>"\\(y^2\\frac{dy}{dx}\\)",ok:false}],
+   fb:"Power rule then chain rule: \\(3y^2\\) times \\(\\frac{dy}{dx}\\)." },
+ { q:()=>'\\(\\dfrac{d}{dx}(x^2)=\\)',
+   opts:[{h:()=>"\\(2x\\)",ok:true},{h:()=>"\\(2x\\frac{dy}{dx}\\)",ok:false},{h:()=>"\\(x^2\\)",ok:false},{h:()=>"\\(2\\)",ok:false}],
+   fb:"Pure \\(x\\)-term &mdash; no \\(\\frac{dy}{dx}\\) factor." },
+ { q:()=>'After differentiating both sides, the final step is to &hellip;',
+   opts:[{h:()=>"solve for \\(\\frac{dy}{dx}\\)",ok:true},{h:()=>"solve for \\(y\\)",ok:false},{h:()=>"set \\(x=0\\)",ok:false},{h:()=>"integrate",ok:false}],
+   fb:"Collect the \\(\\frac{dy}{dx}\\) terms, factor, and divide." },
+ { q:()=>'For \\(x^2+y^2=r^2\\), \\(\\dfrac{dy}{dx}=\\)',
+   opts:[{h:()=>"\\(-\\frac{x}{y}\\)",ok:true},{h:()=>"\\(-\\frac{y}{x}\\)",ok:false},{h:()=>"\\(\\frac{x}{y}\\)",ok:false},{h:()=>"\\(\\frac{2x}{2y}\\)",ok:false}],
+   fb:"\\(2x+2y\\frac{dy}{dx}=0\\Rightarrow\\frac{dy}{dx}=-\\frac{x}{y}\\)." },
+ { q:()=>'\\(\\dfrac{d}{dx}(xy)=\\)',
+   opts:[{h:()=>"\\(y+x\\frac{dy}{dx}\\)",ok:true},{h:()=>"\\(\\frac{dy}{dx}\\)",ok:false},{h:()=>"\\(x\\frac{dy}{dx}\\)",ok:false},{h:()=>"\\(1+\\frac{dy}{dx}\\)",ok:false}],
+   fb:"Product rule: \\(y\\cdot1+x\\frac{dy}{dx}\\)." },
+ { q:()=>'Why does \\(y^2\\) become \\(2y\\frac{dy}{dx}\\) rather than just \\(2y\\)?',
+   opts:[{h:()=>"the chain rule, since \\(y\\) is a function of \\(x\\)",ok:true},{h:()=>"the product rule",ok:false},{h:()=>"the quotient rule",ok:false},{h:()=>"a sign error",ok:false}],
+   fb:"\\(y\\) depends on \\(x\\); the chain rule supplies the extra \\(\\frac{dy}{dx}\\)." },
+ { q:()=>'\\(x^2+y^2=25\\) has a vertical tangent where &hellip;',
+   opts:[{h:()=>"\\(y=0\\)",ok:true},{h:()=>"\\(x=0\\)",ok:false},{h:()=>"\\(x=y\\)",ok:false},{h:()=>"never",ok:false}],
+   fb:"\\(\\frac{dy}{dx}=-\\frac{x}{y}\\) is undefined at \\(y=0\\) &mdash; the points \\((\\pm5,0)\\)." }
+];
+let qi=0,qScore=0,qDone=0,qAnswered=false;
+const qOpts=document.getElementById("qOpts"), qFb=document.getElementById("qFb"), qNext=document.getElementById("qNext");
+function renderQuiz(){
+  qAnswered=false; const item=QUIZ[qi];
+  document.getElementById("qText").innerHTML=mathify(item.q());
+  document.getElementById("qProgress").textContent="Question "+(qi+1)+" of "+QUIZ.length;
+  document.getElementById("qScore").textContent="Score: "+qScore+" / "+qDone;
+  qFb.innerHTML=""; qNext.style.display="none";
+  qNext.textContent = qi<QUIZ.length-1 ? "Next question \u2192" : "Restart quiz \u21ba";
+  qOpts.innerHTML="";
+  const sopts=shuf(item.opts);
+  sopts.forEach((o)=>{ const b=document.createElement("button"); b.innerHTML=mathify(o.h());
+    b.onclick=()=>{ if(qAnswered)return; qAnswered=true; qDone++;
+      [...qOpts.children].forEach((bb,k)=>{ bb.disabled=true; if(sopts[k].ok) bb.classList.add("correct"); });
+      if(o.ok){ qScore++; b.classList.add("correct"); qFb.innerHTML='<span style="color:var(--conv);font-weight:600">\u2713 Correct.</span> <span style="color:var(--muted)">'+mathify(item.fb)+'</span>'; }
+      else { b.classList.add("wrong"); qFb.innerHTML='<span style="color:var(--div);font-weight:600">\u2717 Not quite.</span> <span style="color:var(--muted)">'+mathify(item.fb)+'</span>'; }
+      document.getElementById("qScore").textContent="Score: "+qScore+" / "+qDone;
+      qNext.style.display="block"; };
+    qOpts.appendChild(b); });
+}
+if(qNext) qNext.onclick=()=>{ if(qi<QUIZ.length-1){ qi++; } else { qi=0; qScore=0; qDone=0; } renderQuiz(); };
+
+/* ===================== init ===================== */
+function refreshAll(){ renderChal(); renderImp(); renderRule(); renderWk(); renderNest(); renderAnatomy(); renderConcepts(); renderPractice(); renderQuiz(); mathifyStatic(); }
+renderChal(); renderImp(); renderRule(); renderWk(); renderNest(); renderAnatomy(); renderConcepts(); renderPractice(); renderQuiz(); mathifyStatic();
+if(!window.katex){ let n=0; const t=setInterval(()=>{ if(window.katex){ clearInterval(t); refreshAll(); } else if(++n>40) clearInterval(t); },150); }
+document.querySelectorAll('.reveal').forEach((n,i)=>{ n.style.animationDelay=Math.min(i*30,440)+'ms'; });
+
+</script>
+</body>
+</html>

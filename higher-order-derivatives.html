@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Higher-Order Derivatives · Unit 3</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%231c0f18%27%2F%3E%3Cpath%20d%3D%27M5%2024%20C%2011%2022%2C%2017%2016%2C%2026%208%27%20stroke%3D%27%23f0843c%27%20stroke-width%3D%272.4%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%3Ccircle%20cx%3D%2719%27%20cy%3D%2713.8%27%20r%3D%272.6%27%20fill%3D%27%231c0f18%27%20stroke%3D%27%23f3a1cf%27%20stroke-width%3D%272%27%2F%3E%3C%2Fsvg%3E" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<style>
+/* ============================================================
+   shared base styles — Unit 10 guide (tool pages)
+   The universal dark palette, fonts, and core chrome.
+   Each page sets its own accent in a small :root override AFTER
+   linking this file:  --approx, --gold, --true, --glow, --wrap-max
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Spline+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap');
+
+:root{
+  /* universal dark palette (same on every page) */
+  --bg:#0d0c0a; --panel:#1a1813; --panel-2:#211e18; --ink:#ece7dd; --muted:#9a9183;
+  --line:#332e25; --line-2:#453f33; --conv:#3fd0b0; --div:#e0644f; --faint:#6b6457;
+  /* fonts */
+  --display:'Fraunces',Georgia,serif; --body:'Spline Sans',system-ui,sans-serif;
+  --mono:'Spline Sans Mono',ui-monospace,Menlo,monospace;
+  /* per-page accents have sensible fallbacks; pages override these */
+  --approx:#e8a13c; --gold:#e8a13c; --true:#3fd0b0;
+  --glow:rgba(232,161,60,.08);   /* hero glow tint, per page */
+  --wrap-max:1060px;             /* content column width, per page */
+}
+
+*{box-sizing:border-box}
+
+body{margin:0;
+  background:radial-gradient(ellipse 60% 50% at 15% -8%, var(--glow), transparent 55%), var(--bg);
+  color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased;
+  padding:30px 18px;line-height:1.6}
+
+.wrap{max-width:var(--wrap-max);margin:0 auto}
+
+.backlink{display:inline-block;font-family:var(--mono);font-size:12.5px;color:var(--muted);
+  text-decoration:none;margin-bottom:18px;padding:5px 11px;border:1px solid var(--line);
+  border-radius:20px;background:var(--panel);transition:border-color .15s,color .15s,transform .15s}
+.backlink:hover{border-color:var(--gold);color:var(--ink);transform:translateX(-2px)}
+
+header{margin-bottom:8px}
+h1{font-family:var(--display);font-weight:600;font-size:32px;margin:0;letter-spacing:-0.02em;line-height:1.05}
+h1 .em{color:var(--approx)}
+
+/* math renders in the light ink color on the dark background */
+.katex{color:var(--ink)}
+
+</style>
+
+<script>
+/* fallback for previewing without helpers.js — the repo's helpers.js takes precedence when present */
+if(typeof tex==="undefined"){
+  window.tex=function(latex,fallback,display){
+    if(window.katex){ try{ return katex.renderToString(latex,{displayMode:!!display,throwOnError:false}); }catch(e){} }
+    return '<span class="tex-fallback">'+(fallback||latex)+'</span>';
+  };
+}
+</script>
+<style>
+  :root{ --approx:#f0843c; --gold:#67d4e8; --true:#f0843c;
+         --glow:rgba(240,132,60,.10); --wrap-max:1060px; }
+  .sub{color:var(--muted);font-size:15px;margin-top:8px;max-width:640px}
+  h2{font-family:var(--display);font-weight:600;font-size:21px;margin:40px 0 8px;letter-spacing:-0.01em}
+  p.lead{font-size:15.5px;max-width:700px;margin:8px 0}
+  .big-idea{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:18px;max-width:780px}
+  .big-idea b{color:var(--approx)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -26px rgba(0,0,0,.7)}
+  .grid{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;margin-top:14px}
+  .left{flex:1 1 560px;min-width:300px}
+  .right{flex:1 1 270px;min-width:240px}
+  svg{width:100%;display:block;border-radius:10px}
+  .label{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  .series-btns{display:flex;flex-direction:column;gap:8px}
+  button{font-family:var(--body);cursor:pointer;border-radius:9px;border:1px solid var(--line);
+    background:var(--panel-2);color:var(--ink);padding:10px 13px;font-size:13.5px;text-align:left;
+    transition:transform .14s,border-color .14s,background .14s}
+  button:hover{border-color:var(--gold);transform:translateY(-1px)}
+  button:active{transform:translateY(0) scale(.99)}
+  button.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+  button.on .katex,button.on .sb-name{color:#16140f}
+  button:disabled{opacity:.4;cursor:default;transform:none}
+  button:disabled:hover{border-color:var(--line);transform:none}
+  .sb-name{font-weight:600;font-size:13.5px}
+  .sb-sub{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+  button.on .sb-sub{color:#6b6457}
+  .controls{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
+  .play{background:var(--approx);color:#fff;border-color:var(--approx);font-weight:600;text-align:center;
+    box-shadow:0 8px 18px -10px var(--approx)}
+  .play:hover{filter:brightness(1.06)}
+  .readout{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+  .callout{margin-top:12px;font-size:13.5px;min-height:20px;color:var(--ink);
+    border-left:3px solid var(--gold);padding-left:12px;opacity:0;transition:opacity .3s}
+  .callout.show{opacity:1}
+  .whypanel .why-title{font-family:var(--display);font-weight:600;font-size:16px;margin-bottom:4px}
+  .why-step{display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .why-step:last-child{border-bottom:none}
+  .why-n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--bg);color:var(--muted);
+    font-family:var(--mono);font-size:11px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .why-t{font-size:13px;line-height:1.5}
+  .why-m{margin-top:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:7px 10px;overflow-x:auto}
+  .stat{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .stat:last-child{border-bottom:none}
+  .stat .k{color:var(--muted)}
+  .stat .v{font-family:var(--mono);color:var(--ink)}
+  .sumline{margin-top:12px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
+    padding:12px 14px;overflow-x:auto;min-height:46px;font-size:14px}
+  .anatomy{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;max-width:820px}
+  .anatomy .m-big{text-align:center;padding:8px 0 14px;overflow-x:auto}
+  .m-big{text-align:center;padding:8px 0 14px;overflow-x:auto}
+  .maprow{display:flex;gap:14px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  .maprow:last-child{border-bottom:none}
+  .maprow .ph{color:var(--ink);flex:1 1 auto;line-height:1.45}
+  .maprow .sy{font-family:var(--mono);color:var(--muted);flex:none}
+  .concepts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+  @media(max-width:680px){.concepts{grid-template-columns:1fr}}
+  .concept{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;
+    transition:transform .2s,box-shadow .2s}
+  .concept:hover{transform:translateY(-3px);box-shadow:0 16px 30px -20px rgba(43,41,37,.45)}
+  .concept h3{font-family:var(--display);font-size:16px;margin:0 0 6px}
+  .concept p{font-size:13.5px;margin:6px 0;color:var(--ink)}
+  .concept .m{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:8px;text-align:center;overflow-x:auto}
+  .key{color:var(--approx);font-weight:600}
+  .whatsnext{max-width:700px;margin-top:18px;font-size:14px;color:var(--muted);
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+  .whatsnext a{color:var(--approx);text-decoration:none;font-weight:600}
+  .whatsnext a:hover{text-decoration:underline}
+  footer{color:var(--muted);font-size:12px;margin-top:44px;border-top:1px solid var(--line);padding-top:14px}
+  @keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .reveal{opacity:0;animation:riseIn .6s cubic-bezier(.2,.7,.2,1) forwards}
+  .tex-fallback{font-family:var(--mono);font-size:13px}
+  button:focus-visible, a:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:8px}
+  @media (prefers-reduced-motion:reduce){.reveal{animation:none;opacity:1}*{transition:none!important}}
+  .prob{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:14px}
+  .prob-tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--approx);font-weight:600}
+  .prob-q{font-size:14.5px;line-height:1.65;margin:6px 0 12px}
+  .soltoggle{font-size:13px;padding:7px 14px}
+  .sol{display:none;margin-top:12px;border-top:1px solid var(--line);padding-top:6px}
+  .sol.show{display:block}
+  .mistakes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  @media(max-width:680px){.mistakes{grid-template-columns:1fr}}
+  .mistake{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--div);border-radius:10px;padding:13px 16px}
+  .mistake h4{margin:0 0 4px;font-size:14px;font-family:var(--display)}
+  .mistake p{margin:0;font-size:13px;color:var(--muted);line-height:1.55}
+  .tipbox{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:14px 18px;max-width:780px}
+  .tipbox h4{margin:0 0 8px;font-size:14px;font-family:var(--display);color:var(--approx)}
+  .tipbox ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:var(--ink)}
+  .tipbox li{margin:5px 0}
+  .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .qtag{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .qtext{font-size:15px;font-weight:600;margin-bottom:12px;line-height:1.5}
+  .quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:520px){.quiz-opts{grid-template-columns:1fr}}
+  .quiz-opts button{font-size:14px;padding:11px 14px}
+  .quiz-opts button.correct{background:rgba(63,208,176,.16);border-color:var(--conv);color:var(--conv)}
+  .quiz-opts button.wrong{background:rgba(224,100,79,.16);border-color:var(--div);color:var(--div)}
+  .quiz-opts button:disabled{cursor:default;opacity:.92}
+  .quiz-opts button:disabled:hover{transform:none;border-color:var(--line)}
+  .quiz-opts button.correct:disabled:hover{border-color:var(--conv)}
+  .quiz-opts button.wrong:disabled:hover{border-color:var(--div)}
+  .feedback{margin-top:14px;font-size:14px;min-height:24px;line-height:1.5}
+  .score{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .next{background:var(--approx);color:#fff;border-color:var(--approx);font-weight:600;text-align:center;box-shadow:0 8px 18px -10px var(--approx)}
+  .next:hover{filter:brightness(1.06);border-color:var(--approx)}
+  .bc-badge{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:#0d1330;
+    background:var(--approx);border-radius:14px;padding:3px 11px;font-weight:600;vertical-align:middle;margin-left:10px}
+  /* tabular method table */
+  .ttab{border-collapse:collapse;margin:6px auto;font-size:15px}
+  .ttab th{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted);font-weight:500;
+    padding:6px 18px;border-bottom:1px solid var(--line)}
+  .ttab td{padding:9px 18px;text-align:center;font-size:15.5px}
+  .ttab td.sg{color:var(--approx);font-family:var(--mono);font-weight:600;font-size:14px}
+  .ttab td.ar{color:var(--true);font-family:var(--mono);font-size:15px;padding:0 4px}
+  .ttab tr.fresh td{animation:riseIn .4s cubic-bezier(.2,.7,.2,1)}
+
+  .looking{font-size:12px;color:var(--muted);font-style:italic;margin-top:8px;line-height:1.5}
+  .looking b{color:var(--ink);font-style:normal}
+  .reader{margin-top:10px;background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--gold);
+    border-radius:8px;padding:9px 12px;font-size:13px;color:var(--muted)}
+  .reader b{color:var(--ink)}
+  .vtable{border-collapse:collapse;margin:8px auto 0;font-family:var(--mono);font-size:13px}
+  .vtable th{font-size:10.5px;letter-spacing:.06em;color:var(--muted);font-weight:500;padding:4px 16px;border-bottom:1px solid var(--line)}
+  .vtable td{padding:5px 16px;text-align:center;color:var(--ink)}
+  .vtable tr.fresh td{animation:riseIn .4s cubic-bezier(.2,.7,.2,1)}
+  .vtable td.hot{color:var(--approx);font-weight:600}
+
+  /* data table for the estimate-from-a-table interactive */
+  .dtable{border-collapse:collapse;width:100%;margin-top:6px;font-family:var(--mono);font-size:14px}
+  .dtable th,.dtable td{border:1px solid var(--line);padding:9px 6px;text-align:center;min-width:38px}
+  .dtable th:first-child,.dtable td:first-child{text-align:left;color:var(--muted);font-weight:600;background:rgba(255,255,255,.02)}
+  .dtable thead th{color:var(--muted)}
+  .dtable .sel{background:rgba(240,132,60,.16);color:var(--gold);font-weight:700;border-color:var(--gold)}
+  .picker{font-family:var(--mono);font-size:14px;background:var(--panel);color:var(--ink);
+    border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer}
+  .picker:focus{outline:none;border-color:var(--gold)}
+
+  .exsel{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 14px}
+  .exsel button{font-family:var(--mono);font-size:14px;color:var(--muted);background:var(--panel);
+    border:1px solid var(--line);border-radius:10px;padding:7px 14px;cursor:pointer;transition:border-color .2s,color .2s,background .2s}
+  .exsel button:hover{border-color:var(--approx);color:var(--ink)}
+  .exsel button.on{border-color:var(--approx);background:rgba(240,132,60,.14);color:var(--ink)}
+  .exsel button.on .katex{color:var(--ink)}
+  .trigref{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+  .trigcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 14px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+  .trigcard .ta{color:var(--gold);font-size:17px;font-weight:600}
+  @media(max-width:680px){.trigref{grid-template-columns:1fr}}
+
+  /* ---- higher-order: stacked-panel interactives (cascade + motion) ---- */
+  .stack-wrap{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 14px 10px;
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -26px rgba(0,0,0,.7);margin-top:14px}
+  .stack-wrap svg{touch-action:none;user-select:none}
+  .stk-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 4px 2px}
+  .stk-bar button{font-family:var(--mono);font-size:12.5px;padding:8px 12px;text-align:center}
+  .stk-bar button.toggle.on{border-color:var(--gold);color:var(--gold);background:rgba(103,212,232,.10)}
+  .stk-rd{font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:auto;display:flex;gap:13px;flex-wrap:wrap}
+  .stk-rd b{font-weight:500}
+  .stk-legend{display:flex;flex-wrap:wrap;gap:13px;margin:9px 6px 0;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+  .stk-legend span{display:inline-flex;align-items:center;gap:6px}
+  .dotk{width:10px;height:10px;border-radius:3px;display:inline-block}
+  .cap{font-size:13px;color:var(--faint);font-family:var(--mono);margin:12px 6px 0;text-align:center;line-height:1.5}
+  .cap b{color:var(--muted);font-weight:500}
+  /* ---- pattern ladder ---- */
+  .pat-pick{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 14px}
+  .pat-pick button{font-family:var(--mono);font-size:14px;color:var(--muted);background:var(--panel);
+    border:1px solid var(--line);border-radius:10px;padding:7px 14px}
+  .pat-pick button.on{border-color:var(--approx);background:rgba(240,132,60,.14);color:var(--ink)}
+  .pat-pick button.on .katex{color:var(--ink)}
+  .ladder{display:flex;flex-direction:column;gap:0}
+  .lrow{display:flex;align-items:center;gap:14px;padding:9px 12px;border-bottom:1px solid var(--line);
+    opacity:.5;transition:opacity .3s,background .3s,border-color .3s;border-left:3px solid transparent}
+  .lrow:last-child{border-bottom:none}
+  .lrow.live{opacity:1;background:rgba(240,132,60,.06);border-left-color:var(--approx)}
+  .lrow.cyc{border-left-color:var(--gold)}
+  .ln{font-family:var(--mono);font-size:12px;color:var(--muted);flex:none;width:54px}
+  .lm{font-size:16px;overflow-x:auto}
+  .pat-note{margin-top:12px;font-size:13.5px;color:var(--ink);border-left:3px solid var(--gold);padding-left:12px;min-height:20px}
+  .pat-note b{color:var(--approx)}
+  /* notation reference */
+  .notation{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+  @media(max-width:680px){.notation{grid-template-columns:1fr}}
+  .ncard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px 16px}
+  .ncard .nt{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--approx);font-weight:600;margin-bottom:8px}
+  .ncard .nr{font-size:15px;padding:5px 0;border-bottom:1px solid var(--line);text-align:center}
+  .ncard .nr:last-child{border-bottom:none}
+
+  /* ---- staged-reveal interactive chrome (cascade + ride v2) ---- */
+  .svz{margin-top:2px}
+  .svz .guide{display:flex;gap:12px;align-items:flex-start;margin:16px 4px 2px;min-height:44px}
+  .svz .badge{flex:none;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:600;color:#16140f;margin-top:1px;transition:background .3s}
+  .svz .gtext{font-size:14.5px;line-height:1.5;color:var(--ink)}
+  .svz .gtext b{color:var(--ink)}
+  .svz .rd{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin:12px 6px 0;display:flex;flex-direction:column;gap:5px}
+  .svz .rd .line{display:flex;gap:10px;align-items:center}
+  .svz .rd .swatch{width:9px;height:9px;border-radius:2px;flex:none}
+  .svz .rd .word{color:var(--ink)}
+  .svz .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:16px 4px 2px}
+  .svz .bar button{font-family:var(--body);font-size:14px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line-2);border-radius:10px;padding:10px 15px;cursor:pointer;text-align:center;transition:border-color .15s,transform .12s,background .15s,opacity .2s}
+  .svz .bar button:hover{border-color:var(--approx);transform:translateY(-1px)}
+  .svz .bar button:disabled{opacity:.35;cursor:default;transform:none}
+  .svz .btn-diff:not(:disabled){background:var(--ink);color:#16140f;border-color:var(--ink);font-weight:600}
+  .svz .btn-diff:not(:disabled):hover{filter:brightness(1.05)}
+  .svz .btn-ride{color:#fff;background:var(--approx);border-color:var(--approx);font-weight:600;box-shadow:0 8px 18px -10px var(--approx)}
+  .svz .btn-ride:hover{filter:brightness(1.06);border-color:var(--approx)}
+  .svz .dots{margin-left:auto;display:flex;gap:7px;align-items:center}
+  .svz .dots i{width:9px;height:9px;border-radius:50%;background:var(--line-2);transition:background .3s,transform .3s}
+  .svz .dots i.on{background:var(--approx);transform:scale(1.18)}
+
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <a class="backlink" href="unit3.html">&larr; Unit 3 Guide</a>
+  <header class="reveal">
+    <h1>Higher-Order <span class="em">Derivatives</span></h1>
+    <div class="sub">A derivative is itself a function &mdash; so you can differentiate it <em>again</em>. Do it once for
+      slope, twice for concavity and acceleration, a third time, and keep climbing. This lesson makes the whole tower of
+      derivatives something you can watch move at once.</div>
+  </header>
+
+  <div class="big-idea reveal"> Differentiating doesn&rsquo;t have to stop at \(f'\). Since \(f'\) is a function in its own
+    right, differentiate it to get \(f''\) &mdash; the <b>rate at which the slope itself is changing</b>, which is exactly
+    <b>concavity</b>, and in motion problems, <b>acceleration</b>. Keep going for \(f'''\), \(f^{(4)}\), and beyond.
+    Each one is just the slope of the one above it. </div>
+
+  <h2 class="reveal">Bend the curve, build the tower</h2>
+  <p class="lead reveal">This is the engine of the lesson. Reshape \(f\) with your hands, then build its tower of
+    derivatives one rung at a time &mdash; meet each one before the next appears. Hit <b>differentiate</b> to reveal the
+    slope \(f'\), then concavity \(f''\), then keep climbing.</p>
+
+  <div class="stack-wrap reveal">
+    <svg id="casc-svg" viewBox="0 0 680 180" xmlns="http://www.w3.org/2000/svg" aria-label="Derivative cascade"></svg>
+  </div>
+  <div class="svz reveal">
+    <div class="guide"><div class="badge" id="casc-badge" style="background:#f0843c">f</div><div class="gtext" id="casc-gtext"></div></div>
+    <div class="rd" id="casc-rd"></div>
+    <div class="bar">
+      <button class="btn-diff" id="casc-diff">differentiate &rarr;</button>
+      <button id="casc-reset">&#8635; start over</button>
+      <div class="dots" id="casc-dots"><i class="on"></i><i></i><i></i><i></i></div>
+    </div>
+  </div>
+
+  <h2 class="reveal">Three ways to write it</h2>
+  <p class="lead reveal">The same idea wears three notations. You&rsquo;ll see all of them on the AP exam, sometimes in a
+    single problem, so read them as synonyms.</p>
+  <div class="notation reveal">
+    <div class="ncard">
+      <div class="nt">Lagrange &mdash; primes</div>
+      <div class="nr">\(f'(x)\)</div>
+      <div class="nr">\(f''(x)\)</div>
+      <div class="nr">\(f'''(x),\ f^{(4)}(x),\ \dots\)</div>
+    </div>
+    <div class="ncard">
+      <div class="nt">Leibniz &mdash; ratios</div>
+      <div class="nr">\(\dfrac{dy}{dx}\)</div>
+      <div class="nr">\(\dfrac{d^2y}{dx^2}\)</div>
+      <div class="nr">\(\dfrac{d^n y}{dx^n}\)</div>
+    </div>
+    <div class="ncard">
+      <div class="nt">In motion</div>
+      <div class="nr">position \(s(t)\)</div>
+      <div class="nr">velocity \(s'(t)\)</div>
+      <div class="nr">acceleration \(s''(t)\)</div>
+    </div>
+  </div>
+  <p class="cap">Careful: \(\dfrac{d^2y}{dx^2}\) is <b>not</b> \(\left(\dfrac{dy}{dx}\right)^2\). The little \(2\)s mark
+    &ldquo;differentiate twice,&rdquo; not &ldquo;square it.&rdquo;</p>
+
+  <h2 class="reveal">Take a ride: position, velocity, acceleration</h2>
+  <p class="lead reveal">Now the same tower, applied to motion. Below is the height of a roller-coaster car over time.
+    Press <b>ride</b> to send the car, then <b>differentiate</b> to reveal <b>velocity</b> (its speed) and once more for
+    <b>acceleration</b> &mdash; the push you feel into your seat. That is exactly where BC motion lives: position,
+    velocity, and acceleration.</p>
+
+  <div class="stack-wrap reveal">
+    <svg id="mot-svg" viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg" aria-label="The ride"></svg>
+  </div>
+  <div class="svz reveal">
+    <div class="guide"><div class="badge" id="mot-badge" style="background:#f0843c">s</div><div class="gtext" id="mot-gtext"></div></div>
+    <div class="rd" id="mot-rd"></div>
+    <div class="bar">
+      <button class="btn-ride" id="mot-ride">&#9654; ride</button>
+      <button class="btn-diff" id="mot-diff">differentiate &rarr;</button>
+      <button id="mot-reset">&#8635; start over</button>
+      <div class="dots" id="mot-dots"><i class="on"></i><i></i><i></i></div>
+    </div>
+  </div>
+
+  <h2 class="reveal">Patterns that repeat (or never stop)</h2>
+  <p class="lead reveal">Some functions fall into a rhythm when you keep differentiating. Pick one and step it.</p>
+  <div class="pat-pick" id="pat-pick"></div>
+  <div class="card reveal" style="max-width:760px">
+    <div class="ladder" id="pat-ladder"></div>
+    <div class="pat-note" id="pat-note"></div>
+    <div class="controls" style="margin-top:14px">
+      <button class="play" id="pat-step">differentiate &rarr;</button>
+      <button id="pat-reset">&#8635; back to start</button>
+      <span class="readout" id="pat-read"></span>
+    </div>
+  </div>
+
+  <h2 class="reveal">A worked tower</h2>
+  <p class="lead reveal">Find every derivative of \(s(t)=t^3-6t^2+9t\) (a particle&rsquo;s position) and read off when it is
+    speeding up. Press through it.</p>
+  <div class="card reveal" style="max-width:760px"><div id="wkWork"></div>
+    <div class="controls"><button class="play" id="wkStep">step &rarr;</button>
+      <button id="wkReset">&#8635; reset</button><span class="readout" id="wkRead">press step</span></div>
+  </div>
+
+  <div class="anatomy reveal">
+    <div class="label">what each derivative tells you</div>
+    <div class="maprow"><span class="ph">\(f'\) &mdash; the <b>slope</b>; in motion, the <b>velocity</b>. Where it is zero, \(f\) has a flat tangent.</span><span class="sy">1st</span></div>
+    <div class="maprow"><span class="ph">\(f''\) &mdash; the <b>concavity</b>; in motion, the <b>acceleration</b>. Its sign tells you which way \(f\) bends.</span><span class="sy">2nd</span></div>
+    <div class="maprow"><span class="ph">\(f'''\) &mdash; the <b>rate concavity changes</b>. Differentiate once more and you keep climbing the tower.</span><span class="sy">3rd</span></div>
+    <div class="maprow"><span class="ph">\(f^{(n)}\) &mdash; keep going. Polynomials run out; \(\sin\) and \(\cos\) cycle; \(e^x\) never changes.</span><span class="sy">nth</span></div>
+  </div>
+
+  <h2 class="reveal">The core ideas</h2>
+  <div class="concepts reveal">
+    <div class="concept"><h3>Each is the slope of the one above</h3><p>\(f''\) is just \(f'\) differentiated. Read the cascade top-down: every height below is the slope of the curve above it.</p></div>
+    <div class="concept"><h3>Second derivative = concavity</h3><p>\(f''\gt 0\) means \(f\) curves upward (a valley shape); \(f''\lt 0\) curves downward. A sign change of \(f''\) is an <b>inflection point</b>.</p></div>
+    <div class="concept"><h3>Polynomials terminate</h3><p>Each derivative drops the degree by one. A degree-\(n\) polynomial has \(f^{(n+1)}(x)=0\) everywhere &mdash; the tower bottoms out at zero.</p></div>
+    <div class="concept"><h3>Some never settle</h3><p>\(\dfrac{d^n}{dx^n}e^x=e^x\) forever, and \(\sin,\cos\) cycle with period \(4\). These rhythms power Taylor series later.</p></div>
+  </div>
+
+  <h2 class="reveal">Practice</h2>
+  <div id="practice"></div>
+
+  <h2 class="reveal">Quick check <span class="bc-badge">8 questions</span></h2>
+  <div class="card reveal" id="quizCard">
+    <div class="row"><span class="qtag" id="qProgress"></span><span class="score" id="qScore"></span></div>
+    <div class="qtext" id="qText" style="margin-top:10px"></div>
+    <div class="quiz-opts" id="qOpts"></div>
+    <div class="feedback" id="qFb"></div>
+    <button class="next" id="qNext" style="display:none;margin-top:12px">Next question &rarr;</button>
+  </div>
+
+  <h2 class="reveal">Common traps</h2>
+  <div class="mistakes reveal">
+    <div class="mistake"><h4>Confusing \(f''\) sign with \(f'\) sign</h4><p>\(f'\) tells you increasing/decreasing; \(f''\) tells you concave up/down. A curve can be rising while concave down &mdash; slowing its climb.</p></div>
+    <div class="mistake"><h4>Forgetting the chain rule compounds</h4><p>For \(y=e^{2x}\), each derivative pulls another factor of \(2\): \(2e^{2x},\,4e^{2x},\,8e^{2x},\dots\) The constant grows, it doesn&rsquo;t vanish.</p></div>
+    <div class="mistake"><h4>Thinking polynomials never zero out</h4><p>They do. \(\frac{d}{dx}\) lowers the degree each time, so a degree-\(3\) polynomial has \(f^{(4)}(x)=0\) everywhere.</p></div>
+    <div class="mistake"><h4>Reading \(\frac{d^2y}{dx^2}\) as \(\left(\frac{dy}{dx}\right)^2\)</h4><p>It means &ldquo;differentiate twice,&rdquo; not &ldquo;square the first derivative.&rdquo; The \(2\)s are operation counts.</p></div>
+  </div>
+  <div class="tipbox reveal">
+    <h4>On the AP exam</h4>
+    <ul>
+      <li>Concavity questions are \(f''\) questions: \(f''\gt 0\) up, \(f''\lt 0\) down, sign change \(=\) inflection.</li>
+      <li>Motion: velocity \(=s'\), acceleration \(=s''\). A particle <b>speeds up</b> when \(v\) and \(a\) share a sign.</li>
+      <li>For \(\sin\) and \(\cos\), reduce \(n\) mod \(4\); for \(e^{kx}\), the \(n\)th derivative is \(k^n e^{kx}\).</li>
+      <li>Watch the notation: \(f''(2)\) is a number (the second derivative at \(x=2\)), not a second point.</li>
+    </ul>
+  </div>
+
+  <div class="whatsnext reveal">
+    You can now climb the whole tower of derivatives &mdash; slope, concavity, acceleration, and the patterns behind series.
+    Next, the unit&rsquo;s capstone: deciding <b>which technique</b> a messy derivative actually needs.
+    <a href="selecting-procedures.html">Selecting Procedures</a> is next &mdash; or head back to the
+    <a href="unit3.html">Unit 3 Guide</a>.
+  </div>
+
+  <footer class="reveal">Higher-Order Derivatives &middot; part of the Unit 3 guide &middot; open in any browser, no install needed.</footer>
+</div>
+
+<script>
+const SVGNS="http://www.w3.org/2000/svg";
+const el=(t,a,txt)=>{const e=document.createElementNS(SVGNS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;};
+const T=(s)=>tex(s,s,false);
+const fmt=(v,d=2)=>{const s=v.toFixed(d); return s==="-0.00"?"0.00":s;};
+function shuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function mapper(dom,yr,W,H,P){ const x0=dom[0],x1=dom[1],y0=yr[0],y1=yr[1];
+  return { sx:x=>P+((x-x0)/(x1-x0))*(W-2*P), sy:v=>H-P-((v-y0)/(y1-y0))*(H-2*P), x0,x1,y0,y1 }; }
+function drawAxes(svg,M,W,H,P,xt,yt){ const sx=M.sx, sy=M.sy;
+  for(let g=0;g<=yt;g++){ const yy=M.y0+(g/yt)*(M.y1-M.y0), py=sy(yy);
+    svg.appendChild(el("line",{x1:P,y1:py,x2:W-P,y2:py,stroke:"#2b251a"}));
+    svg.appendChild(el("text",{x:P-6,y:py+3,fill:"#6b6457","font-size":9.5,"text-anchor":"end","font-family":"var(--mono)"},(+yy.toFixed(1)).toString())); }
+  for(let g=0;g<=xt;g++){ const xx=M.x0+(g/xt)*(M.x1-M.x0), px=sx(xx);
+    svg.appendChild(el("text",{x:px,y:H-P+14,fill:"#6b6457","font-size":9.5,"text-anchor":"middle","font-family":"var(--mono)"},(+xx.toFixed(1)).toString())); }
+  svg.appendChild(el("line",{x1:P,y1:sy(Math.max(0,M.y0)),x2:W-P,y2:sy(Math.max(0,M.y0)),stroke:"#4a4334","stroke-width":1.2}));
+  svg.appendChild(el("line",{x1:P,y1:sy(M.y1),x2:P,y2:sy(M.y0),stroke:"#4a4334","stroke-width":1.2}));
+}
+function curve(f,a,b,M,N=140){ let d="";
+  for(let k=0;k<=N;k++){ const x=a+(b-a)*k/N; d+=(k?"L":"M")+M.sx(x).toFixed(1)+" "+M.sy(f(x)).toFixed(1)+" "; }
+  return d; }
+const reduceMotion=()=> window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function mathify(html){ if(!window.katex) return html;
+  return html.replace(/\\\((.+?)\\\)/g,(m,t)=>{ try{ return katex.renderToString(t,{throwOnError:false}); }catch(e){ return m; } }); }
+function mathifyStatic(){ if(!window.katex) return;
+  document.querySelectorAll('.sub,.lead,.big-idea,.looking,.note,.maprow .ph,.mistake p,.tipbox li,.concept p,.whatsnext,.callout,.stat .k,.notadesc,.card > p,h2,h3,h4,.qtext,label,.cap,.nr,.pat-note').forEach(n=>{
+    if(n.dataset.mz) return;
+    if(n.innerHTML.indexOf('\\(')<0){ n.dataset.mz="1"; return; }
+    n.innerHTML=mathify(n.innerHTML); n.dataset.mz="1"; }); }
+
+const ACC="#f0843c", SEC="#67d4e8", DIM="#6b6457";
+
+const PAL=["#f0843c","#67d4e8","#f3a1cf","#8bd450","#b98cff"];
+const RERENDER=[];
+
+/* =====================================================================
+   1.  THE DERIVATIVE CASCADE  (staged reveal: f -> f' -> f'' -> f''')
+   ===================================================================== */
+(function(){
+  const cv=document.getElementById("casc-svg"); if(!cv) return;
+  const C=[-3.7,-1.25,1.25,3.7], BW=1.65, A0=[1.5,-1.05,1.45,-0.8];
+  let A=A0.slice();
+  const ph=u=>Math.exp(-u*u/2), ph1=u=>-u*Math.exp(-u*u/2),
+        ph2=u=>(u*u-1)*Math.exp(-u*u/2), ph3=u=>(3*u-u*u*u)*Math.exp(-u*u/2);
+  const F =x=>A.reduce((s,a,i)=>s+a*ph ((x-C[i])/BW),0);
+  const F1=x=>A.reduce((s,a,i)=>s+a*ph1((x-C[i])/BW),0)/BW;
+  const F2=x=>A.reduce((s,a,i)=>s+a*ph2((x-C[i])/BW),0)/(BW*BW);
+  const F3=x=>A.reduce((s,a,i)=>s+a*ph3((x-C[i])/BW),0)/(BW*BW*BW);
+  const FN=[F,F1,F2,F3];
+  const COL=["#f0843c","#67d4e8","#f3a1cf","#8bd450"];
+  const NAME=["f","f \u2032","f \u2033","f \u2034"];
+  const SYM=["f","f\u2032","f\u2033","f\u2034"];
+  const XMIN=-6,XMAX=6, VW=680, ML=46, MR=14, PH=130, GAP=12, TOP=8;
+  const xPix=x=>ML+(x-XMIN)/(XMAX-XMIN)*(VW-ML-MR);
+  const xInv=p=>XMIN+(p-ML)/(VW-ML-MR)*(XMAX-XMIN);
+  const pTop=i=>TOP+i*(PH+GAP), pMid=i=>pTop(i)+PH/2;
+  let scale=[1,1,1,1];
+  function rescale(){for(let i=0;i<4;i++){let m=0;for(let x=XMIN;x<=XMAX;x+=0.04)m=Math.max(m,Math.abs(FN[i](x)));scale[i]=Math.max(m*1.18,0.35);}}
+  const yPix=(i,v)=>pMid(i)-v/scale[i]*(PH/2-12);
+  function roots(g){const z=[];let px=XMIN,pg=g(XMIN);for(let x=XMIN+0.012;x<=XMAX;x+=0.012){const c=g(x);if((pg<0)!==(c<0))z.push(px+(0-pg)*(x-px)/(c-pg));px=x;pg=c;}return z;}
+  function tallestPeak(){let best=null,bv=-1e9;roots(F1).forEach(x=>{if(F2(x)<0&&F(x)>bv){bv=F(x);best=x;}});return best==null?0:best;}
+  let revealed=1, sweep=0, sweepLayer, hdLayer, handles=[];
+  function build(){
+    cv.innerHTML="";
+    const H=TOP+revealed*(PH+GAP)+24;
+    cv.setAttribute("viewBox","0 0 "+VW+" "+H);
+    const defs=el("defs");
+    defs.innerHTML='<filter id="cgl" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
+    cv.appendChild(defs);
+    rescale();
+    for(let i=0;i<revealed;i++){
+      const g=el("g"); g.setAttribute("class","cpanel");
+      g.appendChild(el("rect",{x:ML,y:pTop(i),width:VW-ML-MR,height:PH,rx:9,fill:i%2?"rgba(255,255,255,.012)":"rgba(255,255,255,.022)",stroke:"#332e25"}));
+      g.appendChild(el("line",{x1:ML,y1:pMid(i),x2:VW-MR,y2:pMid(i),stroke:"#453f33","stroke-dasharray":"2 4"}));
+      g.appendChild(el("text",{x:ML+9,y:pTop(i)+19,fill:COL[i],"font-family":"var(--mono)","font-size":12.5,"font-weight":600},NAME[i]));
+      if(revealed>=3 && (i===0||i===2)){
+        const yb=pTop(i)+PH-4; let xp=XMIN;
+        for(let x=XMIN+0.05;x<=XMAX+1e-9;x+=0.05){const up=F2((x+xp)/2)>0;
+          g.appendChild(el("rect",{x:xPix(xp),y:yb,width:Math.max(.6,xPix(x)-xPix(xp))+.6,height:3,fill:up?COL[2]:"#3a352b",opacity:up?.8:.45}));xp=x;}
+      }
+      let d="";for(let k=0,x=XMIN;x<=XMAX+1e-9;x+=0.04,k++)d+=(k?"L":"M")+xPix(x).toFixed(2)+" "+yPix(i,FN[i](x)).toFixed(2)+" ";
+      g.appendChild(el("path",{d:d.trim(),fill:"none",stroke:COL[i],"stroke-width":i===0?2.8:2.1,"stroke-linecap":"round","stroke-linejoin":"round"}));
+      if(i===revealed-1&&revealed>1){g.setAttribute("opacity","0");requestAnimationFrame(()=>{g.style.transition="opacity .5s ease";g.setAttribute("opacity","1");});}
+      cv.appendChild(g);
+    }
+    for(let x=XMIN;x<=XMAX;x+=3)cv.appendChild(el("text",{x:xPix(x),y:H-6,fill:"#6b6457","font-size":10,"text-anchor":"middle","font-family":"var(--mono)"},"x="+x));
+    sweepLayer=el("g");cv.appendChild(sweepLayer);
+    hdLayer=el("g");cv.appendChild(hdLayer);
+    drawSweep(); drawHandles();
+  }
+  function drawSweep(){
+    if(!sweepLayer)return; sweepLayer.innerHTML="";
+    const px=xPix(sweep);
+    sweepLayer.appendChild(el("line",{x1:px,y1:TOP,x2:px,y2:pTop(revealed-1)+PH,stroke:"#ece7dd","stroke-width":1.3,opacity:.45}));
+    for(let i=0;i<revealed;i++)
+      sweepLayer.appendChild(el("circle",{cx:px,cy:yPix(i,FN[i](sweep)),r:5,fill:COL[i],stroke:"#0d0c0a","stroke-width":1.6,filter:"url(#cgl)"}));
+    readout();
+  }
+  function drawHandles(){
+    hdLayer.innerHTML=""; handles=[];
+    for(let i=0;i<4;i++){
+      const h=el("circle",{cx:xPix(C[i]),cy:yPix(0,F(C[i])),r:8.5,fill:"#f0843c",stroke:"#0d0c0a","stroke-width":2,filter:"url(#cgl)",style:"cursor:grab"});
+      h.dataset.i=i; hdLayer.appendChild(h); handles.push(h);
+    }
+  }
+  function readout(){
+    const rd=document.getElementById("casc-rd"); rd.innerHTML="";
+    const v=[F(sweep),F1(sweep),F2(sweep),F3(sweep)];
+    const words=["height "+(v[0]>0.05?"above":v[0]<-0.05?"below":"at")+" the axis",
+      v[1]>0.06?"rising":v[1]<-0.06?"falling":"flat \u2014 a peak or valley",
+      v[2]>0.06?"concave up":v[2]<-0.06?"concave down":"an inflection",
+      "the wiggle keeps going"];
+    for(let i=0;i<revealed;i++)
+      rd.innerHTML+='<div class="line"><span class="swatch" style="background:'+COL[i]+'"></span>'+
+        '<span style="color:'+COL[i]+'">'+SYM[i]+' = '+v[i].toFixed(2)+'</span><span class="word">&middot; '+words[i]+'</span></div>';
+  }
+  const GUIDE=[
+   "This is <b>f</b>. Grab a dot and <b>bend the curve</b> \u2014 try making a tall peak. The pale line is a probe: drag it anywhere to read a height. When you\u2019re ready, hit <b>differentiate</b>.",
+   "<b>f\u2032</b> is the <b>slope</b> of f. The probe is parked on a <b>peak</b> of f \u2014 look straight down: f\u2032 is <b>zero</b> there. Every peak or valley of f sits exactly above a zero of f\u2032.",
+   "<b>f\u2033</b> is the slope of f\u2032 \u2014 it measures <b>concavity</b>. The pink band marks where f <b>curves upward</b>. At this peak f curves downward, so f\u2033 sits below zero; where f\u2033 crosses zero, f has an <b>inflection</b>.",
+   "You don\u2019t have to stop. <b>f\u2034</b> is the slope of f\u2033 \u2014 and the tower keeps climbing as far as you like (the engine behind Taylor series). Now <b>drag the curve</b> and watch the whole tower answer at once."
+  ];
+  function setGuide(){
+    document.getElementById("casc-gtext").innerHTML=GUIDE[revealed-1];
+    const b=document.getElementById("casc-badge"); b.textContent=SYM[revealed-1]; b.style.background=COL[revealed-1];
+    [...document.getElementById("casc-dots").children].forEach((d,i)=>d.classList.toggle("on",i<revealed));
+    const diff=document.getElementById("casc-diff");
+    diff.disabled=revealed>=4; diff.textContent=revealed>=4?"the tower never ends":"differentiate \u2192";
+  }
+  function xy(ev){const r=cv.getBoundingClientRect();const H=TOP+revealed*(PH+GAP)+24;return{sx:(ev.clientX-r.left)/r.width*VW,sy:(ev.clientY-r.top)/r.height*H};}
+  let drag=null;
+  cv.addEventListener("pointerdown",ev=>{const t=ev.target;
+    if(t.dataset&&t.dataset.i!==undefined){drag={h:+t.dataset.i};t.setPointerCapture(ev.pointerId);t.style.cursor="grabbing";}
+    else{drag={sw:1};const{sx}=xy(ev);sweep=Math.max(XMIN,Math.min(XMAX,xInv(sx)));drawSweep();cv.setPointerCapture(ev.pointerId);}});
+  cv.addEventListener("pointermove",ev=>{if(!drag)return;const{sx,sy}=xy(ev);
+    if(drag.h!==undefined){const i=drag.h;let tg=(pMid(0)-sy)/(PH/2-12)*scale[0];tg=Math.max(-scale[0]*.95,Math.min(scale[0]*.95,tg));
+      let o=0;for(let j=0;j<4;j++)if(j!==i)o+=A[j]*ph((C[i]-C[j])/BW);A[i]=tg-o;rebuildCurves();}
+    else{sweep=Math.max(XMIN,Math.min(XMAX,xInv(sx)));drawSweep();}});
+  function endd(){if(drag&&drag.h!==undefined&&handles[drag.h])handles[drag.h].style.cursor="grab";drag=null;}
+  cv.addEventListener("pointerup",endd);cv.addEventListener("pointercancel",endd);
+  function rebuildCurves(){
+    rescale();
+    [...cv.querySelectorAll(".cpanel")].forEach((g,i)=>{
+      [...g.querySelectorAll("path,rect[height='3']")].forEach(n=>n.remove());
+      if(revealed>=3 && (i===0||i===2)){
+        const yb=pTop(i)+PH-4; let xp=XMIN;
+        for(let x=XMIN+0.05;x<=XMAX+1e-9;x+=0.05){const up=F2((x+xp)/2)>0;
+          g.appendChild(el("rect",{x:xPix(xp),y:yb,width:Math.max(.6,xPix(x)-xPix(xp))+.6,height:3,fill:up?COL[2]:"#3a352b",opacity:up?.8:.45}));xp=x;}
+      }
+      let d="";for(let k=0,x=XMIN;x<=XMAX+1e-9;x+=0.04,k++)d+=(k?"L":"M")+xPix(x).toFixed(2)+" "+yPix(i,FN[i](x)).toFixed(2)+" ";
+      g.appendChild(el("path",{d:d.trim(),fill:"none",stroke:COL[i],"stroke-width":i===0?2.8:2.1,"stroke-linecap":"round","stroke-linejoin":"round"}));
+    });
+    handles.forEach((h,i)=>{h.setAttribute("cx",xPix(C[i]));h.setAttribute("cy",yPix(0,F(C[i])));});
+    drawSweep();
+  }
+  function glideTo(target){const start=sweep,t0=performance.now(),dur=700;
+    function step(now){const u=Math.min(1,(now-t0)/dur);const e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
+      sweep=start+(target-start)*e;drawSweep();if(u<1)requestAnimationFrame(step);}requestAnimationFrame(step);}
+  document.getElementById("casc-diff").onclick=()=>{ if(revealed>=4)return; revealed++; build(); setGuide(); if(revealed===2||revealed===3) glideTo(tallestPeak()); };
+  document.getElementById("casc-reset").onclick=()=>{A=A0.slice();revealed=1;sweep=0;build();setGuide();};
+  build(); setGuide();
+})();
+
+/* =====================================================================
+   2.  THE RIDE  (staged reveal: position -> velocity -> acceleration)
+   ===================================================================== */
+(function(){
+  const cv=document.getElementById("mot-svg"); if(!cv) return;
+  const comp=[[1.5,0.72,0.30],[0.55,1.65,1.05]];
+  const Sk=k=>t=>comp.reduce((q,arr)=>{const A=arr[0],w=arr[1],p=arr[2],ph=w*t+p;
+    if(k===0)return q+A*Math.sin(ph);
+    if(k===1)return q+A*w*Math.cos(ph);
+    return q-A*w*w*Math.sin(ph);},0);
+  const S=[Sk(0),Sk(1),Sk(2)];
+  const COL=["#f0843c","#67d4e8","#f3a1cf"];
+  const NAME=["position  s","velocity  s\u2032","acceleration  s\u2033"];
+  const T0=0,T1=9, VW=680, ML=58, MR=14, PH=135, GAP=12, TOP=8;
+  const tPix=t=>ML+(t-T0)/(T1-T0)*(VW-ML-MR);
+  const tInv=p=>T0+(p-ML)/(VW-ML-MR)*(T1-T0);
+  const pTop=i=>TOP+i*(PH+GAP), pMid=i=>pTop(i)+PH/2;
+  let scale=[1,1,1];
+  function rescale(){for(let i=0;i<3;i++){let m=0;for(let t=T0;t<=T1;t+=0.03)m=Math.max(m,Math.abs(S[i](t)));scale[i]=Math.max(m*1.18,0.3);}}
+  const yPix=(i,v)=>pMid(i)-v/scale[i]*(PH/2-12);
+  let revealed=1, tcur=0, playing=false, raf=0, last=0, sweepLayer, cartLayer;
+  function firstCrest(){let pt=T0,pv=S[1](T0);for(let t=T0+0.02;t<=T1;t+=0.02){const v=S[1](t);if(pv>0&&v<=0)return pt+(0-pv)*(t-pt)/(v-pv);pt=t;pv=v;}return 2;}
+  function strongAccel(){let bt=T0,bm=0;for(let t=T0;t<=T1;t+=0.05){if(Math.abs(S[2](t))>bm){bm=Math.abs(S[2](t));bt=t;}}return bt;}
+  function build(){
+    cv.innerHTML="";
+    const H=TOP+revealed*(PH+GAP)+24;
+    cv.setAttribute("viewBox","0 0 "+VW+" "+H);
+    const defs=el("defs");
+    defs.innerHTML='<filter id="mgl" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
+    cv.appendChild(defs);
+    rescale();
+    for(let i=0;i<revealed;i++){
+      const g=el("g"); g.setAttribute("class","rpanel");
+      g.appendChild(el("rect",{x:ML,y:pTop(i),width:VW-ML-MR,height:PH,rx:9,fill:i%2?"rgba(255,255,255,.012)":"rgba(255,255,255,.022)",stroke:"#332e25"}));
+      g.appendChild(el("line",{x1:ML,y1:pMid(i),x2:VW-MR,y2:pMid(i),stroke:"#453f33","stroke-dasharray":"2 4"}));
+      g.appendChild(el("text",{x:ML+9,y:pTop(i)+19,fill:COL[i],"font-family":"var(--mono)","font-size":12.5,"font-weight":600},NAME[i]));
+      let d="";for(let k=0,t=T0;t<=T1+1e-9;t+=0.03,k++)d+=(k?"L":"M")+tPix(t).toFixed(2)+" "+yPix(i,S[i](t)).toFixed(2)+" ";
+      g.appendChild(el("path",{d:d.trim(),fill:"none",stroke:COL[i],"stroke-width":i===0?2.8:2.1,"stroke-linecap":"round","stroke-linejoin":"round"}));
+      if(i===revealed-1&&revealed>1){g.setAttribute("opacity","0");requestAnimationFrame(()=>{g.style.transition="opacity .5s ease";g.setAttribute("opacity","1");});}
+      cv.appendChild(g);
+    }
+    for(let t=T0;t<=T1;t+=3)cv.appendChild(el("text",{x:tPix(t),y:H-6,fill:"#6b6457","font-size":10,"text-anchor":"middle","font-family":"var(--mono)"},"t="+t));
+    sweepLayer=el("g");cv.appendChild(sweepLayer);
+    cartLayer=el("g");cv.appendChild(cartLayer);
+    drawSweep();
+  }
+  function drawSweep(){
+    if(!sweepLayer)return; sweepLayer.innerHTML=""; cartLayer.innerHTML="";
+    const px=tPix(tcur);
+    sweepLayer.appendChild(el("line",{x1:px,y1:TOP,x2:px,y2:pTop(revealed-1)+PH,stroke:"#ece7dd","stroke-width":1.3,opacity:.45}));
+    for(let i=0;i<revealed;i++)
+      sweepLayer.appendChild(el("circle",{cx:px,cy:yPix(i,S[i](tcur)),r:5,fill:COL[i],stroke:"#0d0c0a","stroke-width":1.6,filter:"url(#mgl)"}));
+    const cx=px, cy=yPix(0,S[0](tcur));
+    cartLayer.appendChild(el("rect",{x:cx-12,y:cy-9,width:24,height:13,rx:3.5,fill:"#f0843c",stroke:"#0d0c0a","stroke-width":1.5,filter:"url(#mgl)"}));
+    cartLayer.appendChild(el("circle",{cx:cx-6,cy:cy+5,r:2.6,fill:"#0d0c0a"}));
+    cartLayer.appendChild(el("circle",{cx:cx+6,cy:cy+5,r:2.6,fill:"#0d0c0a"}));
+    readout();
+  }
+  function readout(){
+    const rd=document.getElementById("mot-rd"); rd.innerHTML="";
+    const v=[S[0](tcur),S[1](tcur),S[2](tcur)];
+    const words=[v[0]>0.05?"up high":v[0]<-0.05?"down low":"at mid-track",
+      v[1]>0.08?"climbing":v[1]<-0.08?"dropping":"cresting \u2014 momentarily still",
+      (v[1]*v[2]>0.02)?"speeding up":(v[1]*v[2]<-0.02?"slowing down":"steady push")];
+    const sym=["s","v","a"];
+    for(let i=0;i<revealed;i++)
+      rd.innerHTML+='<div class="line"><span class="swatch" style="background:'+COL[i]+'"></span>'+
+        '<span style="color:'+COL[i]+'">'+sym[i]+' = '+v[i].toFixed(2)+'</span><span class="word">&middot; '+words[i]+'</span></div>';
+  }
+  const GUIDE=[
+   "This is your <b>height on the track</b> over time \u2014 the function \u201cposition,\u201d s(t). Press <b>ride</b> to send the car, or drag anywhere to scrub. When you\u2019re ready, hit <b>differentiate</b>.",
+   "<b>Velocity</b> is how fast your height is changing \u2014 the slope of the track above. Watch the car at the <b>crest of the first hill</b>: it pauses, and velocity drops to <b>zero</b> exactly there before going negative on the way down.",
+   "<b>Acceleration</b> is the push into your seat \u2014 how fast velocity itself changes, the <b>second derivative</b> of position. That\u2019s as far as BC motion goes: position, velocity, acceleration."
+  ];
+  function setGuide(){
+    document.getElementById("mot-gtext").innerHTML=GUIDE[revealed-1];
+    const b=document.getElementById("mot-badge"); b.textContent=["s","v","a"][revealed-1]; b.style.background=COL[revealed-1];
+    [...document.getElementById("mot-dots").children].forEach((d,i)=>d.classList.toggle("on",i<revealed));
+    const diff=document.getElementById("mot-diff");
+    diff.disabled=revealed>=3; diff.textContent=revealed>=3?"that\u2019s the tower":"differentiate \u2192";
+  }
+  function xy(ev){const r=cv.getBoundingClientRect();return (ev.clientX-r.left)/r.width*VW;}
+  let drag=false;
+  cv.addEventListener("pointerdown",ev=>{stop();drag=true;tcur=Math.max(T0,Math.min(T1,tInv(xy(ev))));drawSweep();cv.setPointerCapture(ev.pointerId);});
+  cv.addEventListener("pointermove",ev=>{if(!drag)return;tcur=Math.max(T0,Math.min(T1,tInv(xy(ev))));drawSweep();});
+  cv.addEventListener("pointerup",()=>drag=false);cv.addEventListener("pointercancel",()=>drag=false);
+  const bride=document.getElementById("mot-ride");
+  function tick(ts){if(!playing)return;if(!last)last=ts;const dt=(ts-last)/1000;last=ts;tcur+=dt*1.2;if(tcur>T1)tcur=T0;drawSweep();raf=requestAnimationFrame(tick);}
+  function play(){playing=true;last=0;bride.innerHTML="\u275a\u275a pause";raf=requestAnimationFrame(tick);}
+  function stop(){playing=false;cancelAnimationFrame(raf);bride.innerHTML="\u25b6 ride";}
+  bride.onclick=()=>{playing?stop():play();};
+  function glideTo(target){stop();const start=tcur,t0=performance.now(),dur=700;
+    function step(now){const u=Math.min(1,(now-t0)/dur);const e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
+      tcur=start+(target-start)*e;drawSweep();if(u<1)requestAnimationFrame(step);}requestAnimationFrame(step);}
+  document.getElementById("mot-diff").onclick=()=>{ if(revealed>=3)return; revealed++; build(); setGuide(); if(revealed===2) glideTo(firstCrest()); if(revealed===3) glideTo(strongAccel()); };
+  document.getElementById("mot-reset").onclick=()=>{stop();revealed=1;tcur=0;build();setGuide();};
+  build(); setGuide();
+})();
+
+/* =====================================================================
+   3.  PATTERN LADDER  (nth derivative of sin, cos, e^x, x^4, 1/x)
+   ===================================================================== */
+(function(){
+  const pick=document.getElementById("pat-pick"); if(!pick) return;
+  const PATS=[
+    {key:"sin",label:"\\sin x",seq:["\\sin x","\\cos x","-\\sin x","-\\cos x"],cyc:4,rows:7,
+      note:"\\(\\sin x\\) runs on a <b>4-step cycle</b>: after four derivatives you are exactly back to \\(\\sin x\\). So \\(\\frac{d^n}{dx^n}\\sin x\\) only depends on \\(n \\bmod 4\\)."},
+    {key:"cos",label:"\\cos x",seq:["\\cos x","-\\sin x","-\\cos x","\\sin x"],cyc:4,rows:7,
+      note:"The same cycle, shifted one step: \\(\\cos\\to-\\sin\\to-\\cos\\to\\sin\\) and around again."},
+    {key:"exp",label:"e^x",seq:["e^x"],cyc:1,rows:6,
+      note:"\\(e^x\\) is its <b>own derivative</b> &mdash; every order is \\(e^x\\). This fixed point is why \\(e^x\\) is everywhere in calculus."},
+    {key:"pow",label:"x^4",seq:["x^4","4x^3","12x^2","24x","24","0"],cyc:0,rows:6,term:true,
+      note:"Each derivative <b>drops the degree by one</b>. After the 5th derivative it is \\(0\\) forever &mdash; polynomials always terminate."},
+    {key:"rec",label:"\\dfrac{1}{x}",seq:["\\dfrac{1}{x}","-\\dfrac{1}{x^2}","\\dfrac{2}{x^3}","-\\dfrac{6}{x^4}","\\dfrac{24}{x^5}","-\\dfrac{120}{x^6}"],cyc:0,rows:6,
+      note:"A clean closed form: \\(\\dfrac{d^n}{dx^n}\\dfrac{1}{x}=\\dfrac{(-1)^n\\,n!}{x^{\\,n+1}}\\). The sign flips and the factorials pile up."}
+  ];
+  const ORD=["f","f\u2032","f\u2033","f\u2034","f^{(4)}","f^{(5)}","f^{(6)}"];
+  let cur=0, n=0;
+  function dn(P,k){ if(P.cyc===1)return P.seq[0]; if(P.cyc===4)return P.seq[k%4];
+    return k<P.seq.length?P.seq[k]:"0"; }
+  function drawPick(){pick.innerHTML="";PATS.forEach((P,i)=>{const b=document.createElement("button");
+    b.innerHTML=mathify("\\("+P.label+"\\)");if(i===cur)b.classList.add("on");
+    b.onclick=()=>{cur=i;n=0;render();};pick.appendChild(b);});}
+  function render(){
+    drawPick();
+    const P=PATS[cur], lad=document.getElementById("pat-ladder"); lad.innerHTML="";
+    for(let k=0;k<=n;k++){const row=document.createElement("div");row.className="lrow"+(k===n?" live":"");
+      const cyc=(P.cyc===4&&k>=4)||(P.cyc===1&&k>=1);if(cyc&&k===n)row.className="lrow live cyc";
+      row.innerHTML='<div class="ln">'+mathify("\\("+ORD[Math.min(k,6)]+(k>6?"":"")+"\\)")+'</div><div class="lm">'+mathify("\\("+dn(P,k)+"\\)")+'</div>';
+      lad.appendChild(row);}
+    const note=document.getElementById("pat-note");
+    let msg="";
+    if(P.cyc===4&&n>=4) msg="<b>Full cycle.</b> "+P.note;
+    else if(P.cyc===1&&n>=1) msg=P.note;
+    else if(P.term&&dn(P,n)==="0") msg="<b>Bottomed out.</b> "+P.note;
+    else if(n>=P.rows-1) msg=P.note;
+    else msg="\\("+ORD[Math.min(n,6)]+"\\) "+(n===0?"is where we start.":"is the "+ordinal(n)+" derivative. Keep going.");
+    note.innerHTML=mathify(msg);
+    document.getElementById("pat-read").textContent="order n = "+n;
+    const step=document.getElementById("pat-step");
+    step.disabled = n>=P.rows-1; step.style.opacity=step.disabled?".4":"1";
+  }
+  function ordinal(k){return ["zeroth","first","second","third","fourth","fifth","sixth"][k]||k+"th";}
+  document.getElementById("pat-step").onclick=()=>{const P=PATS[cur];if(n<P.rows-1){n++;render();}};
+  document.getElementById("pat-reset").onclick=()=>{n=0;render();};
+  RERENDER.push(render);
+  render();
+})();
+
+/* =====================================================================
+   4.  WORKED TOWER  (s(t)=t^3-6t^2+9t)
+   ===================================================================== */
+const WK=[
+ {t:"Start with position. This is the height (or signed distance) of the particle at time \\(t\\).", m:"s(t)=t^3-6t^2+9t"},
+ {t:"Differentiate once for <b>velocity</b> &mdash; how fast position is changing.", m:"s'(t)=3t^2-12t+9=3(t-1)(t-3)"},
+ {t:"Velocity is zero at \\(t=1\\) and \\(t=3\\): the particle momentarily stops and turns around.", m:"s'(t)=0 \\;\\Rightarrow\\; t=1,\\,3"},
+ {t:"Differentiate again for <b>acceleration</b> &mdash; how fast velocity is changing.", m:"s''(t)=6t-12=6(t-2)"},
+ {t:"Differentiate a third time. For a cubic, the third derivative is constant &mdash; the tower can keep going.", m:"s'''(t)=6"},
+ {t:"And the next derivative is zero: a cubic's tower bottoms out at the 4th derivative.", m:"s^{(4)}(t)=0"},
+ {t:"The particle <b>speeds up</b> when velocity and acceleration share a sign: on \\(1<t<2\\) and \\(t>3\\).", m:"s'\\cdot s''>0 \\;\\text{on}\\; (1,2)\\cup(3,\\infty)"}
+];
+let wkN=0;
+function renderWk(){
+  const wrap=document.getElementById("wkWork"); if(!wrap) return;
+  if(wkN===0){ wrap.innerHTML='<div class="why-t" style="color:var(--muted)">'+mathify("Press <b>step</b> to climb the tower from position up through acceleration.")+'</div>';
+    const r=document.getElementById("wkRead"); if(r)r.textContent="press step"; return; }
+  wrap.innerHTML=mathify(WK.slice(0,wkN).map((s,j)=>'<div class="why-step"><div class="why-n">'+(j+1)+'</div><div><div class="why-t">'+s.t+'</div><div class="why-m">'+T(s.m)+'</div></div></div>').join(""));
+  const r=document.getElementById("wkRead"); if(r)r.textContent = wkN>=WK.length?"complete":"step "+wkN+" / "+WK.length;
+}
+{
+  const st=document.getElementById("wkStep"), rs=document.getElementById("wkReset");
+  if(st)st.onclick=()=>{ if(wkN<WK.length){wkN++;renderWk();} };
+  if(rs)rs.onclick=()=>{ wkN=0;renderWk(); };
+}
+
+/* =====================================================================
+   5.  PRACTICE
+   ===================================================================== */
+const PRAC=[
+ {tag:"Climb the tower", q:()=>"Find \\(f'''(x)\\) for \\(f(x)=x^4\\).",
+  sol:[{t:"Differentiate three times, dropping the power each time.",m:"f'(x)=4x^3"},
+       {t:"Again:",m:"f''(x)=12x^2"},{t:"And once more:",m:"f'''(x)=24x"}]},
+ {tag:"Acceleration", q:()=>'A particle has position \\(s(t)=t^3-6t^2+9t\\). Find its acceleration and when it is zero.',
+  sol:[{t:"Velocity is the first derivative.",m:"s'(t)=3t^2-12t+9"},
+       {t:"Acceleration is the second derivative.",m:"s''(t)=6t-12"},
+       {t:"Set it to zero.",m:"6t-12=0 \\;\\Rightarrow\\; t=2"}]},
+ {tag:"Cycle", q:()=>'Find the fourth derivative of \\(f(x)=\\sin x\\).',
+  sol:[{t:"Step through the cycle: \\(\\sin\\to\\cos\\to-\\sin\\to-\\cos\\to\\sin\\).",m:"f^{(4)}(x)=\\sin x"},
+       {t:"Four derivatives return you to the start.",m:"\\tfrac{d^4}{dx^4}\\sin x=\\sin x"}]},
+ {tag:"Chain compounds", q:()=>'Find \\(\\dfrac{d^2}{dx^2}e^{2x}\\).',
+  sol:[{t:"Each derivative pulls a factor of \\(2\\).",m:"\\tfrac{d}{dx}e^{2x}=2e^{2x}"},
+       {t:"Again:",m:"\\tfrac{d^2}{dx^2}e^{2x}=4e^{2x}"}]},
+ {tag:"Concavity", q:()=>"For \\(f(x)=\\ln x\\), find \\(f''(x)\\) and state the concavity for \\(x>0\\).",
+  sol:[{t:"First derivative.",m:"f'(x)=\\tfrac{1}{x}"},
+       {t:"Second derivative.",m:"f''(x)=-\\tfrac{1}{x^2}"},
+       {t:"It is negative for all \\(x>0\\): \\(\\ln x\\) is concave down everywhere.",m:"f''(x)<0 \\;\\Rightarrow\\; \\text{concave down}"}]}
+];
+function renderPractice(){
+  const host=document.getElementById("practice"); if(!host) return;
+  host.innerHTML=mathify(PRAC.map((p,i)=>{
+    const steps=p.sol.map((s,j)=>'<div class="why-step"><div class="why-n">'+(j+1)+'</div><div><div class="why-t">'+s.t+'</div>'+(s.m?'<div class="why-m">'+T(s.m)+'</div>':'')+'</div></div>').join("");
+    return '<div class="prob"><div class="prob-tag">'+p.tag+'</div><div class="prob-q">'+p.q()+'</div><button class="soltoggle" data-i="'+i+'">Show solution</button><div class="sol" id="psol'+i+'">'+steps+'</div></div>';
+  }).join(""));
+  host.querySelectorAll(".soltoggle").forEach(b=>{b.onclick=()=>{const i=b.getAttribute("data-i"),so=document.getElementById("psol"+i);b.textContent=so.classList.toggle("show")?"Hide solution":"Show solution";};});
+}
+
+/* =====================================================================
+   6.  QUIZ
+   ===================================================================== */
+const QUIZ=[
+ {q:()=>"The <b>second</b> derivative \\(f''(x)\\) measures&hellip;",
+  opts:[{h:()=>"concavity (and, in motion, acceleration)",ok:true},{h:()=>"the slope of \\(f\\)",ok:false},{h:()=>"where \\(f=0\\)",ok:false},{h:()=>"the average rate of change",ok:false}],
+  fb:"\\(f''\\) is the rate the slope changes &mdash; concavity, and acceleration in motion."},
+ {q:()=>"If \\(f(x)=x^5\\), then \\(f''(x)=\\)",
+  opts:[{h:()=>"\\(20x^3\\)",ok:true},{h:()=>"\\(5x^4\\)",ok:false},{h:()=>"\\(20x^4\\)",ok:false},{h:()=>"\\(60x^2\\)",ok:false}],
+  fb:"\\(f'=5x^4\\), then \\(f''=20x^3\\)."},
+ {q:()=>'The fourth derivative of \\(\\sin x\\) is',
+  opts:[{h:()=>"\\(\\sin x\\)",ok:true},{h:()=>"\\(\\cos x\\)",ok:false},{h:()=>"\\(-\\sin x\\)",ok:false},{h:()=>"\\(-\\cos x\\)",ok:false}],
+  fb:"The cycle has length 4, so \\(f^{(4)}=\\sin x\\)."},
+ {q:()=>'What is the \\(100\\)th derivative of \\(e^x\\)?',
+  opts:[{h:()=>"\\(e^x\\)",ok:true},{h:()=>"\\(100e^x\\)",ok:false},{h:()=>"\\(e^{100x}\\)",ok:false},{h:()=>"\\(0\\)",ok:false}],
+  fb:"\\(e^x\\) is its own derivative at every order."},
+ {q:()=>"If \\(s(t)\\) is position, then \\(s''(t)\\) is the&hellip;",
+  opts:[{h:()=>"acceleration",ok:true},{h:()=>"velocity",ok:false},{h:()=>"displacement",ok:false},{h:()=>"distance",ok:false}],
+  fb:"Position \\(\\to\\) velocity \\(\\to\\) acceleration as you differentiate."},
+ {q:()=>'The notation \\(\\dfrac{d^2y}{dx^2}\\) means',
+  opts:[{h:()=>"differentiate \\(y\\) twice",ok:true},{h:()=>"\\(\\left(\\dfrac{dy}{dx}\\right)^2\\)",ok:false},{h:()=>"\\(\\dfrac{dy}{dx}\\) divided by \\(2\\)",ok:false},{h:()=>"the slope at \\(x=2\\)",ok:false}],
+  fb:"The \\(2\\)s count operations &mdash; differentiate twice, do not square."},
+ {q:()=>'For \\(f(x)=x^3\\), the first derivative that is identically \\(0\\) is',
+  opts:[{h:()=>"\\(f^{(4)}(x)\\)",ok:true},{h:()=>"\\(f''(x)\\)",ok:false},{h:()=>"\\(f'''(x)\\)",ok:false},{h:()=>"never zero",ok:false}],
+  fb:"\\(x^3\\to3x^2\\to6x\\to6\\to0\\): the 4th derivative is the first zero."},
+ {q:()=>"Where \\(f''\\) changes sign, the graph of \\(f\\) has",
+  opts:[{h:()=>"an inflection point",ok:true},{h:()=>"a local maximum",ok:false},{h:()=>"a local minimum",ok:false},{h:()=>"a vertical asymptote",ok:false}],
+  fb:"A sign change in \\(f''\\) flips concavity &mdash; that is an inflection point."}
+];
+let qi=0,qScore=0,qDone=0,qAns=false;
+function renderQuiz(){
+  const qt=document.getElementById("qText"); if(!qt) return;
+  qAns=false; const it=QUIZ[qi];
+  qt.innerHTML=mathify(it.q());
+  document.getElementById("qProgress").textContent="Question "+(qi+1)+" of "+QUIZ.length;
+  document.getElementById("qScore").textContent="Score: "+qScore+" / "+qDone;
+  const fb=document.getElementById("qFb"); fb.innerHTML="";
+  const nx=document.getElementById("qNext"); nx.style.display="none";
+  nx.textContent = qi<QUIZ.length-1?"Next question \u2192":"Restart quiz \u21bb";
+  const opts=document.getElementById("qOpts"); opts.innerHTML="";
+  shuf(it.opts).forEach(o=>{const b=document.createElement("button");b.innerHTML=mathify(o.h());
+    b.onclick=()=>{ if(qAns)return; qAns=true; qDone++;
+      [...opts.children].forEach(bb=>{ bb.disabled=true; if(bb._ok) bb.classList.add("correct"); });
+      if(o.ok){qScore++;fb.innerHTML='<span style="color:var(--conv);font-weight:600">\u2713 Correct.</span> <span style="color:var(--muted)">'+mathify(it.fb)+'</span>';}
+      else{b.classList.add("wrong");fb.innerHTML='<span style="color:var(--div);font-weight:600">\u2717 Not quite.</span> <span style="color:var(--muted)">'+mathify(it.fb)+'</span>';}
+      document.getElementById("qScore").textContent="Score: "+qScore+" / "+qDone;
+      nx.style.display="block"; };
+    b._ok=o.ok; opts.appendChild(b);});
+}
+{
+  const nx=document.getElementById("qNext");
+  if(nx)nx.onclick=()=>{ if(qi<QUIZ.length-1)qi++; else {qi=0;qScore=0;qDone=0;} renderQuiz(); };
+}
+
+/* =====================================================================
+   INIT
+   ===================================================================== */
+function bootMath(){ mathifyStatic(); renderWk(); renderPractice(); renderQuiz(); RERENDER.forEach(f=>f()); }
+bootMath();
+if(!window.katex){ let n=0; const t=setInterval(()=>{ if(window.katex){clearInterval(t);bootMath();} else if(++n>40)clearInterval(t); },150); }
+document.querySelectorAll('.reveal').forEach((n,i)=>{ n.style.animationDelay=Math.min(i*30,440)+'ms'; });
+
+</script>
+</body>
+</html>

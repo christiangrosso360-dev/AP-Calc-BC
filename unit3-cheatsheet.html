@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Unit 3 Cheat Sheet — every rule + when to use it · Composite, Implicit &amp; Inverse</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%23101420%27%2F%3E%3Cg%20fill%3D%27%23f0843c%27%3E%3Crect%20x%3D%276%27%20y%3D%2718%27%20width%3D%274.6%27%20height%3D%278%27%20rx%3D%271%27%20opacity%3D%27.55%27%2F%3E%3Crect%20x%3D%2712%27%20y%3D%2714%27%20width%3D%274.6%27%20height%3D%2712%27%20rx%3D%271%27%20opacity%3D%27.75%27%2F%3E%3Crect%20x%3D%2718%27%20y%3D%2710%27%20width%3D%274.6%27%20height%3D%2716%27%20rx%3D%271%27%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%27M5%2017%20C%2012%2010%2C%2020%206%2C%2027%207%27%20stroke%3D%27%23f7a468%27%20stroke-width%3D%272%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<style>
+/* ============================================================
+   shared base styles — Unit 10 guide (tool pages)
+   The universal dark palette, fonts, and core chrome.
+   Each page sets its own accent in a small :root override AFTER
+   linking this file:  --approx, --gold, --true, --glow, --wrap-max
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Spline+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap');
+
+:root{
+  /* universal dark palette (same on every page) */
+  --bg:#0d0c0a; --panel:#1a1813; --panel-2:#211e18; --ink:#ece7dd; --muted:#9a9183;
+  --line:#332e25; --line-2:#453f33; --conv:#3fd0b0; --div:#e0644f; --faint:#6b6457;
+  /* fonts */
+  --display:'Fraunces',Georgia,serif; --body:'Spline Sans',system-ui,sans-serif;
+  --mono:'Spline Sans Mono',ui-monospace,Menlo,monospace;
+  /* per-page accents have sensible fallbacks; pages override these */
+  --approx:#e8a13c; --gold:#e8a13c; --true:#3fd0b0;
+  --glow:rgba(232,161,60,.08);   /* hero glow tint, per page */
+  --wrap-max:1060px;             /* content column width, per page */
+}
+
+*{box-sizing:border-box}
+
+body{margin:0;
+  background:radial-gradient(ellipse 60% 50% at 15% -8%, var(--glow), transparent 55%), var(--bg);
+  color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased;
+  padding:30px 18px;line-height:1.6}
+
+.wrap{max-width:var(--wrap-max);margin:0 auto}
+
+.backlink{display:inline-block;font-family:var(--mono);font-size:12.5px;color:var(--muted);
+  text-decoration:none;margin-bottom:18px;padding:5px 11px;border:1px solid var(--line);
+  border-radius:20px;background:var(--panel);transition:border-color .15s,color .15s,transform .15s}
+.backlink:hover{border-color:var(--gold);color:var(--ink);transform:translateX(-2px)}
+
+header{margin-bottom:8px}
+h1{font-family:var(--display);font-weight:600;font-size:32px;margin:0;letter-spacing:-0.02em;line-height:1.05}
+h1 .em{color:var(--approx)}
+
+/* math renders in the light ink color on the dark background */
+.katex{color:var(--ink)}
+
+</style>
+<script>
+/* ============================================================
+   shared JS helpers — Unit 10 guide (tool pages)
+   Loaded in <head> before each page's inline script.
+   ============================================================ */
+
+/* Render LaTeX to an HTML string via KaTeX, with a plain-text
+   fallback if KaTeX hasn't loaded yet (or errors).
+   latex   - the LaTeX source string
+   fallback - plain text to show if rendering isn't available (optional)
+   display - true for display (block) mode, false/omitted for inline */
+function tex(latex, fallback, display){
+  if(window.katex){
+    try{ return katex.renderToString(latex, {throwOnError:false, displayMode:!!display}); }
+    catch(e){}
+  }
+  return `<span class="tex-fallback">${fallback!=null?fallback:latex}</span>`;
+}
+
+/* Wrap a LaTeX fragment in a color, for color-coded formulas.
+   Returns a \textcolor{...}{...} string to embed inside other LaTeX. */
+const cc = (hex, body) => `\\textcolor{${hex}}{${body}}`;
+
+/* ============================================================
+   progress recorder — quietly notes which lesson/exam/sheet
+   pages you've opened, so the hub can offer "continue where you
+   left off" and per-unit progress. Stored locally (this origin
+   only) under vcalc:v1; never leaves the browser.
+   ============================================================ */
+(function(){
+  try{
+    var K='vcalc:v1';
+    var s=JSON.parse(localStorage.getItem(K)||'{}');
+    s.visited=s.visited||{};
+    var f=(location.pathname.split('/').pop()||'').toLowerCase();
+    if(f && f!=='index.html' && f.indexOf('-standalone')<0 && f.indexOf('.html')>=0){
+      s.visited[f]=Date.now();
+      s.last=f;
+      localStorage.setItem(K, JSON.stringify(s));
+    }
+  }catch(e){}
+})();
+
+</script>
+<style>
+  /* alias emerald -> Unit 6 crimson so the shared cheat-sheet styling carries over */
+  :root{ --emerald:#f0843c; --emerald-glow:#67d4e8; --approx:#f0843c; --amber:#e8a13c; --rose:#e0644f; --violet:#a892f0; --wrap-max:1100px; }
+  .sub{color:var(--muted);font-size:15px;margin-top:10px;max-width:700px;line-height:1.6}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+  .tool-btn{font-family:var(--mono);font-size:12.5px;background:var(--panel-2);color:var(--ink);border:1px solid var(--line-2);border-radius:9px;padding:9px 15px;cursor:pointer;text-decoration:none;transition:border-color .2s,color .2s}
+  .tool-btn:hover{border-color:var(--emerald);color:var(--emerald-glow)}
+
+  .sheet{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;margin-top:8px}
+  .col{display:flex;flex-direction:column;gap:16px;min-width:0}
+  @media(max-width:760px){.sheet{grid-template-columns:1fr}}
+  .block{background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:0 1px 0 rgba(255,255,255,.04) inset}
+  .block.span2{grid-column:1 / -1}
+  .block h3{font-family:var(--display);font-weight:600;font-size:17px;color:var(--ink);margin:0 0 3px;display:flex;align-items:baseline;gap:10px}
+  .block h3 a{color:inherit;text-decoration:none;border-bottom:1px dashed var(--line-2);transition:border-color .2s,color .2s}
+  .block h3 a:hover{color:var(--emerald-glow);border-color:var(--emerald)}
+  .block .tno{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--emerald);font-weight:400}
+  .block .blurb{font-size:12.5px;color:var(--muted);margin:0 0 12px;line-height:1.5}
+
+  .f{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin:8px 0;overflow-x:auto;overflow-y:hidden}
+  .f .katex{color:var(--ink);font-size:1.02em}
+  .f .flab{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+
+  .mini{font-size:12.5px;color:var(--muted);line-height:1.55;margin:8px 0 0}
+  .mini b{color:var(--ink)} .mini .am{color:var(--amber)} .mini .ro{color:var(--rose)} .mini .cy{color:var(--emerald-glow)}
+
+  .decide{background:rgba(222,83,96,.06);border:1px solid rgba(222,83,96,.25);border-radius:10px;padding:12px 14px;margin-top:12px}
+  .decide .dh{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--emerald);margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .decide .dh::before{content:"\25C6";font-size:9px}
+  .branch{display:flex;gap:10px;font-size:12.5px;color:var(--ink);padding:5px 0;align-items:flex-start;line-height:1.45}
+  .branch .cond{font-family:var(--mono);color:var(--emerald-glow);flex-shrink:0;min-width:104px}
+  .branch .res{color:var(--muted)}
+
+  .traps{background:rgba(224,100,79,.06);border-left:2px solid var(--rose);border-radius:0 9px 9px 0;padding:10px 14px;margin-top:12px}
+  .traps .th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--rose);margin-bottom:6px}
+  .traps ul{margin:0;padding-left:16px} .traps li{font-size:12.5px;color:var(--muted);line-height:1.55;margin:3px 0} .traps li b{color:var(--ink)}
+
+  /* model / phrase gallery */
+  .gallery{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  @media(max-width:420px){.gallery{grid-template-columns:1fr}}
+  .gcard{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 11px}
+  .gcard .gname{font-family:var(--mono);font-size:10.5px;color:var(--emerald-glow);margin-bottom:3px}
+  .gcard .geq{font-size:12px;color:var(--ink)} .gcard .gnote{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4}
+
+  .tex-fallback{font-family:var(--mono);font-size:13px;color:var(--ink)}
+  @keyframes riseIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .reveal{opacity:0;animation:riseIn .55s cubic-bezier(.2,.7,.2,1) forwards}
+  @media (prefers-reduced-motion:reduce){.reveal{animation:none;opacity:1}}
+  footer{color:var(--muted);font-size:12px;margin-top:46px;border-top:1px solid var(--line);padding-top:14px} footer a{color:var(--emerald);text-decoration:none}
+
+  .closer{margin-top:18px;background:linear-gradient(110deg, rgba(222,83,96,.12), var(--panel-2) 60%, var(--panel));border:1px solid rgba(222,83,96,.3);border-radius:16px;padding:26px 28px;box-shadow:0 1px 0 rgba(255,255,255,.04) inset}
+  .closer-line{display:flex;gap:18px;align-items:flex-start}
+  .big-idea-mark{font-family:var(--display);font-size:42px;line-height:.95;color:var(--emerald);flex-shrink:0;opacity:.85}
+  .closer-line p{font-size:15px;color:var(--ink);line-height:1.65;margin:2px 0 0} .closer-line p b{color:var(--emerald-glow)}
+  .closer-jump{margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
+  .jump-primary{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:13.5px;font-weight:600;color:#2a1708;background:var(--emerald);border-radius:10px;padding:11px 18px;text-decoration:none;box-shadow:0 8px 20px -10px var(--emerald);transition:transform .2s,box-shadow .2s}
+  .jump-primary:hover{transform:translateY(-2px);box-shadow:0 12px 26px -10px var(--emerald)} .jump-primary span{transition:transform .2s} .jump-primary:hover span{transform:translateX(4px)}
+  .jump-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .jump-row a{font-family:var(--mono);font-size:12px;color:var(--muted);border:1px solid var(--line-2);border-radius:30px;padding:6px 13px;text-decoration:none;transition:border-color .2s,color .2s}
+  .jump-row a:hover{border-color:var(--emerald);color:var(--emerald-glow)}
+  @media(max-width:560px){.closer-line{flex-direction:column;gap:8px}.big-idea-mark{font-size:34px}}
+
+  @media print{
+    @page{margin:1.2cm}
+    body{background:#fff!important;color:#111!important}
+    .backlink,.toolbar,.sub,.scroll-cue,footer a,.closer-jump{display:none!important}
+    .block{background:#fff!important;border:1px solid #bbb!important;box-shadow:none!important;break-inside:avoid}
+    .f,.gcard{background:#f7f7f5!important;border-color:#ccc!important}
+    .f .katex{color:#111!important}
+    .decide{background:#fdeeef!important;border-color:#e3a6ab}
+    .traps{background:#fdf2f0!important}
+    .closer{background:#fdeeef!important;border-color:#e3a6ab!important}
+    .closer-line p,.big-idea-mark{color:#111!important}.big-idea-mark{color:#b5641f!important}
+    h1,.block h3,.block .blurb,.mini,.branch,.traps li,.gcard .geq,.gcard .gnote{color:#111!important}
+    .tno,.decide .dh,.branch .cond,.gcard .gname{color:#b5641f!important}
+    .sheet{gap:10px}.col{gap:10px}
+    .reveal{animation:none;opacity:1}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="unit3.html">&#8592; Unit 3</a>
+  <header class="reveal">
+    <h1>Unit 3 <span class="em">Cheat Sheet</span></h1>
+    <div class="sub">Composite, Implicit &amp; Inverse Differentiation &mdash; every rule, every decision, and every trap from the five lessons, on one page. The whole unit is one skill: <i>name the structure, then apply the matching rule</i>. Each block title links back to its lesson.</div>
+    <div class="toolbar">
+      <button class="tool-btn" onclick="window.print()">&#9113; Print / save as PDF</button>
+      <a class="tool-btn" href="unit3-exam-practice.html">&#8594; Test yourself</a>
+    </div>
+  </header>
+
+  <div class="sheet">
+    <div class="col">
+
+    <div class="block reveal">
+      <h3><a href="chain-rule.html">The Chain Rule</a> <span class="tno">3.1</span></h3>
+      <p class="blurb">Differentiate the <i>outer</i> function at the inner, then multiply by the inner&rsquo;s derivative. The engine behind almost every rule that follows.</p>
+      <div class="f"><div class="flab">Lagrange &middot; Leibniz</div><div id="f_chain"></div></div>
+      <p class="mini"><b>Find the inner by the &ldquo;last operation&rdquo; test:</b> whatever you would compute <i>last</i> plugging in a number is the outer; what&rsquo;s left inside is \(u\). Peel outermost-first, one layer at a time.</p>
+      <div class="traps"><div class="th">trap</div><ul>
+        <li><b>The inner derivative \(u'\) is the most-dropped factor</b> &mdash; \(\frac{d}{dx}\sin(x^2)=\cos(x^2)\cdot 2x\), not \(\cos(x^2)\).</li>
+        <li><b>Evaluate \(f'\) at the inner value,</b> not at \(x\): in a table, \(h'(1)=f'\!\bigl(g(1)\bigr)\,g'(1)\).</li>
+      </ul></div>
+    </div>
+
+    <div class="block reveal">
+      <h3><a href="chain-rule.html">Common Chain Patterns</a> <span class="tno">3.1</span></h3>
+      <p class="blurb">Every one is the same move &mdash; outer derivative \(\times\) inner derivative \(u'\). Memorize the shapes and the chain becomes automatic.</p>
+      <div class="gallery">
+        <div class="gcard"><div class="gname">power</div><div class="geq">\(\frac{d}{dx}u^{n}=n\,u^{n-1}u'\)</div></div>
+        <div class="gcard"><div class="gname">exponential</div><div class="geq">\(\frac{d}{dx}e^{u}=e^{u}\,u'\)</div></div>
+        <div class="gcard"><div class="gname">natural log</div><div class="geq">\(\frac{d}{dx}\ln u=\dfrac{u'}{u}\)</div></div>
+        <div class="gcard"><div class="gname">general base</div><div class="geq">\(\frac{d}{dx}a^{u}=a^{u}\ln a\;u'\)</div></div>
+        <div class="gcard"><div class="gname">root</div><div class="geq">\(\frac{d}{dx}\sqrt{u}=\dfrac{u'}{2\sqrt{u}}\)</div></div>
+        <div class="gcard"><div class="gname">sine</div><div class="geq">\(\frac{d}{dx}\sin u=\cos u\;u'\)</div></div>
+      </div>
+    </div>
+
+    <div class="block reveal">
+      <h3><a href="implicit-differentiation.html">Implicit Differentiation</a> <span class="tno">3.2</span></h3>
+      <p class="blurb">When you can&rsquo;t solve for \(y\): treat \(y\) as a hidden function of \(x\), so every \(y\)-term carries a \(\frac{dy}{dx}\).</p>
+      <div class="f"><div class="flab">the two key derivatives</div><div id="f_impl"></div></div>
+      <div class="decide"><div class="dh">The four moves</div>
+        <div class="branch"><span class="cond">1 &middot; differentiate</span><span class="res">both sides w.r.t. \(x\)</span></div>
+        <div class="branch"><span class="cond">2 &middot; tag</span><span class="res">every \(y\)-term gets a \(\frac{dy}{dx}\) (chain rule)</span></div>
+        <div class="branch"><span class="cond">3 &middot; collect</span><span class="res">all \(\frac{dy}{dx}\) on one side, factor</span></div>
+        <div class="branch"><span class="cond">4 &middot; solve</span><span class="res">divide for \(\frac{dy}{dx}\)</span></div>
+      </div>
+      <div class="traps"><div class="th">trap</div><ul>
+        <li><b>Treating \(y^2\) as a constant</b> &mdash; it differentiates to \(2y\,y'\), never \(2y\).</li>
+        <li><b>\(xy\) needs the product rule:</b> \(\frac{d}{dx}(xy)=y+x\,y'\).</li>
+      </ul></div>
+    </div>
+
+    <div class="block reveal">
+      <h3><a href="implicit-differentiation.html">Tangents &amp; the 2nd Derivative</a> <span class="tno">3.2</span></h3>
+      <p class="blurb">Once you have \(\frac{dy}{dx}=\frac{N}{D}\), the special tangents are pure sign-reading.</p>
+      <div class="decide"><div class="dh">Horizontal or vertical?</div>
+        <div class="branch"><span class="cond">numerator \(=0\)</span><span class="res">horizontal tangent (slope \(0\))</span></div>
+        <div class="branch"><span class="cond">denominator \(=0\)</span><span class="res">vertical tangent (slope undefined)</span></div>
+      </div>
+      <div class="f"><div class="flab">implicit 2nd derivative (circle)</div><div id="f_impl2"></div></div>
+      <div class="traps"><div class="th">trap</div><ul>
+        <li><b>Substitute \(y'\) back in</b> after differentiating \(y'\) &mdash; then simplify with the <i>original</i> equation.</li>
+        <li><b>Both conditions need the other side nonzero</b> &mdash; \(\frac00\) is indeterminate, not a tangent.</li>
+      </ul></div>
+    </div>
+
+    <div class="block reveal">
+      <h3><a href="higher-order-derivatives.html">Higher-Order Derivatives</a> <span class="tno">3.6</span></h3>
+      <p class="blurb">Just differentiate again &mdash; and again. Notation stacks; patterns emerge.</p>
+      <div class="f"><div class="flab">notation</div><div id="f_ho"></div></div>
+      <p class="mini"><b>Two patterns worth knowing:</b> the trig cycle \(\sin\!\to\!\cos\!\to\!-\sin\!\to\!-\cos\) repeats every 4; and \(\frac{d^n}{dx^n}\frac1x=\dfrac{(-1)^n n!}{x^{n+1}}\) &mdash; alternating sign, factorial coefficient.</p>
+      <div class="traps"><div class="th">trap</div><ul>
+        <li><b>Differentiate fully, then evaluate</b> &mdash; never plug in a number between derivatives.</li>
+        <li><b>Watch the sign by parity:</b> even-order derivatives of \(1/x\) and of \(\cos\) flip predictably.</li>
+      </ul></div>
+    </div>
+
+    </div>
+    <div class="col">
+
+    <div class="block reveal">
+      <h3><a href="inverse-derivatives.html">Inverse-Function Derivatives</a> <span class="tno">3.3</span></h3>
+      <p class="blurb">Reflecting a graph across \(y=x\) swaps rise and run, so the inverse&rsquo;s slope is the <i>reciprocal</i> &mdash; taken at the matched point.</p>
+      <div class="f"><div class="flab">the rule</div><div id="f_inv"></div></div>
+      <p class="mini"><b>Table method:</b> to get \((f^{-1})'(c)\), find \(c\) in the <span class="cy">output</span> row, hop to its input \(a=f^{-1}(c)\), then reciprocate: \(1/f'(a)\).</p>
+      <div class="traps"><div class="th">trap</div><ul>
+        <li><b>Reciprocate at \(f^{-1}(x)\), not at \(x\).</b> The single most common error &mdash; always solve for the matched input first.</li>
+        <li><b>Reflection keeps the sign</b> of the slope: a rising function has a rising inverse.</li>
+      </ul></div>
+    </div>
+
+    <div class="block reveal">
+      <h3><a href="inverse-derivatives.html">Inverse-Trig Derivatives</a> <span class="tno">3.4</span></h3>
+      <p class="blurb">Six to know; co-functions are just the negatives. Chain rule: replace \(x\) with \(u\) and multiply by \(u'\).</p>
+      <div class="gallery">
+        <div class="gcard"><div class="gname">arcsin</div><div class="geq">\(\dfrac{1}{\sqrt{1-x^2}}\)</div></div>
+        <div class="gcard"><div class="gname">arccos</div><div class="geq">\(-\dfrac{1}{\sqrt{1-x^2}}\)</div></div>
+        <div class="gcard"><div class="gname">arctan</div><div class="geq">\(\dfrac{1}{1+x^2}\)</div></div>
+        <div class="gcard"><div class="gname">arccot</div><div class="geq">\(-\dfrac{1}{1+x^2}\)</div></div>
+        <div class="gcard"><div class="gname">arcsec</div><div class="geq">\(\dfrac{1}{|x|\sqrt{x^2-1}}\)</div></div>
+        <div class="gcard"><div class="gname">arccsc</div><div class="geq">\(-\dfrac{1}{|x|\sqrt{x^2-1}}\)</div></div>
+      </div>
+      <div class="traps"><div class="th">trap</div><ul>
+        <li><b>\(\arctan\) has no radical</b> &mdash; it&rsquo;s \(\frac{1}{1+x^2}\); \(\arcsin\) has the \(\sqrt{\;}\).</li>
+        <li><b>\(\operatorname{arcsec}\) keeps the \(|x|\)</b> so the slope stays positive on both branches.</li>
+      </ul></div>
+    </div>
+
+    <div class="block reveal">
+      <h3><a href="selecting-procedures.html">Logarithmic Differentiation</a> <span class="tno">3.5</span></h3>
+      <p class="blurb">For a variable base <i>and</i> exponent, or a messy product/quotient: take \(\ln\) of both sides first, then differentiate implicitly.</p>
+      <div class="f"><div class="flab">the technique</div><div id="f_logdiff"></div></div>
+      <p class="mini"><b>Classic:</b> \(y=x^{x}\Rightarrow \ln y=x\ln x\Rightarrow \frac{y'}{y}=\ln x+1\Rightarrow y'=x^{x}(\ln x+1)\).</p>
+      <div class="traps"><div class="th">trap</div><ul>
+        <li><b>Multiply back by \(y\) at the end</b> &mdash; \(\frac{y'}{y}=\dots\) isn&rsquo;t the answer until you clear the \(y\).</li>
+        <li><b>Neither pure rule works on \(x^x\):</b> the power rule needs a constant exponent, the exponential rule a constant base.</li>
+      </ul></div>
+    </div>
+
+    <div class="block reveal">
+      <h3><a href="selecting-procedures.html">Selecting Procedures</a> <span class="tno">3.5</span></h3>
+      <p class="blurb">Differentiation is parsing. Name the <b>outermost operation</b> first &mdash; it picks the rule; recurse inward.</p>
+      <div class="decide"><div class="dh">What is the outer operation?</div>
+        <div class="branch"><span class="cond">sum / difference</span><span class="res">differentiate term by term</span></div>
+        <div class="branch"><span class="cond">product</span><span class="res">product rule \(u'v+uv'\)</span></div>
+        <div class="branch"><span class="cond">quotient</span><span class="res">quotient rule &mdash; or split / simplify first</span></div>
+        <div class="branch"><span class="cond">composition</span><span class="res">chain rule</span></div>
+        <div class="branch"><span class="cond">tangled \(x\) &amp; \(y\)</span><span class="res">implicit differentiation</span></div>
+      </div>
+      <div class="traps"><div class="th">trap</div><ul>
+        <li><b>Rewrite before you differentiate:</b> log laws split \(\ln(x^4(x^2{+}1))\); \(\frac{x^2+1}{x}=x+\frac1x\); factor \(\frac{x^3-1}{x-1}\).</li>
+        <li><b>Forcing one favorite rule</b> onto everything &mdash; the outer operation, not habit, chooses.</li>
+      </ul></div>
+    </div>
+
+    <div class="block reveal">
+      <h3><a href="higher-order-derivatives.html">Motion: Position &rarr; Velocity &rarr; Acceleration</a> <span class="tno">3.6</span></h3>
+      <p class="blurb">The headline application: each derivative of position is the next kinematic quantity.</p>
+      <div class="f"><div class="flab">the chain of motion</div><div id="f_motion"></div></div>
+      <p class="mini"><b>Speeding up</b> when \(v\) and \(a\) share a sign; <b>slowing down</b> when they oppose. \(v=0\) does <i>not</i> force \(a=0\) &mdash; a particle can be momentarily still while accelerating.</p>
+      <div class="traps"><div class="th">trap</div><ul>
+        <li><b>Velocity is signed; speed is \(|v|\).</b> &ldquo;How fast&rdquo; wants speed, direction wants the sign of \(v\).</li>
+        <li><b>Turning points are where \(v=0\) and changes sign</b> &mdash; check the sign, don&rsquo;t assume.</li>
+      </ul></div>
+    </div>
+
+    </div>
+  </div>
+
+  <div class="closer reveal">
+    <div class="closer-line">
+      <span class="big-idea-mark">&#8728;</span>
+      <p>Unit 3 is one habit in five disguises: <b>read the structure first, then differentiate.</b> The chain rule handles composition, implicit differentiation handles curves you can&rsquo;t solve, inverses reflect a slope into its reciprocal, and selecting procedures is just naming the outermost operation before you touch a rule. Higher-order derivatives simply run the whole loop again. Parse before you compute &mdash; the unit grades the <i>diagnosis</i> as much as the algebra.</p>
+    </div>
+    <div class="closer-jump">
+      <a href="unit3-exam-practice.html" class="jump-primary">Test yourself on the exam set <span>&#8594;</span></a>
+      <div class="jump-row">
+        <a href="chain-rule.html">3.1 Chain Rule</a><a href="implicit-differentiation.html">3.2 Implicit</a><a href="inverse-derivatives.html">3.3&ndash;3.4 Inverse</a><a href="selecting-procedures.html">3.5 Selecting</a><a href="higher-order-derivatives.html">3.6 Higher-Order</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="reveal">Unit 3 Cheat Sheet &middot; Composite, Implicit &amp; Inverse Differentiation &mdash; the chain rule, implicit differentiation, inverse and inverse-trig derivatives, selecting procedures, higher-order derivatives &middot; <a href="unit3.html">back to the unit</a> &middot; print-friendly.</footer>
+</div>
+<script>
+function renderSheet(){
+  const R=String.raw;
+  const put=(id,tex_,fb)=>{const e=document.getElementById(id);if(e)e.innerHTML=tex(tex_,fb||tex_,true);};
+  put('f_chain', R`(f\circ g)'(x)=f'\bigl(g(x)\bigr)\,g'(x)\qquad \frac{dy}{dx}=\frac{dy}{du}\cdot\frac{du}{dx}`, "(f∘g)′ = f′(g)·g′;  dy/dx = dy/du · du/dx");
+  put('f_impl', R`\frac{d}{dx}\bigl[y^{n}\bigr]=n\,y^{\,n-1}\frac{dy}{dx}\qquad \frac{d}{dx}\bigl[xy\bigr]=y+x\frac{dy}{dx}`, "d/dx[yⁿ]=n y^{n−1} y′;  d/dx[xy]=y+x y′");
+  put('f_impl2', R`y'=-\frac{x}{y}\ \Longrightarrow\ y''=-\frac{r^{2}}{y^{3}}\quad\text{on}\ x^{2}+y^{2}=r^{2}`, "y′=−x/y ⇒ y″=−r²/y³ on the circle");
+  put('f_inv', R`\bigl(f^{-1}\bigr)'(x)=\frac{1}{f'\!\bigl(f^{-1}(x)\bigr)}`, "(f⁻¹)′(x) = 1 / f′(f⁻¹(x))");
+  put('f_logdiff', R`y=f(x)^{\,g(x)}\ \Rightarrow\ \ln y=g\ln f\ \Rightarrow\ \frac{y'}{y}=g'\ln f+\frac{g\,f'}{f}`, "ln y = g ln f  ⇒  y′/y = g′ ln f + g f′/f");
+  put('f_ho', R`f',\ f'',\ f''',\ f^{(4)},\ \dots,\ f^{(n)}\qquad \frac{d^{2}y}{dx^{2}},\ \frac{d^{n}y}{dx^{n}}`, "f′, f″, f‴, f⁽ⁿ⁾;  d²y/dx², dⁿy/dxⁿ");
+  put('f_motion', R`s(t)\ \xrightarrow{\ \frac{d}{dt}\ }\ v(t)=s'(t)\ \xrightarrow{\ \frac{d}{dt}\ }\ a(t)=v'(t)=s''(t)`, "s(t) → v=s′ → a=v′=s″");
+}
+function mathifyInline(){
+  if(!window.katex)return;
+  document.querySelectorAll('.mini,.branch .res,.branch .cond,.traps li,.gcard .geq,.gcard .gnote,.sub,.closer-line p,.blurb').forEach(node=>{
+    if(node.dataset.done)return;
+    node.innerHTML=node.innerHTML.replace(/\\\((.+?)\\\)/g,(m,t)=>{try{return window.katex?katex.renderToString(t,{throwOnError:false}):m;}catch(e){return m;}});
+    node.dataset.done="1";
+  });
+}
+function boot(){renderSheet();mathifyInline();}
+boot();
+if(window.addEventListener)window.addEventListener('load',boot);
+if(!window.katex){let t=0;const iv=setInterval(()=>{if(window.katex){clearInterval(iv);boot();}else if(++t>60)clearInterval(iv);},100);}
+document.querySelectorAll('.reveal').forEach((n,i)=>{n.style.animationDelay=Math.min(i*40,320)+'ms';});
+</script>
+</body>
+</html>

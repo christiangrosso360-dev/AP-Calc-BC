@@ -34,6 +34,7 @@
     --u8:#40c98a; --u8b:#5fe0a4;
     --u9:#3fb6d8; --u9b:#6dd4ef;
     --u10:#a98cf0; --u10b:#c4adff;
+    --u3:#f0843c; --u3b:#f7a468;
     --crimson:#e0644f;
     --display:'Fraunces',Georgia,serif; --body:'Spline Sans',system-ui,sans-serif;
     --mono:'Spline Sans Mono',ui-monospace,Menlo,monospace;
@@ -213,13 +214,21 @@
   .u10:hover{border-color:rgba(169,140,240,.42);box-shadow:0 30px 66px -40px rgba(0,0,0,.92),0 0 50px -26px rgba(169,140,240,.4)}
   .u10:hover .card-art{border-color:rgba(169,140,240,.25)} .u10:hover .card-art svg{filter:drop-shadow(0 0 12px rgba(169,140,240,.5))}
   .u10:hover .uname{text-shadow:0 0 22px rgba(169,140,240,.5)} .u10:hover .chip{border-color:rgba(169,140,240,.34);color:#c4b6e8}
+  .u3{--cardc:var(--u3);--cardglow:rgba(240,132,60,.20)}
+  .u3:hover{border-color:rgba(240,132,60,.42);box-shadow:0 30px 66px -40px rgba(0,0,0,.92),0 0 50px -26px rgba(240,132,60,.4)}
+  .u3:hover .card-art{border-color:rgba(240,132,60,.25)} .u3:hover .card-art svg{filter:drop-shadow(0 0 12px rgba(240,132,60,.5))}
+  .u3:hover .uname{text-shadow:0 0 22px rgba(240,132,60,.5)} .u3:hover .chip{border-color:rgba(240,132,60,.34);color:#f6bd93}
+  /* freshly-launched badge (reusable) */
+  .card .newtag{position:absolute;z-index:3;top:13px;right:13px;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#1c1206;background:linear-gradient(100deg,var(--u3b),var(--u3));border-radius:30px;padding:3px 9px;box-shadow:0 4px 15px -4px rgba(240,132,60,.7);animation:newPulse 2.6s ease-in-out infinite}
+  @keyframes newPulse{0%,100%{box-shadow:0 4px 14px -5px rgba(240,132,60,.5)}50%{box-shadow:0 5px 22px -3px rgba(240,132,60,.95)}}
+  @media (prefers-reduced-motion:reduce){.card .newtag{animation:none}}
 
   /* ---------- roadmap ---------- */
   .progress-wrap{display:flex;align-items:center;gap:14px;margin:8px 0 20px}
   .progress-track{flex:1;height:5px;border-radius:30px;background:var(--line);overflow:hidden;max-width:320px}
   .progress-fill{height:100%;width:0;border-radius:30px;transition:width 1.2s cubic-bezier(.2,.7,.2,1);
     background:linear-gradient(90deg,var(--u8),var(--u9) 55%,var(--u10))}
-  .group-fade.shown .progress-fill{width:70%}
+  .group-fade.shown .progress-fill{width:80%}
   .sec-head .t .sn{color:var(--gold-glow);font-weight:600;margin-right:1px}
   .rrow{--d:0s}
   @keyframes rowSweep{0%{background:transparent}38%{background:rgba(255,255,255,.05)}100%{background:transparent}}
@@ -431,8 +440,8 @@
         <a class="hero-cta" href="#readyGroup">Explore the units <span class="arr" aria-hidden="true">&#8595;</span></a>
         <div class="meta">
           <div><div class="n" data-count="10">10</div><div class="l">Units</div></div>
-          <div><div class="n"><em data-count="7">7</em></div><div class="l">Ready now</div></div>
-          <div><div class="n" data-count="34">34</div><div class="l">Lessons</div></div>
+          <div><div class="n"><em data-count="8">8</em></div><div class="l">Ready now</div></div>
+          <div><div class="n" data-count="39">39</div><div class="l">Lessons</div></div>
         </div>
       </div>
       <div class="hero-chips">
@@ -469,7 +478,7 @@
   <div class="group-fade" id="readyGroup">
     <div class="sec-head">
       <div class="t"><span class="sn">01</span>Start here</div>
-      <h2>Five units, ready to use</h2>
+      <h2>Eight units, ready to use</h2>
       <p class="sub">Each is a complete guide &mdash; interactive lessons, a full exam-style practice set, and a one-page cheat sheet.</p>
     </div>
     <div class="router" id="router">
@@ -521,6 +530,27 @@
           <h3 class="uname">Differentiation: Definition &amp; Rules</h3>
           <p class="udesc">The derivative as the limit of a difference quotient, differentiability vs. continuity, the power and basic rules, derivatives of the key functions, and the product &amp; quotient rules &mdash; where the derivative arrives and becomes a toolkit.</p>
           <div class="chips"><span class="chip">Derivative</span><span class="chip">Power</span><span class="chip">Trig</span><span class="chip">Product</span><span class="chip">Quotient</span></div>
+          <span class="go">Open unit <span class="arr">&#8594;</span></span>
+        </div>
+      </a>
+      <!-- Unit 3 -->
+      <a class="card u3" href="unit3.html">
+        <span class="newtag">New</span>
+        <div class="card-art" aria-hidden="true">
+          <svg viewBox="0 0 150 118" width="150" height="118" fill="none">
+            <path d="M22 96 H130" stroke="currentColor" stroke-width="2" opacity=".22" stroke-linecap="round"/>
+            <path d="M26 96 V24" stroke="currentColor" stroke-width="2" opacity=".22" stroke-linecap="round"/>
+            <path d="M26 96 L 104 18" stroke="currentColor" stroke-width="1.4" opacity=".28" stroke-dasharray="3 4" stroke-linecap="round"/>
+            <path class="cdraw" pathLength="1" d="M26 96 C 46 89, 63 78, 74 61 C 81 50, 79 50, 72 50 C 63 50, 57 50, 50 55 C 40 62, 34 70, 31 74 C 28 82, 27 89, 26 96 Z" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+            <circle cx="26" cy="96" r="3.4" fill="currentColor"/>
+            <circle cx="72" cy="50" r="4" fill="var(--bg)" stroke="currentColor" stroke-width="2.4"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="unum">Unit 03</div>
+          <h3 class="uname">Differentiation: Composite, Implicit &amp; Inverse</h3>
+          <p class="udesc">The chain rule, implicit differentiation, derivatives of inverse &amp; inverse-trig functions, selecting the right procedure, and higher-order derivatives &mdash; where differentiation becomes reading structure.</p>
+          <div class="chips"><span class="chip">Chain rule</span><span class="chip">Implicit</span><span class="chip">Inverse</span><span class="chip">Selecting</span><span class="chip">Higher&#8209;order</span></div>
           <span class="go">Open unit <span class="arr">&#8594;</span></span>
         </div>
       </a>
@@ -644,7 +674,7 @@
     <div class="sec-head">
       <div class="t"><span class="sn">02</span>The whole course</div>
       <h2>The full BC roadmap</h2>
-      <p class="sub">All ten College&nbsp;Board units, in order. Four are live; the rest are on the way &mdash; each will get the same visual, manipulable treatment.</p>
+      <p class="sub">All ten College&nbsp;Board units, in order. Eight are live; the rest are on the way &mdash; each will get the same visual, manipulable treatment.</p>
     </div>
     <div class="search" id="search">
       <span class="sic" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
@@ -653,12 +683,12 @@
     </div>
     <div class="progress-wrap">
       <div class="progress-track"><div class="progress-fill"></div></div>
-      <div class="progress-label"><b>7</b> of 10 units ready</div>
+      <div class="progress-label"><b>8</b> of 10 units ready</div>
     </div>
     <div class="road">
       <a class="rrow live" href="unit1.html" style="--rc:var(--u1)"><span class="rnum">01</span><span class="rdot"></span><span class="rtitle">Limits &amp; Continuity<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
       <a class="rrow live" href="unit2.html" style="--rc:var(--u2)"><span class="rnum">02</span><span class="rdot"></span><span class="rtitle">Differentiation: Definition &amp; Basic Rules<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
-      <div class="rrow soon"><span class="rnum">03</span><span class="rdot"></span><span class="rtitle">Differentiation: Composite, Implicit &amp; Inverse<span class="rwhat">The chain rule, implicit differentiation, and derivatives of inverse functions.</span></span><span class="pill">Soon</span><span class="rarr">&#8594;</span></div>
+      <a class="rrow live" href="unit3.html" style="--rc:var(--u3)"><span class="rnum">03</span><span class="rdot"></span><span class="rtitle">Differentiation: Composite, Implicit &amp; Inverse<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
       <div class="rrow soon"><span class="rnum">04</span><span class="rdot"></span><span class="rtitle">Contextual Applications of Differentiation<span class="rwhat">Related rates, motion along a line, and linear approximation in context.</span></span><span class="pill">Soon</span><span class="rarr">&#8594;</span></div>
       <div class="rrow soon"><span class="rnum">05</span><span class="rdot"></span><span class="rtitle">Analytical Applications of Differentiation<span class="rwhat">The Mean Value Theorem, curve sketching, optimization, and concavity.</span></span><span class="pill">Soon</span><span class="rarr">&#8594;</span></div>
       <a class="rrow live" href="unit6.html" style="--rc:var(--u6)"><span class="rnum">06</span><span class="rdot"></span><span class="rtitle">Integration &amp; Accumulation of Change<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
@@ -894,6 +924,13 @@
    {u:2,k:'lesson',t:'Product & Quotient Rules',f:'product-and-quotient.html',kw:'product rule quotient rule uv u over v low d high derivative of a product'},
    {u:2,k:'exam',t:'Unit 2 — Exam Practice',f:'unit2-exam-practice.html',kw:'exam practice mcq frq test differentiation derivative power product quotient rules differentiability'},
    {u:2,k:'sheet',t:'Unit 2 — Cheat Sheet',f:'unit2-cheatsheet.html',kw:'cheat sheet formulas review differentiation derivative rules power product quotient trig'},
+   {u:3,k:'lesson',t:'The Chain Rule',f:'chain-rule.html',kw:'chain rule composite outer inner function composition nested derivative u substitution'},
+   {u:3,k:'lesson',t:'Implicit Differentiation',f:'implicit-differentiation.html',kw:'implicit differentiation dy dx related tangent curve folium circle vertical horizontal tangent'},
+   {u:3,k:'lesson',t:'Inverse & Inverse-Trig Derivatives',f:'inverse-derivatives.html',kw:'inverse function derivative reciprocal slope reflection arcsin arccos arctan arcsec inverse trig'},
+   {u:3,k:'lesson',t:'Selecting Procedures',f:'selecting-procedures.html',kw:'selecting procedures which rule product quotient chain logarithmic differentiation outermost operation'},
+   {u:3,k:'lesson',t:'Higher-Order Derivatives',f:'higher-order-derivatives.html',kw:'higher order second third derivative notation position velocity acceleration concavity'},
+   {u:3,k:'exam',t:'Unit 3 \u2014 Exam Practice',f:'unit3-exam-practice.html',kw:'exam practice mcq frq test chain implicit inverse higher order selecting'},
+   {u:3,k:'sheet',t:'Unit 3 \u2014 Cheat Sheet',f:'unit3-cheatsheet.html',kw:'cheat sheet formulas review chain implicit inverse trig higher order'},
    {u:6,k:'lesson',t:'Riemann Sums & the Definite Integral',f:'riemann-sums.html',kw:'riemann sum left right midpoint trapezoid rectangle approximation table overestimate underestimate definite integral accumulation'},
    {u:6,k:'lesson',t:'The Fundamental Theorem',f:'fundamental-theorem.html',kw:'fundamental theorem ftc accumulation function g(x) chain rule bound graph analysis area'},
    {u:6,k:'lesson',t:'Antiderivatives & u-Substitution',f:'antiderivatives.html',kw:'antiderivative deck u-substitution u sub reverse chain rule completing square arctan long division'},
@@ -930,7 +967,7 @@
    {u:10,k:'sheet',t:'Unit 10 \u2014 Cheat Sheet',f:'unit10-cheatsheet.html',kw:'cheat sheet formulas review'}
   ];
   var byF={}; CAT.forEach(function(c){byF[c.f]=c;});
-  var UNAME={8:'Unit 8',9:'Unit 9',10:'Unit 10'};
+  var UNAME={1:'Unit 1',2:'Unit 2',3:'Unit 3',6:'Unit 6',7:'Unit 7',8:'Unit 8',9:'Unit 9',10:'Unit 10'};
   var lpu={7:0,8:0,9:0,10:0}; CAT.forEach(function(c){if(c.k==='lesson')lpu[c.u]++;});
 
   var visited={}, last=null;
@@ -946,7 +983,7 @@
       var c=byF[lf], kl=c.k==='lesson'?'Lesson':(c.k==='exam'?'Exam practice':'Cheat sheet');
       document.getElementById('continueName').innerHTML=c.t+' <em>'+UNAME[c.u]+' \u00b7 '+kl+'</em>';
       document.getElementById('continueGo').setAttribute('href',c.f);
-      document.getElementById('continueOverall').innerHTML='<b>'+lessonsDone+'</b> of 29 lessons explored';
+      document.getElementById('continueOverall').innerHTML='<b>'+lessonsDone+'</b> of 39 lessons explored';
       bar.classList.add('show');
     }
   }
