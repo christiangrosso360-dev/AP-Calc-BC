@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Visual AP Calculus BC · all of BC, made visual</title>
+<meta name="description" content="Every unit of AP Calculus BC, rebuilt around interactive visuals you can actually move. Free, in your browser." />
+<meta name="theme-color" content="#0a0c0e" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Visual AP Calculus BC" />
+<meta property="og:title" content="Visual AP Calculus BC — all of BC, made visual" />
+<meta property="og:description" content="The whole AP Calculus BC course, rebuilt around interactive visuals you can actually move. Drag a curve, sweep an area, watch a series converge. Free, in your browser." />
+<meta property="og:url" content="https://christiangrosso360-dev.github.io/AP-Calc-BC-Unit10/" />
+<meta property="og:image" content="https://christiangrosso360-dev.github.io/AP-Calc-BC-Unit10/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Visual AP Calculus BC — all of BC, made visual" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Visual AP Calculus BC — all of BC, made visual" />
+<meta name="twitter:description" content="The whole AP Calculus BC course, rebuilt around interactive visuals you can actually move. Free." />
+<meta name="twitter:image" content="https://christiangrosso360-dev.github.io/AP-Calc-BC-Unit10/og-image.png" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%230a0c0e%22/%3E%3Cpath%20d%3D%22M6%2022%20C%2012%208%2C%2020%208%2C%2026%2018%22%20fill%3D%22none%22%20stroke%3D%22%23d8b873%22%20stroke-width%3D%222.6%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Spline+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap');
+  @property --lift{syntax:'<length>';inherits:false;initial-value:0px;}
+  :root{
+    --void:#0a0c0e; --ink-1:#0f1316; --panel:#13181c; --panel-2:#191f24;
+    --line:#262e35; --line-2:#34404a;
+    --text:#eef2f5; --muted:#93a0aa; --faint:#5e6b75;
+    /* course house accent: champagne gold */
+    --gold:#d8b873; --gold-glow:#efd49b; --gold-deep:#a8893f;
+    /* per-unit signature colors */
+    --u1:#e86ab4; --u2:#8dcc4e; --u6:#5f7ff2; --u1b:#f3a1cf; --u2b:#b2db88; --u6b:#8fa6f7; --u7:#de5360; --u7b:#fb8590;
+    --u8:#40c98a; --u8b:#5fe0a4;
+    --u9:#3fb6d8; --u9b:#6dd4ef;
+    --u10:#a98cf0; --u10b:#c4adff;
+    --u3:#f0843c; --u3b:#f7a468;
+    --crimson:#e0644f;
+    --display:'Fraunces',Georgia,serif; --body:'Spline Sans',system-ui,sans-serif;
+    --mono:'Spline Sans Mono',ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{margin:0;background:var(--void);color:var(--text);font-family:var(--body);
+    -webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden}
+  body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(ellipse 60% 45% at 80% -2%, rgba(216,184,115,.10), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 6% 8%, rgba(63,182,216,.05), transparent 55%),
+      radial-gradient(ellipse 55% 45% at 96% 70%, rgba(169,140,240,.05), transparent 60%);}
+  body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.025;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px}
+
+  /* reduced-motion note — shown only when the visitor's system has motion turned off */
+  .motion-note{display:none}
+  .mn-ico{color:var(--gold-glow);font-size:15px;line-height:1;flex-shrink:0;margin-top:1px}
+  .mn-txt{flex:1}
+  .mn-txt b{color:var(--text);font-weight:600}
+  .mn-x{flex-shrink:0;background:none;border:0;color:var(--faint);font-size:21px;line-height:1;cursor:pointer;padding:0 2px;transition:color .3s}
+  .mn-x:hover{color:var(--text)}
+  @media (prefers-reduced-motion:reduce){
+    .motion-note{display:flex;align-items:flex-start;gap:12px;margin:16px 0 2px;padding:12px 16px;
+      border:1px solid var(--line-2);border-radius:13px;
+      background:linear-gradient(180deg,var(--ink-1),var(--panel));
+      color:var(--muted);font-size:13.5px;line-height:1.55}
+  }
+
+  /* ---------- top bar ---------- */
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:24px 0 0}
+  .brand{display:flex;align-items:center;gap:11px;text-decoration:none}
+  .brand .mark{width:30px;height:30px;flex-shrink:0}
+  .brand .wordmark{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:-.01em;color:var(--text)}
+  .brand .wordmark b{color:var(--gold);font-weight:600}
+  .top-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+
+  /* ---------- hero (graphing-calculator panel, framed like a card, beside confident type) ---------- */
+  .hero{position:relative;min-height:82vh;display:grid;grid-template-columns:1.04fr 0.96fr;align-items:center;
+    gap:54px;padding:54px 0 50px}
+  .hero-inner{position:relative;z-index:2;max-width:600px}
+  .kicker{font-family:var(--mono);font-size:12.5px;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:24px;display:flex;align-items:center;gap:11px}
+  .kicker .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold);
+    animation:dotPulse 3s ease-in-out infinite}
+  @keyframes dotPulse{0%,100%{opacity:.7}50%{opacity:1}}
+  h1{font-family:var(--display);font-weight:600;font-size:clamp(44px,5.6vw,78px);line-height:.98;
+    letter-spacing:-0.03em;margin:0}
+  h1 .it{font-style:italic;font-weight:500;
+    background:linear-gradient(102deg,var(--u8b) 2%,var(--u9b) 44%,var(--u10b) 88%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lede{font-size:clamp(15px,1.5vw,18px);color:var(--muted);max-width:520px;margin:30px 0 0;line-height:1.66}
+  .lede b{color:var(--text);font-weight:600}
+  .cta-row{display:flex;align-items:center;gap:28px;margin-top:40px;flex-wrap:wrap}
+  .hero-cta{position:relative;display:inline-flex;align-items:center;gap:10px;text-decoration:none;
+    font-family:var(--mono);font-size:12.5px;font-weight:600;letter-spacing:.03em;color:#0a0c0e;
+    background:linear-gradient(100deg,var(--gold-glow),var(--gold));border-radius:11px;padding:13px 22px;
+    box-shadow:0 10px 28px -12px rgba(216,184,115,.55);overflow:hidden;
+    transition:transform .3s cubic-bezier(.16,.8,.3,1),box-shadow .3s}
+  .hero-cta::before{content:"";position:absolute;inset:0;
+    background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.5) 50%,transparent 70%);
+    transform:translateX(-130%);transition:transform .6s}
+  .hero-cta:hover{transform:translateY(-3px);box-shadow:0 16px 38px -12px rgba(216,184,115,.68)}
+  .hero-cta:hover::before{transform:translateX(130%)}
+  .hero-cta .arr{transition:transform .35s cubic-bezier(.16,.8,.3,1)}
+  .hero-cta:hover .arr{transform:translateY(3px)}
+  .meta{display:flex;gap:34px;flex-wrap:wrap}
+  .meta .n{font-family:var(--display);font-size:29px;font-weight:600;color:var(--text);line-height:1}
+  .meta .n em{font-style:normal;color:var(--gold)}
+  .meta .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);margin-top:7px}
+  /* the graphing-calculator panel, framed like a card */
+  .graph-card{position:relative;z-index:1;border:1px solid var(--line);border-radius:18px;overflow:hidden;
+    background:linear-gradient(160deg,var(--panel-2),var(--panel));
+    box-shadow:0 40px 90px -50px rgba(0,0,0,.9);display:flex;flex-direction:column;min-height:474px}
+  .graph-card::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.7;
+    background:radial-gradient(circle at 80% 6%, rgba(63,182,216,.12), transparent 56%)}
+  .gc-head{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;
+    padding:14px 18px;border-bottom:1px solid var(--line)}
+  .gc-fn{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.02em}
+  .gc-fn b{color:var(--u9b);font-weight:500}
+  .gc-live{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);
+    display:inline-flex;align-items:center;gap:7px}
+  .gc-live .ld{width:6px;height:6px;border-radius:50%;background:var(--u8b);box-shadow:0 0 8px var(--u8b);
+    animation:dotPulse 1.8s ease-in-out infinite}
+  .gc-plot{position:relative;z-index:1;flex:1;min-height:0}
+  .gc-plot canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:ew-resize}
+  .gc-readout{position:relative;z-index:1;display:flex;gap:24px;align-items:center;flex-wrap:wrap;
+    padding:12px 18px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px}
+  .gc-readout .k{color:var(--faint);margin-right:7px}
+  .gc-readout .v{color:var(--text);font-variant-numeric:tabular-nums}
+  .gc-readout .vg{color:var(--gold-glow)}
+  .hero-chips{display:flex;gap:8px;margin-top:26px;flex-wrap:wrap}
+  .hero-chips .hchip{font-family:var(--mono);font-size:10.5px;color:var(--muted);
+    border:1px solid var(--line-2);border-radius:30px;padding:5px 12px;background:rgba(255,255,255,.015)}
+  @keyframes heroRise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+  .kicker,.lede,.cta-row,.hero-chips,h1{opacity:0;animation:heroRise .8s cubic-bezier(.2,.7,.2,1) forwards}
+  .kicker{animation-delay:.04s} h1{animation-delay:.14s} .lede{animation-delay:.34s} .cta-row{animation-delay:.5s} .hero-chips{animation-delay:.6s}
+  @keyframes cardRise{from{opacity:0;transform:translateY(24px) scale(.985)}to{opacity:1;transform:none}}
+  .graph-card{opacity:0;animation:cardRise .9s cubic-bezier(.2,.7,.2,1) .3s forwards}
+  @media (max-width:880px){
+    .hero{grid-template-columns:1fr;gap:36px;min-height:auto;padding:48px 0 40px}
+    .graph-card{min-height:340px;order:2}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .kicker,.lede,.cta-row,.hero-chips,h1,.graph-card{opacity:1;animation:none}
+    .kicker .dot,.gc-live .ld{animation:none}
+  }
+
+  /* ---------- section head ---------- */
+  .sec-head{margin:34px 0 22px}
+  .sec-head .t{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);
+    display:flex;align-items:center;gap:10px}
+  .sec-head .t::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line-2),transparent)}
+  .sec-head h2{font-family:var(--display);font-weight:600;font-size:27px;letter-spacing:-0.02em;margin:12px 0 0}
+  .sec-head .sub{font-size:14px;color:var(--muted);margin:9px 0 0;max-width:620px;line-height:1.55}
+
+  /* ---------- ready-unit cards ---------- */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding-bottom:6px}
+  @media(max-width:860px){.grid{grid-template-columns:1fr}}
+  .card{position:relative;text-decoration:none;color:inherit;border-radius:18px;overflow:hidden;
+    background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--line);
+    display:flex;flex-direction:column;min-height:286px;--lift:0px;
+    transform:translateY(var(--lift));
+    transition:border-color .45s,box-shadow .45s,--lift .4s cubic-bezier(.16,.8,.3,1)}
+  .card::before{content:"";position:absolute;inset:0;z-index:0;opacity:0;transition:opacity .5s;
+    background:radial-gradient(circle at 50% -10%, var(--cardglow,rgba(255,255,255,.2)), transparent 65%)}
+  .card:hover{--lift:-7px}
+  .card:hover::before{opacity:1}
+  .card-art{position:relative;z-index:1;height:118px;display:flex;align-items:center;justify-content:center;
+    border-bottom:1px solid var(--line);transition:border-color .45s;color:var(--cardc,var(--gold))}
+  .card-art svg{transition:transform .5s cubic-bezier(.16,.8,.3,1),filter .5s}
+  .card:hover .card-art svg{transform:scale(1.06)}
+  /* ---- card motif hover animations ---- */
+  .card-art .cdraw{stroke-dasharray:1;stroke-dashoffset:0}
+  .card:hover .cdraw{animation:cdraw 1s cubic-bezier(.55,.1,.2,1)}
+  @keyframes cdraw{from{stroke-dashoffset:1}}
+  .card:hover .cfill{animation:cfill 1.15s ease}
+  @keyframes cfill{from{opacity:0}}
+  .card-art .cbar{transform-box:fill-box;transform-origin:bottom}
+  .card:hover .cbar{animation:cbar .6s cubic-bezier(.2,.8,.3,1) var(--bd,0s) both}
+  @keyframes cbar{from{transform:scaleY(.05)}}
+  @media (prefers-reduced-motion:reduce){.card:hover .cdraw,.card:hover .cfill,.card:hover .cbar{animation:none}}
+  .card-body{position:relative;z-index:1;padding:18px 20px 20px;display:flex;flex-direction:column;flex:1}
+  .unum{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--cardc,var(--gold));
+    margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .unum::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line-2),transparent)}
+  .uname{font-family:var(--display);font-weight:600;font-size:22px;letter-spacing:-0.02em;margin:0 0 8px;line-height:1.1;
+    transition:text-shadow .45s}
+  .udesc{font-size:13.5px;color:var(--muted);line-height:1.52;margin:0}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:16px}
+  .chip{font-family:var(--mono);font-size:10px;color:var(--muted);border:1px solid var(--line-2);
+    border-radius:30px;padding:3px 10px;background:rgba(255,255,255,.015);transition:border-color .4s,color .4s}
+  .go{display:inline-flex;align-items:center;gap:7px;margin-top:16px;font-size:12px;font-weight:600;
+    font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--cardc,var(--gold))}
+  .go .arr{transition:transform .4s cubic-bezier(.16,.8,.3,1)}
+  .card:hover .go .arr{transform:translateX(6px)}
+  /* per-card color binding */
+  .u1{--cardc:var(--u1);--cardglow:rgba(232,106,180,.20)}
+  .u2{--cardc:var(--u2);--cardglow:rgba(141,204,78,.20)}
+  .u6{--cardc:var(--u6);--cardglow:rgba(95,127,242,.20)}
+  .u7{--cardc:var(--u7);--cardglow:rgba(222,83,96,.20)}
+  .u7:hover{border-color:rgba(222,83,96,.42);box-shadow:0 30px 66px -40px rgba(0,0,0,.92),0 0 50px -26px rgba(222,83,96,.4)}
+  .u7:hover .card-art{border-color:rgba(222,83,96,.25)} .u7:hover .card-art svg{filter:drop-shadow(0 0 12px rgba(222,83,96,.5))}
+  .u7:hover .uname{text-shadow:0 0 22px rgba(222,83,96,.5)} .u7:hover .chip{border-color:rgba(222,83,96,.34);color:#f0a8ae}
+  .u8{--cardc:var(--u8);--cardglow:rgba(64,201,138,.20)}
+  .u8:hover{border-color:rgba(64,201,138,.42);box-shadow:0 30px 66px -40px rgba(0,0,0,.92),0 0 50px -26px rgba(64,201,138,.4)}
+  .u8:hover .card-art{border-color:rgba(64,201,138,.25)} .u8:hover .card-art svg{filter:drop-shadow(0 0 12px rgba(64,201,138,.5))}
+  .u8:hover .uname{text-shadow:0 0 22px rgba(64,201,138,.5)} .u8:hover .chip{border-color:rgba(64,201,138,.34);color:#9adcbd}
+  .u9{--cardc:var(--u9);--cardglow:rgba(63,182,216,.20)}
+  .u9:hover{border-color:rgba(63,182,216,.42);box-shadow:0 30px 66px -40px rgba(0,0,0,.92),0 0 50px -26px rgba(63,182,216,.4)}
+  .u9:hover .card-art{border-color:rgba(63,182,216,.25)} .u9:hover .card-art svg{filter:drop-shadow(0 0 12px rgba(63,182,216,.5))}
+  .u9:hover .uname{text-shadow:0 0 22px rgba(63,182,216,.5)} .u9:hover .chip{border-color:rgba(63,182,216,.34);color:#a9c2cd}
+  .u10{--cardc:var(--u10);--cardglow:rgba(169,140,240,.20)}
+  .u10:hover{border-color:rgba(169,140,240,.42);box-shadow:0 30px 66px -40px rgba(0,0,0,.92),0 0 50px -26px rgba(169,140,240,.4)}
+  .u10:hover .card-art{border-color:rgba(169,140,240,.25)} .u10:hover .card-art svg{filter:drop-shadow(0 0 12px rgba(169,140,240,.5))}
+  .u10:hover .uname{text-shadow:0 0 22px rgba(169,140,240,.5)} .u10:hover .chip{border-color:rgba(169,140,240,.34);color:#c4b6e8}
+  .u3{--cardc:var(--u3);--cardglow:rgba(240,132,60,.20)}
+  .u3:hover{border-color:rgba(240,132,60,.42);box-shadow:0 30px 66px -40px rgba(0,0,0,.92),0 0 50px -26px rgba(240,132,60,.4)}
+  .u3:hover .card-art{border-color:rgba(240,132,60,.25)} .u3:hover .card-art svg{filter:drop-shadow(0 0 12px rgba(240,132,60,.5))}
+  .u3:hover .uname{text-shadow:0 0 22px rgba(240,132,60,.5)} .u3:hover .chip{border-color:rgba(240,132,60,.34);color:#f6bd93}
+  /* freshly-launched badge (reusable) */
+  .card .newtag{position:absolute;z-index:3;top:13px;right:13px;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#1c1206;background:linear-gradient(100deg,var(--u3b),var(--u3));border-radius:30px;padding:3px 9px;box-shadow:0 4px 15px -4px rgba(240,132,60,.7);animation:newPulse 2.6s ease-in-out infinite}
+  @keyframes newPulse{0%,100%{box-shadow:0 4px 14px -5px rgba(240,132,60,.5)}50%{box-shadow:0 5px 22px -3px rgba(240,132,60,.95)}}
+  @media (prefers-reduced-motion:reduce){.card .newtag{animation:none}}
+
+  /* ---------- roadmap ---------- */
+  .progress-wrap{display:flex;align-items:center;gap:14px;margin:8px 0 20px}
+  .progress-track{flex:1;height:5px;border-radius:30px;background:var(--line);overflow:hidden;max-width:320px}
+  .progress-fill{height:100%;width:0;border-radius:30px;transition:width 1.2s cubic-bezier(.2,.7,.2,1);
+    background:linear-gradient(90deg,var(--u8),var(--u9) 55%,var(--u10))}
+  .group-fade.shown .progress-fill{width:80%}
+  .sec-head .t .sn{color:var(--gold-glow);font-weight:600;margin-right:1px}
+  .rrow{--d:0s}
+  @keyframes rowSweep{0%{background:transparent}38%{background:rgba(255,255,255,.05)}100%{background:transparent}}
+  @keyframes dotFlash{0%,100%{transform:scale(1)}45%{transform:scale(1.55)}}
+  .road .rrow.lit{animation:rowSweep .6s ease var(--d,0s)}
+  .road .rrow.lit .rdot{animation:dotFlash .6s ease var(--d,0s)}
+  .why-lead{font-size:clamp(15px,1.6vw,18px);color:var(--muted);max-width:680px;line-height:1.72;margin:0 0 28px}
+  .why-lead em{color:var(--text);font-style:italic;font-weight:500}
+
+  /* ---- "see inside" live preview ---- */
+  .peek{display:grid;grid-template-columns:1.12fr .88fr;gap:32px;align-items:center;margin:6px 0 40px}
+  @media(max-width:860px){.peek{grid-template-columns:1fr;gap:26px}}
+  .peek-card{position:relative;border:1px solid var(--line);border-radius:18px;overflow:hidden;
+    background:linear-gradient(160deg,var(--panel-2),var(--panel));box-shadow:0 40px 90px -55px rgba(0,0,0,.9);
+    display:flex;flex-direction:column;min-height:332px}
+  .peek-card::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.7;
+    background:radial-gradient(circle at 84% 8%, rgba(169,140,240,.14), transparent 56%)}
+  .pc-head{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;
+    padding:14px 18px;border-bottom:1px solid var(--line)}
+  .pc-title{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.02em}
+  .pc-title b{color:var(--u10b);font-weight:500}
+  .pc-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;color:var(--gold-glow);
+    border:1px solid color-mix(in srgb,var(--gold) 38%,transparent);border-radius:30px;padding:3px 11px;font-variant-numeric:tabular-nums}
+  .pc-plot{position:relative;z-index:1;flex:1;min-height:0}
+  .pc-plot canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .pc-formula{position:relative;z-index:1;font-family:var(--mono);font-size:12.5px;color:var(--text);
+    padding:11px 18px;border-top:1px solid var(--line);letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pc-formula .ap{color:var(--muted)}
+  .pc-ctrl{position:relative;z-index:1;display:flex;align-items:center;gap:14px;padding:13px 18px;border-top:1px solid var(--line)}
+  .pc-lab{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .pc-slider{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:30px;
+    background:linear-gradient(90deg,var(--u10) var(--fillpct,0%),var(--line) var(--fillpct,0%));outline:none;cursor:pointer}
+  .pc-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;
+    background:var(--u10b);border:2px solid var(--void);box-shadow:0 0 10px -1px var(--u10b);cursor:grab}
+  .pc-slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--u10b);border:2px solid var(--void);box-shadow:0 0 10px -1px var(--u10b);cursor:grab}
+  .pc-slider:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--u10) 28%,transparent)}
+  .pc-go{font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--u10b);text-decoration:none;white-space:nowrap;
+    display:inline-flex;align-items:center;gap:6px;transition:gap .25s}
+  .pc-go:hover{gap:10px}
+  .peek-aside h4{font-family:var(--display);font-size:clamp(20px,2.4vw,26px);font-weight:480;letter-spacing:-.02em;
+    color:var(--text);margin:0 0 13px;line-height:1.16}
+  .peek-aside p{font-size:14.5px;color:var(--muted);line-height:1.66;margin:0;max-width:430px}
+  .peek-aside p em{color:var(--text);font-style:italic}
+
+  /* ---- continue banner (returning users) ---- */
+  .continue{display:none;align-items:center;gap:18px;flex-wrap:wrap;margin:0 0 32px;
+    border:1px solid var(--line);border-radius:14px;padding:16px 20px;
+    background:linear-gradient(120deg,color-mix(in srgb,var(--gold) 7%,var(--panel-2)),var(--panel))}
+  .continue.show{display:flex}
+  .continue .ic{color:var(--gold);flex-shrink:0;display:flex}
+  .continue .ct{flex:1;min-width:200px}
+  .continue .ct .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .continue .ct .nm{font-family:var(--display);font-size:18px;color:var(--text);margin-top:3px;letter-spacing:-.01em}
+  .continue .ct .nm em{font-style:normal;color:var(--muted);font-family:var(--mono);font-size:11.5px;margin-left:9px;letter-spacing:.02em}
+  .continue .cgo{font-family:var(--mono);font-size:12px;font-weight:600;color:#0a0c0e;text-decoration:none;
+    background:linear-gradient(100deg,var(--gold-glow),var(--gold));border-radius:10px;padding:11px 18px;
+    display:inline-flex;align-items:center;gap:8px;transition:transform .25s}
+  .continue .cgo:hover{transform:translateY(-2px)}
+  .continue .ov{font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
+  .continue .ov b{color:var(--text)}
+
+  /* ---- goal router ---- */
+  .router{margin:0 0 28px}
+  .router .rq{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;color:var(--muted);margin-bottom:12px}
+  .router .opts{display:flex;gap:10px;flex-wrap:wrap}
+  .router .opt{font-family:var(--body);font-size:13.5px;color:var(--text);cursor:pointer;
+    border:1px solid var(--line-2);border-radius:11px;padding:11px 16px;background:rgba(255,255,255,.015);
+    transition:border-color .25s,background .25s,color .25s;display:inline-flex;align-items:center;gap:9px}
+  .router .opt:hover{border-color:var(--gold);color:#fff}
+  .router .opt.on{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 12%,transparent);color:#fff}
+  .router .opt .od{width:7px;height:7px;border-radius:50%;background:var(--faint);transition:background .25s}
+  .router .opt.on .od,.router .opt:hover .od{background:var(--gold)}
+  .router .ans{display:none;margin-top:15px;border-left:2px solid var(--gold);padding:3px 0 3px 16px;
+    font-size:13.5px;color:var(--muted);line-height:1.6;max-width:640px}
+  .router .ans.show{display:block;animation:ansIn .4s ease}
+  @keyframes ansIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .router .ans b{color:var(--text);font-weight:600}
+  .router .ans a{color:var(--gold-glow);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--gold) 40%,transparent);white-space:nowrap}
+  .router .ans a:hover{border-bottom-color:var(--gold)}
+  .router .ans .lk{display:inline-flex;gap:16px;flex-wrap:wrap;margin-top:9px}
+
+  /* ---- topic search ---- */
+  .search{position:relative;margin:0 0 20px;max-width:560px}
+  .search .si{width:100%;font-family:var(--body);font-size:14px;color:var(--text);
+    background:var(--panel-2);border:1px solid var(--line-2);border-radius:12px;padding:13px 16px 13px 42px;
+    outline:none;transition:border-color .25s,box-shadow .25s}
+  .search .si:focus{border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 14%,transparent)}
+  .search .si::placeholder{color:var(--faint)}
+  .search .sic{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--faint);pointer-events:none;display:flex}
+  .search .res{display:none;position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:20;
+    background:var(--panel-2);border:1px solid var(--line-2);border-radius:12px;overflow:hidden;
+    box-shadow:0 30px 60px -30px rgba(0,0,0,.9)}
+  .search .res.show{display:block}
+  .search .ri{display:flex;align-items:center;gap:12px;padding:11px 15px;text-decoration:none;color:inherit;
+    border-bottom:1px solid var(--line);transition:background .2s}
+  .search .ri:last-child{border-bottom:none}
+  .search .ri:hover{background:rgba(255,255,255,.03)}
+  .search .ri .rt{flex:1;font-size:13.5px;color:var(--text)}
+  .search .ri .rk{font-family:var(--mono);font-size:10px;color:var(--faint)}
+  .search .ri .ru{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+    border:1px solid var(--line-2);border-radius:20px;padding:2px 8px;color:var(--muted)}
+  .search .none{padding:13px 15px;font-size:13px;color:var(--faint)}
+
+  /* ---- per-unit progress injected on cards ---- */
+  .uprog{display:flex;align-items:center;gap:10px;margin-top:14px;font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+  .uprog .ubar{flex:1;height:4px;border-radius:30px;background:var(--line);overflow:hidden;max-width:130px}
+  .uprog .ufill{height:100%;width:0;border-radius:30px;background:var(--cardc,var(--gold));transition:width .9s cubic-bezier(.2,.7,.2,1)}
+  @media (prefers-reduced-motion:reduce){
+    .progress-fill{transition:none}
+    .road .rrow.lit,.road .rrow.lit .rdot{animation:none}
+    .router .ans.show{animation:none}
+  }
+  .progress-label{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted)}
+  .progress-label b{color:var(--text)}
+  .road{position:relative;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    background:linear-gradient(to bottom,transparent 0%,var(--line-2) 7%,var(--line-2) 93%,transparent 100%) 69px 0/2px 100% no-repeat,
+               linear-gradient(160deg,var(--panel-2),var(--panel))}
+  .rrow{display:flex;align-items:center;gap:16px;padding:15px 20px;border-bottom:1px solid var(--line);
+    text-decoration:none;color:inherit;transition:background .3s}
+  .rrow:last-child{border-bottom:none}
+  .rrow.live:hover{background:rgba(255,255,255,.022)}
+  .rnum{font-family:var(--mono);font-size:12px;font-weight:500;width:30px;flex-shrink:0;text-align:center;
+    color:var(--rc,var(--faint))}
+  .rdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;background:var(--rc,var(--line-2));
+    box-shadow:0 0 0 0 transparent;transition:box-shadow .3s}
+  .rrow.live .rdot{box-shadow:0 0 11px -1px var(--rc)}
+  .rtitle{flex:1;font-size:15px;color:var(--text);letter-spacing:-.01em;min-width:0}
+  .rrow.soon .rtitle{color:var(--faint)}
+  .rtitle .rsub{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:var(--faint);margin-top:2px;text-transform:none}
+  .pill{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    border-radius:30px;padding:4px 11px;flex-shrink:0;border:1px solid var(--line-2);color:var(--faint)}
+  .pill.ready{color:var(--rc);border-color:color-mix(in srgb,var(--rc) 45%,transparent);background:color-mix(in srgb,var(--rc) 9%,transparent)}
+  .rarr{font-family:var(--mono);color:var(--rc,var(--faint));flex-shrink:0;width:14px;text-align:center;
+    opacity:0;transform:translateX(-4px);transition:opacity .3s,transform .3s}
+  .rrow.live:hover .rarr{opacity:1;transform:none}
+  .rrow.soon{cursor:default}
+  /* next-up row (the unit being built next) */
+  .rrow.next{cursor:default;background:color-mix(in srgb,var(--gold) 5%,transparent)}
+  .rrow.next .rdot{box-shadow:0 0 11px -1px var(--gold)}
+  .rrow.next .rtitle{color:var(--text)}
+  .pill.next{color:var(--gold-glow);border-color:color-mix(in srgb,var(--gold) 50%,transparent);background:color-mix(in srgb,var(--gold) 12%,transparent)}
+  /* one-line "what it covers" — revealed on hover for upcoming units */
+  .rtitle .rwhat{display:block;max-height:0;opacity:0;overflow:hidden;margin-top:0;
+    font-family:var(--body);font-size:12px;letter-spacing:0;color:var(--muted);line-height:1.45;
+    transition:max-height .35s ease,opacity .35s ease,margin-top .35s ease}
+  .rrow:hover .rtitle .rwhat{max-height:44px;opacity:.8;margin-top:5px}
+  .rrow.next .rtitle .rwhat{max-height:44px;opacity:.85;margin-top:5px}
+
+  /* ---------- approach band ---------- */
+  .approach{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px}
+  @media(max-width:760px){.approach{grid-template-columns:1fr}}
+  .acard{border:1px solid var(--line);border-radius:14px;padding:22px 22px 24px;
+    background:linear-gradient(160deg,var(--panel-2),var(--panel))}
+  .acard .ai{color:var(--gold);margin-bottom:13px;display:block}
+  .acard h3{font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:-.01em;margin:0 0 7px}
+  .acard p{font-size:13.5px;color:var(--muted);line-height:1.55;margin:0}
+
+  footer{color:var(--muted);font-size:12.5px;margin:48px 0 40px;border-top:1px solid var(--line);padding-top:18px;line-height:1.7}
+  footer b{color:var(--text);font-weight:600}
+  footer .fnote{color:var(--faint);font-size:11.5px;margin-top:4px}
+
+  /* fade-in groups */
+  @keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .group-fade{opacity:0}
+  .group-fade.shown{animation:riseIn .6s cubic-bezier(.2,.7,.2,1) forwards}
+  @media (prefers-reduced-motion:reduce){.group-fade{opacity:1;animation:none}}
+
+  /* keyboard focus visibility */
+  a:focus-visible,button:focus-visible{outline:2px solid var(--gold-glow);outline-offset:3px}
+  .rrow:focus-visible,.search .ri:focus-visible{outline-offset:-3px}
+
+  @media(max-width:560px){
+    .wrap{padding:0 18px}
+    .hero{min-height:auto;padding:40px 0 30px}
+    .meta{gap:24px}.meta .n{font-size:26px}
+    .pc-formula{font-size:11px}
+    .continue{padding:14px 16px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <a class="brand" href="index.html" aria-label="Visual AP Calculus BC home">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="var(--ink-1)" stroke="var(--line-2)" stroke-width="1"/>
+        <path d="M6 23 C 12 8, 21 8, 26 18" fill="none" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round"/>
+        <circle cx="26" cy="18" r="2.4" fill="var(--gold-glow)"/>
+      </svg>
+      <span class="wordmark">Visual <b>Calculus</b></span>
+    </a>
+    <span class="top-tag">AP&nbsp;·&nbsp;BC</span>
+  </div>
+
+  <div class="motion-note" role="note">
+    <span class="mn-ico" aria-hidden="true">&#10022;</span>
+    <span class="mn-txt">Your device has <b>reduced motion</b> turned on, so the animated visuals on this page are shown as stills. Everything still works &mdash; switch motion back on in your system's accessibility settings to watch them play.</span>
+    <button type="button" class="mn-x" aria-label="Dismiss this note">&times;</button>
+  </div>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="kicker"><span class="dot"></span> AP Calculus &middot; BC</div>
+      <h1>All of BC,<br><span class="it">made visual</span>.</h1>
+      <p class="lede">The entire AP&nbsp;Calculus&nbsp;BC course, rebuilt around visuals you can actually <b>move</b> &mdash; drag a curve, sweep an area, watch a series close in on its limit. Each idea is something you <b>see and do</b>, not just a formula to memorize.</p>
+      <div class="cta-row">
+        <a class="hero-cta" href="#readyGroup">Explore the units <span class="arr" aria-hidden="true">&#8595;</span></a>
+        <div class="meta">
+          <div><div class="n" data-count="10">10</div><div class="l">Units</div></div>
+          <div><div class="n"><em data-count="8">8</em></div><div class="l">Ready now</div></div>
+          <div><div class="n" data-count="39">39</div><div class="l">Lessons</div></div>
+        </div>
+      </div>
+      <div class="hero-chips">
+        <span class="hchip">Manipulable visuals</span>
+        <span class="hchip">Why before what</span>
+        <span class="hchip">Exam-ready practice</span>
+      </div>
+    </div>
+    <div class="graph-card">
+      <div class="gc-head">
+        <span class="gc-fn">&fnof;(x) = <b>x<sup>3</sup> &minus; 3x</b></span>
+        <span class="gc-live"><span class="ld"></span> live</span>
+      </div>
+      <div class="gc-plot"><canvas id="heroPlot" role="img" aria-label="Interactive graph of f(x) = x cubed minus 3x; a point glides along the curve showing its tangent slope, marking the local maximum, local minimum, and inflection point."></canvas></div>
+      <div class="gc-readout">
+        <span><span class="k">x</span><span class="v" id="roX">0.00</span></span>
+        <span><span class="k">&fnof;(x)</span><span class="v" id="roF">0.00</span></span>
+        <span><span class="k">&fnof;&prime;(x)</span><span class="v vg" id="roD">0.00</span></span>
+      </div>
+    </div>
+  </section>
+
+  <div class="continue" id="continueBar">
+    <span class="ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 5l12 7-12 7z" fill="currentColor"/></svg></span>
+    <div class="ct">
+      <div class="lab">Pick up where you left off</div>
+      <div class="nm" id="continueName">&mdash;</div>
+    </div>
+    <a class="cgo" id="continueGo" href="#">Continue <span aria-hidden="true">&#8594;</span></a>
+    <div class="ov" id="continueOverall"></div>
+  </div>
+
+  <!-- ===================== READY NOW ===================== -->
+  <div class="group-fade" id="readyGroup">
+    <div class="sec-head">
+      <div class="t"><span class="sn">01</span>Start here</div>
+      <h2>Eight units, ready to use</h2>
+      <p class="sub">Each is a complete guide &mdash; interactive lessons, a full exam-style practice set, and a one-page cheat sheet.</p>
+    </div>
+    <div class="router" id="router">
+      <div class="rq">New here? Tell me what you're doing:</div>
+      <div class="opts">
+        <button class="opt" type="button" data-goal="fresh"><span class="od"></span> Learning it fresh</button>
+        <button class="opt" type="button" data-goal="review"><span class="od"></span> Reviewing for the exam</button>
+        <button class="opt" type="button" data-goal="stuck"><span class="od"></span> Stuck on one topic</button>
+      </div>
+      <div class="ans" id="routerAns"></div>
+    </div>
+    <div class="grid">
+      <!-- Unit 6 -->
+      <a class="card u1" href="unit1.html">
+        <div class="card-art" aria-hidden="true">
+          <svg viewBox="0 0 150 118" width="150" height="118" fill="none">
+            <path d="M22 96 H130" stroke="currentColor" stroke-width="2" opacity=".22" stroke-linecap="round"/>
+            <path d="M26 96 V24" stroke="currentColor" stroke-width="2" opacity=".22" stroke-linecap="round"/>
+            <path class="cdraw" pathLength="1" d="M26 84 C 54 82, 70 64, 86 48" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+            <path class="cdraw" pathLength="1" d="M96 40 C 110 30, 120 28, 130 26" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+            <circle cx="91" cy="44" r="4.5" fill="var(--bg)" stroke="currentColor" stroke-width="2.4"/>
+            <circle cx="60" cy="30" r="3" fill="currentColor" opacity=".5"/>
+            <circle cx="118" cy="78" r="3" fill="currentColor" opacity=".5"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="unum">Unit 01</div>
+          <h3 class="uname">Limits &amp; Continuity</h3>
+          <p class="udesc">What a limit is, computing limits algebraically, the Squeeze Theorem, continuity and its failures, and asymptotes with the Intermediate Value Theorem &mdash; the foundation everything else is built on.</p>
+          <div class="chips"><span class="chip">Limits</span><span class="chip">Squeeze</span><span class="chip">Continuity</span><span class="chip">Asymptotes</span><span class="chip">IVT</span></div>
+          <span class="go">Open unit <span class="arr">&#8594;</span></span>
+        </div>
+      </a>
+      <!-- Unit 2 -->
+      <a class="card u2" href="unit2.html">
+        <div class="card-art" aria-hidden="true">
+          <svg viewBox="0 0 150 118" width="150" height="118" fill="none">
+            <path d="M26 18 V104" stroke="currentColor" stroke-width="2" opacity=".18" stroke-linecap="round"/>
+            <path class="cdraw" pathLength="1" d="M26 52 Q 70 16 114 52" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+            <circle cx="70" cy="33" r="3.4" fill="currentColor"/>
+            <path d="M26 84 H130" stroke="currentColor" stroke-width="1.6" opacity=".2" stroke-dasharray="1 4" stroke-linecap="round"/>
+            <path class="cdraw" pathLength="1" d="M30 70 L 110 98" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" opacity=".9"/>
+            <circle cx="70" cy="84" r="4" fill="var(--bg)" stroke="currentColor" stroke-width="2.2"/>
+            <path d="M70 37 V80" stroke="currentColor" stroke-width="1.4" opacity=".42" stroke-dasharray="2 3"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="unum">Unit 02</div>
+          <h3 class="uname">Differentiation: Definition &amp; Rules</h3>
+          <p class="udesc">The derivative as the limit of a difference quotient, differentiability vs. continuity, the power and basic rules, derivatives of the key functions, and the product &amp; quotient rules &mdash; where the derivative arrives and becomes a toolkit.</p>
+          <div class="chips"><span class="chip">Derivative</span><span class="chip">Power</span><span class="chip">Trig</span><span class="chip">Product</span><span class="chip">Quotient</span></div>
+          <span class="go">Open unit <span class="arr">&#8594;</span></span>
+        </div>
+      </a>
+      <!-- Unit 3 -->
+      <a class="card u3" href="unit3.html">
+        <span class="newtag">New</span>
+        <div class="card-art" aria-hidden="true">
+          <svg viewBox="0 0 150 118" width="150" height="118" fill="none">
+            <path d="M22 96 H130" stroke="currentColor" stroke-width="2" opacity=".22" stroke-linecap="round"/>
+            <path d="M26 96 V24" stroke="currentColor" stroke-width="2" opacity=".22" stroke-linecap="round"/>
+            <path d="M26 96 L 104 18" stroke="currentColor" stroke-width="1.4" opacity=".28" stroke-dasharray="3 4" stroke-linecap="round"/>
+            <path class="cdraw" pathLength="1" d="M26 96 C 46 89, 63 78, 74 61 C 81 50, 79 50, 72 50 C 63 50, 57 50, 50 55 C 40 62, 34 70, 31 74 C 28 82, 27 89, 26 96 Z" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+            <circle cx="26" cy="96" r="3.4" fill="currentColor"/>
+            <circle cx="72" cy="50" r="4" fill="var(--bg)" stroke="currentColor" stroke-width="2.4"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="unum">Unit 03</div>
+          <h3 class="uname">Differentiation: Composite, Implicit &amp; Inverse</h3>
+          <p class="udesc">The chain rule, implicit differentiation, derivatives of inverse &amp; inverse-trig functions, selecting the right procedure, and higher-order derivatives &mdash; where differentiation becomes reading structure.</p>
+          <div class="chips"><span class="chip">Chain rule</span><span class="chip">Implicit</span><span class="chip">Inverse</span><span class="chip">Selecting</span><span class="chip">Higher&#8209;order</span></div>
+          <span class="go">Open unit <span class="arr">&#8594;</span></span>
+        </div>
+      </a>
+      <a class="card u6" href="unit6.html">
+        <div class="card-art" aria-hidden="true">
+          <svg viewBox="0 0 150 118" width="150" height="118" fill="none">
+            <path d="M22 96 H130" stroke="currentColor" stroke-width="2" opacity=".22" stroke-linecap="round"/>
+            <path d="M26 96 V24" stroke="currentColor" stroke-width="2" opacity=".22" stroke-linecap="round"/>
+            <rect x="30" y="92.5" width="13" height="3.5" fill="currentColor" opacity=".35" rx="1"/>
+            <rect x="48" y="83.0" width="13" height="13.0" fill="currentColor" opacity=".35" rx="1"/>
+            <rect x="66" y="71.4" width="13" height="24.6" fill="currentColor" opacity=".35" rx="1"/>
+            <rect x="84" y="58.4" width="13" height="37.6" fill="currentColor" opacity=".35" rx="1"/>
+            <rect x="102" y="44.2" width="13" height="51.8" fill="currentColor" opacity=".35" rx="1"/>
+            <path class="cdraw" pathLength="1" d="M26 94 C 60 88, 90 62, 130 26" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="unum">Unit 06</div>
+          <h3 class="uname">Integration &amp; Accumulation</h3>
+          <p class="udesc">Riemann sums, the Fundamental Theorem, the antiderivative toolkit, parts &amp; partial fractions, and improper integrals &mdash; accumulation built from rectangles up.</p>
+          <div class="chips"><span class="chip">Riemann</span><span class="chip">FTC</span><span class="chip">u&#8209;sub</span><span class="chip">Parts &amp; PF</span><span class="chip">Improper</span></div>
+          <span class="go">Open unit <span class="arr">&#8594;</span></span>
+        </div>
+      </a>
+      <!-- Unit 7 -->
+      <a class="card u7" href="unit7.html">
+        <div class="card-art" aria-hidden="true">
+          <svg viewBox="0 0 150 118" width="150" height="118" fill="none">
+            <path d="M22 96 H130" stroke="currentColor" stroke-width="2" opacity=".22" stroke-linecap="round"/>
+            <path d="M26 96 V24" stroke="currentColor" stroke-width="2" opacity=".22" stroke-linecap="round"/>
+            <line x1="33.3" y1="31.6" x2="46.7" y2="40.4" stroke="currentColor" stroke-width="1.4" opacity=".4" stroke-linecap="round"/>
+            <line x1="33.3" y1="56.6" x2="46.7" y2="65.4" stroke="currentColor" stroke-width="1.4" opacity=".4" stroke-linecap="round"/>
+            <line x1="33.3" y1="81.6" x2="46.7" y2="90.4" stroke="currentColor" stroke-width="1.4" opacity=".4" stroke-linecap="round"/>
+            <line x1="52.2" y1="34.4" x2="67.8" y2="37.6" stroke="currentColor" stroke-width="1.4" opacity=".4" stroke-linecap="round"/>
+            <line x1="52.2" y1="59.4" x2="67.8" y2="62.6" stroke="currentColor" stroke-width="1.4" opacity=".4" stroke-linecap="round"/>
+            <line x1="52.2" y1="84.4" x2="67.8" y2="87.6" stroke="currentColor" stroke-width="1.4" opacity=".4" stroke-linecap="round"/>
+            <line x1="72.2" y1="37.9" x2="87.8" y2="34.1" stroke="currentColor" stroke-width="1.4" opacity=".4" stroke-linecap="round"/>
+            <line x1="72.2" y1="62.9" x2="87.8" y2="59.1" stroke="currentColor" stroke-width="1.4" opacity=".4" stroke-linecap="round"/>
+            <line x1="72.2" y1="87.9" x2="87.8" y2="84.1" stroke="currentColor" stroke-width="1.4" opacity=".4" stroke-linecap="round"/>
+            <line x1="93.4" y1="40.6" x2="106.6" y2="31.4" stroke="currentColor" stroke-width="1.4" opacity=".4" stroke-linecap="round"/>
+            <line x1="93.4" y1="65.6" x2="106.6" y2="56.4" stroke="currentColor" stroke-width="1.4" opacity=".4" stroke-linecap="round"/>
+            <line x1="93.4" y1="90.6" x2="106.6" y2="81.4" stroke="currentColor" stroke-width="1.4" opacity=".4" stroke-linecap="round"/>
+            <line x1="114.8" y1="42.0" x2="125.2" y2="30.0" stroke="currentColor" stroke-width="1.4" opacity=".4" stroke-linecap="round"/>
+            <line x1="114.8" y1="67.0" x2="125.2" y2="55.0" stroke="currentColor" stroke-width="1.4" opacity=".4" stroke-linecap="round"/>
+            <line x1="114.8" y1="92.0" x2="125.2" y2="80.0" stroke="currentColor" stroke-width="1.4" opacity=".4" stroke-linecap="round"/>
+            <path class="cdraw" pathLength="1" d="M26 86 C 52 78, 72 54, 96 44 C 112 37, 122 33, 130 31" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="unum">Unit 07</div>
+          <h3 class="uname">Differential Equations</h3>
+          <p class="udesc">Slope fields, Euler&rsquo;s method, separable equations, and exponential &amp; logistic models &mdash; reading an equation of change four different ways.</p>
+          <div class="chips"><span class="chip">Slope fields</span><span class="chip">Euler</span><span class="chip">Separation</span><span class="chip">Logistic</span></div>
+          <span class="go">Open unit <span class="arr">&#8594;</span></span>
+        </div>
+      </a>
+      <!-- Unit 8 -->
+      <a class="card u8" href="unit8.html">
+        <div class="card-art" aria-hidden="true">
+          <svg viewBox="0 0 150 118" width="150" height="118" fill="none">
+            <path d="M22 96 H130" stroke="currentColor" stroke-width="2" opacity=".35" stroke-linecap="round"/>
+            <path d="M26 96 V24" stroke="currentColor" stroke-width="2" opacity=".35" stroke-linecap="round"/>
+            <path class="cfill" d="M26 90 C 54 34, 86 36, 128 66 L128 96 L26 96 Z" fill="currentColor" opacity=".14"/>
+            <path d="M48 96 V70 M64 96 V58 M80 96 V52 M96 96 V53 M112 96 V60" stroke="currentColor" stroke-width="1.4" opacity=".4"/>
+            <path class="cdraw" pathLength="1" d="M26 90 C 54 34, 86 36, 128 66" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="unum">Unit 08</div>
+          <h3 class="uname">Applications of Integration</h3>
+          <p class="udesc">Area between curves, volumes by cross&#8209;section and revolution, and arc length &mdash; integration put to work on real shapes.</p>
+          <div class="chips"><span class="chip">Area</span><span class="chip">Volumes</span><span class="chip">Solids</span><span class="chip">Arc length</span></div>
+          <span class="go">Open unit <span class="arr">&#8594;</span></span>
+        </div>
+      </a>
+      <!-- Unit 9 -->
+      <a class="card u9" href="unit9.html">
+        <div class="card-art" aria-hidden="true">
+          <svg viewBox="0 0 150 118" width="150" height="118" fill="none">
+            <circle cx="75" cy="59" r="40" stroke="currentColor" stroke-width="1.2" opacity=".18"/>
+            <path class="cdraw" pathLength="1" d="M30 59 C 44 22, 70 22, 75 59 C 80 96, 106 96, 120 59 C 106 22, 80 22, 75 59 C 70 96, 44 96, 30 59 Z"
+                  stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+            <circle cx="75" cy="59" r="3.2" fill="currentColor"/>
+            <circle cx="120" cy="59" r="3.6" fill="currentColor" opacity=".85"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="unum">Unit 09</div>
+          <h3 class="uname">Parametric, Polar &amp; Vectors</h3>
+          <p class="udesc">Curves driven by a parameter &mdash; motion in the plane and a whole second coordinate system. The showcase for manipulable visuals.</p>
+          <div class="chips"><span class="chip">Parametric</span><span class="chip">Vectors</span><span class="chip">Polar</span><span class="chip">Polar area</span></div>
+          <span class="go">Open unit <span class="arr">&#8594;</span></span>
+        </div>
+      </a>
+      <!-- Unit 10 -->
+      <a class="card u10" href="unit10.html">
+        <div class="card-art" aria-hidden="true">
+          <svg viewBox="0 0 150 118" width="150" height="118" fill="none">
+            <line x1="22" y1="96" x2="130" y2="96" stroke="currentColor" stroke-width="2" opacity=".35"/>
+            <line x1="116" y1="34" x2="132" y2="34" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2 4" opacity=".6"/>
+            <rect class="cbar" style="--bd:0s" x="30" y="58" width="13" height="38" rx="2" fill="currentColor" opacity=".82"/>
+            <rect class="cbar" style="--bd:.07s" x="51" y="46" width="13" height="50" rx="2" fill="currentColor" opacity=".64"/>
+            <rect class="cbar" style="--bd:.14s" x="72" y="40" width="13" height="56" rx="2" fill="currentColor" opacity=".48"/>
+            <rect class="cbar" style="--bd:.21s" x="93" y="37" width="13" height="59" rx="2" fill="currentColor" opacity=".34"/>
+            <rect class="cbar" style="--bd:.28s" x="114" y="35.5" width="13" height="60.5" rx="2" fill="currentColor" opacity=".24"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="unum">Unit 10</div>
+          <h3 class="uname">Infinite Sequences &amp; Series</h3>
+          <p class="udesc">When do infinitely many terms add to something finite? Convergence tests, power series, and Taylor approximations &mdash; made tangible.</p>
+          <div class="chips"><span class="chip">Convergence</span><span class="chip">Power series</span><span class="chip">Taylor</span><span class="chip">Error bounds</span></div>
+          <span class="go">Open unit <span class="arr">&#8594;</span></span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ===================== ROADMAP ===================== -->
+  <div class="group-fade" id="roadGroup">
+    <div class="sec-head">
+      <div class="t"><span class="sn">02</span>The whole course</div>
+      <h2>The full BC roadmap</h2>
+      <p class="sub">All ten College&nbsp;Board units, in order. Eight are live; the rest are on the way &mdash; each will get the same visual, manipulable treatment.</p>
+    </div>
+    <div class="search" id="search">
+      <span class="sic" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+      <input class="si" id="searchInput" type="text" autocomplete="off" spellcheck="false" aria-label="Search lessons by topic" placeholder="Search a topic &mdash; &ldquo;polar area&rdquo;, &ldquo;Taylor series&rdquo;, &ldquo;washers&rdquo;&hellip;" />
+      <div class="res" id="searchRes"></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill"></div></div>
+      <div class="progress-label"><b>8</b> of 10 units ready</div>
+    </div>
+    <div class="road">
+      <a class="rrow live" href="unit1.html" style="--rc:var(--u1)"><span class="rnum">01</span><span class="rdot"></span><span class="rtitle">Limits &amp; Continuity<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
+      <a class="rrow live" href="unit2.html" style="--rc:var(--u2)"><span class="rnum">02</span><span class="rdot"></span><span class="rtitle">Differentiation: Definition &amp; Basic Rules<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
+      <a class="rrow live" href="unit3.html" style="--rc:var(--u3)"><span class="rnum">03</span><span class="rdot"></span><span class="rtitle">Differentiation: Composite, Implicit &amp; Inverse<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
+      <div class="rrow soon"><span class="rnum">04</span><span class="rdot"></span><span class="rtitle">Contextual Applications of Differentiation<span class="rwhat">Related rates, motion along a line, and linear approximation in context.</span></span><span class="pill">Soon</span><span class="rarr">&#8594;</span></div>
+      <div class="rrow soon"><span class="rnum">05</span><span class="rdot"></span><span class="rtitle">Analytical Applications of Differentiation<span class="rwhat">The Mean Value Theorem, curve sketching, optimization, and concavity.</span></span><span class="pill">Soon</span><span class="rarr">&#8594;</span></div>
+      <a class="rrow live" href="unit6.html" style="--rc:var(--u6)"><span class="rnum">06</span><span class="rdot"></span><span class="rtitle">Integration &amp; Accumulation of Change<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
+      <a class="rrow live" href="unit7.html" style="--rc:var(--u7)"><span class="rnum">07</span><span class="rdot"></span><span class="rtitle">Differential Equations<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
+      <a class="rrow live" href="unit8.html" style="--rc:var(--u8)"><span class="rnum">08</span><span class="rdot"></span><span class="rtitle">Applications of Integration<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
+      <a class="rrow live" href="unit9.html" style="--rc:var(--u9)"><span class="rnum">09</span><span class="rdot"></span><span class="rtitle">Parametric, Polar &amp; Vector&#8209;Valued Functions<span class="rsub">4 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
+      <a class="rrow live" href="unit10.html" style="--rc:var(--u10)"><span class="rnum">10</span><span class="rdot"></span><span class="rtitle">Infinite Sequences &amp; Series<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
+    </div>
+  </div>
+
+  <!-- ===================== APPROACH ===================== -->
+  <div class="group-fade" id="approachGroup">
+    <div class="sec-head">
+      <div class="t"><span class="sn">03</span>Why it's different</div>
+      <h2>Built to be understood</h2>
+    </div>
+    <p class="why-lead">This started as my own way through BC &mdash; the formulas were easy to memorize and impossible to picture. So I rebuilt each idea into something you can move, take apart, and actually see. If it helps one more person finally <em>get</em> it, that&rsquo;s the whole point.</p>
+    <div class="peek">
+      <div class="peek-card">
+        <div class="pc-head">
+          <span class="pc-title">Taylor series &middot; <b>sin&#8201;x</b></span>
+          <span class="pc-tag" id="peekDeg">degree 1</span>
+        </div>
+        <div class="pc-plot"><canvas id="peekPlot" role="img" aria-label="Animated graph: a Taylor polynomial gains terms and bends until it matches the sine curve over a widening interval."></canvas></div>
+        <div class="pc-formula" id="peekFormula"><span class="ap">sin&#8201;x &#8776;</span> x</div>
+        <div class="pc-ctrl">
+          <span class="pc-lab">terms</span>
+          <input class="pc-slider" id="peekSlider" type="range" min="1" max="6" step="1" value="1" aria-label="Number of Taylor series terms" />
+          <a class="pc-go" href="breaking-point.html">See the full lesson <span aria-hidden="true">&#8594;</span></a>
+        </div>
+      </div>
+      <div class="peek-aside">
+        <h4>This is what &ldquo;inside&rdquo; looks like.</h4>
+        <p>Every lesson is built around a visual you can actually move. Drag the slider &mdash; watch a plain polynomial bend, one term at a time, until it <em>becomes</em> the sine curve. That moment is the lesson; a textbook can only describe it.</p>
+      </div>
+    </div>
+    <div class="approach">
+      <div class="acard">
+        <span class="ai" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 30 30" fill="none"><path d="M4 22 C 9 8, 18 8, 23 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="23" cy="16" r="3" fill="currentColor"/><path d="M23 16 v8" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2 3" opacity=".6"/></svg></span>
+        <h3>Manipulable, not static</h3>
+        <p>Drag the slider, move the point, change the bounds. The visuals respond in real time, so you build intuition by playing &mdash; not by staring at a fixed diagram.</p>
+      </div>
+      <div class="acard">
+        <span class="ai" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="11" stroke="currentColor" stroke-width="2"/><path d="M10 15 l3.4 3.4 L21 11" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <h3>Why before what</h3>
+        <p>Every lesson explains where a formula comes from and which one to reach for &mdash; then names the exact mistake each tempting wrong answer represents.</p>
+      </div>
+      <div class="acard">
+        <span class="ai" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 30 30" fill="none"><rect x="6" y="4" width="18" height="22" rx="3" stroke="currentColor" stroke-width="2"/><path d="M10 11 h10 M10 16 h10 M10 21 h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+        <h3>Exam-ready</h3>
+        <p>Each unit ends with authentic AP-style multiple choice and free response, plus a printable cheat sheet that pairs every formula with the &ldquo;which setup?&rdquo; logic.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <b>Visual AP Calculus BC</b> &mdash; a free, student&#8209;built study guide, made one unit at a time.<br>
+    <span class="fnote">Open in any browser, no install needed &middot; works on phone, tablet, or laptop.</span>
+  </footer>
+</div>
+
+<script>
+
+/* ---------- hero: an interactive graphing plane — drag the point along a cubic; pass the local max / min / inflection and each names itself. Auto-glides when idle; the curve draws in on load. ---------- */
+(function(){
+  const cv=document.getElementById('heroPlot'); if(!cv) return;
+  const ctx=cv.getContext('2d');
+  const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const roX=document.getElementById('roX'),roF=document.getElementById('roF'),roD=document.getElementById('roD');
+  let W,H,DPR; const pad=18;
+  const XMIN=-2.3,XMAX=2.3,YMIN=-2.5,YMAX=2.5;
+  const f=x=>x*x*x-3*x, df=x=>3*x*x-3;
+  const features=[
+    {x:-1, label:'max \u00b7 \u0192\u2032 = 0'},
+    {x: 1, label:'min \u00b7 \u0192\u2032 = 0'},
+    {x: 0, label:'inflection \u00b7 \u0192\u2033 = 0'}
+  ];
+  function resize(){DPR=Math.min(window.devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);}
+  const toX=mx=>pad+(mx-XMIN)/(XMAX-XMIN)*(W-2*pad);
+  const toY=my=>pad+(YMAX-my)/(YMAX-YMIN)*(H-2*pad);
+  const fromX=PX=>XMIN+(PX-pad)/(W-2*pad)*(XMAX-XMIN);
+  function curveGrad(){const g=ctx.createLinearGradient(toX(XMIN),0,toX(XMAX),0);
+    g.addColorStop(0,'#5fe0a4');g.addColorStop(.5,'#6dd4ef');g.addColorStop(1,'#c4adff');return g;}
+  const lo=XMIN+0.28, hi=XMAX-0.28;
+
+  // interaction
+  let over=false, cmx=0, interacted=false;
+  const pX=e=>{const r=cv.getBoundingClientRect(); return Math.max(lo,Math.min(hi,fromX(e.clientX-r.left)));};
+  cv.addEventListener('pointerenter',()=>{over=true;});
+  cv.addEventListener('pointerleave',()=>{over=false;});
+  cv.addEventListener('pointermove',e=>{cmx=pX(e);interacted=true;},{passive:true});
+  cv.addEventListener('pointerdown',e=>{over=true;cmx=pX(e);interacted=true;},{passive:true});
+
+  // state
+  let reveal=0, px=lo, autoX=lo, dir=1, hintA=1, t=0, raf=null, visible=true;
+
+  function frame(){
+    if(!W||!H){raf=requestAnimationFrame(frame);return;}
+    if(reveal<1) reveal=Math.min(1, reveal + (reduce?1:0.018));
+    ctx.clearRect(0,0,W,H);
+
+    // grid
+    ctx.lineWidth=1; ctx.strokeStyle='rgba(255,255,255,0.04)';
+    for(let ix=Math.ceil(XMIN);ix<=Math.floor(XMAX);ix++){const X=toX(ix);ctx.beginPath();ctx.moveTo(X,pad);ctx.lineTo(X,H-pad);ctx.stroke();}
+    for(let iy=Math.ceil(YMIN);iy<=Math.floor(YMAX);iy++){const Y=toY(iy);ctx.beginPath();ctx.moveTo(pad,Y);ctx.lineTo(W-pad,Y);ctx.stroke();}
+    // axes
+    ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(pad,toY(0));ctx.lineTo(W-pad,toY(0));ctx.stroke();
+    ctx.beginPath();ctx.moveTo(toX(0),pad);ctx.lineTo(toX(0),H-pad);ctx.stroke();
+    ctx.fillStyle='rgba(147,160,170,0.55)'; ctx.font='11px ui-monospace,Menlo,monospace';
+    ctx.fillText('x',W-pad-9,toY(0)-7); ctx.fillText('y',toX(0)+7,pad+11);
+    // tick numbers
+    ctx.fillStyle='rgba(147,160,170,0.40)'; ctx.font='9.5px ui-monospace,Menlo,monospace';
+    ctx.textAlign='center'; for(let ix=Math.ceil(XMIN);ix<=Math.floor(XMAX);ix++){if(ix!==0)ctx.fillText(ix,toX(ix),toY(0)+13);}
+    ctx.textAlign='right'; for(let iy=Math.ceil(YMIN);iy<=Math.floor(YMAX);iy++){if(iy!==0)ctx.fillText(iy,toX(0)-7,toY(iy)+3.5);}
+    ctx.textAlign='left';
+
+    // curve drawn up to reveal
+    const xEnd=XMIN+(XMAX-XMIN)*reveal;
+    ctx.lineWidth=2.4; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle=curveGrad();
+    ctx.beginPath(); let started=false;
+    for(let i=0;i<=200;i++){const x=XMIN+(XMAX-XMIN)*i/200; if(x>xEnd)break; const X=toX(x),Y=toY(f(x)); if(!started){ctx.moveTo(X,Y);started=true;}else ctx.lineTo(X,Y);}
+    ctx.stroke();
+
+    if(reveal>=1){
+      // advance: follow cursor when over, else auto-glide (seamless handoff)
+      if(over){ px+=(cmx-px)*0.18; autoX=px; }
+      else { autoX+=dir*0.013*(reduce?0:1); if(autoX>hi){autoX=hi;dir=-1;} if(autoX<lo){autoX=lo;dir=1;} px+=(autoX-px)*0.12; }
+      const py=f(px), m=df(px), PX=toX(px), PY=toY(py);
+      if(roX){roX.textContent=px.toFixed(2);roF.textContent=py.toFixed(2);roD.textContent=(m>=0?'+':'')+m.toFixed(2);}
+
+      // which feature is the point near?
+      let active=null, best=0.30;
+      features.forEach(ft=>{const d=Math.abs(px-ft.x); if(d<best){best=d;active=ft;}});
+
+      // feature markers
+      features.forEach(ft=>{
+        const FX=toX(ft.x), FY=toY(f(ft.x)), on=(ft===active);
+        ctx.beginPath(); ctx.arc(FX,FY,on?6.5:4,0,Math.PI*2);
+        ctx.strokeStyle=on?'rgba(109,212,239,0.95)':'rgba(147,160,170,0.40)'; ctx.lineWidth=on?2:1.3; ctx.stroke();
+        if(on){ ctx.beginPath(); ctx.arc(FX,FY,12,0,Math.PI*2); ctx.strokeStyle='rgba(109,212,239,0.26)'; ctx.lineWidth=1.4; ctx.stroke(); }
+      });
+
+      // tangent
+      const dx=0.9;
+      ctx.strokeStyle='rgba(239,212,155,0.6)'; ctx.lineWidth=1.6;
+      ctx.beginPath();ctx.moveTo(toX(px-dx),toY(py-m*dx));ctx.lineTo(toX(px+dx),toY(py+m*dx));ctx.stroke();
+      // dashed guides
+      ctx.strokeStyle='rgba(255,255,255,0.16)'; ctx.lineWidth=1; ctx.setLineDash([3,4]);
+      ctx.beginPath();ctx.moveTo(PX,PY);ctx.lineTo(PX,toY(0));ctx.stroke();
+      ctx.beginPath();ctx.moveTo(PX,PY);ctx.lineTo(toX(0),PY);ctx.stroke(); ctx.setLineDash([]);
+      // point
+      ctx.beginPath();ctx.arc(PX,PY,over?10:9,0,Math.PI*2);ctx.strokeStyle='rgba(239,212,155,0.30)';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.beginPath();ctx.arc(PX,PY,4.6,0,Math.PI*2);ctx.fillStyle='#f5e0aa';
+      ctx.shadowColor='rgba(245,224,170,0.85)';ctx.shadowBlur=12;ctx.fill();ctx.shadowBlur=0;
+
+      // floating callout only when on a feature
+      if(active){
+        const label=active.label; ctx.font='11px ui-monospace,Menlo,monospace';
+        const pw=ctx.measureText(label).width+18, ph=22;
+        let lx=PX+14, ly=PY-ph-12; if(lx+pw>W-pad) lx=PX-pw-14; if(ly<pad) ly=PY+14;
+        ctx.fillStyle='rgba(14,19,22,0.95)';
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(lx,ly,pw,ph,7);ctx.fill();ctx.strokeStyle='rgba(63,182,216,0.55)';ctx.lineWidth=1;ctx.stroke();}
+        else ctx.fillRect(lx,ly,pw,ph);
+        ctx.fillStyle='#9fe3f4'; ctx.textBaseline='middle'; ctx.fillText(label,lx+9,ly+ph/2+0.5); ctx.textBaseline='alphabetic';
+      }
+
+      // "drag me" hint, fades after first interaction or ~6s
+      if(interacted || t>6) hintA+=(0-hintA)*0.08;
+      if(!reduce && hintA>0.02 && !over && !active){
+        const ht='\u2194 drag me'; ctx.font='10px ui-monospace,Menlo,monospace';
+        const hw=ctx.measureText(ht).width+16;
+        let hx=PX-hw/2, hy=PY+22; if(hx<pad)hx=pad; if(hx+hw>W-pad)hx=W-pad-hw; if(hy+18>H-pad)hy=PY-32;
+        ctx.globalAlpha=hintA;
+        ctx.fillStyle='rgba(216,184,115,0.15)';
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(hx,hy,hw,18,9);ctx.fill();}else ctx.fillRect(hx,hy,hw,18);
+        ctx.fillStyle='#efd49b'; ctx.textBaseline='middle'; ctx.fillText(ht,hx+8,hy+9.5); ctx.textBaseline='alphabetic';
+        ctx.globalAlpha=1;
+      }
+    }
+    if(!reduce && visible){ t+=0.016; raf=requestAnimationFrame(frame); } else { raf=null; }
+  }
+  resize(); window.addEventListener('resize',resize);
+  if(reduce){ reveal=1; px=-1; autoX=-1; frame(); }
+  else {
+    const startHero=()=>{ if(!raf){ resize(); raf=requestAnimationFrame(frame); } };
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(es=>es.forEach(e=>{ visible=e.isIntersecting; if(visible) startHero(); }),{threshold:0.04}).observe(cv);
+    } else { requestAnimationFrame(()=>{resize();frame();}); }
+  }
+})();
+
+/* ---------- hero stat count-up ---------- */
+(function(){
+  const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const els=[].slice.call(document.querySelectorAll('[data-count]'));
+  if(!els.length) return;
+  if(reduce){ els.forEach(e=>e.textContent=e.getAttribute('data-count')); return; }
+  const dur=1100, start=performance.now()+560;
+  function tick(now){
+    const p=Math.max(0,Math.min(1,(now-start)/dur)), e=p*(2-p);
+    els.forEach(el=>el.textContent=Math.round((+el.getAttribute('data-count'))*e));
+    if(p<1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+/* ---------- scroll choreography: sections rise, roadmap rows sweep in, progress bar fills ---------- */
+(function(){
+  const groups=['readyGroup','roadGroup','approachGroup'].map(id=>document.getElementById(id)).filter(Boolean);
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function sweepRows(g){ g.querySelectorAll('.road .rrow').forEach((r,i)=>{ r.style.setProperty('--d',(i*0.055)+'s'); r.classList.add('lit'); }); }
+  if(reduce || !('IntersectionObserver' in window)){ groups.forEach(g=>g.classList.add('shown')); return; }
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('shown'); if(e.target.id==='roadGroup') sweepRows(e.target); io.unobserve(e.target);}});},
+    {threshold:0.08, rootMargin:'0px 0px -8% 0px'});
+  groups.forEach(g=>io.observe(g));
+})();
+
+/* ---------- utility layer: catalog, progress, goal router, topic search ---------- */
+(function(){
+  var CAT=[
+   {u:1,k:'lesson',t:'What a Limit Is',f:'what-is-a-limit.html',kw:'limit notation one-sided left right approach graph table estimate does not exist DNE instantaneous rate of change secant hole'},
+   {u:1,k:'lesson',t:'Computing Limits',f:'computing-limits.html',kw:'algebraic limit laws factor cancel conjugate rationalize complex fraction substitution indeterminate zero over zero piecewise'},
+   {u:1,k:'lesson',t:'The Squeeze Theorem',f:'squeeze-theorem.html',kw:'squeeze sandwich theorem trig limit sin x over x one minus cosine bounded oscillating'},
+   {u:1,k:'lesson',t:'Continuity & Its Failures',f:'continuity.html',kw:'continuity three part test removable jump infinite oscillating discontinuity hole asymptote piecewise solve for k interval endpoint patch'},
+   {u:1,k:'lesson',t:'Asymptotes & the IVT',f:'asymptotes-ivt.html',kw:'vertical horizontal asymptote infinite limit at infinity degree race end behavior intermediate value theorem IVT root sign change'},
+   {u:1,k:'exam',t:'Unit 1 \u2014 Exam Practice',f:'unit1-exam-practice.html',kw:'exam practice mcq frq test limits continuity asymptotes IVT squeeze'},
+   {u:1,k:'sheet',t:'Unit 1 \u2014 Cheat Sheet',f:'unit1-cheatsheet.html',kw:'cheat sheet formulas review limits continuity squeeze asymptotes IVT'},
+   {u:2,k:'lesson',t:'The Derivative Defined',f:'the-derivative-defined.html',kw:'derivative definition limit difference quotient secant tangent instantaneous rate of change notation estimate from table average rate'},
+   {u:2,k:'lesson',t:'Differentiability & Continuity',f:'differentiability.html',kw:'differentiable continuous implies corner cusp vertical tangent discontinuity piecewise one-sided slope absolute value'},
+   {u:2,k:'lesson',t:'Power Rule & Basic Rules',f:'power-and-basic-rules.html',kw:'power rule constant multiple sum difference linearity tangent line normal line horizontal tangent rewrite negative exponent'},
+   {u:2,k:'lesson',t:'Key-Function Derivatives',f:'derivatives-of-functions.html',kw:'sin cos derivative exponential e^x natural log ln tangent cotangent secant cosecant trig cycle'},
+   {u:2,k:'lesson',t:'Product & Quotient Rules',f:'product-and-quotient.html',kw:'product rule quotient rule uv u over v low d high derivative of a product'},
+   {u:2,k:'exam',t:'Unit 2 — Exam Practice',f:'unit2-exam-practice.html',kw:'exam practice mcq frq test differentiation derivative power product quotient rules differentiability'},
+   {u:2,k:'sheet',t:'Unit 2 — Cheat Sheet',f:'unit2-cheatsheet.html',kw:'cheat sheet formulas review differentiation derivative rules power product quotient trig'},
+   {u:3,k:'lesson',t:'The Chain Rule',f:'chain-rule.html',kw:'chain rule composite outer inner function composition nested derivative u substitution'},
+   {u:3,k:'lesson',t:'Implicit Differentiation',f:'implicit-differentiation.html',kw:'implicit differentiation dy dx related tangent curve folium circle vertical horizontal tangent'},
+   {u:3,k:'lesson',t:'Inverse & Inverse-Trig Derivatives',f:'inverse-derivatives.html',kw:'inverse function derivative reciprocal slope reflection arcsin arccos arctan arcsec inverse trig'},
+   {u:3,k:'lesson',t:'Selecting Procedures',f:'selecting-procedures.html',kw:'selecting procedures which rule product quotient chain logarithmic differentiation outermost operation'},
+   {u:3,k:'lesson',t:'Higher-Order Derivatives',f:'higher-order-derivatives.html',kw:'higher order second third derivative notation position velocity acceleration concavity'},
+   {u:3,k:'exam',t:'Unit 3 \u2014 Exam Practice',f:'unit3-exam-practice.html',kw:'exam practice mcq frq test chain implicit inverse higher order selecting'},
+   {u:3,k:'sheet',t:'Unit 3 \u2014 Cheat Sheet',f:'unit3-cheatsheet.html',kw:'cheat sheet formulas review chain implicit inverse trig higher order'},
+   {u:6,k:'lesson',t:'Riemann Sums & the Definite Integral',f:'riemann-sums.html',kw:'riemann sum left right midpoint trapezoid rectangle approximation table overestimate underestimate definite integral accumulation'},
+   {u:6,k:'lesson',t:'The Fundamental Theorem',f:'fundamental-theorem.html',kw:'fundamental theorem ftc accumulation function g(x) chain rule bound graph analysis area'},
+   {u:6,k:'lesson',t:'Antiderivatives & u-Substitution',f:'antiderivatives.html',kw:'antiderivative deck u-substitution u sub reverse chain rule completing square arctan long division'},
+   {u:6,k:'lesson',t:'Parts & Partial Fractions',f:'parts-partial-fractions.html',kw:'integration by parts liate tabular cyclic partial fractions cover-up bc'},
+   {u:6,k:'lesson',t:'Improper Integrals & Technique Choice',f:'improper-integrals.html',kw:'improper integral limit infinity p-test asymptote diverges converges technique selection bc'},
+   {u:6,k:'exam',t:'Unit 6 \u2014 Exam Practice',f:'unit6-exam-practice.html',kw:'exam practice mcq frq test integration accumulation'},
+   {u:6,k:'sheet',t:'Unit 6 \u2014 Cheat Sheet',f:'unit6-cheatsheet.html',kw:'cheat sheet formulas review integration accumulation'},
+   {u:7,k:'lesson',t:'Equations of Change',f:'equations-of-change.html',kw:'differential equation modeling rate proportional verify solution slope newton'},
+   {u:7,k:'lesson',t:'Slope Fields',f:'slope-fields.html',kw:'slope field segments isocline sketch match direction equilibrium'},
+   {u:7,k:'lesson',t:"Euler's Method",f:'eulers-method.html',kw:'euler approximation step tangent error concavity overestimate underestimate numerical'},
+   {u:7,k:'lesson',t:'Separation of Variables',f:'separation-of-variables.html',kw:'separable integrate initial condition particular general solution exponential'},
+   {u:7,k:'lesson',t:'Growth Models: Exponential and Logistic',f:'growth-models.html',kw:'exponential logistic growth decay carrying capacity doubling half life newton cooling'},
+   {u:7,k:'exam',t:'Unit 7 \u2014 Exam Practice',f:'unit7-exam-practice.html',kw:'exam practice mcq frq test differential equations'},
+   {u:7,k:'sheet',t:'Unit 7 \u2014 Cheat Sheet',f:'unit7-cheatsheet.html',kw:'cheat sheet formulas review differential equations'},
+   {u:8,k:'lesson',t:'The Integral as Accumulation',f:'unit8-foundations.html',kw:'accumulation net change motion average value foundations'},
+   {u:8,k:'lesson',t:'Area Between Curves',f:'unit8-area.html',kw:'area between curves dx dy top bottom'},
+   {u:8,k:'lesson',t:'Volumes with Cross Sections',f:'unit8-cross-sections.html',kw:'volume cross sections square triangle semicircle'},
+   {u:8,k:'lesson',t:'Solids of Revolution',f:'unit8-solids.html',kw:'disc washer revolution volume rotate'},
+   {u:8,k:'lesson',t:'Arc Length',f:'unit8-arc-length.html',kw:'arc length curve distance'},
+   {u:9,k:'lesson',t:'Parametric Equations',f:'unit9-parametric.html',kw:'parametric parameter curve speed tangent'},
+   {u:9,k:'lesson',t:'Vector-Valued Functions',f:'unit9-vectors.html',kw:'vectors velocity acceleration motion displacement distance'},
+   {u:9,k:'lesson',t:'Polar Graphing',f:'unit9-polar-graphing.html',kw:'polar rose cardioid limacon graphing angle'},
+   {u:9,k:'lesson',t:'Area in Polar',f:'unit9-polar-area.html',kw:'polar area pie slice integral'},
+   {u:10,k:'lesson',t:'Series Foundations',f:'series-foundations.html',kw:'sequences sums convergence geometric partial'},
+   {u:10,k:'lesson',t:'Convergence Compass',f:'convergence-compass.html',kw:'convergence test ratio root comparison integral nth term divergence'},
+   {u:10,k:'lesson',t:'Interval of Convergence',f:'interval-of-convergence.html',kw:'power series interval radius'},
+   {u:10,k:'lesson',t:'Error Bounds',f:'error-bounds.html',kw:'error alternating lagrange remainder bound'},
+   {u:10,k:'lesson',t:'Taylor Toolkit',f:'breaking-point.html',kw:'taylor maclaurin series polynomial approximation'},
+   {u:8,k:'exam',t:'Unit 8 \u2014 Exam Practice',f:'unit8-exam-practice.html',kw:'exam practice mcq frq test'},
+   {u:9,k:'exam',t:'Unit 9 \u2014 Exam Practice',f:'unit9-exam-practice.html',kw:'exam practice mcq frq test'},
+   {u:10,k:'exam',t:'Unit 10 \u2014 Exam Practice',f:'exam-practice.html',kw:'exam practice mcq frq test'},
+   {u:8,k:'sheet',t:'Unit 8 \u2014 Cheat Sheet',f:'unit8-cheatsheet.html',kw:'cheat sheet formulas review'},
+   {u:9,k:'sheet',t:'Unit 9 \u2014 Cheat Sheet',f:'unit9-cheatsheet.html',kw:'cheat sheet formulas review'},
+   {u:10,k:'sheet',t:'Unit 10 \u2014 Cheat Sheet',f:'unit10-cheatsheet.html',kw:'cheat sheet formulas review'}
+  ];
+  var byF={}; CAT.forEach(function(c){byF[c.f]=c;});
+  var UNAME={1:'Unit 1',2:'Unit 2',3:'Unit 3',6:'Unit 6',7:'Unit 7',8:'Unit 8',9:'Unit 9',10:'Unit 10'};
+  var lpu={7:0,8:0,9:0,10:0}; CAT.forEach(function(c){if(c.k==='lesson')lpu[c.u]++;});
+
+  var visited={}, last=null;
+  try{ var p=JSON.parse(localStorage.getItem('vcalc:v1')||'{}'); visited=p.visited||{}; last=p.last||null; }catch(e){}
+  var lessonsDone=CAT.filter(function(c){return c.k==='lesson' && visited[c.f];}).length;
+
+  // continue banner
+  var bar=document.getElementById('continueBar');
+  if(bar && Object.keys(visited).length){
+    var lf=(last && byF[last])?last:null;
+    if(!lf){ var mx=0; Object.keys(visited).forEach(function(f){ if(byF[f] && visited[f]>mx){mx=visited[f]; lf=f;} }); }
+    if(lf && byF[lf]){
+      var c=byF[lf], kl=c.k==='lesson'?'Lesson':(c.k==='exam'?'Exam practice':'Cheat sheet');
+      document.getElementById('continueName').innerHTML=c.t+' <em>'+UNAME[c.u]+' \u00b7 '+kl+'</em>';
+      document.getElementById('continueGo').setAttribute('href',c.f);
+      document.getElementById('continueOverall').innerHTML='<b>'+lessonsDone+'</b> of 39 lessons explored';
+      bar.classList.add('show');
+    }
+  }
+
+  // per-unit progress on cards
+  document.querySelectorAll('.grid .card').forEach(function(card){
+    var u=card.classList.contains('u8')?8:card.classList.contains('u9')?9:card.classList.contains('u10')?10:0;
+    if(!u) return;
+    var done=CAT.filter(function(c){return c.u===u && c.k==='lesson' && visited[c.f];}).length;
+    if(done<=0) return;
+    var tot=lpu[u], pct=Math.round(done/tot*100), body=card.querySelector('.card-body'); if(!body) return;
+    var el=document.createElement('div'); el.className='uprog';
+    el.innerHTML='<span>'+done+' / '+tot+' lessons</span><span class="ubar"><span class="ufill"></span></span>';
+    body.appendChild(el);
+    var fill=el.querySelector('.ufill');
+    setTimeout(function(){ fill.style.width=pct+'%'; }, 260);
+  });
+
+  // goal router
+  var ans={
+    fresh:'Go in order \u2014 the ready units build on each other. Start with <b>Unit 1</b> (Limits &amp; Continuity), the foundation for everything, then 6, 7, 8, 9, and 10.<span class="lk"><a href="unit1.html">Open Unit 1 &#8594;</a></span>',
+    review:'Drill the practice set and keep the cheat sheet open for your unit:<span class="lk"><a href="unit6-exam-practice.html">Unit 6 exam</a><a href="unit7-exam-practice.html">Unit 7 exam</a><a href="unit8-exam-practice.html">Unit 8 exam</a><a href="unit9-exam-practice.html">Unit 9 exam</a><a href="exam-practice.html">Unit 10 exam</a></span>',
+    stuck:'Search the exact topic and jump straight to the lesson.<span class="lk"><a href="#" id="goSearch">Go to search &#8595;</a></span>'
+  };
+  var router=document.getElementById('router'), rAns=document.getElementById('routerAns');
+  if(router){
+    router.querySelectorAll('.opt').forEach(function(o){
+      o.addEventListener('click',function(){
+        router.querySelectorAll('.opt').forEach(function(x){x.classList.remove('on');});
+        o.classList.add('on');
+        rAns.innerHTML=ans[o.getAttribute('data-goal')]||'';
+        rAns.classList.add('show');
+        var gs=document.getElementById('goSearch');
+        if(gs) gs.addEventListener('click',function(ev){ev.preventDefault();var s=document.getElementById('search');if(s){s.scrollIntoView({behavior:'smooth',block:'center'});var i=document.getElementById('searchInput');if(i)setTimeout(function(){i.focus();},440);}});
+      });
+    });
+  }
+
+  // topic search
+  var si=document.getElementById('searchInput'), res=document.getElementById('searchRes');
+  function tag(k){return k==='lesson'?'Lesson':(k==='exam'?'Exam':'Sheet');}
+  if(si && res){
+    si.addEventListener('input',function(){
+      var q=si.value.trim().toLowerCase();
+      if(!q){ res.classList.remove('show'); res.innerHTML=''; return; }
+      var toks=q.split(/\s+/);
+      var hits=CAT.map(function(c){
+        var hay=(c.t+' '+c.kw+' '+UNAME[c.u]).toLowerCase(), sc=0;
+        toks.forEach(function(tk){ if(hay.indexOf(tk)>=0) sc++; if(c.t.toLowerCase().indexOf(tk)>=0) sc++; });
+        return {c:c,sc:sc};
+      }).filter(function(o){return o.sc>0;}).sort(function(a,b){return b.sc-a.sc;}).slice(0,6);
+      if(!hits.length){ res.innerHTML='<div class="none">No match \u2014 try \u201carea\u201d, \u201cpolar\u201d, \u201cseries\u201d, \u201cTaylor\u201d\u2026</div>'; res.classList.add('show'); return; }
+      res.innerHTML=hits.map(function(o){var c=o.c;return '<a class="ri" href="'+c.f+'"><span class="rt">'+c.t+'</span><span class="rk">'+tag(c.k)+'</span><span class="ru">'+UNAME[c.u]+'</span></a>';}).join('');
+      res.classList.add('show');
+    });
+    si.addEventListener('blur',function(){ setTimeout(function(){ res.classList.remove('show'); },180); });
+    si.addEventListener('focus',function(){ if(si.value.trim() && res.innerHTML) res.classList.add('show'); });
+  }
+})();
+
+/* ---------- "see inside": live Taylor-series preview ---------- */
+(function(){
+  var cv=document.getElementById('peekPlot'); if(!cv) return;
+  var ctx=cv.getContext('2d');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var slider=document.getElementById('peekSlider'), degEl=document.getElementById('peekDeg'), fmEl=document.getElementById('peekFormula');
+  var W=0,H=0,DPR=1,pad=16;
+  var XMIN=-7.4,XMAX=7.4,YMIN=-2.4,YMAX=2.4,MAXT=6;
+  var denoms=[1,6,120,5040,362880,39916800];
+  var sup=['','\u00b3','\u2075','\u2077','\u2079','\u00b9\u00b9'];
+
+  function taylor(x,tf){
+    var n=Math.floor(tf),frac=tf-n,s=0,k;
+    for(k=0;k<n&&k<MAXT;k++){ s+=(k%2?-1:1)*Math.pow(x,2*k+1)/denoms[k]; }
+    if(frac>0&&n<MAXT){ s+=frac*((n%2?-1:1)*Math.pow(x,2*n+1)/denoms[n]); }
+    return s;
+  }
+  function resize(){DPR=Math.min(window.devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);}
+  function toX(mx){return pad+(mx-XMIN)/(XMAX-XMIN)*(W-2*pad);}
+  function toY(my){return pad+(YMAX-my)/(YMAX-YMIN)*(H-2*pad);}
+  function grad(){var g=ctx.createLinearGradient(toX(XMIN),0,toX(XMAX),0);g.addColorStop(0,'#c4adff');g.addColorStop(.5,'#6dd4ef');g.addColorStop(1,'#5fe0a4');return g;}
+  function matchRadius(tf){var r=0,x;for(x=0;x<=XMAX;x+=0.07){if(Math.abs(taylor(x,tf)-Math.sin(x))>0.06)break;r=x;}return r;}
+  function fmtFormula(t){
+    var parts=[],k;
+    for(k=0;k<t;k++){ var sign=k===0?'':(k%2?' \u2212 ':' + '); parts.push(sign+'x'+sup[k]+(k===0?'':'\u2044'+denoms[k])); }
+    return t<=4?parts.join(''):parts.slice(0,4).join('')+' + \u22ef';
+  }
+
+  var tf=1,polyA=1,phase='climb',hold=0,reveal=0,raf=null,manualUntil=0;
+  function nowms(){return (window.performance&&performance.now)?performance.now():Date.now();}
+
+  function updateLabels(){
+    var rt=Math.max(1,Math.min(MAXT,Math.round(tf))), pct=((rt-1)/(MAXT-1))*100;
+    if(slider) slider.style.setProperty('--fillpct',pct.toFixed(1)+'%');
+    if(degEl) degEl.textContent='degree '+(2*rt-1);
+    if(fmEl) fmEl.innerHTML='<span class="ap">sin\u2009x \u2248</span> '+fmtFormula(rt);
+  }
+
+  function draw(){
+    if(!W||!H) return;
+    ctx.clearRect(0,0,W,H);
+    var i,X,Y,ix,iy;
+    ctx.lineWidth=1; ctx.strokeStyle='rgba(255,255,255,0.038)';
+    for(ix=Math.ceil(XMIN);ix<=Math.floor(XMAX);ix++){X=toX(ix);ctx.beginPath();ctx.moveTo(X,pad);ctx.lineTo(X,H-pad);ctx.stroke();}
+    for(iy=Math.ceil(YMIN);iy<=Math.floor(YMAX);iy++){Y=toY(iy);ctx.beginPath();ctx.moveTo(pad,Y);ctx.lineTo(W-pad,Y);ctx.stroke();}
+    var r=matchRadius(tf);
+    if(r>0.06){ ctx.fillStyle='rgba(109,212,239,0.055)'; ctx.fillRect(toX(-r),pad,toX(r)-toX(-r),H-2*pad); }
+    ctx.strokeStyle='rgba(255,255,255,0.14)'; ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(pad,toY(0));ctx.lineTo(W-pad,toY(0));ctx.stroke();
+    ctx.beginPath();ctx.moveTo(toX(0),pad);ctx.lineTo(toX(0),H-pad);ctx.stroke();
+    ctx.fillStyle='rgba(147,160,170,0.45)'; ctx.font='9.5px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
+    var ticks=[[-2*Math.PI,'\u22122\u03c0'],[-Math.PI,'\u2212\u03c0'],[Math.PI,'\u03c0'],[2*Math.PI,'2\u03c0']];
+    for(i=0;i<ticks.length;i++){ ctx.fillText(ticks[i][1],toX(ticks[i][0]),toY(0)+14); }
+    ctx.fillText('x',W-pad-8,toY(0)-7); ctx.textAlign='left';
+    ctx.lineWidth=1.6; ctx.strokeStyle='rgba(238,242,245,0.26)'; ctx.beginPath();
+    for(i=0;i<=240;i++){var xs=XMIN+(XMAX-XMIN)*i/240; X=toX(xs);Y=toY(Math.sin(xs)); i?ctx.lineTo(X,Y):ctx.moveTo(X,Y);} ctx.stroke();
+    ctx.save(); ctx.beginPath(); ctx.rect(pad,pad,W-2*pad,H-2*pad); ctx.clip();
+    ctx.globalAlpha=polyA; ctx.lineWidth=2.6; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle=grad();
+    var xEnd=XMIN+(XMAX-XMIN)*reveal, started=false;
+    ctx.beginPath();
+    for(i=0;i<=320;i++){var xp=XMIN+(XMAX-XMIN)*i/320; if(xp>xEnd)break; var yp=taylor(xp,tf); if(Math.abs(yp)>YMAX+1.2){started=false;continue;} X=toX(xp);Y=toY(yp); if(!started){ctx.moveTo(X,Y);started=true;}else ctx.lineTo(X,Y);}
+    ctx.stroke(); ctx.globalAlpha=1; ctx.restore();
+    ctx.fillStyle='#c4adff'; ctx.beginPath(); ctx.arc(toX(0),toY(0),3,0,Math.PI*2); ctx.fill();
+  }
+
+  function step(){
+    if(reveal<1) reveal=Math.min(1,reveal+0.02);
+    if(nowms()<manualUntil){
+      tf+=((+slider.value)-tf)*0.2; polyA+=(1-polyA)*0.25; phase='climb'; hold=0;
+    } else {
+      if(phase==='climb'){ tf+=0.016; if(tf>=MAXT){tf=MAXT;phase='hold';hold=0;} polyA=1; }
+      else if(phase==='hold'){ hold++; if(hold>78) phase='fade'; }
+      else if(phase==='fade'){ polyA-=0.05; if(polyA<=0){polyA=0;tf=1;phase='in';} }
+      else { polyA+=0.06; if(polyA>=1){polyA=1;phase='climb';} }
+      if(slider) slider.value=Math.round(tf);
+    }
+    updateLabels(); draw();
+    raf=requestAnimationFrame(step);
+  }
+  function start(){ if(!raf) raf=requestAnimationFrame(step); }
+  function stop(){ if(raf){cancelAnimationFrame(raf);raf=null;} }
+
+  if(slider){
+    slider.addEventListener('input',function(){
+      manualUntil=nowms()+7000;
+      if(reduce){ tf=+slider.value; updateLabels(); draw(); }
+    });
+  }
+  if('ResizeObserver' in window){ new ResizeObserver(function(){resize();draw();}).observe(cv); }
+  window.addEventListener('resize',function(){resize();draw();});
+  resize();
+  if(reduce){ tf=4; if(slider) slider.value=4; reveal=1; polyA=1; updateLabels(); draw(); }
+  else if('IntersectionObserver' in window){ new IntersectionObserver(function(es){es.forEach(function(e){ e.isIntersecting?start():stop(); });},{threshold:0.04}).observe(cv); }
+  else { start(); }
+})();
+
+/* dismiss the reduced-motion note */
+(function(){var n=document.querySelector('.motion-note');if(!n)return;var x=n.querySelector('.mn-x');if(x)x.addEventListener('click',function(){n.style.display='none';});})();
+</script>
+</body>
+</html>
