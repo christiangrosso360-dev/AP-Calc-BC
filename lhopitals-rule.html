@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>L'Hôpital's Rule · Unit 4 Guide</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%23190b1c%27%2F%3E%3Cline%20x1%3D%276%27%20y1%3D%2716%27%20x2%3D%2726%27%20y2%3D%2716%27%20stroke%3D%27%239a9183%27%20stroke-width%3D%271.4%27%20opacity%3D%27.6%27%2F%3E%3Cpath%20d%3D%27M7%2025%20C%2013%2020%2C%2013%2012%2C%2016%2016%20C%2019%2020%2C%2019%2012%2C%2025%207%27%20fill%3D%27none%27%20stroke%3D%27%23bf34c9%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Ccircle%20cx%3D%2716%27%20cy%3D%2716%27%20r%3D%272.4%27%20fill%3D%27%23e884ea%27%2F%3E%3C%2Fsvg%3E" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="styles.css">
+<script src="helpers.js"></script>
+<style>
+  :root{ --approx:#bf34c9; --gold:#bf34c9; --true:#e884ea;
+         --glow:rgba(191,52,201,.09); --wrap-max:1060px; }
+  .sub{color:var(--muted);font-size:15px;margin-top:8px;max-width:670px}
+  h2{font-family:var(--display);font-weight:600;font-size:21px;margin:40px 0 8px;letter-spacing:-0.01em}
+  p.lead{font-size:15.5px;max-width:720px;margin:8px 0}
+  .big-idea{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:18px;max-width:790px}
+  .big-idea b{color:var(--approx)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -26px rgba(0,0,0,.7)}
+  svg{width:100%;display:block;border-radius:10px}
+  button{font-family:var(--body);cursor:pointer;border-radius:9px;border:1px solid var(--line);
+    background:var(--panel-2);color:var(--ink);padding:10px 13px;font-size:13.5px;text-align:left;
+    transition:transform .14s,border-color .14s,background .14s}
+  button:hover{border-color:var(--gold);transform:translateY(-1px)}
+  button:active{transform:translateY(0) scale(.99)}
+  button.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-top:12px;flex-wrap:wrap}
+  .legend b{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+  .exbody{display:flex;gap:24px;align-items:flex-start}
+  .exviz{flex:1 1 52%;min-width:0}
+  .exctrl{flex:1 1 44%;min-width:0}
+  @media(max-width:840px){ .exbody{flex-direction:column;gap:18px} .exviz{flex:none;width:100%} }
+  .scen-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .scen-btns button{flex:1;text-align:center;padding:9px 6px;font-size:12px;font-weight:600}
+  .srow{display:grid;grid-template-columns:96px 1fr 66px;align-items:center;gap:12px;margin-top:12px}
+  .srow .sname{font-size:12.5px;color:var(--muted)}
+  .srow input[type=range]{width:100%;accent-color:var(--approx)}
+  .sval{font-family:var(--mono);font-size:13px;color:var(--ink);text-align:right}
+  .ratio-big{margin-top:16px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center}
+  .ratio-big .rl{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .ratio-big .rv{font-family:var(--display);font-size:34px;font-weight:600;color:var(--ink);margin-top:4px}
+  .ratio-big .rsub{font-size:12.5px;color:var(--muted);margin-top:6px}
+  .lhrow{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--line)}
+  .lhrow:last-child{border-bottom:none}
+  .lhrow .k{color:var(--muted)} .lhrow .v{font-family:var(--mono)}
+  .lhread{margin-top:12px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:4px 14px}
+  /* procedure */
+  .proc{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px}
+  @media(max-width:760px){.proc{grid-template-columns:1fr 1fr}}
+  .pstep{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px 16px}
+  .pstep .n{font-family:var(--mono);font-size:12px;color:var(--approx);font-weight:600}
+  .pstep h4{font-family:var(--display);font-size:15px;margin:6px 0 6px}
+  .pstep p{font-size:13px;color:var(--muted);margin:0;line-height:1.55}
+  .pstep.warn{border-color:rgba(224,100,79,.4)} .pstep.warn .n{color:var(--div)}
+  /* forms gallery */
+  .forms{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px}
+  @media(max-width:720px){.forms{grid-template-columns:1fr 1fr}}
+  @media(max-width:460px){.forms{grid-template-columns:1fr}}
+  .form{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 15px}
+  .form .fform{font-family:var(--display);font-size:20px;color:var(--approx);text-align:center;margin-bottom:8px}
+  .form p{font-size:12.5px;color:var(--muted);margin:0;line-height:1.55}
+  .form.direct{border-color:rgba(63,208,176,.4)} .form.direct .fform{color:#7fe0cc}
+  /* concepts */
+  .concepts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+  @media(max-width:680px){.concepts{grid-template-columns:1fr}}
+  .concept{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;transition:transform .2s,box-shadow .2s}
+  .concept:hover{transform:translateY(-3px);box-shadow:0 16px 30px -20px rgba(43,41,37,.45)}
+  .concept h3{font-family:var(--display);font-size:16px;margin:0 0 6px}
+  .concept p{font-size:13.5px;margin:6px 0;color:var(--ink)}
+  .concept .m{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:8px;text-align:center}
+  .key{color:var(--approx);font-weight:600}
+  /* practice */
+  .prob{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:14px}
+  .prob-tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--approx);font-weight:600}
+  .prob-q{font-size:14.5px;line-height:1.65;margin:6px 0 12px}
+  .soltoggle{font-size:13px;padding:7px 14px}
+  .sol{display:none;margin-top:12px;border-top:1px solid var(--line);padding-top:6px}
+  .sol.show{display:block}
+  .why-step{display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .why-step:last-child{border-bottom:none}
+  .why-n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--bg);color:var(--muted);font-family:var(--mono);font-size:11px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .why-t{font-size:13px;line-height:1.5}
+  .why-m{margin-top:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:7px 10px;overflow-x:auto;text-align:center}
+  /* mistakes + tips */
+  .mistakes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  @media(max-width:680px){.mistakes{grid-template-columns:1fr}}
+  .mistake{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--div);border-radius:10px;padding:13px 16px}
+  .mistake h4{margin:0 0 4px;font-size:14px;font-family:var(--display)}
+  .mistake p{margin:0;font-size:13px;color:var(--muted);line-height:1.55}
+  .tipbox{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:14px 18px;max-width:820px}
+  .tipbox h4{margin:0 0 8px;font-size:14px;font-family:var(--display);color:var(--approx)}
+  .tipbox ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:var(--ink)}
+  .tipbox li{margin:5px 0}
+  /* quiz */
+  .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .qtag{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .qtext{font-size:15px;font-weight:600;margin-bottom:12px;line-height:1.5}
+  .quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:520px){.quiz-opts{grid-template-columns:1fr}}
+  .quiz-opts button{font-size:14px;padding:11px 14px;text-align:left}
+  .quiz-opts button.correct{background:rgba(63,208,176,.16);border-color:var(--conv);color:var(--conv)}
+  .quiz-opts button.wrong{background:rgba(224,100,79,.16);border-color:var(--div);color:var(--div)}
+  .quiz-opts button:disabled{cursor:default;opacity:.92}
+  .quiz-opts button:disabled:hover{transform:none;border-color:var(--line)}
+  .quiz-opts button.correct:disabled:hover{border-color:var(--conv)}
+  .quiz-opts button.wrong:disabled:hover{border-color:var(--div)}
+  .feedback{margin-top:14px;font-size:14px;min-height:24px;line-height:1.5}
+  .score{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .next{background:var(--approx);color:#fff;border-color:var(--approx);font-weight:600;text-align:center;box-shadow:0 8px 18px -10px var(--approx)}
+  .next:hover{filter:brightness(1.06);border-color:var(--approx)}
+  /* the dive */
+  .dive-scen{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .dive-scen button{flex:1;text-align:center;padding:9px 6px;font-size:12px;font-weight:600}
+  .dive-lim{text-align:center;font-size:18px;color:var(--muted);margin-bottom:14px}
+  .dive-wrap{position:relative;width:100%;border-radius:14px;overflow:hidden;background:#0a0710;border:1px solid var(--line)}
+  .dive-wrap canvas{display:block;width:100%;height:auto;aspect-ratio:56/38}
+  .dive-hint{position:absolute;top:14px;left:0;right:0;text-align:center;font-family:var(--mono);font-size:13px;color:#f0a8f2;pointer-events:none;transition:opacity .35s}
+  .dive-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;opacity:0;pointer-events:none;transition:opacity .7s;
+    background:radial-gradient(ellipse 70% 70% at center, rgba(10,7,16,.2), rgba(10,7,16,.72))}
+  .dive-overlay.show{opacity:1}
+  .dive-overlay .oans{font-family:var(--display);font-size:clamp(48px,10vw,76px);font-weight:600;color:#7fe0cc;text-shadow:0 0 44px rgba(63,208,176,.65)}
+  .dive-overlay .ocap{font-size:13.5px;color:var(--ink);max-width:420px;text-align:center;line-height:1.55;background:rgba(12,9,16,.62);padding:9px 15px;border-radius:11px;border:1px solid var(--line)}
+  .dive-overlay .ocap b{color:#f0a8f2}
+  .dive-controls{display:flex;justify-content:center;margin-top:16px}
+  .dive-btn{background:var(--approx);color:#fff;border-color:var(--approx);font-weight:600;padding:12px 28px;box-shadow:0 8px 20px -10px var(--approx);font-size:15px;text-align:center}
+  .dive-btn:hover{filter:brightness(1.06)}
+  .whatsnext{max-width:760px;margin-top:18px;font-size:14px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 20px}
+  .whatsnext a{color:var(--approx);text-decoration:none;font-weight:600}
+  .whatsnext a:hover{text-decoration:underline}
+  .whatsnext h3{font-family:var(--display);font-size:18px;margin:0 0 8px;color:var(--ink)}
+  footer{color:var(--muted);font-size:12px;margin-top:44px;border-top:1px solid var(--line);padding-top:14px}
+  @keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .reveal{opacity:0;animation:riseIn .6s cubic-bezier(.2,.7,.2,1) forwards}
+  .tex-fallback{font-family:var(--mono);font-size:13px}
+  button:focus-visible, a:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:8px}
+  @media (prefers-reduced-motion:reduce){.reveal{animation:none;opacity:1}*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="unit4.html">← Unit 4 Guide</a>
+  <header class="reveal">
+    <h1>L&rsquo;H&ocirc;pital&rsquo;s <span class="em">Rule</span></h1>
+    <div class="sub">Some limits jam: substitute and you get <b>0/0</b> or <b>&infin;/&infin;</b> — a form that could
+      equal anything. L&rsquo;H&ocirc;pital's Rule unjams them by handing the problem to the <b>rates</b>: replace
+      the ratio of functions with the ratio of their derivatives.</div>
+  </header>
+
+  <div class="big-idea reveal">
+    When a limit collapses to <b>0/0</b> or <b>&infin;/&infin;</b>, the value isn't decided by the form — it's hiding in
+    <i>how fast</i> the top and bottom head to zero (or infinity). L&rsquo;H&ocirc;pital's Rule reads that off directly:
+    <span style="color:var(--ink)">lim f/g = lim f&prime;/g&prime;</span>, provided you started from a genuine indeterminate
+    form. The one non-negotiable: <b>check the form first</b>.
+  </div>
+
+  <h2 class="reveal">Where the rule comes from</h2>
+  <p class="lead reveal">This isn't magic, and it isn't a formula to take on faith. It falls right out of the last
+    lesson — local linearity — in five short moves.</p>
+  <div class="card reveal" id="derive"></div>
+
+  <h2 class="reveal">Why it works: take the dive</h2>
+  <p class="lead reveal">Substitute and you get <b>0/0</b> — two things both racing to zero, and it looks hopeless. So
+    <b>dive in.</b> Fall toward the point where they meet, and watch what happens: the bendy curves
+    <b>straighten into lines.</b> That's not a trick — get close enough to <i>any</i> smooth curve and it becomes its
+    own tangent line. And once both are just lines, the fraction that looked like nothing is only ever
+    <b>slope ÷ slope</b>. Pick a limit, then hit dive.</p>
+
+  <div class="card reveal">
+    <div class="dive-scen" id="lhScen"></div>
+    <div class="dive-lim" id="diveLim"></div>
+    <div class="dive-wrap">
+      <canvas id="diveCanvas"></canvas>
+      <div class="dive-hint" id="diveHint">substitute → 0/0 · looks hopeless · dive in ↓</div>
+      <div class="dive-overlay" id="diveOverlay">
+        <div class="oans" id="diveAns"></div>
+        <div class="ocap" id="diveCap"></div>
+      </div>
+    </div>
+    <div class="dive-controls"><button class="dive-btn" id="diveBtn">▶ Dive in</button></div>
+  </div>
+
+  <h2 class="reveal">The rule, and the one rule about the rule</h2>
+  <p class="lead reveal">Four moves, every time. Miss the first and everything after it is wrong — you can't apply
+    L&rsquo;H&ocirc;pital to a limit that isn't indeterminate.</p>
+  <div class="proc reveal">
+    <div class="pstep warn"><div class="n">STEP 1</div><h4>Check the form</h4><p>Substitute. Only if you get <b>0/0</b> or <b>±&infin;/&infin;</b> may you continue. Any other value — you're already done; just report it.</p></div>
+    <div class="pstep"><div class="n">STEP 2</div><h4>Differentiate top &amp; bottom</h4><p>Separately. <b>Not</b> the quotient rule — take f&prime; and g&prime; on their own and form the new ratio f&prime;/g&prime;.</p></div>
+    <div class="pstep"><div class="n">STEP 3</div><h4>Evaluate the new limit</h4><p>Substitute again into f&prime;/g&prime;. If it resolves, that's your answer.</p></div>
+    <div class="pstep"><div class="n">STEP 4</div><h4>Still 0/0? Repeat.</h4><p>If f&prime;/g&prime; is <i>also</i> indeterminate, apply the rule again — and again — until it resolves.</p></div>
+  </div>
+
+  <h2 class="reveal">Every indeterminate form, and what to do</h2>
+  <p class="lead reveal">Only <b>0/0</b> and <b>&infin;/&infin;</b> feed L&rsquo;H&ocirc;pital directly. The other five are indeterminate too,
+    but you must first massage them into one of those — usually with algebra or a logarithm.</p>
+  <div class="forms reveal" id="forms"></div>
+
+  <h2 class="reveal">The ideas everything else builds on</h2>
+  <div class="concepts reveal">
+    <div class="concept">
+      <h3>Check the form first</h3>
+      <p>L&rsquo;Hôpital is <i>only</i> valid for <span class="key">0/0</span> or <span class="key">&infin;/&infin;</span>.
+        Applying it to a determinate limit gives a confident, wrong answer.</p>
+      <div class="m" id="c1"></div>
+    </div>
+    <div class="concept">
+      <h3>Ratio of derivatives, not the quotient rule</h3>
+      <p>Differentiate the top and the bottom <span class="key">separately</span>. It looks like the quotient rule
+        but it isn't — no product or square in sight.</p>
+      <div class="m" id="c2"></div>
+    </div>
+    <div class="concept">
+      <h3>It's local linearity in disguise</h3>
+      <p>Near a, f and g <span class="key">are</span> their tangent lines, so their ratio is the ratio of slopes.
+        The (x&minus;a) that made both vanish cancels out.</p>
+      <div class="m" id="c3"></div>
+    </div>
+    <div class="concept">
+      <h3>Re-check, and know when to stop</h3>
+      <p>After one round, look again: it may resolve, or need <span class="key">another pass</span>. Stop the instant
+        it's no longer indeterminate — extra passes give wrong answers.</p>
+      <div class="m" id="c4"></div>
+    </div>
+  </div>
+
+  <h2 class="reveal">Your turn</h2>
+  <p class="lead reveal">Six limits — including one that looks like a job for L&rsquo;H&ocirc;pital but isn't. Check the form,
+    then decide. Try each before revealing.</p>
+  <div class="reveal" id="practice"></div>
+
+  <h2 class="reveal">Quick quiz</h2>
+  <p class="lead reveal">Six fast checks. Pick an answer to see whether it's right and why — then work all six.</p>
+  <div class="card reveal" id="quizCard">
+    <div class="row" style="margin-bottom:12px">
+      <div class="qtag" id="qProgress">Question 1 of 6</div>
+      <span class="score" id="qScore">Score: 0 / 0</span>
+    </div>
+    <div class="qtext" id="qText"></div>
+    <div class="quiz-opts" id="qOpts"></div>
+    <div class="feedback" id="qFb"></div>
+    <button class="next" id="qNext" style="margin-top:14px;width:100%;display:none">Next question →</button>
+  </div>
+
+  <h2 class="reveal">Common mistakes &amp; exam tips</h2>
+  <div class="mistakes reveal">
+    <div class="mistake"><h4>Applying it without an indeterminate form</h4><p>The cardinal sin. lim (x+1)/(x+3) at 0 is 1/3 — done. Differentiating gives 1/1 = 1, a confident wrong answer. <b>Always substitute first.</b></p></div>
+    <div class="mistake"><h4>Using the quotient rule</h4><p>L&rsquo;Hôpital wants f&prime;/g&prime; — the top's derivative over the bottom's derivative, computed separately. The quotient rule is a different (wrong here) beast.</p></div>
+    <div class="mistake"><h4>Forgetting to re-check</h4><p>One pass may leave you at 0/0 again (apply again) — or at a clean value (stop). Blindly differentiating a resolved limit re-breaks it.</p></div>
+    <div class="mistake"><h4>Feeding it 0·&infin; or &infin;&minus;&infin; directly</h4><p>Those are indeterminate but not fractions yet. Rewrite as a single 0/0 or &infin;/&infin; quotient <i>before</i> the rule applies.</p></div>
+    <div class="mistake"><h4>Mishandling 1^&infin;, 0⁰, &infin;⁰</h4><p>Power forms need a logarithm first: take ln, evaluate that limit with L&rsquo;Hôpital, then exponentiate the result back.</p></div>
+    <div class="mistake"><h4>Ignoring one-sided or infinite behavior</h4><p>Check the form in the direction the limit is taken (x→0⁺, x→&infin;). The rule works for &infin;/&infin; too — don't restrict it to 0/0.</p></div>
+  </div>
+  <div class="tipbox reveal">
+    <h4>On the AP exam</h4>
+    <ul>
+      <li><b>State the form.</b> Write "= 0/0" (or ∞/∞) before you differentiate — it justifies using the rule and earns the point.</li>
+      <li>Differentiate numerator and denominator <b>independently</b>: <span id="tipL"></span>.</li>
+      <li>Watch for hidden L&rsquo;Hôpital: improper integrals, sequence/series limits, and average-value problems often end in a 0/0 or ∞/∞.</li>
+      <li>Algebra first often beats the rule — factoring <span id="tipFac"></span> is faster than differentiating. Reach for L&rsquo;Hôpital when algebra stalls.</li>
+    </ul>
+  </div>
+
+  <div class="whatsnext reveal">
+    <h3>That's Unit 4.</h3>
+    You've turned the derivative loose on the real world — reading rates in context, tracking motion, locking related
+    rates together, riding the tangent to estimate, and now rescuing a jammed limit. Every one was the same object,
+    the derivative, wearing a different hat. Head back to the <a href="unit4.html">Unit 4 Guide</a> to run the
+    <a href="unit4-exam-practice.html">exam set</a> and the <a href="unit4-cheatsheet.html">cheat sheet</a> — or on to
+    Unit 5, where the derivative becomes a lens for the whole <em>shape</em> of a function.
+  </div>
+
+  <footer class="reveal">L&rsquo;Hôpital&rsquo;s Rule · part of the Unit 4 guide · open in any browser, no install needed.</footer>
+</div>
+
+<script>
+const SVGNS="http://www.w3.org/2000/svg";
+const el=(t,a,txt)=>{const e=document.createElementNS(SVGNS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;};
+const T=(s)=>tex(s,s,false);
+const MAG="#bf34c9", ORCH="#e884ea", GOLD="#e8a13c", TEAL="#3fd0b0", MUT="#6b5f5a", AXIS="#453f33";
+
+/* ============ SIGNATURE: THE DIVE ============ */
+const SCEN=[
+ { key:"sin",  name:"sin x / x",        lim:"\\lim_{x\\to0}\\dfrac{\\sin x}{x}",            a:0, f:x=>Math.sin(x),      g:x=>x,             ansT:"1",       capA:"slope 1", capB:"slope 1", Wy0:2.4 },
+ { key:"quad", name:"(x²−4)/(x−2)",      lim:"\\lim_{x\\to2}\\dfrac{x^{2}-4}{x-2}",         a:2, f:x=>x*x-4,          g:x=>x-2,           ansT:"4",       capA:"slope 4", capB:"slope 1", Wy0:5.5 },
+ { key:"exp",  name:"(eˣ−1)/sin 2x",     lim:"\\lim_{x\\to0}\\dfrac{e^{x}-1}{\\sin 2x}",     a:0, f:x=>Math.exp(x)-1,   g:x=>Math.sin(2*x), ansT:"\\tfrac12", capA:"slope 1", capB:"slope 2", Wy0:2.1 },
+];
+let si=1, p=0, pPrev=0, diving=false, dRAF=null, dT0=0;  /* default: the parabola — most dramatic bend→straight */
+const DIVE_MS=4300, MAGr="191,52,201", GOLDr="232,161,60";
+const cv=document.getElementById("diveCanvas"), ctx=cv.getContext("2d");
+let CW=560, CH=380; const DPR=Math.min(window.devicePixelRatio||1,2);
+let streaks=[];
+function S(){ return SCEN[si]; }
+function initStreaks(){ streaks=[]; const R=Math.hypot(CW,CH)*0.62; for(let i=0;i<48;i++) streaks.push({a:Math.random()*6.283, r:6+Math.random()*R}); }
+function resizeCanvas(){ CW=cv.clientWidth||560; CH=cv.clientHeight||380; cv.width=CW*DPR; cv.height=CH*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
+function easeIO(t){ return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+/* a coordinate grid that MAGNIFIES as we descend — the zoom cue.
+   Each decade of spacing fades in/out by its on-screen pixel size, so
+   lines spread apart, rush off the edges, and finer lines keep appearing. */
+function niceGrid(s,Wx,Wy,scale,cx,cy){
+  for(let e=3;e>=-4;e--){
+    const step=Math.pow(10,e), px=step*scale;
+    if(px<16||px>520) continue;
+    let a; if(px<70) a=(px-16)/54; else if(px>190) a=1-(px-190)/330; else a=1;
+    a=Math.max(0,Math.min(1,a)); if(a<=0.002) continue; a*=0.18;
+    ctx.strokeStyle="rgba(160,128,184,"+a.toFixed(3)+")"; ctx.lineWidth=1; ctx.beginPath();
+    const kx0=Math.ceil((s.a-Wx)/step), kx1=Math.floor((s.a+Wx)/step);
+    for(let k=kx0;k<=kx1;k++){ const sx=cx+(k*step-s.a)*scale; ctx.moveTo(sx,0); ctx.lineTo(sx,CH); }
+    const ky0=Math.ceil(-Wy/step), ky1=Math.floor(Wy/step);
+    for(let k=ky0;k<=ky1;k++){ const sy=cy-(k*step)*scale; ctx.moveTo(0,sy); ctx.lineTo(CW,sy); }
+    ctx.stroke();
+  }
+}
+function drawFrame(){
+  const s=S(), pe=easeIO(p);
+  const Wy=s.Wy0*Math.pow(0.024/s.Wy0, pe), scale=(CH*0.5)/Wy, Wx=Wy*(CW/CH), cx=CW/2, cy=CH/2;
+  const speed=Math.max(0,Math.min(1,(p-pPrev)*55)); pPrev=p;
+  ctx.clearRect(0,0,CW,CH);
+  const vg=ctx.createRadialGradient(cx,cy,0,cx,cy,Math.max(CW,CH)*0.72);
+  vg.addColorStop(0,"rgba(34,12,38,0.5)"); vg.addColorStop(1,"rgba(7,5,11,0.93)");
+  ctx.fillStyle=vg; ctx.fillRect(0,0,CW,CH);
+  /* magnifying grid — this is what makes it read as zooming INTO the point */
+  niceGrid(s,Wx,Wy,scale,cx,cy);
+  /* faint speed streaks on the fast plunge */
+  ctx.lineCap="round"; const maxR=Math.hypot(CW,CH)*0.6, gr=1+0.008+speed*0.7;
+  streaks.forEach(st=>{ const r0=st.r; st.r*=gr;
+    if(st.r>maxR){ st.r=6+Math.random()*16; st.a=Math.random()*6.283; }
+    const ca=Math.cos(st.a), sa=Math.sin(st.a), al=Math.min(0.42,st.r/maxR)*(0.08+speed*0.85);
+    ctx.strokeStyle="rgba(236,150,238,"+al.toFixed(3)+")"; ctx.lineWidth=1+speed*1.5;
+    ctx.beginPath(); ctx.moveTo(cx+ca*r0,cy+sa*r0); ctx.lineTo(cx+ca*st.r,cy+sa*st.r); ctx.stroke(); });
+  /* reticle box you fly INTO — small around the point at first, grows to fill the frame */
+  const bh=s.Wy0*0.11, bpx=bh*scale;
+  const ba = (bpx<CH*0.6 ? Math.min(1,bpx/24) : Math.max(0,1-(bpx-CH*0.6)/(CH*0.55)));
+  if(ba>0.01){ ctx.strokeStyle="rgba(236,138,238,"+(ba*0.6).toFixed(3)+")"; ctx.lineWidth=1.4;
+    const Lx=cx-bpx,Rx=cx+bpx,Ty=cy-bpx,By=cy+bpx,c=Math.min(bpx*0.3,26);
+    ctx.beginPath();
+    ctx.moveTo(Lx,Ty+c);ctx.lineTo(Lx,Ty);ctx.lineTo(Lx+c,Ty);
+    ctx.moveTo(Rx-c,Ty);ctx.lineTo(Rx,Ty);ctx.lineTo(Rx,Ty+c);
+    ctx.moveTo(Rx,By-c);ctx.lineTo(Rx,By);ctx.lineTo(Rx-c,By);
+    ctx.moveTo(Lx+c,By);ctx.lineTo(Lx,By);ctx.lineTo(Lx,By-c);
+    ctx.stroke(); }
+  /* reference axes through the point (bolder than the grid) */
+  ctx.strokeStyle="rgba(178,156,198,0.28)"; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(CW,cy); ctx.moveTo(cx,0); ctx.lineTo(cx,CH); ctx.stroke();
+  /* the two curves — sampled truthfully, so they straighten on their own */
+  const drawC=(fn,rgb)=>{
+    for(const [w,al] of [[8,0.10],[2.7,1]]){
+      ctx.strokeStyle="rgba("+rgb+","+al+")"; ctx.lineWidth=w; ctx.lineJoin="round"; ctx.beginPath();
+      let pen=false; const N=280;
+      for(let i=0;i<=N;i++){ const x=s.a-Wx+(i/N)*2*Wx, sx=cx+(x-s.a)*scale, sy=cy-fn(x)*scale;
+        if(sy<-260||sy>CH+260){ pen=false; continue; }
+        if(!pen){ ctx.moveTo(sx,sy); pen=true; } else ctx.lineTo(sx,sy); }
+      ctx.stroke(); } };
+  drawC(s.f,MAGr); drawC(s.g,GOLDr);
+  /* the point where 0/0 lives — glows brighter as we land */
+  const gr2=13+18*pe, pg=ctx.createRadialGradient(cx,cy,0,cx,cy,gr2);
+  pg.addColorStop(0,"rgba(255,255,255,"+(0.45+0.45*pe)+")"); pg.addColorStop(0.5,"rgba(236,138,238,"+(0.35*pe)+")"); pg.addColorStop(1,"rgba(236,138,238,0)");
+  ctx.fillStyle=pg; ctx.beginPath(); ctx.arc(cx,cy,gr2,0,6.283); ctx.fill();
+}
+function land(){ const s=S();
+  document.getElementById("diveOverlay").classList.add("show");
+  document.getElementById("diveBtn").textContent="↺ Dive again"; }
+function diveStep(now){ if(!diving) return; p=Math.min(1,(now-dT0)/DIVE_MS); drawFrame();
+  if(p<1){ dRAF=requestAnimationFrame(diveStep); } else { diving=false; land(); } }
+function startDive(){ if(diving) return;
+  document.getElementById("diveOverlay").classList.remove("show");
+  document.getElementById("diveHint").style.opacity=0;
+  resizeCanvas(); initStreaks(); p=0; pPrev=0; diving=true; dT0=performance.now(); dRAF=requestAnimationFrame(diveStep); }
+function diveReset(){ if(dRAF) cancelAnimationFrame(dRAF); diving=false; p=0; pPrev=0;
+  const s=S();
+  document.getElementById("diveOverlay").classList.remove("show");
+  const hint=document.getElementById("diveHint"); hint.style.opacity=1;
+  document.getElementById("diveBtn").textContent="▶ Dive in";
+  document.getElementById("diveAns").innerHTML=T(s.ansT);
+  document.getElementById("diveCap").innerHTML="Both curves are straight <b>lines</b> now — one of "+s.capA+", one of "+s.capB+". So the whole 0/0 was only ever <b>slope ÷ slope</b>.";
+  resizeCanvas(); initStreaks(); drawFrame(); }
+document.getElementById("diveBtn").onclick=()=>{ if(!diving) startDive(); };
+function renderScen(){ document.getElementById("lhScen").innerHTML=SCEN.map((s,i)=>'<button data-i="'+i+'" class="'+(i===si?"on":"")+'">'+s.name+'</button>').join("");
+  document.querySelectorAll("#lhScen button").forEach(b=>b.onclick=()=>{ si=+b.dataset.i; renderScen(); renderLH(); }); }
+function renderLH(){ document.getElementById("diveLim").innerHTML=T(S().lim); diveReset(); }
+window.addEventListener("resize",()=>{ if(!diving){ resizeCanvas(); drawFrame(); } });
+
+/* ============ derivation ============ */
+const DERIVE=[
+ { t:"The problem: 0/0 tells you nothing.",
+   p:"Substitute and both top and bottom hit zero. But <b>0/0</b> isn't a value — it's a question. sin x / x and x² / x both read 0/0 at zero, yet one limit is 1 and the other is 0. The form alone can't decide; you need <i>how fast</i> each part reaches zero." },
+ { t:"Both vanish — so replace each with its tangent.",
+   p:"Here's the bridge from last lesson. Since f(a) = 0 and g(a) = 0, near a each function is almost exactly its tangent line (local linearity):",
+   m:"f(x)\\approx f'(a)(x-a),\\qquad g(x)\\approx g'(a)(x-a)" },
+ { t:"Take the ratio — and watch (x − a) cancel.",
+   p:"Divide the two approximations. The very factor (x − a) that dragged both to zero appears top <i>and</i> bottom, so it cancels:",
+   m:"\\frac{f(x)}{g(x)}\\approx\\frac{f'(a)(x-a)}{g'(a)(x-a)}=\\frac{f'(a)}{g'(a)}",
+   note:"What's left is pure rate-versus-rate. The limit is decided by which function is steeper as it crosses zero." },
+ { t:"That's the rule.",
+   p:"Let x → a and the approximation becomes exact. So the limit of the ratio equals the ratio of the derivatives:",
+   m:"\\lim_{x\\to a}\\frac{f(x)}{g(x)}=\\frac{f'(a)}{g'(a)}=\\lim_{x\\to a}\\frac{f'(x)}{g'(x)}",
+   note:"Differentiate the top and bottom separately, then evaluate. Try it on sin x / x: f&prime;/g&prime; = cos x / 1 → cos 0 = 1." },
+ { t:"But only from 0/0 (or ∞/∞).",
+   p:"The whole trick was the (x − a) canceling — and that only happens because <b>both</b> functions pass through zero. If f(a) ≠ 0, there's nothing to cancel and the rule is simply false. That's why you <b>always check the form first</b>.",
+   warn:true },
+];
+function renderDerive(){
+  document.getElementById("derive").innerHTML=DERIVE.map((d,i)=>{
+    let inner='<div style="font-size:14.5px"><b style="color:'+(d.warn?"#f0a08a":"var(--ink)")+'">'+d.t+'</b>'+
+      '<div style="color:var(--muted);margin-top:6px;line-height:1.65;font-size:13.5px">'+d.p+'</div>';
+    if(d.m) inner+='<div class="why-m" style="margin-top:10px">'+T(d.m)+'</div>';
+    if(d.note) inner+='<div style="font-size:12.5px;color:var(--faint);margin-top:10px;border-left:2px solid rgba(191,52,201,.45);padding-left:11px;line-height:1.55">'+d.note+'</div>';
+    inner+='</div>';
+    const bg=d.warn?"var(--div)":"var(--approx)";
+    return '<div class="why-step" style="padding:14px 0"><div class="why-n" style="background:'+bg+';color:#fff;border:none;flex:none;width:24px;height:24px">'+(i+1)+'</div>'+inner+'</div>';
+  }).join("");
+}
+
+/* ============ forms gallery ============ */
+const FORMS=[
+ { form:"\\dfrac{0}{0}", cls:"direct", p:"Apply L&rsquo;Hôpital directly — differentiate top and bottom." },
+ { form:"\\dfrac{\\infty}{\\infty}", cls:"direct", p:"Apply directly too — the rule works for infinite ratios as well." },
+ { form:"0\\cdot\\infty", cls:"", p:"Move one factor to the denominator to make a fraction: turn it into 0/0 or ∞/∞." },
+ { form:"\\infty-\\infty", cls:"", p:"Combine into one fraction (common denominator), which becomes 0/0." },
+ { form:"1^{\\infty}", cls:"", p:"Take ln → the exponent times ln(base), a 0·∞ form. Solve, then exponentiate back." },
+ { form:"0^{0}\\ \\text{or}\\ \\infty^{0}", cls:"", p:"Same move: take ln to drop the power into a product, resolve, then exponentiate." },
+];
+function renderForms(){ document.getElementById("forms").innerHTML=FORMS.map(f=>
+  '<div class="form '+f.cls+'"><div class="fform">'+T(f.form)+'</div><p>'+f.p+'</p></div>').join(""); }
+
+/* ============ static bits ============ */
+function renderBits(){ const s=(id,l)=>{const n=document.getElementById(id); if(n) n.innerHTML=T(l);};
+  s("tipL","\\lim\\dfrac{f}{g}=\\lim\\dfrac{f'}{g'}");
+  s("tipFac","\\dfrac{x^2-4}{x-2}=x+2");
+  s("c1","\\tfrac00\\ \\text{or}\\ \\tfrac{\\infty}{\\infty}\\ \\text{only}");
+  s("c2","\\lim\\dfrac{f}{g}=\\lim\\dfrac{f'}{g'}");
+  s("c3","\\dfrac{f'(a)(x-a)}{g'(a)(x-a)}=\\dfrac{f'(a)}{g'(a)}");
+  s("c4","\\text{repeat while still }\\tfrac00");
+}
+
+/* ============ practice ============ */
+const PRAC=[
+ { tag:"The classic", q:()=>'Evaluate '+T("\\lim_{x\\to0}\\dfrac{\\sin x}{x}")+'.',
+   sol:[{t:"Form check: sin 0 / 0 = 0/0 ✓ — indeterminate.",m:null},{t:"Differentiate top and bottom:",m:"\\lim_{x\\to0}\\dfrac{\\cos x}{1}=\\cos 0=1"}] },
+ { tag:"Exponential", q:()=>'Evaluate '+T("\\lim_{x\\to0}\\dfrac{e^{x}-1}{x}")+'.',
+   sol:[{t:"Form: (1−1)/0 = 0/0 ✓.",m:null},{t:"f′/g′ = eˣ/1:",m:"\\lim_{x\\to0}\\dfrac{e^{x}}{1}=e^0=1"}] },
+ { tag:"Spot the trap", q:()=>'Evaluate '+T("\\lim_{x\\to0}\\dfrac{x+2}{x^{2}+1}")+'.',
+   sol:[{t:"Form check FIRST: (0+2)/(0+1) = 2/1 = 2. Not indeterminate!",m:"=2"},{t:"L&rsquo;Hôpital does NOT apply — just substitute. (Using it would give 1/(2x) → wrong.)",m:null}] },
+ { tag:"Apply twice", q:()=>'Evaluate '+T("\\lim_{x\\to0}\\dfrac{1-\\cos x}{x^{2}}")+'.',
+   sol:[{t:"Form: 0/0 ✓. Differentiate:",m:"\\lim_{x\\to0}\\dfrac{\\sin x}{2x}"},{t:"Still 0/0 — apply again:",m:"\\lim_{x\\to0}\\dfrac{\\cos x}{2}=\\dfrac12"}] },
+ { tag:"Infinity over infinity", q:()=>'Evaluate '+T("\\lim_{x\\to\\infty}\\dfrac{\\ln x}{x}")+'.',
+   sol:[{t:"Form: ∞/∞ ✓. Differentiate:",m:"\\lim_{x\\to\\infty}\\dfrac{1/x}{1}=\\lim_{x\\to\\infty}\\dfrac1x=0"}] },
+ { tag:"Convert first", q:()=>'Evaluate '+T("\\lim_{x\\to0^{+}} x\\ln x")+' (a 0·∞ form).',
+   sol:[{t:"Rewrite as a fraction to hit ∞/∞:",m:"\\lim_{x\\to0^{+}}\\dfrac{\\ln x}{1/x}"},{t:"Now L&rsquo;Hôpital: (1/x)/(−1/x²) = −x:",m:"\\lim_{x\\to0^{+}}(-x)=0"}] }
+];
+function renderPractice(){
+  document.getElementById("practice").innerHTML=PRAC.map((p,i)=>{
+    const steps=p.sol.map((st,j)=>'<div class="why-step"><div class="why-n">'+(j+1)+'</div><div><div class="why-t">'+st.t+'</div>'+(st.m?'<div class="why-m">'+T(st.m)+'</div>':'')+'</div></div>').join("");
+    return '<div class="prob"><div class="prob-tag">'+p.tag+'</div><div class="prob-q">'+p.q()+'</div>'
+      +'<button class="soltoggle" data-i="'+i+'">Show solution</button><div class="sol" id="sol'+i+'">'+steps+'</div></div>';
+  }).join("");
+  document.querySelectorAll(".soltoggle").forEach(btn=>{ btn.onclick=()=>{ const i=btn.getAttribute("data-i"), s=document.getElementById("sol"+i);
+    btn.textContent=s.classList.toggle("show")?"Hide solution":"Show solution"; }; });
+}
+
+/* ============ quiz ============ */
+const QUIZ=[
+ { q:()=>'L&rsquo;Hôpital&rsquo;s Rule applies directly to a limit of the form:',
+   opts:[{h:()=>T("\\tfrac00\\ \\text{or}\\ \\tfrac{\\infty}{\\infty}"),ok:true},{h:()=>T("\\tfrac10"),ok:false},{h:()=>"any limit",ok:false},{h:()=>T("0\\cdot\\infty"),ok:false}],
+   fb:"Only 0/0 and ∞/∞ feed the rule directly. 0·∞ is indeterminate but must be rewritten as a fraction first." },
+ { q:()=>'Before applying the rule, you must always:',
+   opts:[{h:()=>"check the limit is indeterminate",ok:true},{h:()=>"use the quotient rule",ok:false},{h:()=>"factor first",ok:false},{h:()=>"take a logarithm",ok:false}],
+   fb:"Substitute first. If it isn't 0/0 or ∞/∞, the rule doesn't apply — you're already done." },
+ { q:()=>'By the rule, '+T("\\lim\\dfrac{f}{g}")+' equals:',
+   opts:[{h:()=>T("\\lim\\dfrac{f'}{g'}"),ok:true},{h:()=>T("\\lim\\dfrac{f'g-fg'}{g^2}"),ok:false},{h:()=>T("\\lim f'g'"),ok:false},{h:()=>T("\\lim\\dfrac{f}{g'}"),ok:false}],
+   fb:"Differentiate top and bottom separately: f′/g′. The second option is the quotient rule — not what L'Hôpital says." },
+ { q:()=>'Evaluate '+T("\\lim_{x\\to0}\\dfrac{\\sin x}{x}")+'.',
+   opts:[{h:()=>T("1"),ok:true},{h:()=>T("0"),ok:false},{h:()=>T("\\infty"),ok:false},{h:()=>"undefined",ok:false}],
+   fb:"0/0 form; f′/g′ = cos x / 1 → cos 0 = 1." },
+ { q:()=>'Is '+T("\\lim_{x\\to0}\\dfrac{x+1}{x-3}")+' a case for L&rsquo;Hôpital?',
+   opts:[{h:()=>"No — it's 1/(−3), not indeterminate",ok:true},{h:()=>"Yes, it's 0/0",ok:false},{h:()=>"Yes, it's ∞/∞",ok:false},{h:()=>"Yes, apply twice",ok:false}],
+   fb:"Substitute: (0+1)/(0−3) = −1/3. A determinate value — just report it." },
+ { q:()=>'After one application you still get 0/0. You should:',
+   opts:[{h:()=>"apply the rule again",ok:true},{h:()=>"conclude the limit is 0",ok:false},{h:()=>"conclude it doesn't exist",ok:false},{h:()=>"switch to the quotient rule",ok:false}],
+   fb:"Repeat L'Hôpital while the form stays indeterminate — differentiate top and bottom again." }
+];
+let qi=0,qScore=0,qDone=0,qAnswered=false;
+const qOpts=document.getElementById("qOpts"),qFb=document.getElementById("qFb"),qNext=document.getElementById("qNext");
+function renderQuiz(){ qAnswered=false; const item=QUIZ[qi];
+  document.getElementById("qText").innerHTML=item.q();
+  document.getElementById("qProgress").textContent="Question "+(qi+1)+" of "+QUIZ.length;
+  document.getElementById("qScore").textContent="Score: "+qScore+" / "+qDone;
+  qFb.innerHTML=""; qNext.style.display="none";
+  qNext.textContent = qi<QUIZ.length-1 ? "Next question →" : "Restart quiz ↺";
+  qOpts.innerHTML="";
+  item.opts.forEach(o=>{ const b=document.createElement("button"); b.innerHTML=o.h();
+    b.onclick=()=>{ if(qAnswered)return; qAnswered=true; qDone++;
+      [...qOpts.children].forEach((bb,k)=>{ bb.disabled=true; if(item.opts[k].ok) bb.classList.add("correct"); });
+      if(o.ok){ qScore++; b.classList.add("correct"); qFb.innerHTML='<span style="color:var(--conv);font-weight:600">✓ Correct.</span> <span style="color:var(--muted)">'+item.fb+'</span>'; }
+      else { b.classList.add("wrong"); qFb.innerHTML='<span style="color:var(--div);font-weight:600">✗ Not quite.</span> <span style="color:var(--muted)">'+item.fb+'</span>'; }
+      document.getElementById("qScore").textContent="Score: "+qScore+" / "+qDone; qNext.style.display="block";
+    };
+    qOpts.appendChild(b); });
+}
+qNext.onclick=()=>{ if(qi<QUIZ.length-1){ qi++; } else { qi=0; qScore=0; qDone=0; } renderQuiz(); };
+
+/* ============ init ============ */
+function boot(){ renderScen(); renderLH(); renderDerive(); renderForms(); renderBits(); renderPractice(); renderQuiz(); }
+boot();
+if(!window.katex){ let tries=0; const t=setInterval(()=>{ if(window.katex){ clearInterval(t); renderDerive(); renderForms(); renderBits(); renderPractice(); renderQuiz(); renderLH(); }
+  else if(++tries>40) clearInterval(t); },150); }
+document.querySelectorAll('.reveal').forEach((n,i)=>{ n.style.animationDelay=Math.min(i*26,420)+'ms'; });
+</script>
+</body>
+</html>

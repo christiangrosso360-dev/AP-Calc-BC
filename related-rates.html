@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Related Rates · Unit 4 Guide</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%23190b1c%27%2F%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%2716%27%20r%3D%276%27%20fill%3D%27none%27%20stroke%3D%27%23bf34c9%27%20stroke-width%3D%272.2%27%2F%3E%3Ccircle%20cx%3D%2722%27%20cy%3D%2718%27%20r%3D%274%27%20fill%3D%27none%27%20stroke%3D%27%23e8a13c%27%20stroke-width%3D%272%27%2F%3E%3C%2Fsvg%3E" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="styles.css">
+<script src="helpers.js"></script>
+<style>
+  :root{ --approx:#bf34c9; --gold:#bf34c9; --true:#e884ea;
+         --glow:rgba(191,52,201,.09); --wrap-max:1080px; }
+  .sub{color:var(--muted);font-size:15px;margin-top:8px;max-width:680px}
+  h2{font-family:var(--display);font-weight:600;font-size:21px;margin:40px 0 8px;letter-spacing:-0.01em}
+  p.lead{font-size:15.5px;max-width:730px;margin:8px 0}
+  .big-idea{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:18px;max-width:800px}
+  .big-idea b{color:var(--approx)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -26px rgba(0,0,0,.7)}
+  svg{width:100%;display:block;border-radius:10px}
+  button{font-family:var(--body);cursor:pointer;border-radius:9px;border:1px solid var(--line);
+    background:var(--panel-2);color:var(--ink);padding:10px 13px;font-size:13.5px;text-align:left;
+    transition:transform .14s,border-color .14s,background .14s}
+  button:hover{border-color:var(--gold);transform:translateY(-1px)}
+  button:active{transform:translateY(0) scale(.99)}
+  button.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+  /* recipe */
+  .recipe{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px}
+  @media(max-width:760px){.recipe{grid-template-columns:1fr 1fr}}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px 16px;position:relative}
+  .step .n{font-family:var(--mono);font-size:12px;color:var(--approx);font-weight:600}
+  .step h4{font-family:var(--display);font-size:15.5px;margin:6px 0 6px}
+  .step p{font-size:13px;color:var(--muted);margin:0;line-height:1.55}
+  .step.warn{border-color:rgba(224,100,79,.4)}
+  .step.warn .n{color:var(--div)}
+  /* lab */
+  .scen-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .scen-btns button{flex:1;text-align:center;padding:9px 8px;font-size:12.5px;font-weight:600}
+  .exbody{display:flex;gap:24px;align-items:flex-start}
+  .exviz{flex:1 1 46%;min-width:0}
+  .exctrl{flex:1 1 50%;min-width:0}
+  @media(max-width:860px){ .exbody{flex-direction:column;gap:18px} .exviz{flex:none;width:100%} }
+  .mctrls{display:flex;gap:8px;align-items:center;margin-top:10px}
+  .play{background:var(--approx);color:#fff;border-color:var(--approx);font-weight:600;text-align:center;box-shadow:0 8px 18px -10px var(--approx);flex:none;min-width:92px}
+  .play:hover{filter:brightness(1.06)}
+  .mscrub{flex:1;accent-color:var(--approx)}
+  .srow{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;margin-top:12px;font-size:12.5px;color:var(--muted)}
+  .srow input[type=range]{width:100%;accent-color:var(--gold)}
+  .sval{font-family:var(--mono);font-size:13px;color:var(--ink)}
+  .ratesbox{display:flex;gap:10px;margin-top:14px}
+  .rate{flex:1;border-radius:11px;padding:11px 13px;border:1px solid var(--line);background:var(--panel-2)}
+  .rate .lab{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .rate .v{font-family:var(--mono);font-size:17px;margin-top:3px}
+  .rate.given{border-color:rgba(232,161,60,.45)} .rate.given .v{color:#f0c07a}
+  .rate.found{border-color:rgba(191,52,201,.5)} .rate.found .v{color:#f0a8f2}
+  .rate .sub{font-size:10.5px;color:var(--faint);margin-top:2px}
+  /* setup panel */
+  .setup{display:flex;flex-direction:column;gap:0}
+  .sstep{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .sstep:last-child{border-bottom:none}
+  .sstep .sn{flex:none;width:24px;height:24px;border-radius:50%;background:var(--bg);color:var(--approx);
+    font-family:var(--mono);font-size:12px;display:flex;align-items:center;justify-content:center;margin-top:2px;border:1px solid var(--line)}
+  .sstep .st{font-size:13px;color:var(--muted);line-height:1.5}
+  .sstep .sm{margin-top:7px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:9px 12px;overflow-x:auto;text-align:center}
+  .sstep.solve .sm{border-color:rgba(191,52,201,.4)}
+  /* challenge */
+  .challenge{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}
+  .ch-head{font-family:var(--display);font-size:16px;margin-bottom:4px}
+  .ch-head .em{color:var(--approx)}
+  .ch-q{font-size:13.5px;color:var(--muted);margin:12px 0 8px}
+  .ch-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:620px){.ch-opts{grid-template-columns:1fr}}
+  .ch-opts button{text-align:center;padding:12px;font-size:14px}
+  .ch-opts button.correct{background:rgba(63,208,176,.16);border-color:var(--conv);color:var(--conv)}
+  .ch-opts button.wrong{background:rgba(224,100,79,.16);border-color:var(--div);color:var(--div)}
+  .ch-opts button:disabled{cursor:default} .ch-opts button:disabled:hover{transform:none;border-color:var(--line)}
+  .ch-opts button.correct:disabled:hover{border-color:var(--conv)} .ch-opts button.wrong:disabled:hover{border-color:var(--div)}
+  .ch-fb{margin-top:10px;font-size:13.5px;min-height:20px;line-height:1.5}
+  .ch-stage2{margin-top:16px;opacity:.4;pointer-events:none;transition:opacity .3s}
+  .ch-stage2.live{opacity:1;pointer-events:auto}
+  .ch-done{margin-top:14px;padding:12px 14px;border-radius:10px;background:rgba(63,208,176,.1);border:1px solid rgba(63,208,176,.4);font-size:13.5px;color:#7fe0cc;display:none}
+  .ch-done.show{display:block}
+  /* step builder */
+  .builder{display:flex;flex-direction:column;min-height:300px}
+  .bld-head{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--display);font-size:16px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+  .bld-prog{font-family:var(--mono);font-size:11.5px;color:var(--approx)}
+  .bld-body{flex:1}
+  .bld-title{font-family:var(--display);font-size:16px;color:var(--ink);margin-bottom:9px}
+  .bld-explain{font-size:13.5px;line-height:1.68;color:var(--muted)}
+  .bld-explain b{color:var(--ink);font-weight:600} .bld-explain i{color:var(--approx);font-style:italic}
+  .bld-prompt{font-size:13px;color:var(--ink);font-weight:600;margin:15px 0 9px}
+  .bld-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:520px){.bld-opts{grid-template-columns:1fr}}
+  .bld-opts button{text-align:center;padding:11px 8px;font-size:13.5px}
+  .bld-opts button.correct{background:rgba(63,208,176,.16);border-color:var(--conv);color:var(--conv)}
+  .bld-opts button.wrong{background:rgba(224,100,79,.16);border-color:var(--div);color:var(--div)}
+  .bld-opts button:disabled:hover{transform:none}
+  .bld-opts button.correct:disabled:hover{border-color:var(--conv)}
+  .bld-fb{font-size:12.5px;margin-top:8px;min-height:15px}
+  .bld-reveal{margin-top:13px}
+  .bld-reveal .sm{margin-top:0}
+  .sm{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;text-align:center;overflow-x:auto;margin-top:10px}
+  .bld-why{font-size:13px;line-height:1.62;color:var(--muted);margin-top:10px;border-left:2px solid rgba(191,52,201,.45);padding-left:12px}
+  .bld-why b{color:var(--ink);font-weight:600} .bld-why i{color:var(--approx)}
+  .bld-nav{display:flex;gap:8px;margin-top:16px;padding-top:13px;border-top:1px solid var(--line)}
+  .bld-nav .play{flex:1}
+  .bld-nav button{min-width:78px} .bld-nav button:disabled{opacity:.4;cursor:default}
+  /* concepts / mistakes / practice / quiz reused */
+  .prob{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:14px}
+  .prob-tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--approx);font-weight:600}
+  .prob-q{font-size:14.5px;line-height:1.65;margin:6px 0 12px}
+  .soltoggle{font-size:13px;padding:7px 14px}
+  .sol{display:none;margin-top:12px;border-top:1px solid var(--line);padding-top:6px}
+  .sol.show{display:block}
+  .why-step{display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .why-step:last-child{border-bottom:none}
+  .why-n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--bg);color:var(--muted);font-family:var(--mono);font-size:11px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .why-t{font-size:13px;line-height:1.5}
+  .why-m{margin-top:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:7px 10px;overflow-x:auto;text-align:center}
+  .mistakes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  @media(max-width:680px){.mistakes{grid-template-columns:1fr}}
+  .mistake{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--div);border-radius:10px;padding:13px 16px}
+  .mistake h4{margin:0 0 4px;font-size:14px;font-family:var(--display)}
+  .mistake p{margin:0;font-size:13px;color:var(--muted);line-height:1.55}
+  .tipbox{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:14px 18px;max-width:820px}
+  .tipbox h4{margin:0 0 8px;font-size:14px;font-family:var(--display);color:var(--approx)}
+  .tipbox ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:var(--ink)}
+  .tipbox li{margin:5px 0}
+  /* applications */
+  .apps{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+  @media(max-width:720px){.apps{grid-template-columns:1fr}}
+  .app{display:flex;gap:15px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;align-items:flex-start;transition:transform .2s,box-shadow .2s}
+  .app:hover{transform:translateY(-3px);box-shadow:0 16px 30px -22px rgba(43,41,37,.5)}
+  .app-ico{flex:none;width:60px;height:46px;color:var(--approx)}
+  .app-ico svg{width:60px;height:46px}
+  .app h3{font-family:var(--display);font-size:15.5px;margin:0 0 5px}
+  .app p{font-size:12.8px;color:var(--muted);line-height:1.6;margin:0}
+  .app p b{color:var(--ink)}
+  /* quick reps */
+  .qreps{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+  @media(max-width:680px){.qreps{grid-template-columns:1fr}}
+  .qrep{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column}
+  .qrep .qs{font-size:13.5px;color:var(--ink);line-height:1.55;margin-bottom:10px;flex:1}
+  .qrep .qtog{font-size:12px;padding:6px 12px;align-self:flex-start}
+  .qrep .qa{display:none;margin-top:10px;font-size:12.5px;color:var(--muted)}
+  .qrep .qa.show{display:block}
+  .qrep .qm{background:var(--panel-2);border:1px solid var(--line);border-radius:7px;padding:7px 10px;margin-top:6px;text-align:center;overflow-x:auto}
+  /* capstone boss */
+  #bossKey{font-size:12px;padding:10px 12px}
+  .boss-prob{font-size:13px;line-height:1.6;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+  .boss-prob b{color:var(--approx)}
+  .boss-part{margin-top:15px}
+  .boss-part h4{font-family:var(--display);font-size:15px;margin:0;color:var(--ink)}
+  .boss-part h4 .pa{color:var(--muted);font-weight:400;font-size:13px}
+  .boss-part.done h4::after{content:" ✓";color:var(--conv)}
+  .boss-steps .lead2{font-size:12px;color:var(--muted);margin-top:9px;line-height:1.5}
+  .boss-steps .sm{margin-top:5px}
+  .rbtn{font-size:12.5px;padding:7px 13px;margin-top:10px}
+  .boss-done{margin-top:16px;padding:14px 16px;border-radius:12px;background:rgba(63,208,176,.1);border:1px solid rgba(63,208,176,.4);color:#a7ddd0;font-size:13.5px;line-height:1.65;display:none}
+  .boss-done.show{display:block}
+  .boss-done b{color:#7fe0cc}
+  .whatsnext{max-width:720px;margin-top:18px;font-size:14px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+  .whatsnext a{color:var(--approx);text-decoration:none;font-weight:600}
+  .whatsnext a:hover{text-decoration:underline}
+  footer{color:var(--muted);font-size:12px;margin-top:44px;border-top:1px solid var(--line);padding-top:14px}
+  @keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .reveal{opacity:0;animation:riseIn .6s cubic-bezier(.2,.7,.2,1) forwards}
+  .tex-fallback{font-family:var(--mono);font-size:13px}
+  button:focus-visible, a:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:8px}
+  @media (prefers-reduced-motion:reduce){.reveal{animation:none;opacity:1}*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="unit4.html">← Unit 4 Guide</a>
+  <header class="reveal">
+    <h1>Related <span class="em">Rates</span></h1>
+    <div class="sub">The calculus here is easy — a single implicit differentiation. The whole challenge is the
+      <b style="color:var(--ink)">setup</b>: seeing the scene, finding the one equation that ties the quantities
+      together, and differentiating it in time so their rates lock. Master the setup and every problem is the
+      same problem.</div>
+  </header>
+
+  <div class="big-idea reveal">
+    When two quantities are tied by an equation and both change with time, differentiating that equation
+    <b>with respect to t</b> chains their rates together — <b>know one, get the other</b>. Like meshed gears:
+    turn one and the other must turn, at a rate the linkage fixes. Your job is never the derivative; it's
+    finding the linkage and reading it at the right instant.
+  </div>
+
+  <h2 class="reveal">The recipe — every related-rates problem</h2>
+  <p class="lead reveal">Four steps, always in this order. The one that ends careers is doing step 4 too early.</p>
+  <div class="recipe reveal">
+    <div class="step"><div class="n">STEP 1</div><h4>Name &amp; sort</h4><p>Label the changing quantities. Mark which rate is <b>given</b> and which you <b>want</b>. Note what's constant.</p></div>
+    <div class="step"><div class="n">STEP 2</div><h4>Find the relation</h4><p>Write the one equation linking the quantities — geometry, a volume formula, or similar triangles. Eliminate extra variables now.</p></div>
+    <div class="step"><div class="n">STEP 3</div><h4>Differentiate d/dt</h4><p>Differentiate both sides with respect to <b>t</b>. Chain rule on <b>every</b> variable — each gets its own rate.</p></div>
+    <div class="step warn"><div class="n">STEP 4</div><h4>Substitute — last</h4><p>Only <b>now</b> plug in the instant's numbers and solve for the wanted rate. Substitute earlier and you freeze a moving quantity.</p></div>
+  </div>
+
+  <h2 class="reveal">The Related-Rates Lab</h2>
+  <p class="lead reveal">Pick a scene. <b>Play it</b> — the quantity you control changes at a steady rate you set,
+    and the linked rate is <b>computed live</b> from the equation, so you watch them lock. The four setup steps
+    fill in beside it. Then <b>build the setup yourself</b> in the challenge below.</p>
+
+  <div class="card reveal">
+    <div class="scen-btns" id="rlScen"></div>
+    <div class="exbody">
+      <div class="exviz">
+        <svg id="rlScene" viewBox="0 0 360 300" preserveAspectRatio="xMidYMid meet" style="touch-action:none">
+          <defs><radialGradient id="rlGlow"><stop offset="0" stop-color="#e884ea" stop-opacity=".5"/><stop offset="1" stop-color="#e884ea" stop-opacity="0"/></radialGradient></defs>
+          <g id="rlLayer"></g>
+        </svg>
+        <div class="mctrls"><button class="play" id="rlPlay">▶ Play</button><input type="range" class="mscrub" id="rlScrub" min="0" max="1" step="0.001" value="0.28"></div>
+        <div class="srow"><span class="sname" id="rlRateName">given rate</span><input type="range" id="rlRate"><span class="sval" id="rlRateVal"></span></div>
+        <div class="ratesbox">
+          <div class="rate given"><div class="lab">given</div><div class="v" id="rlGiven"></div><div class="sub">you set this — steady</div></div>
+          <div class="rate found"><div class="lab">found</div><div class="v" id="rlFound"></div><div class="sub" id="rlFoundSub">locked by the equation</div></div>
+        </div>
+      </div>
+      <div class="exctrl">
+        <div class="builder">
+          <div class="bld-head"><span>Build the setup</span><span class="bld-prog" id="bldProg">Step 1 of 4</span></div>
+          <div class="bld-body" id="bldBody"></div>
+          <div class="bld-nav">
+            <button id="bldBack">◀ Back</button>
+            <button id="bldNext" class="play">Next step →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="big-idea reveal" style="margin-top:20px">
+    <b>Four scenes, one method.</b> A ladder, a ripple, a cone, a shadow — every one was the same four steps:
+    name the quantities, find the equation that links them, differentiate in time, substitute last. Learn the
+    <i>steps</i>, not the answers, and there's no related-rates problem you can't set up.
+  </div>
+
+  <h2 class="reveal">Where it shows up</h2>
+  <p class="lead reveal">This isn't a textbook trick. Anywhere two changing quantities obey one law, related rates
+    reads a hidden rate off a measured one — often in real time, often when it matters.</p>
+  <div class="apps reveal">
+    <div class="app">
+      <div class="app-ico"><svg viewBox="0 0 60 46" fill="none" stroke="currentColor">
+        <path d="M4 40 A 22 22 0 0 1 26 18" stroke-width="1.3" opacity=".45"/>
+        <path d="M4 40 A 14 14 0 0 1 18 26" stroke-width="1.2" opacity=".3"/>
+        <line x1="14" y1="34" x2="46" y2="12" stroke-width="1.3" stroke-dasharray="3 3" opacity=".8"/>
+        <path d="M14 34 l6 -1 l-3 5 z" fill="currentColor" stroke="none"/>
+        <path d="M46 12 l-6 1 l3 -5 z" fill="currentColor" stroke="none"/>
+      </svg></div>
+      <div><h3>Air-traffic control</h3><p>A controller can't measure two jets' <b>closing speed</b> directly — she computes it. Their positions are tied by the distance formula, so one differentiation turns each plane's known speed into how fast the gap is shrinking. Safe separation versus near-miss.</p></div>
+    </div>
+    <div class="app">
+      <div class="app-ico"><svg viewBox="0 0 60 46" fill="none" stroke="currentColor">
+        <circle cx="30" cy="23" r="6" stroke-width="2"/><circle cx="30" cy="23" r="12" stroke-width="1.4" opacity=".55"/><circle cx="30" cy="23" r="18" stroke-width="1" opacity=".3"/>
+      </svg></div>
+      <div><h3>Oil-spill response</h3><p>A slick spreads as a growing circle. Responders need <b>dA/dt</b> — how fast the contaminated area expands — to size booms and crews. It falls straight out of <b>A = πr²</b> and a measured dr/dt: the ripple you dragged, at industrial stakes.</p></div>
+    </div>
+    <div class="app">
+      <div class="app-ico"><svg viewBox="0 0 60 46" fill="none" stroke="currentColor">
+        <path d="M12 8 L18 40 L42 40 L48 8" stroke-width="1.8"/>
+        <line x1="15" y1="24" x2="45" y2="24" stroke-width="1.5" opacity=".7"/>
+        <line x1="42" y1="40" x2="54" y2="40" stroke-width="1.6"/>
+        <path d="M54 40 l-5 -2.5 l0 5 z" fill="currentColor" stroke="none"/>
+      </svg></div>
+      <div><h3>Reservoir management</h3><p>Operators release water at a controlled <b>dV/dt</b>, but what they watch is the <b>level</b>. The basin's shape links the two — and because it widens with height, the same outflow drops the level far faster when the reservoir runs low.</p></div>
+    </div>
+    <div class="app">
+      <div class="app-ico"><svg viewBox="0 0 60 46" fill="none" stroke="currentColor">
+        <line x1="6" y1="40" x2="54" y2="40" stroke-width="1.5"/>
+        <path d="M46 8 q3 0 3 6 l0 10 l-6 0 l0 -10 q0 -6 3 -6 z" stroke-width="1.5"/>
+        <line x1="43" y1="24" x2="40" y2="29" stroke-width="1.3"/><line x1="49" y1="24" x2="52" y2="29" stroke-width="1.3"/>
+        <rect x="8" y="33" width="9" height="7" rx="1.5" stroke-width="1.3"/>
+        <line x1="17" y1="35" x2="46" y2="18" stroke-width="1.2" stroke-dasharray="3 3" opacity=".65"/>
+        <path d="M23 36 A 7 7 0 0 1 21 31" stroke-width="1.1" opacity=".6"/>
+      </svg></div>
+      <div><h3>Tracking a launch</h3><p>A ground camera holds a rising rocket in frame by matching its <b>angle of elevation</b> to the rocket's height: <b>tan θ = h/d</b>. Differentiate and the climb rate dh/dt sets exactly how fast the camera must pivot — quick near the pad, easing as it climbs away.</p></div>
+    </div>
+  </div>
+
+  <h2 class="reveal">Set these up yourself</h2>
+  <p class="lead reveal">Three more, in words. For each, write the relation and its t-derivative before revealing —
+    the numbers are the easy part.</p>
+  <div class="reveal" id="practice"></div>
+
+  <h2 class="reveal">Quick reps — name the relation</h2>
+  <p class="lead reveal">Recognition drills. For each, decide the equation and its t-derivative in your head, then reveal to check — this is the fast half of every problem.</p>
+  <div class="qreps reveal" id="qreps"></div>
+
+  <h2 class="reveal">The capstone challenge</h2>
+  <p class="lead reveal">Everything at once. A balloon rises straight up while you watch from 500 ft away — and two
+    different rates hide in the same scene: how fast it <b>pulls away</b> from you, and how fast you must
+    <b>tilt your gaze</b> to follow it. Reveal each part step by step, then let the scene lock to the instant
+    and confirm both answers.</p>
+  <div class="card reveal">
+    <div class="exbody">
+      <div class="exviz">
+        <svg id="bossScene" viewBox="0 0 360 300" preserveAspectRatio="xMidYMid meet" style="touch-action:none"><g id="bossLayer"></g></svg>
+        <div class="mctrls">
+          <button class="play" id="bossPlay">▶ Play</button>
+          <input type="range" class="mscrub" id="bossScrub" min="0" max="1" step="0.001" value="0.556">
+          <button id="bossKey">↧ h = 500</button>
+        </div>
+      </div>
+      <div class="exctrl">
+        <div class="boss-prob">A weather balloon rises straight up from a launch point; you watch from a fixed <b>d = 500 ft</b> away on level ground. It climbs at a steady <b>dh/dt = 30 ft/s</b>. At the instant it reaches <b>h = 500 ft</b>: <b>(a)</b> how fast is its straight-line distance from you increasing? <b>(b)</b> how fast is your angle of elevation increasing?</div>
+        <div class="boss-part" id="bossPartA"><h4>Part (a) · <span class="pa">how fast it pulls away</span></h4><div class="boss-steps" id="stepsA"></div><button class="rbtn" id="revA">Reveal step 1 →</button></div>
+        <div class="boss-part" id="bossPartB"><h4>Part (b) · <span class="pa">how fast your gaze tilts</span></h4><div class="boss-steps" id="stepsB"></div><button class="rbtn" id="revB">Reveal step 1 →</button></div>
+      </div>
+    </div>
+    <div class="boss-done" id="bossDone"></div>
+  </div>
+
+  <h2 class="reveal">Common mistakes &amp; exam tips</h2>
+  <div class="mistakes reveal">
+    <div class="mistake"><h4>Substituting before differentiating</h4><p>The cardinal sin. If you plug in x = 3 before taking d/dt, you've frozen x — its rate vanishes and the whole problem collapses. Differentiate <i>first</i>, substitute last.</p></div>
+    <div class="mistake"><h4>Forgetting a variable's rate</h4><p>Every changing variable gets a rate when you differentiate. In x²+y²=L², both x <i>and</i> y change, so both dx/dt and dy/dt appear. Dropping one is the most common slip.</p></div>
+    <div class="mistake"><h4>Not eliminating extra variables</h4><p>In the cone, V = ⅓πr²h has two changers. Use similar triangles (r = h/2) to get V in terms of h alone <i>before</i> differentiating — otherwise you'd need dr/dt too.</p></div>
+    <div class="mistake"><h4>Losing the chain rule</h4><p>d/dt of r² is 2r·(dr/dt), not 2r. Every derivative is with respect to t, so a factor of the variable's rate rides along. Missing it is a silent, fatal error.</p></div>
+    <div class="mistake"><h4>Sign confusion</h4><p>A shrinking quantity has a negative rate. The ladder's height falls, so dy/dt &lt; 0. Let the equation produce the sign; don't force it.</p></div>
+    <div class="mistake"><h4>Answering the wrong rate</h4><p>"How fast is the shadow's tip moving" is not "how fast is the shadow lengthening." Re-read what's asked — tip speed is dx/dt + ds/dt, not ds/dt.</p></div>
+  </div>
+  <div class="tipbox reveal">
+    <h4>On the AP exam</h4>
+    <ul>
+      <li>Write the relation, then differentiate implicitly with respect to t — <b>show the differentiated equation</b> before plugging in. Readers award the setup.</li>
+      <li>List givens with signs and units first: "<span id="tipGiven"></span>, find <span id="tipFind"></span> when …". It organizes the whole solution.</li>
+      <li>Keep constants as numbers early (a fixed ladder length, a fixed cone), but keep every <i>changing</i> quantity symbolic until after you differentiate.</li>
+      <li>Units and sign are part of the answer — a rate is a number <i>per second</i>, positive if growing.</li>
+    </ul>
+  </div>
+
+  <div class="whatsnext reveal">
+    You can now turn any changing scene into an equation and read its locked rates. Next, we ride a single
+    rate — the slope at a point — to <em>estimate</em> values a calculator would need for: continue to
+    <a href="linear-approximation.html">Linear Approximation →</a>, or head back to the
+    <a href="unit4.html">Unit 4 Guide</a>.
+  </div>
+
+  <footer class="reveal">Related Rates · part of the Unit 4 guide · open in any browser, no install needed.</footer>
+</div>
+
+<script>
+const SVGNS="http://www.w3.org/2000/svg";
+const el=(t,a,txt)=>{const e=document.createElementNS(SVGNS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;};
+const T=(s)=>tex(s,s,false);
+const MAG="#bf34c9", ORCH="#e884ea", GOLD="#e8a13c", TEAL="#3fd0b0", INK="#ece5f4", MUT="#9a9183", LINE="#453f33";
+function arrow(L,x1,y1,x2,y2,color,w){ L.appendChild(el("line",{x1,y1,x2,y2,stroke:color,"stroke-width":w||2.4,"stroke-linecap":"round"}));
+  const a=Math.atan2(y2-y1,x2-x1),h=7;
+  L.appendChild(el("path",{d:"M"+x2+" "+y2+" L"+(x2-h*Math.cos(a-0.5))+" "+(y2-h*Math.sin(a-0.5))+" L"+(x2-h*Math.cos(a+0.5))+" "+(y2-h*Math.sin(a+0.5))+" Z",fill:color})); }
+function lbl(L,x,y,txt,color,size){ L.appendChild(el("text",{x,y,fill:color||MUT,"font-size":size||11,"font-family":"var(--mono)","text-anchor":"middle"},txt)); }
+
+/* ============ SCENARIOS ============ */
+const SCEN=[
+{ key:"ladder", name:"Sliding ladder",
+  rateName:"foot speed dx/dt", rMin:0.5, rMax:2, rStep:0.1, rVal:1, rUnit:"m/s",
+  qMin:1.0, qMax:4.7,   // x
+  given:g=>"dx/dt = +"+g.toFixed(1)+" m/s",
+  found:(q,g)=>{ const y=Math.sqrt(25-q*q); return "dy/dt = "+(-(q/y)*g).toFixed(2)+" m/s"; },
+  foundSub:"the top races down as x grows",
+  draw:(L,q,g)=>{ const Lad=5, ox=78, gy=250, sc=32, y=Math.sqrt(Lad*Lad-q*q);
+    L.appendChild(el("line",{x1:ox,y1:gy-Lad*sc-14,x2:ox,y2:gy,stroke:LINE,"stroke-width":3,"stroke-linecap":"round"}));
+    L.appendChild(el("line",{x1:ox,y1:gy,x2:ox+Lad*sc+24,y2:gy,stroke:LINE,"stroke-width":3,"stroke-linecap":"round"}));
+    L.appendChild(el("path",{d:"M"+ox+" "+gy+" L"+(ox+q*sc)+" "+gy+" L"+ox+" "+(gy-y*sc)+" Z",fill:"rgba(191,52,201,0.10)"}));
+    L.appendChild(el("line",{x1:ox+q*sc,y1:gy,x2:ox,y2:gy-y*sc,stroke:MAG,"stroke-width":3,"stroke-linecap":"round"}));
+    L.appendChild(el("circle",{cx:ox+q*sc,cy:gy,r:4.5,fill:ORCH})); L.appendChild(el("circle",{cx:ox,cy:gy-y*sc,r:4.5,fill:ORCH}));
+    lbl(L,ox+q*sc/2,gy+16,"x = "+q.toFixed(1),ORCH); lbl(L,ox-16,gy-y*sc/2,"y = "+y.toFixed(1),TEAL);
+    lbl(L,ox+q*sc/2+14,gy-y*sc/2-6,"L = 5",MUT,10);
+    arrow(L,ox+q*sc,gy,ox+q*sc+26,gy,GOLD,2.6); lbl(L,ox+q*sc+30,gy+16,"dx/dt",GOLD,10);
+    arrow(L,ox,gy-y*sc,ox,gy-y*sc+30,MAG,2.6); lbl(L,ox-18,gy-y*sc+22,"dy/dt",MAG,10); },
+  setup:{ pic:"x = foot's distance from the wall, y = height of the top. Ladder length L = 5 is constant. Given dx/dt; want dy/dt.",
+    rel:"x^2+y^2=L^2",
+    der:"2x\\,\\dfrac{dx}{dt}+2y\\,\\dfrac{dy}{dt}=0",
+    solve:(q,g)=>{ const y=Math.sqrt(25-q*q); return "\\dfrac{dy}{dt}=-\\dfrac{x}{y}\\dfrac{dx}{dt}=-\\dfrac{"+q.toFixed(1)+"}{"+y.toFixed(1)+"}("+g.toFixed(1)+")="+(-(q/y)*g).toFixed(2); } },
+  ch:{ q1:"Step 2 · Which equation relates the quantities?",
+    o1:[{t:"x^2+y^2=L^2",ok:true},{t:"x+y=L",ok:false},{t:"x^2-y^2=L^2",ok:false},{t:"xy=L",ok:false}],
+    q2:"Step 3 · Differentiate x²+y²=L² with respect to t:",
+    o2:[{t:"2x\\,\\tfrac{dx}{dt}+2y\\,\\tfrac{dy}{dt}=0",ok:true},{t:"\\tfrac{dx}{dt}+\\tfrac{dy}{dt}=0",ok:false},{t:"2x\\,\\tfrac{dx}{dt}+2y\\,\\tfrac{dy}{dt}=2L",ok:false},{t:"x^2\\tfrac{dx}{dt}+y^2\\tfrac{dy}{dt}=0",ok:false}] } },
+
+{ key:"ripple", name:"Expanding ripple",
+  rateName:"radius speed dr/dt", rMin:0.5, rMax:3, rStep:0.1, rVal:1.5, rUnit:"m/s",
+  qMin:0.4, qMax:4.6,   // r
+  given:g=>"dr/dt = +"+g.toFixed(1)+" m/s",
+  found:(q,g)=>"dA/dt = +"+(2*Math.PI*q*g).toFixed(1)+" m²/s",
+  foundSub:"steady dr/dt, but dA/dt keeps growing",
+  draw:(L,q,g)=>{ const cx=180, cy=150, sc=27, r=q*sc;
+    for(let k=1;k<=3;k++){ const rr=r+k*11; L.appendChild(el("circle",{cx,cy,r:rr,fill:"none",stroke:ORCH,"stroke-width":1,opacity:0.14/k})); }
+    L.appendChild(el("circle",{cx,cy,r,fill:"rgba(191,52,201,0.12)",stroke:MAG,"stroke-width":2.4}));
+    const ang=-0.6, ex=cx+r*Math.cos(ang), ey=cy+r*Math.sin(ang);
+    L.appendChild(el("line",{x1:cx,y1:cy,x2:ex,y2:ey,stroke:ORCH,"stroke-width":1.8}));
+    lbl(L,cx+r*0.5*Math.cos(ang)+8,cy+r*0.5*Math.sin(ang)-4,"r = "+q.toFixed(1),ORCH);
+    arrow(L,ex,ey,ex+18*Math.cos(ang),ey+18*Math.sin(ang),GOLD,2.4); lbl(L,ex+26*Math.cos(ang)+6,ey+18*Math.sin(ang),"dr/dt",GOLD,10);
+    L.appendChild(el("circle",{cx,cy,r:3.5,fill:ORCH}));
+    L.appendChild(el("text",{x:cx,y:cy+28,fill:"#c9b6dd","font-size":12,"font-family":"var(--mono)","text-anchor":"middle","font-style":"italic"},"A = πr²")); },
+  setup:{ pic:"r = radius of the ripple, A = area it encloses. Given dr/dt (steady); want dA/dt.",
+    rel:"A=\\pi r^2",
+    der:"\\dfrac{dA}{dt}=2\\pi r\\,\\dfrac{dr}{dt}",
+    solve:(q,g)=>"\\dfrac{dA}{dt}=2\\pi("+q.toFixed(1)+")("+g.toFixed(1)+")="+(2*Math.PI*q*g).toFixed(1)+"\\ \\text{m}^2/\\text{s}" },
+  ch:{ q1:"Step 2 · Which equation relates the quantities?",
+    o1:[{t:"A=\\pi r^2",ok:true},{t:"A=2\\pi r",ok:false},{t:"A=\\pi d",ok:false},{t:"C=2\\pi r",ok:false}],
+    q2:"Step 3 · Differentiate A=πr² with respect to t:",
+    o2:[{t:"\\tfrac{dA}{dt}=2\\pi r\\,\\tfrac{dr}{dt}",ok:true},{t:"\\tfrac{dA}{dt}=2\\pi\\,\\tfrac{dr}{dt}",ok:false},{t:"\\tfrac{dA}{dt}=\\pi r^2\\,\\tfrac{dr}{dt}",ok:false},{t:"\\tfrac{dA}{dt}=2\\pi r",ok:false}] } },
+
+{ key:"cone", name:"Filling cone",
+  rateName:"inflow dV/dt", rMin:1, rMax:8, rStep:0.5, rVal:3, rUnit:"m³/s",
+  qMin:0.017, qMax:14.0,   // V ; h=cbrt(12V/pi)
+  given:g=>"dV/dt = +"+g.toFixed(1)+" m³/s",
+  found:(q,g)=>{ const h=Math.cbrt(12*q/Math.PI); return "dh/dt = +"+(4*g/(Math.PI*h*h)).toFixed(2)+" m/s"; },
+  foundSub:"level rises fast when shallow, slow when deep",
+  draw:(L,q,g)=>{ const R=2,H=4, cx=180, apex=250, sc=40, h=Math.min(H,Math.cbrt(12*q/Math.PI)), r=h/2;
+    const topL=cx-R*sc, topR=cx+R*sc, topY=apex-H*sc;
+    L.appendChild(el("line",{x1:topL,y1:topY,x2:cx,y2:apex,stroke:LINE,"stroke-width":2.5,"stroke-linecap":"round"}));
+    L.appendChild(el("line",{x1:topR,y1:topY,x2:cx,y2:apex,stroke:LINE,"stroke-width":2.5,"stroke-linecap":"round"}));
+    L.appendChild(el("line",{x1:topL,y1:topY,x2:topR,y2:topY,stroke:LINE,"stroke-width":2,"stroke-dasharray":"3 3",opacity:.6}));
+    const wy=apex-h*sc, wr=r*sc;
+    L.appendChild(el("path",{d:"M"+cx+" "+apex+" L"+(cx-wr)+" "+wy+" L"+(cx+wr)+" "+wy+" Z",fill:"rgba(191,52,201,0.16)"}));
+    L.appendChild(el("line",{x1:cx-wr,y1:wy,x2:cx+wr,y2:wy,stroke:MAG,"stroke-width":2.2}));
+    L.appendChild(el("ellipse",{cx,cy:wy,rx:wr,ry:5,fill:"rgba(232,132,234,0.18)",stroke:MAG,"stroke-width":1}));
+    L.appendChild(el("line",{x1:cx,y1:apex,x2:cx,y2:wy,stroke:TEAL,"stroke-width":1,"stroke-dasharray":"2 3",opacity:.7}));
+    lbl(L,cx-12,(apex+wy)/2,"h = "+h.toFixed(1),TEAL); lbl(L,cx+wr/2,wy-6,"r = "+r.toFixed(1),ORCH);
+    arrow(L,cx,topY-18,cx,topY-2,GOLD,2.6); lbl(L,cx+24,topY-8,"dV/dt",GOLD,10);
+    arrow(L,cx+wr+8,wy+6,cx+wr+8,wy-10,MAG,2.4); lbl(L,cx+wr+26,wy,"dh/dt",MAG,10);
+    lbl(L,cx,apex+18,"R = 2 , H = 4  (so r = h/2)",MUT,10); },
+  setup:{ pic:"Cone with top radius R = 2, height H = 4. At level h the surface radius is r = (R/H)h = h/2. Given dV/dt; want dh/dt.",
+    rel:"V=\\tfrac13\\pi r^2h,\\ r=\\tfrac{h}{2}\\ \\Rightarrow\\ V=\\dfrac{\\pi h^3}{12}",
+    der:"\\dfrac{dV}{dt}=\\dfrac{\\pi h^2}{4}\\,\\dfrac{dh}{dt}",
+    solve:(q,g)=>{ const h=Math.cbrt(12*q/Math.PI); return "\\dfrac{dh}{dt}=\\dfrac{4}{\\pi h^2}\\dfrac{dV}{dt}=\\dfrac{4("+g.toFixed(1)+")}{\\pi("+h.toFixed(1)+")^2}="+(4*g/(Math.PI*h*h)).toFixed(2); } },
+  ch:{ q1:"Step 2 · Which relation lets you differentiate in one variable?",
+    o1:[{t:"V=\\tfrac{\\pi h^3}{12}\\ (r=\\tfrac h2)",ok:true},{t:"V=\\pi r^2h",ok:false},{t:"V=\\tfrac13\\pi r^2h,\\ \\text{keep }r",ok:false},{t:"V=\\tfrac13\\pi r h^2",ok:false}],
+    q2:"Step 3 · Differentiate V=πh³/12 with respect to t:",
+    o2:[{t:"\\tfrac{dV}{dt}=\\tfrac{\\pi h^2}{4}\\,\\tfrac{dh}{dt}",ok:true},{t:"\\tfrac{dV}{dt}=\\tfrac{\\pi h^3}{12}\\,\\tfrac{dh}{dt}",ok:false},{t:"\\tfrac{dV}{dt}=\\tfrac{\\pi h^2}{4}",ok:false},{t:"\\tfrac{dV}{dt}=\\tfrac{\\pi h^2}{12}\\,\\tfrac{dh}{dt}",ok:false}] } },
+
+{ key:"shadow", name:"Walking shadow",
+  rateName:"walk speed dx/dt", rMin:0.5, rMax:2.5, rStep:0.1, rVal:1.5, rUnit:"m/s",
+  qMin:1.0, qMax:8.0,   // x
+  given:g=>"dx/dt = +"+g.toFixed(1)+" m/s",
+  found:(q,g)=>"ds/dt = +"+(0.5*g).toFixed(2)+" m/s",
+  foundSub:"tip moves at dx/dt+ds/dt = 1.5·dx/dt",
+  draw:(L,q,g)=>{ const H=6,p=2, gy=250, lx=52, sc=26, s=q/2, px=lx+q*sc, tipx=px+s*sc;
+    L.appendChild(el("line",{x1:34,y1:gy,x2:348,y2:gy,stroke:LINE,"stroke-width":3,"stroke-linecap":"round"}));
+    L.appendChild(el("line",{x1:lx,y1:gy,x2:lx,y2:gy-H*sc,stroke:LINE,"stroke-width":3,"stroke-linecap":"round"}));
+    L.appendChild(el("circle",{cx:lx,cy:gy-H*sc,r:5,fill:"none",stroke:GOLD,"stroke-width":2}));
+    L.appendChild(el("circle",{cx:lx,cy:gy-H*sc,r:9,fill:"url(#rlGlow)"}));
+    L.appendChild(el("line",{x1:lx,y1:gy-H*sc,x2:tipx,y2:gy,stroke:GOLD,"stroke-width":1,"stroke-dasharray":"3 3",opacity:.6}));
+    L.appendChild(el("line",{x1:px,y1:gy,x2:px,y2:gy-p*sc,stroke:MAG,"stroke-width":3,"stroke-linecap":"round"}));
+    L.appendChild(el("circle",{cx:px,cy:gy-p*sc-4,r:4,fill:MAG}));
+    L.appendChild(el("line",{x1:px,y1:gy,x2:tipx,y2:gy,stroke:ORCH,"stroke-width":4,"stroke-linecap":"round",opacity:.85}));
+    lbl(L,(lx+px)/2,gy+16,"x = "+q.toFixed(1),GOLD); lbl(L,(px+tipx)/2,gy+16,"s = "+s.toFixed(1),ORCH);
+    lbl(L,lx-4,gy-H*sc-8,"H=6",MUT,10);
+    arrow(L,px,gy-p*sc-16,px+24,gy-p*sc-16,GOLD,2.4); lbl(L,px+30,gy-p*sc-20,"dx/dt",GOLD,10);
+    arrow(L,tipx-2,gy-12,tipx+20,gy-12,MAG,2.4); lbl(L,tipx+16,gy-20,"tip",MAG,10); },
+  setup:{ pic:"Light height H = 6, person height p = 2 at distance x, shadow length s. Similar triangles link them. Given dx/dt; want ds/dt.",
+    rel:"\\dfrac{H}{x+s}=\\dfrac{p}{s}\\ \\Rightarrow\\ s=\\dfrac{p}{H-p}x=\\tfrac12 x",
+    der:"\\dfrac{ds}{dt}=\\dfrac{p}{H-p}\\dfrac{dx}{dt}=\\tfrac12\\dfrac{dx}{dt}",
+    solve:(q,g)=>"\\dfrac{ds}{dt}=\\tfrac12("+g.toFixed(1)+")="+(0.5*g).toFixed(2)+"\\ \\text{m/s}\\quad(\\text{tip}="+(1.5*g).toFixed(2)+")" },
+  ch:{ q1:"Step 2 · Which equation relates the quantities?",
+    o1:[{t:"\\dfrac{H}{x+s}=\\dfrac{p}{s}",ok:true},{t:"\\dfrac{H}{x}=\\dfrac{p}{s}",ok:false},{t:"\\dfrac{H}{s}=\\dfrac{p}{x}",ok:false},{t:"H(x+s)=ps",ok:false}],
+    q2:"Step 3 · With s = ½x, differentiate with respect to t:",
+    o2:[{t:"\\tfrac{ds}{dt}=\\tfrac12\\,\\tfrac{dx}{dt}",ok:true},{t:"\\tfrac{ds}{dt}=\\tfrac{dx}{dt}",ok:false},{t:"\\tfrac{ds}{dt}=2\\,\\tfrac{dx}{dt}",ok:false},{t:"\\tfrac{ds}{dt}=\\tfrac12 x",ok:false}] } },
+];
+
+/* ============ LAB STATE ============ */
+let si=0, q=0.28, gRate=SCEN[0].rVal, playing=false, raf=null, last=0;
+const layer=()=>document.getElementById("rlLayer");
+function S(){ return SCEN[si]; }
+function qAbs(){ const s=S(); return s.qMin+q*(s.qMax-s.qMin); }
+function drawScene(){ const s=S(), L=layer(); L.innerHTML=""; s.draw(L, qAbs(), gRate); }
+function updateRates(){ const s=S(), qa=qAbs();
+  document.getElementById("rlGiven").textContent=s.given(gRate);
+  document.getElementById("rlFound").textContent=s.found(qa,gRate);
+  document.getElementById("rlFoundSub").textContent=s.foundSub;
+}
+/* ---- deep step-by-step explanations ---- */
+const REL_LEAD="Find the one equation that links the quantities — once you have it, it holds at <i>every</i> instant, so you can differentiate it in time.";
+const DER_LEAD="Differentiate both sides with respect to t. Every changing variable earns its own rate (chain rule); anything constant vanishes.";
+const EXPLAIN={
+ ladder:{
+  s1:"The ladder leans on a wall. Its foot sits <b>x</b> m from the wall, its top <b>y</b> m up, and the length <b>L = 5</b> never changes. The foot is pulled out at a known rate <b>dx/dt</b> — that's <i>given</i>. We want how fast the top slides down, <b>dy/dt</b>.",
+  rel:"Wall, ground, and ladder form a right triangle with the ladder as the hypotenuse, so Pythagoras links them: <b>x² + y² = L²</b>. It's true at every instant — which is exactly what lets us differentiate it in time.",
+  der:"Both x and y depend on t, so each earns a rate: d/dt(x²) = 2x·dx/dt and d/dt(y²) = 2y·dy/dt. L is constant, so its side is 0. Keep the 2's for now — they cancel when we solve.",
+  solve:"Only <i>now</i> substitute. Solving gives <b>dy/dt = −(x/y)·dx/dt</b>. The minus sign is the equation talking: as x grows, y must shrink. Near the wall y→0, so the top slams down (dy/dt→−∞)." },
+ ripple:{
+  s1:"A stone drops into still water. The ripple's radius <b>r</b> grows at a known steady rate <b>dr/dt</b>. We want how fast the enclosed area <b>A</b> grows, <b>dA/dt</b>.",
+  rel:"Radius and area are tied by a single formula — the area of a circle, <b>A = πr²</b>. It's true at every radius, so it's fair game to differentiate in time.",
+  der:"The chain rule turns d/dt(r²) into 2r·dr/dt, giving <b>dA/dt = 2πr·dr/dt</b>. That dr/dt riding along is the whole point — drop it and the answer is meaningless.",
+  solve:"Substitute — and here's the surprise: dr/dt is constant, but dA/dt carries a factor of <b>r</b>. So the area grows faster and faster as the ripple widens; the same radius-speed adds more area on a bigger circle." },
+ cone:{
+  s1:"Water pours into an inverted cone at a known rate <b>dV/dt</b>. Top radius <b>R = 2</b>, height <b>H = 4</b>; at level <b>h</b> the surface radius is <b>r</b>. We want how fast the level rises, <b>dh/dt</b>.",
+  rel:"V = ⅓πr²h has <i>two</i> changing variables. Similar triangles fix it: the water cone is a scaled copy of the whole cone, so r/h = R/H = ½. Substituting r = h/2 leaves <b>V = πh³/12</b> — one variable, ready to differentiate.",
+  der:"Differentiate V = πh³/12: <b>dV/dt = (πh²/4)·dh/dt</b>. Had we kept r, we'd also need dr/dt — which is exactly why eliminating it first was essential.",
+  solve:"Solve: <b>dh/dt = 4·dV/dt / (πh²)</b>. The h² downstairs means the level shoots up when the water is shallow and crawls when it's deep — even at a perfectly constant pour." },
+ shadow:{
+  s1:"A person of height <b>p = 2</b> walks away from a streetlight of height <b>H = 6</b> at a known speed <b>dx/dt</b> (x = distance from the light). Their shadow has length <b>s</b>. We want how fast it lengthens, <b>ds/dt</b>.",
+  rel:"The light, the person's head, and the shadow tip make two <i>similar</i> triangles, so <b>H/(x+s) = p/s</b>. Cross-multiplying and solving eliminates the partner: <b>s = p/(H−p)·x = ½x</b>.",
+  der:"Because s = ½x is linear, differentiating is immediate: <b>ds/dt = ½·dx/dt</b>.",
+  solve:"The shadow lengthens at half the walking speed — everywhere along the walk. Mind the question, though: the shadow's <i>tip</i> moves at dx/dt + ds/dt = <b>3⁄2·dx/dt</b>, a different rate than ds/dt." },
+};
+let bstep=1, solved={2:false,3:false};
+function updateSolve(){ if(bstep!==4) return; const e=document.getElementById("bldSolve"); if(e) e.innerHTML=T(S().setup.solve(qAbs(),gRate)); }
+function renderScene(){ drawScene(); updateRates(); updateSolve(); document.getElementById("rlScrub").value=q; }
+
+/* rate slider + play + scrub */
+function stopPlay(){ playing=false; document.getElementById("rlPlay").textContent="▶ Play"; if(raf){cancelAnimationFrame(raf);raf=null;} }
+document.getElementById("rlPlay").onclick=()=>{ if(playing){stopPlay();return;}
+  playing=true; document.getElementById("rlPlay").textContent="❚❚ Pause"; last=performance.now(); if(q>=0.999) q=0;
+  const step=(now)=>{ if(!playing)return; const dt=(now-last)/1000; last=now; q+=dt*0.16;
+    if(q>=1){ q=1; renderScene(); stopPlay(); return; } renderScene(); raf=requestAnimationFrame(step); };
+  raf=requestAnimationFrame(step); };
+document.getElementById("rlScrub").addEventListener("input",e=>{ stopPlay(); q=parseFloat(e.target.value); renderScene(); });
+(function(){ let drag=false; const sc=document.getElementById("rlScene");
+  const set=(e)=>{ const r=sc.getBoundingClientRect(), cx=(e.touches?e.touches[0].clientX:e.clientX);
+    q=Math.max(0,Math.min(1,(cx-r.left)/r.width)); renderScene(); };
+  sc.addEventListener("pointerdown",e=>{ stopPlay(); drag=true; set(e); e.preventDefault(); });
+  window.addEventListener("pointermove",e=>{ if(drag) set(e); });
+  window.addEventListener("pointerup",()=>drag=false);
+})();
+function wireRate(){ const s=S(), inp=document.getElementById("rlRate");
+  document.getElementById("rlRateName").textContent=s.rateName;
+  inp.min=s.rMin; inp.max=s.rMax; inp.step=s.rStep; inp.value=s.rVal; gRate=s.rVal;
+  document.getElementById("rlRateVal").textContent=gRate.toFixed(1)+" "+s.rUnit;
+}
+document.getElementById("rlRate").addEventListener("input",e=>{ gRate=parseFloat(e.target.value);
+  document.getElementById("rlRateVal").textContent=gRate.toFixed(1)+" "+S().rUnit; updateRates(); updateSolve(); });
+
+/* ============ STEP BUILDER ============ */
+function renderBuilder(){
+  const s=S(), E=EXPLAIN[s.key];
+  const prog=document.getElementById("bldProg"); if(prog) prog.textContent="Step "+bstep+" of 4";
+  const body=document.getElementById("bldBody"); if(!body) return;
+  let h="";
+  if(bstep===1){
+    h='<div class="bld-title">1 · Name &amp; sort the quantities</div><div class="bld-explain">'+E.s1+'</div>';
+  } else if(bstep===2 || bstep===3){
+    const isRel=(bstep===2), opts=isRel?s.ch.o1:s.ch.o2, prompt=(isRel?s.ch.q1:s.ch.q2).replace(/^Step \d+ · /,''), sol=solved[bstep];
+    h='<div class="bld-title">'+bstep+' · '+(isRel?"Find the relation":"Differentiate with respect to t")+'</div>';
+    h+='<div class="bld-explain">'+(isRel?REL_LEAD:DER_LEAD)+'</div>';
+    h+='<div class="bld-prompt">'+prompt+'</div>';
+    h+='<div class="bld-opts" id="bldOpts">'+opts.map(o=>'<button'+(sol&&o.ok?' class="correct"':'')+' data-ok="'+(o.ok?1:0)+'"'+(sol?' disabled':'')+'>'+T(o.t)+'</button>').join("")+'</div>';
+    h+='<div class="bld-fb" id="bldFb"></div>';
+    if(sol) h+='<div class="bld-reveal"><div class="sm">'+T(isRel?s.setup.rel:s.setup.der)+'</div><div class="bld-why">'+(isRel?E.rel:E.der)+'</div></div>';
+  } else {
+    h='<div class="bld-title">4 · Substitute — last</div><div class="bld-explain">'+E.solve+'</div>';
+    h+='<div class="sm" id="bldSolve">'+T(s.setup.solve(qAbs(),gRate))+'</div>';
+    h+='<div class="bld-why" style="border-color:rgba(63,208,176,.4)">Scrub or play the scene — the given rate stays fixed while the found rate re-locks at each new instant.</div>';
+  }
+  body.innerHTML=h;
+  if((bstep===2||bstep===3)&&!solved[bstep]){
+    document.querySelectorAll("#bldOpts button").forEach(btn=>btn.onclick=()=>{
+      if(btn.dataset.ok==="1"){ solved[bstep]=true; renderBuilder(); }
+      else { btn.classList.add("wrong"); btn.disabled=true; const fb=document.getElementById("bldFb"); if(fb) fb.innerHTML='<span style="color:var(--div)">Not quite — look again at what must be related.</span>'; }
+    });
+  }
+  document.getElementById("bldBack").disabled=(bstep===1);
+  const next=document.getElementById("bldNext"), done=(bstep===1||bstep===4)?true:solved[bstep];
+  next.textContent=(bstep<4)?"Next step →":"↺ Restart"; next.disabled=(bstep<4)&&!done;
+}
+function resetBuilder(){ bstep=1; solved={2:false,3:false}; renderBuilder(); }
+document.getElementById("bldNext").onclick=()=>{ if(bstep<4){ const done=(bstep===1)?true:solved[bstep]; if(done){ bstep++; renderBuilder(); } } else resetBuilder(); };
+document.getElementById("bldBack").onclick=()=>{ if(bstep>1){ bstep--; renderBuilder(); } };
+
+/* ============ scenario switch ============ */
+function renderScenBtns(){ document.getElementById("rlScen").innerHTML=SCEN.map((s,i)=>'<button data-i="'+i+'" class="'+(i===si?"on":"")+'">'+s.name+'</button>').join("");
+  document.querySelectorAll("#rlScen button").forEach(b=>b.onclick=()=>{ stopPlay(); si=+b.dataset.i; q=0.28;
+    renderScenBtns(); wireRate(); resetBuilder(); renderScene(); }); }
+
+/* ============ practice ============ */
+const PRAC=[
+ { tag:"Balloon", q:()=>'Air is pumped into a spherical balloon so its volume grows. Set up the relation between the radius and the volume, and its t-derivative. (Then: if '+T("dV/dt=10")+' when '+T("r=2")+', find '+T("dr/dt")+'.)',
+   sol:[{t:"Relation (sphere volume):",m:"V=\\tfrac43\\pi r^3"},{t:"Differentiate w.r.t. t:",m:"\\dfrac{dV}{dt}=4\\pi r^2\\dfrac{dr}{dt}"},{t:"Solve at r = 2, dV/dt = 10:",m:"\\dfrac{dr}{dt}=\\dfrac{10}{4\\pi(2)^2}=\\dfrac{10}{16\\pi}\\approx0.199\\ \\text{m/s}"}] },
+ { tag:"Right-triangle rates", q:()=>'The two legs of a right triangle are '+T("a")+' and '+T("b")+' with hypotenuse '+T("c")+'. Set up '+T("dc/dt")+' from the legs\' rates.',
+   sol:[{t:"Relation:",m:"a^2+b^2=c^2"},{t:"Differentiate w.r.t. t:",m:"2a\\tfrac{da}{dt}+2b\\tfrac{db}{dt}=2c\\tfrac{dc}{dt}"},{t:"Solve for the wanted rate:",m:"\\dfrac{dc}{dt}=\\dfrac{a\\,\\frac{da}{dt}+b\\,\\frac{db}{dt}}{c}"}] },
+ { tag:"Melting cube", q:()=>'A cube of ice melts so each edge '+T("x")+' shrinks. Set up the rate of change of its volume in terms of '+T("dx/dt")+'.',
+   sol:[{t:"Relation:",m:"V=x^3"},{t:"Differentiate w.r.t. t:",m:"\\dfrac{dV}{dt}=3x^2\\dfrac{dx}{dt}"},{t:"Note the sign: shrinking edge means dx/dt < 0, so dV/dt < 0.",m:null}] }
+];
+function renderPractice(){
+  document.getElementById("practice").innerHTML=PRAC.map((p,i)=>{
+    const steps=p.sol.map((st,j)=>'<div class="why-step"><div class="why-n">'+(j+1)+'</div><div><div class="why-t">'+st.t+'</div>'+(st.m?'<div class="why-m">'+T(st.m)+'</div>':'')+'</div></div>').join("");
+    return '<div class="prob"><div class="prob-tag">'+p.tag+'</div><div class="prob-q">'+p.q()+'</div>'
+      +'<button class="soltoggle" data-i="'+i+'">Show the setup</button><div class="sol" id="sol'+i+'">'+steps+'</div></div>';
+  }).join("");
+  document.querySelectorAll(".soltoggle").forEach(btn=>{ btn.onclick=()=>{ const i=btn.getAttribute("data-i"), s=document.getElementById("sol"+i);
+    btn.textContent=s.classList.toggle("show")?"Hide the setup":"Show the setup"; }; });
+}
+function renderTips(){ const s=(id,l)=>{const n=document.getElementById(id); if(n) n.innerHTML=T(l);};
+  s("tipGiven","\\tfrac{dx}{dt}=+1"); s("tipFind","\\tfrac{dy}{dt}"); }
+
+/* ============ quick reps ============ */
+const QREPS=[
+ { qs:"A spherical balloon inflates. Relate its volume to its radius.", rel:"V=\\tfrac43\\pi r^3", der:"\\tfrac{dV}{dt}=4\\pi r^2\\,\\tfrac{dr}{dt}" },
+ { qs:"Two cars leave one crossing — one north (y), one east (x). Relate their separation D.", rel:"D^2=x^2+y^2", der:"D\\,\\tfrac{dD}{dt}=x\\,\\tfrac{dx}{dt}+y\\,\\tfrac{dy}{dt}" },
+ { qs:"A camera at distance d tracks a rising object of height h by its angle θ. Relate θ and h.", rel:"\\tan\\theta=\\dfrac{h}{d}", der:"\\sec^2\\!\\theta\\,\\tfrac{d\\theta}{dt}=\\tfrac1d\\,\\tfrac{dh}{dt}" },
+ { qs:"A kite holds a steady 100 ft height; x is its horizontal distance, ℓ the string out. Relate ℓ and x.", rel:"\\ell^2=x^2+100^2", der:"\\ell\\,\\tfrac{d\\ell}{dt}=x\\,\\tfrac{dx}{dt}" },
+ { qs:"Sand piles into a cone whose height always equals its base radius. Relate volume to height.", rel:"V=\\tfrac13\\pi h^3\\ \\ (r=h)", der:"\\tfrac{dV}{dt}=\\pi h^2\\,\\tfrac{dh}{dt}" },
+ { qs:"A square metal plate is heated; its side s grows. Relate its area to its side.", rel:"A=s^2", der:"\\tfrac{dA}{dt}=2s\\,\\tfrac{ds}{dt}" }
+];
+function renderQreps(){
+  document.getElementById("qreps").innerHTML=QREPS.map((r,i)=>
+    '<div class="qrep"><div class="qs">'+r.qs+'</div><button class="qtog" data-i="'+i+'">Reveal</button>'+
+    '<div class="qa" id="qa'+i+'"><div class="qm">'+T(r.rel)+'</div><div class="qm">'+T(r.der)+'</div></div></div>'
+  ).join("");
+  document.querySelectorAll(".qtog").forEach(btn=>{ btn.onclick=()=>{ const a=document.getElementById("qa"+btn.dataset.i);
+    btn.textContent=a.classList.toggle("show")?"Hide":"Reveal"; }; });
+}
+
+/* ============ CAPSTONE BOSS ============ */
+const BOSS_KEY=500/900;
+let bq=BOSS_KEY, bPlaying=false, bRAF=null, bLast=0, aRev=0, bRev=0;
+const BOSS_A=["D^2=d^2+h^2","2D\\,\\dfrac{dD}{dt}=2h\\,\\dfrac{dh}{dt}","\\dfrac{dD}{dt}=\\dfrac{h}{D}\\dfrac{dh}{dt}=\\dfrac{500}{500\\sqrt2}(30)=15\\sqrt2\\approx21.2\\ \\text{ft/s}"];
+const BOSS_AL=["Observer, launch point, and balloon form a right triangle — Pythagoras links D and h (d is fixed):","Differentiate with respect to t; d is constant, so it contributes no rate:","At h = 500, the distance is D = 500&radic;2 &approx; 707 ft, so:"];
+const BOSS_B=["\\tan\\theta=\\dfrac{h}{d}","\\sec^2\\!\\theta\\,\\dfrac{d\\theta}{dt}=\\dfrac1d\\,\\dfrac{dh}{dt}","\\dfrac{d\\theta}{dt}=\\dfrac{\\cos^2\\!\\theta}{d}\\dfrac{dh}{dt}=\\dfrac{1/2}{500}(30)=0.03\\ \\text{rad/s}\\approx1.7^{\\circ}/\\text{s}"];
+const BOSS_BL=["Elevation angle &theta; ties to height through the tangent (opposite over adjacent):","Differentiate; the chain rule puts sec²&theta; on the left:","At h = 500 the angle is &theta; = 45&deg;, so cos²&theta; = ½:"];
+function drawBoss(){
+  const L=document.getElementById("bossLayer"); if(!L) return; L.innerHTML="";
+  const d=500, hMax=900, h=bq*hMax, sc=0.23, obsX=52, gy=252, bx=obsX+d*sc, by=gy-h*sc;
+  const D=Math.sqrt(d*d+h*h), th=Math.atan2(h,d), done=(aRev>=3&&bRev>=3), atKey=Math.abs(h-500)<26;
+  L.appendChild(el("line",{x1:obsX-20,y1:gy,x2:bx+34,y2:gy,stroke:LINE,"stroke-width":2.5,"stroke-linecap":"round"}));
+  L.appendChild(el("line",{x1:bx,y1:gy,x2:bx,y2:gy-hMax*sc-4,stroke:LINE,"stroke-width":1,"stroke-dasharray":"3 4",opacity:.4}));
+  L.appendChild(el("path",{d:"M"+(bx-9)+" "+gy+" L"+(bx-9)+" "+(gy-9)+" L"+bx+" "+(gy-9),fill:"none",stroke:"#5a5145","stroke-width":1,opacity:.6}));
+  // observer figure
+  L.appendChild(el("circle",{cx:obsX,cy:gy-15,r:3.4,fill:"none",stroke:"#9a9183","stroke-width":1.6}));
+  L.appendChild(el("line",{x1:obsX,y1:gy-11,x2:obsX,y2:gy-4,stroke:"#9a9183","stroke-width":1.6}));
+  L.appendChild(el("line",{x1:obsX,y1:gy-4,x2:obsX-3,y2:gy,stroke:"#9a9183","stroke-width":1.4}));
+  L.appendChild(el("line",{x1:obsX,y1:gy-4,x2:obsX+3,y2:gy,stroke:"#9a9183","stroke-width":1.4}));
+  // angle arc
+  const ar=28; L.appendChild(el("path",{d:"M"+(obsX+ar)+" "+gy+" A "+ar+" "+ar+" 0 0 1 "+(obsX+ar*Math.cos(th)).toFixed(1)+" "+(gy-ar*Math.sin(th)).toFixed(1),fill:"none",stroke:GOLD,"stroke-width":1.5,opacity:.85}));
+  // legs + sight line
+  L.appendChild(el("line",{x1:bx,y1:gy,x2:bx,y2:by,stroke:TEAL,"stroke-width":1.6,opacity:.55}));
+  L.appendChild(el("line",{x1:obsX,y1:gy,x2:bx,y2:by,stroke:ORCH,"stroke-width":2,"stroke-linecap":"round"}));
+  // balloon
+  L.appendChild(el("ellipse",{cx:bx,cy:by,rx:8,ry:10,fill:"rgba(191,52,201,0.12)",stroke:MAG,"stroke-width":2}));
+  L.appendChild(el("path",{d:"M"+(bx-3)+" "+(by+9)+" L"+bx+" "+(by+15)+" L"+(bx+3)+" "+(by+9),fill:"none",stroke:MAG,"stroke-width":1.2}));
+  // labels
+  lbl(L,(obsX+bx)/2,gy+16,"d = 500 ft",GOLD,10.5);
+  lbl(L,bx+18,(gy+by)/2,"h = "+Math.round(h),TEAL,10.5);
+  lbl(L,(obsX+bx)/2-4,(gy+by)/2-8,"D = "+Math.round(D),ORCH,10.5);
+  lbl(L,obsX+ar+9,gy-8,"θ",GOLD,11);
+  if(done&&atKey){
+    lbl(L,(obsX+bx)/2+46,(gy+by)/2+10,"dD/dt ≈ 21.2 ft/s",ORCH,10);
+    lbl(L,obsX+ar+22,gy-20,"dθ/dt ≈ 0.03",GOLD,9.5);
+  }
+}
+function renderBossSteps(which){
+  const revs=which==="A"?aRev:bRev, steps=which==="A"?BOSS_A:BOSS_B, leads=which==="A"?BOSS_AL:BOSS_BL;
+  let h=""; for(let i=0;i<revs;i++) h+='<div class="lead2">'+leads[i]+'</div><div class="sm">'+T(steps[i])+'</div>';
+  document.getElementById(which==="A"?"stepsA":"stepsB").innerHTML=h;
+  const btn=document.getElementById(which==="A"?"revA":"revB");
+  if(revs>=3){ btn.style.display="none"; document.getElementById(which==="A"?"bossPartA":"bossPartB").classList.add("done"); }
+  else btn.textContent="Reveal step "+(revs+1)+" →";
+}
+function bossCheck(){ if(aRev>=3&&bRev>=3){ bq=BOSS_KEY; const sc=document.getElementById("bossScrub"); if(sc) sc.value=bq; drawBoss();
+  const dn=document.getElementById("bossDone"); dn.classList.add("show");
+  dn.innerHTML='<b>Solved — and the scene agrees.</b> At h = 500 ft the balloon pulls away at <b>15&radic;2 &approx; 21.2 ft/s</b> while your gaze tilts at <b>0.03 rad/s &approx; 1.7&deg;/s</b>. Two different rates, one instant, one scene — the whole method at full size. (Notice: the distance climbs steadily, but the angle-rate is fastest low and eases as the balloon pulls away.)'; } }
+function bossStop(){ bPlaying=false; document.getElementById("bossPlay").textContent="▶ Play"; if(bRAF){cancelAnimationFrame(bRAF);bRAF=null;} }
+function bossBoot(){
+  drawBoss(); renderBossSteps("A"); renderBossSteps("B");
+  document.getElementById("revA").onclick=()=>{ if(aRev<3){ aRev++; renderBossSteps("A"); bossCheck(); } };
+  document.getElementById("revB").onclick=()=>{ if(bRev<3){ bRev++; renderBossSteps("B"); bossCheck(); } };
+  document.getElementById("bossKey").onclick=()=>{ bossStop(); bq=BOSS_KEY; document.getElementById("bossScrub").value=bq; drawBoss(); };
+  document.getElementById("bossScrub").addEventListener("input",e=>{ bossStop(); bq=parseFloat(e.target.value); drawBoss(); });
+  document.getElementById("bossPlay").onclick=()=>{ if(bPlaying){bossStop();return;}
+    bPlaying=true; document.getElementById("bossPlay").textContent="❚❚ Pause"; bLast=performance.now(); if(bq>=0.999) bq=0;
+    const step=(now)=>{ if(!bPlaying)return; const dt=(now-bLast)/1000; bLast=now; bq+=dt*0.14;
+      if(bq>=1){ bq=1; drawBoss(); bossStop(); return; } drawBoss(); bRAF=requestAnimationFrame(step); };
+    bRAF=requestAnimationFrame(step); };
+}
+
+/* ============ init ============ */
+function boot(){ renderScenBtns(); wireRate(); renderBuilder(); renderScene(); renderPractice(); renderQreps(); bossBoot(); renderTips(); }
+boot();
+if(!window.katex){ let tries=0; const t=setInterval(()=>{ if(window.katex){ clearInterval(t); renderBuilder(); renderScene(); renderPractice(); renderQreps(); renderTips(); }
+  else if(++tries>40) clearInterval(t); },150); }
+document.querySelectorAll('.reveal').forEach((n,i)=>{ n.style.animationDelay=Math.min(i*26,420)+'ms'; });
+</script>
+</body>
+</html>

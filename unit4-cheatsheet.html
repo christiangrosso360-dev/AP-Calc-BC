@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Unit 4 Cheat Sheet — every formula + when to use it · Contextual Applications of Differentiation</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%23140a17%22/%3E%3Ctext%20x%3D%2216%22%20y%3D%2223%22%20font-size%3D%2220%22%20text-anchor%3D%22middle%22%20font-family%3D%22Georgia%2Cserif%22%20font-weight%3D%22700%22%20fill%3D%22%23bf34c9%22%3E%E2%98%B0%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="styles.css">
+<script src="helpers.js"></script>
+<style>
+  /* alias emerald -> Unit 4 magenta so the shared cheat-sheet styling carries over */
+  :root{ --emerald:#bf34c9; --emerald-glow:#e884ea; --approx:#bf34c9; --amber:#e8a13c; --rose:#e0644f; --violet:#a892f0; --wrap-max:1100px; }
+  .sub{color:var(--muted);font-size:15px;margin-top:10px;max-width:700px;line-height:1.6}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+  .tool-btn{font-family:var(--mono);font-size:12.5px;background:var(--panel-2);color:var(--ink);border:1px solid var(--line-2);border-radius:9px;padding:9px 15px;cursor:pointer;text-decoration:none;transition:border-color .2s,color .2s}
+  .tool-btn:hover{border-color:var(--emerald);color:var(--emerald-glow)}
+
+  .sheet{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch;margin-top:8px}
+  .col{display:flex;flex-direction:column;gap:16px;min-width:0;justify-content:space-between}
+  @media(max-width:760px){.sheet{grid-template-columns:1fr}}
+  .block{background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:0 1px 0 rgba(255,255,255,.04) inset}
+  .block.span2{grid-column:1 / -1}
+  .block h3{font-family:var(--display);font-weight:600;font-size:17px;color:var(--ink);margin:0 0 3px;display:flex;align-items:baseline;gap:10px}
+  .block h3 a{color:inherit;text-decoration:none;border-bottom:1px dashed var(--line-2);transition:border-color .2s,color .2s}
+  .block h3 a:hover{color:var(--emerald-glow);border-color:var(--emerald)}
+  .block .tno{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--emerald);font-weight:400}
+  .block .blurb{font-size:12.5px;color:var(--muted);margin:0 0 12px;line-height:1.5}
+
+  .f{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin:8px 0;overflow-x:auto;overflow-y:hidden}
+  .f .katex{color:var(--ink);font-size:1.02em}
+  .f .flab{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+
+  .mini{font-size:12.5px;color:var(--muted);line-height:1.55;margin:8px 0 0}
+  .mini b{color:var(--ink)} .mini .am{color:var(--amber)} .mini .ro{color:var(--rose)} .mini .cy{color:var(--emerald-glow)}
+
+  .steps{counter-reset:st;margin:10px 0 0;padding:0;list-style:none}
+  .steps li{position:relative;padding:5px 0 5px 30px;font-size:12.5px;color:var(--muted);line-height:1.5}
+  .steps li b{color:var(--ink)}
+  .steps li::before{counter-increment:st;content:counter(st);position:absolute;left:0;top:4px;width:19px;height:19px;border-radius:50%;background:rgba(191,52,201,.14);border:1px solid rgba(191,52,201,.4);color:var(--emerald-glow);font-family:var(--mono);font-size:11px;text-align:center;line-height:19px}
+
+  .decide{background:rgba(191,52,201,.06);border:1px solid rgba(191,52,201,.25);border-radius:10px;padding:12px 14px;margin-top:12px}
+  .decide .dh{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--emerald);margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .decide .dh::before{content:"\25C6";font-size:9px}
+  .branch{display:flex;gap:10px;font-size:12.5px;color:var(--ink);padding:5px 0;align-items:flex-start;line-height:1.45}
+  .branch .cond{font-family:var(--mono);color:var(--emerald-glow);flex-shrink:0;min-width:104px}
+  .branch .res{color:var(--muted)}
+
+  .traps{background:rgba(224,100,79,.06);border-left:2px solid var(--rose);border-radius:0 9px 9px 0;padding:10px 14px;margin-top:12px}
+  .traps .th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--rose);margin-bottom:6px}
+  .traps ul{margin:0;padding-left:16px} .traps li{font-size:12.5px;color:var(--muted);line-height:1.55;margin:3px 0} .traps li b{color:var(--ink)}
+
+  .gallery{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  @media(max-width:420px){.gallery{grid-template-columns:1fr}}
+  .gcard{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 11px}
+  .gcard .gname{font-family:var(--mono);font-size:10.5px;color:var(--emerald-glow);margin-bottom:3px}
+  .gcard .geq{font-size:12px;color:var(--ink)} .gcard .gnote{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4}
+
+  /* behavior 2x2 */
+  .beh{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  @media(max-width:520px){.beh{grid-template-columns:1fr}}
+  .bcell{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+  .bcell .bsign{font-family:var(--mono);font-size:12px;color:var(--emerald-glow);margin-bottom:4px}
+  .bcell .bph{font-size:13px;color:var(--ink);font-weight:500;line-height:1.4}
+  .bcell .bwhy{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.4}
+
+  .tex-fallback{font-family:var(--mono);font-size:13px;color:var(--ink)}
+  @keyframes riseIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .reveal{opacity:0;animation:riseIn .55s cubic-bezier(.2,.7,.2,1) forwards}
+  @media (prefers-reduced-motion:reduce){.reveal{animation:none;opacity:1}}
+  footer{color:var(--muted);font-size:12px;margin-top:46px;border-top:1px solid var(--line);padding-top:14px} footer a{color:var(--emerald);text-decoration:none}
+
+  .closer{margin-top:18px;background:linear-gradient(110deg, rgba(143,42,168,.14), var(--panel-2) 60%, var(--panel));border:1px solid rgba(191,52,201,.3);border-radius:16px;padding:26px 28px;box-shadow:0 1px 0 rgba(255,255,255,.04) inset}
+  .closer-line{display:flex;gap:18px;align-items:flex-start}
+  .big-idea-mark{font-family:var(--display);font-size:42px;line-height:.95;color:var(--emerald);flex-shrink:0;opacity:.9}
+  .closer-line p{font-size:15px;color:var(--ink);line-height:1.65;margin:2px 0 0} .closer-line p b{color:var(--emerald-glow)}
+  .closer-jump{margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
+  .jump-primary{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:13.5px;font-weight:600;color:#fff;background:var(--emerald);border-radius:10px;padding:11px 18px;text-decoration:none;box-shadow:0 8px 20px -10px var(--emerald);transition:transform .2s,box-shadow .2s}
+  .jump-primary:hover{transform:translateY(-2px);box-shadow:0 12px 26px -10px var(--emerald)} .jump-primary span{transition:transform .2s} .jump-primary:hover span{transform:translateX(4px)}
+  .jump-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .jump-row a{font-family:var(--mono);font-size:12px;color:var(--muted);border:1px solid var(--line-2);border-radius:30px;padding:6px 13px;text-decoration:none;transition:border-color .2s,color .2s}
+  .jump-row a:hover{border-color:var(--emerald);color:var(--emerald-glow)}
+  @media(max-width:560px){.closer-line{flex-direction:column;gap:8px}.big-idea-mark{font-size:34px}}
+
+  @media print{
+    @page{margin:1.2cm}
+    body{background:#fff!important;color:#111!important}
+    .backlink,.toolbar,.sub,.scroll-cue,footer a,.closer-jump{display:none!important}
+    .block{background:#fff!important;border:1px solid #bbb!important;box-shadow:none!important;break-inside:avoid}
+    .f,.gcard,.bcell{background:#f7f7f5!important;border-color:#ccc!important}
+    .f .katex{color:#111!important}
+    .decide{background:#faeefb!important;border-color:#d6a}
+    .traps{background:#fdf2f0!important}
+    .closer{background:#faeefb!important;border-color:#d6a!important}
+    .closer-line p,.big-idea-mark{color:#111!important}.big-idea-mark{color:#9c2aa8!important}
+    h1,.block h3,.block .blurb,.mini,.branch,.traps li,.gcard .geq,.gcard .gnote,.steps li,.bcell .bph,.bcell .bwhy{color:#111!important}
+    .tno,.decide .dh,.branch .cond,.gcard .gname,.bcell .bsign{color:#9c2aa8!important}
+    .sheet{gap:10px}.col{gap:10px}
+    .reveal{animation:none;opacity:1}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="unit4.html">← Unit 4</a>
+  <header class="reveal">
+    <h1>Unit 4 <span class="em">Cheat Sheet</span></h1>
+    <div class="sub">Every formula in Contextual Applications of Differentiation — and, more importantly, <b>when to use which</b>.
+      This whole unit is one idea, the derivative as a <i>rate</i>, wearing five costumes. The pieces that look alike
+      (speed vs. velocity, distance vs. displacement, rate vs. amount, over- vs. under-estimate) are exactly where points
+      slip away, so each block ends with the decision that picks the right tool — and the whole-unit skill, <b>saying it in a
+      sentence with units</b>, gets its own panel at the bottom.</div>
+    <div class="toolbar">
+      <button class="tool-btn" onclick="window.print()">⎙ Print / save as PDF</button>
+      <a class="tool-btn" href="unit4-exam-practice.html">→ Test yourself</a>
+    </div>
+  </header>
+
+  <div class="sheet">
+    <div class="col">
+      <!-- INTERPRETING DERIVATIVES -->
+    <div class="block reveal">
+      <h3><a href="rates-in-context.html">Interpreting Derivatives in Context</a> <span class="tno">4.1 · 4.3</span></h3>
+      <p class="blurb">A derivative is an instantaneous rate. Read its <i>units</i> and <i>sign</i>, and it tells a story about the real quantity.</p>
+      <div class="f"><div class="flab">average rate of change (secant)</div><div id="f_avg"></div></div>
+      <div class="f"><div class="flab">instantaneous rate (the derivative)</div><div id="f_inst"></div></div>
+      <div class="f"><div class="flab">units — always output over input</div><div id="f_units"></div></div>
+      <p class="mini"><b>Second derivative = rate of the rate.</b> \(f''\gt 0\) means the rate \(f'\) is <i>rising</i>; \(f''\lt 0\) means it's <i>falling</i>. That's the difference between "increasing faster" and "increasing but leveling off."</p>
+      <div class="decide"><div class="dh">What is being asked?</div>
+        <div class="branch"><span class="cond">"how fast"</span><span class="res">a <i>rate</i> → the derivative \(f'(a)\), with units output/input</span></div>
+        <div class="branch"><span class="cond">"how much"</span><span class="res">an <i>amount</i> → the function value \(f(a)\)</span></div>
+        <div class="branch"><span class="cond">"on average"</span><span class="res">the secant slope \(\tfrac{f(b)-f(a)}{b-a}\), not \(f'\)</span></div>
+      </div>
+      <div class="traps"><div class="th">trap</div><ul>
+        <li><b>Rate \(\neq\) amount.</b> \(V'(10)=-3\) is a rate (draining at 3/min), not "3 left."</li>
+        <li><b>Always attach units</b> — a bare number earns no interpretation point.</li>
+        <li><b>\(f'=0\) means the rate is zero</b> (a max/min or a pause), not \(f=0\).</li>
+      </ul></div>
+    </div>
+      <!-- STRAIGHT-LINE MOTION -->
+    <div class="block reveal">
+      <h3><a href="straight-line-motion.html">Straight-Line Motion</a> <span class="tno">4.2</span></h3>
+      <p class="blurb">Position \(x(t)\) on a line. Differentiate for velocity and acceleration; integrate to go back.</p>
+      <div class="f"><div class="flab">velocity &amp; acceleration</div><div id="f_va"></div></div>
+      <div class="f"><div class="flab">speed is a magnitude</div><div id="f_speed"></div></div>
+      <div class="f"><div class="flab">displacement (net) &amp; distance (total)</div><div id="f_dd"></div></div>
+      <div class="f"><div class="flab">position from velocity</div><div id="f_pos"></div></div>
+      <div class="decide"><div class="dh">Speeding up or slowing down?</div>
+        <div class="branch"><span class="cond">same sign</span><span class="res">\(v\) and \(a\) agree \(\Rightarrow\) <b>speeding up</b></span></div>
+        <div class="branch"><span class="cond">opposite sign</span><span class="res">\(v\) and \(a\) disagree \(\Rightarrow\) <b>slowing down</b></span></div>
+      </div>
+      <div class="decide"><div class="dh">Direction &amp; distance</div>
+        <div class="branch"><span class="cond">direction</span><span class="res">\(v\gt 0\) moving right/positive; \(v\lt 0\) left/negative; \(v=0\) at rest</span></div>
+        <div class="branch"><span class="cond">total distance</span><span class="res">split at every \(v=0\); add \(\int|v|\,dt\) piece by piece</span></div>
+      </div>
+      <div class="traps"><div class="th">trap</div><ul>
+        <li><b>Speed \(=|v|\)</b>, always \(\ge 0\); velocity keeps its sign.</li>
+        <li><b>Speeding up \(\neq\) \(v\gt 0\).</b> It's about \(v\) and \(a\) matching signs.</li>
+        <li><b>Distance \(\neq\) displacement</b> whenever the particle reverses — split at the turning points.</li>
+      </ul></div>
+    </div>
+    </div>
+
+    <div class="col">
+      <!-- RELATED RATES -->
+    <div class="block reveal">
+      <h3><a href="related-rates.html">Related Rates</a> <span class="tno">4.4 · 4.5</span></h3>
+      <p class="blurb">Two quantities tied by an equation change together in time. Differentiate the relation with respect to \(t\).</p>
+      <ol class="steps">
+        <li><b>Equation:</b> write a relation among the quantities (geometry, formula).</li>
+        <li><b>Differentiate</b> both sides with respect to \(t\) — the chain rule brings out each \(\tfrac{d}{dt}\).</li>
+        <li><b>Substitute</b> the instant's values (numbers go in <i>now</i>, not before).</li>
+        <li><b>Solve</b> for the unknown rate.</li>
+      </ol>
+      <div class="f"><div class="flab">circle area · sphere volume</div><div id="f_rr1"></div></div>
+      <div class="f"><div class="flab">Pythagorean (ladders, distances)</div><div id="f_rr2"></div></div>
+      <div class="decide"><div class="dh">Two changing dimensions?</div>
+        <div class="branch"><span class="cond">reduce first</span><span class="res">use a constraint (similar triangles, e.g. \(r=\tfrac h2\)) to write \(V\) in <i>one</i> variable before differentiating</span></div>
+      </div>
+      <div class="traps"><div class="th">trap</div><ul>
+        <li><b>Differentiate before you substitute.</b> Plugging numbers in early turns a variable into a constant and kills its rate.</li>
+        <li><b>Every variable gets a \(\tfrac{d}{dt}\)</b> — that's the chain rule; a missing rate is the usual error.</li>
+        <li><b>Signs carry meaning:</b> a negative rate means the quantity is shrinking.</li>
+      </ul></div>
+    </div>
+      <!-- LINEAR APPROXIMATION -->
+    <div class="block reveal">
+      <h3><a href="linear-approximation.html">Linear Approximation</a> <span class="tno">4.6</span></h3>
+      <p class="blurb">Near a point, a curve looks like its tangent line. Use that line to estimate nearby values.</p>
+      <div class="f"><div class="flab">the tangent line (linearization)</div><div id="f_lin"></div></div>
+      <div class="f"><div class="flab">differential — estimated change</div><div id="f_diff"></div></div>
+      <div class="decide"><div class="dh">Over- or underestimate?</div>
+        <div class="branch"><span class="cond">\(f''\gt 0\)</span><span class="res">concave up → tangent <i>below</i> → <b>underestimate</b></span></div>
+        <div class="branch"><span class="cond">\(f''\lt 0\)</span><span class="res">concave down → tangent <i>above</i> → <b>overestimate</b></span></div>
+      </div>
+      <div class="traps"><div class="th">trap</div><ul>
+        <li><b>Concavity decides over/under</b> — not whether \(f\) is increasing.</li>
+        <li><b>It's only local:</b> accurate when \(x\) is close to \(a\); the error grows as you move away.</li>
+        <li><b>Get the slope \(f'(a)\) right</b> — a wrong slope wrecks every estimate.</li>
+      </ul></div>
+    </div>
+      <!-- L'HÔPITAL -->
+    <div class="block reveal">
+      <h3><a href="lhopitals-rule.html">L&rsquo;H&ocirc;pital&rsquo;s Rule</a> <span class="tno">4.7</span></h3>
+      <p class="blurb">For an indeterminate quotient, the limit is the ratio of the <i>rates</i>.</p>
+      <div class="f"><div class="flab">the rule (differentiate top &amp; bottom separately)</div><div id="f_lh"></div></div>
+      <div class="decide"><div class="dh">Check the form FIRST</div>
+        <div class="branch"><span class="cond">\(\tfrac00\) or \(\tfrac{\pm\infty}{\pm\infty}\)</span><span class="res">apply the rule; re-check the form and repeat if needed</span></div>
+        <div class="branch"><span class="cond">\(0\cdot\infty\)</span><span class="res">rewrite as a fraction \(\tfrac{f}{1/g}\), then apply</span></div>
+        <div class="branch"><span class="cond">\(\infty-\infty\)</span><span class="res">combine into one fraction first</span></div>
+        <div class="branch"><span class="cond">\(1^{\infty},\,0^0,\,\infty^0\)</span><span class="res">take \(\ln\), find that limit, then exponentiate</span></div>
+      </div>
+      <div class="traps"><div class="th">trap</div><ul>
+        <li><b>Never apply to a determinate form.</b> \(\tfrac{0+1}{0+2}=\tfrac12\) already — using the rule gives a wrong \(1\).</li>
+        <li><b>Not the quotient rule</b> — differentiate \(f\) and \(g\) on their own.</li>
+        <li><b>Re-check after each pass;</b> keep going only while it stays indeterminate.</li>
+      </ul></div>
+    </div>
+    </div>
+  </div>
+
+  <!-- READ THE SIGNS (full width) -->
+  <div class="block span2 reveal" style="margin-top:16px;border-color:rgba(191,52,201,.28)">
+    <h3 style="border:none">Read the signs, name the behavior <span class="tno">the phrase decoder</span></h3>
+    <p class="blurb">The direction comes from \(f'\); the "at a(n) __ rate" comes from \(f''\). Two signs, four stories — this is the language AP wants back in your sentence.</p>
+    <div class="beh">
+      <div class="bcell"><div class="bsign">\(f'\gt 0,\ f''\gt 0\)</div><div class="bph">Increasing at an increasing rate</div><div class="bwhy">rising, and speeding up — concave up</div></div>
+      <div class="bcell"><div class="bsign">\(f'\gt 0,\ f''\lt 0\)</div><div class="bph">Increasing at a decreasing rate</div><div class="bwhy">rising, but leveling off — concave down</div></div>
+      <div class="bcell"><div class="bsign">\(f'\lt 0,\ f''\lt 0\)</div><div class="bph">Decreasing at an increasing rate</div><div class="bwhy">falling, and dropping ever faster — concave down</div></div>
+      <div class="bcell"><div class="bsign">\(f'\lt 0,\ f''\gt 0\)</div><div class="bph">Decreasing at a decreasing rate</div><div class="bwhy">falling, but slowing its fall — concave up</div></div>
+    </div>
+  </div>
+
+  <!-- SAY IT IN A SENTENCE (full width spotlight) -->
+  <div class="block span2 reveal" style="margin-top:16px">
+    <h3>Say it in a sentence <span class="tno">the whole-unit skill</span></h3>
+    <p class="blurb">Most lost points in this unit aren't algebra — they're interpretations left vague. Every "interpret" or "justify" answer needs the same four ingredients.</p>
+    <div class="gallery" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="gcard"><div class="gname">1 · the value</div><div class="geq">the number you found</div><div class="gnote">e.g. \(H'(5)\approx 0.55\).</div></div>
+      <div class="gcard"><div class="gname">2 · the units</div><div class="geq">output per input</div><div class="gnote">meters per hour — never omit them.</div></div>
+      <div class="gcard"><div class="gname">3 · the quantity</div><div class="geq">what is changing</div><div class="gnote">"the water depth," not "the function."</div></div>
+      <div class="gcard"><div class="gname">4 · direction / time</div><div class="geq">increasing/decreasing, at when</div><div class="gnote">"is increasing … at \(t=5\) hours."</div></div>
+      <div class="gcard" style="grid-column:span 2;background:rgba(191,52,201,.06);border-color:rgba(191,52,201,.3)"><div class="gname">put together</div><div class="geq" style="line-height:1.5">"At \(t=5\) hours, the water depth is increasing at about \(0.55\) meters per hour."</div><div class="gnote">value + units + quantity + direction/time = full credit.</div></div>
+    </div>
+    <div class="decide" style="margin-top:14px"><div class="dh">Justification checklist</div>
+      <div class="branch"><span class="cond">motion sign work</span><span class="res">state the sign of \(v\) (and \(a\)) explicitly — "since \(v(2.5)\lt 0\) and \(a(2.5)\gt 0\), … slowing down"</span></div>
+      <div class="branch"><span class="cond">over/under</span><span class="res">name the concavity — "an overestimate because \(f\) is concave down"</span></div>
+      <div class="branch"><span class="cond">extremum</span><span class="res">cite \(f'=0\) and the sign change (or \(f''\)) — don't just assert "it's a max"</span></div>
+    </div>
+    <p class="mini"><b>The reliable move:</b> after any calculation, ask "what does this number mean, in what units, for which real thing, and which way is it going?" Answer all four and the justification points are automatic.</p>
+  </div>
+
+  <!-- CLOSING -->
+  <div class="closer reveal">
+    <div class="closer-line">
+      <span class="big-idea-mark">&Delta;</span>
+      <p>Unit 4 is one idea in five costumes: <b>the derivative is a rate of change</b>. Reading it in context is naming that rate; motion is that rate on a line; related rates is two rates chained through an equation; linear approximation trusts that rate to predict nearby values; and L&rsquo;H&ocirc;pital resolves \(\tfrac00\) by comparing two rates. Master "how fast, which way, in what units" and the whole unit is one question asked five ways.</p>
+    </div>
+    <div class="closer-jump">
+      <a href="unit4-exam-practice.html" class="jump-primary">Test yourself on the exam set <span>→</span></a>
+      <div class="jump-row">
+        <a href="rates-in-context.html">Rates in Context</a>
+        <a href="straight-line-motion.html">Straight-Line Motion</a>
+        <a href="related-rates.html">Related Rates</a>
+        <a href="linear-approximation.html">Linear Approximation</a>
+        <a href="lhopitals-rule.html">L&rsquo;Hôpital&rsquo;s Rule</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="reveal">Unit 4 Cheat Sheet · Contextual Applications of Differentiation · <a href="unit4.html">back to the unit</a> · print-friendly.</footer>
+</div>
+
+<script>
+function renderSheet(){
+  const R=String.raw;
+  const put=(id,tex_,fb)=>{const e=document.getElementById(id);if(e)e.innerHTML=tex(tex_,fb||tex_,true);};
+  // interpreting derivatives
+  put('f_avg', R`\text{avg rate}=\dfrac{f(b)-f(a)}{b-a}`, "avg rate = (f(b)−f(a))/(b−a)");
+  put('f_inst', R`f'(a)=\lim_{h\to0}\dfrac{f(a+h)-f(a)}{h}`, "f'(a)=lim (f(a+h)−f(a))/h");
+  put('f_units', R`[\,f'(a)\,]=\dfrac{\text{units of }f}{\text{units of }x}`, "units of f' = (units of f)/(units of x)");
+  // motion
+  put('f_va', R`v(t)=x'(t),\qquad a(t)=v'(t)=x''(t)`, "v = x',  a = v' = x''");
+  put('f_speed', R`\text{speed}=|v(t)|`, "speed = |v(t)|");
+  put('f_dd', R`\underbrace{\int_a^b v\,dt}_{\text{displacement}}\qquad \underbrace{\int_a^b |v|\,dt}_{\text{distance}}`, "displacement = ∫v dt;  distance = ∫|v| dt");
+  put('f_pos', R`x(t)=x(t_0)+\int_{t_0}^{t} v(\tau)\,d\tau`, "x(t) = x(t₀) + ∫ v dτ");
+  // related rates
+  put('f_rr1', R`\dfrac{d}{dt}\big(\pi r^2\big)=2\pi r\dfrac{dr}{dt},\qquad \dfrac{d}{dt}\big(\tfrac43\pi r^3\big)=4\pi r^2\dfrac{dr}{dt}`, "dA/dt=2πr dr/dt;  dV/dt=4πr² dr/dt");
+  put('f_rr2', R`x^2+y^2=c^2\ \Rightarrow\ x\dfrac{dx}{dt}+y\dfrac{dy}{dt}=0`, "x²+y²=c² ⇒ x dx/dt + y dy/dt = 0");
+  // linear approximation
+  put('f_lin', R`L(x)=f(a)+f'(a)(x-a)`, "L(x) = f(a) + f'(a)(x−a)");
+  put('f_diff', R`dy=f'(x)\,dx`, "dy = f'(x) dx");
+  // l'hopital
+  put('f_lh', R`\lim\dfrac{f(x)}{g(x)}=\lim\dfrac{f'(x)}{g'(x)}\quad\text{if }\tfrac00\text{ or }\tfrac{\pm\infty}{\pm\infty}`, "lim f/g = lim f'/g'  (if 0/0 or ∞/∞)");
+}
+function mathifyInline(){
+  if(!window.katex) return;   // wait for KaTeX — don't mark nodes done on the pre-load pass
+  document.querySelectorAll('.blurb,.mini,.branch .res,.branch .cond,.traps li,.gcard .geq,.gcard .gnote,.steps li,.bcell .bsign,.sub,.closer-line p').forEach(node=>{
+    if(node.dataset.done)return;
+    node.innerHTML=node.innerHTML.replace(/\\\((.+?)\\\)/g,(m,t)=>{try{return katex.renderToString(t,{throwOnError:false});}catch(e){return m;}});
+    node.dataset.done="1";
+  });
+}
+function boot(){renderSheet();mathifyInline();}
+boot();
+if(window.addEventListener)window.addEventListener('load',boot);
+if(!window.katex){let t=0;const iv=setInterval(()=>{if(window.katex){clearInterval(iv);boot();}else if(++t>60)clearInterval(iv);},100);}
+document.querySelectorAll('.reveal').forEach((n,i)=>{n.style.animationDelay=Math.min(i*40,320)+'ms';});
+</script>
+</body>
+</html>

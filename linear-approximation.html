@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Linear Approximation · Unit 4 Guide</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%23190b1c%27%2F%3E%3Cpath%20d%3D%27M5%2025%20C%2013%2023%2C%2021%2011%2C%2027%207%27%20fill%3D%27none%27%20stroke%3D%27%23bf34c9%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cline%20x1%3D%277%27%20y1%3D%2726%27%20x2%3D%2727%27%20y2%3D%278%27%20stroke%3D%27%23e8a13c%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%2F%3E%3Ccircle%20cx%3D%2716%27%20cy%3D%2716%27%20r%3D%272.6%27%20fill%3D%27%23e884ea%27%2F%3E%3C%2Fsvg%3E" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="styles.css">
+<script src="helpers.js"></script>
+<style>
+  :root{ --approx:#bf34c9; --gold:#bf34c9; --true:#e884ea;
+         --glow:rgba(191,52,201,.09); --wrap-max:1060px; }
+  .sub{color:var(--muted);font-size:15px;margin-top:8px;max-width:660px}
+  h2{font-family:var(--display);font-weight:600;font-size:21px;margin:40px 0 8px;letter-spacing:-0.01em}
+  p.lead{font-size:15.5px;max-width:720px;margin:8px 0}
+  .big-idea{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:18px;max-width:790px}
+  .big-idea b{color:var(--approx)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -26px rgba(0,0,0,.7)}
+  svg{width:100%;display:block;border-radius:10px}
+  button{font-family:var(--body);cursor:pointer;border-radius:9px;border:1px solid var(--line);
+    background:var(--panel-2);color:var(--ink);padding:10px 13px;font-size:13.5px;text-align:left;
+    transition:transform .14s,border-color .14s,background .14s}
+  button:hover{border-color:var(--gold);transform:translateY(-1px)}
+  button:active{transform:translateY(0) scale(.99)}
+  button.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-top:12px;flex-wrap:wrap}
+  .legend b{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+  .plotcap{font-size:12.5px;color:var(--muted);text-align:center;margin-top:10px}
+  .exbody{display:flex;gap:24px;align-items:flex-start}
+  .exviz{flex:1 1 52%;min-width:0}
+  .exctrl{flex:1 1 44%;min-width:0}
+  @media(max-width:840px){ .exbody{flex-direction:column;gap:18px} .exviz{flex:none;width:100%} }
+  .scen-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .scen-btns button{flex:1;text-align:center;padding:9px 8px;font-size:13px;font-weight:600}
+  .srow{display:grid;grid-template-columns:118px 1fr 70px;align-items:center;gap:12px;margin-top:12px}
+  .srow .sname{font-size:12.5px;color:var(--muted)}
+  .srow input[type=range]{width:100%;accent-color:var(--approx)}
+  .sval{font-family:var(--mono);font-size:13px;color:var(--ink);text-align:right}
+  .laread{margin-top:16px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:6px 14px}
+  .lrow{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  .lrow:last-child{border-bottom:none}
+  .lrow .k{color:var(--muted)} .lrow .v{font-family:var(--mono);color:var(--ink)}
+  .badge{margin-top:14px;border-radius:11px;padding:12px 14px;text-align:center;font-weight:600;font-size:15px;border:1px solid var(--line);background:var(--panel-2)}
+  .badge.under{border-color:rgba(63,208,176,.5);background:rgba(63,208,176,.12);color:#7fe0cc}
+  .badge.over{border-color:rgba(232,161,60,.5);background:rgba(232,161,60,.12);color:#f0c07a}
+  .badge.flat{border-color:var(--line-2);color:var(--muted)}
+  .badge small{display:block;font-weight:400;font-size:12px;color:var(--muted);margin-top:3px}
+  /* anatomy */
+  .anat{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-top:14px;max-width:820px}
+  .anat .tmpl{font-size:18px;line-height:2.1;color:var(--ink);text-align:center}
+  .chip{display:inline-block;border-radius:7px;padding:2px 9px;font-weight:600;border:1px solid transparent}
+  .chip.base{color:#9fd0c4;border-color:rgba(63,208,176,.4);background:rgba(63,208,176,.1)}
+  .chip.slope{color:var(--approx);border-color:rgba(191,52,201,.4);background:rgba(191,52,201,.1)}
+  .chip.step{color:#d59a52;border-color:rgba(213,154,82,.4);background:rgba(213,154,82,.1)}
+  .anat .note{font-size:13px;color:var(--muted);margin-top:14px;line-height:1.6}
+  .anat .note b{color:var(--ink)}
+  /* concepts */
+  .concepts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+  @media(max-width:680px){.concepts{grid-template-columns:1fr}}
+  .concept{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;transition:transform .2s,box-shadow .2s}
+  .concept:hover{transform:translateY(-3px);box-shadow:0 16px 30px -20px rgba(43,41,37,.45)}
+  .concept h3{font-family:var(--display);font-size:16px;margin:0 0 6px}
+  .concept p{font-size:13.5px;margin:6px 0;color:var(--ink)}
+  .concept .m{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:8px;text-align:center}
+  .key{color:var(--approx);font-weight:600}
+  /* practice */
+  .prob{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:14px}
+  .prob-tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--approx);font-weight:600}
+  .prob-q{font-size:14.5px;line-height:1.65;margin:6px 0 12px}
+  .soltoggle{font-size:13px;padding:7px 14px}
+  .sol{display:none;margin-top:12px;border-top:1px solid var(--line);padding-top:6px}
+  .sol.show{display:block}
+  .why-step{display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .why-step:last-child{border-bottom:none}
+  .why-n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--bg);color:var(--muted);font-family:var(--mono);font-size:11px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .why-t{font-size:13px;line-height:1.5}
+  .why-m{margin-top:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:7px 10px;overflow-x:auto;text-align:center}
+  /* mistakes + tips */
+  .mistakes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  @media(max-width:680px){.mistakes{grid-template-columns:1fr}}
+  .mistake{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--div);border-radius:10px;padding:13px 16px}
+  .mistake h4{margin:0 0 4px;font-size:14px;font-family:var(--display)}
+  .mistake p{margin:0;font-size:13px;color:var(--muted);line-height:1.55}
+  .tipbox{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:14px 18px;max-width:820px}
+  .tipbox h4{margin:0 0 8px;font-size:14px;font-family:var(--display);color:var(--approx)}
+  .tipbox ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:var(--ink)}
+  .tipbox li{margin:5px 0}
+  /* quiz */
+  .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .qtag{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .qtext{font-size:15px;font-weight:600;margin-bottom:12px;line-height:1.5}
+  .quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:520px){.quiz-opts{grid-template-columns:1fr}}
+  .quiz-opts button{font-size:14px;padding:11px 14px;text-align:left}
+  .quiz-opts button.correct{background:rgba(63,208,176,.16);border-color:var(--conv);color:var(--conv)}
+  .quiz-opts button.wrong{background:rgba(224,100,79,.16);border-color:var(--div);color:var(--div)}
+  .quiz-opts button:disabled{cursor:default;opacity:.92}
+  .quiz-opts button:disabled:hover{transform:none;border-color:var(--line)}
+  .quiz-opts button.correct:disabled:hover{border-color:var(--conv)}
+  .quiz-opts button.wrong:disabled:hover{border-color:var(--div)}
+  .feedback{margin-top:14px;font-size:14px;min-height:24px;line-height:1.5}
+  .score{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .next{background:var(--approx);color:#fff;border-color:var(--approx);font-weight:600;text-align:center;box-shadow:0 8px 18px -10px var(--approx)}
+  .next:hover{filter:brightness(1.06);border-color:var(--approx)}
+  .whatsnext{max-width:720px;margin-top:18px;font-size:14px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+  .whatsnext a{color:var(--approx);text-decoration:none;font-weight:600}
+  .whatsnext a:hover{text-decoration:underline}
+  footer{color:var(--muted);font-size:12px;margin-top:44px;border-top:1px solid var(--line);padding-top:14px}
+  @keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .reveal{opacity:0;animation:riseIn .6s cubic-bezier(.2,.7,.2,1) forwards}
+  .tex-fallback{font-family:var(--mono);font-size:13px}
+  button:focus-visible, a:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:8px}
+  @media (prefers-reduced-motion:reduce){.reveal{animation:none;opacity:1}*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="unit4.html">← Unit 4 Guide</a>
+  <header class="reveal">
+    <h1>Linear <span class="em">Approximation</span></h1>
+    <div class="sub">Zoom in on any smooth curve and it flattens into a line — its tangent. That's <b>local
+      linearity</b>, and it's the whole trick: to estimate a hard value, ride the easy straight line instead.</div>
+  </header>
+
+  <div class="big-idea reveal">
+    Near a point you know, a function barely differs from its <b>tangent line</b>. So replace the curve with that
+    line — the <b>linearization</b> <span style="color:var(--ink)">L(x) = f(a) + f&prime;(a)(x&minus;a)</span> — and
+    read off an estimate. It's exact at <b>a</b> and drifts as you move away; concavity tells you which way it
+    misses.
+  </div>
+
+  <h2 class="reveal">Where the formula comes from</h2>
+  <p class="lead reveal">The linearization looks like a new formula to memorize. It isn't — it's a line you already know, used
+    in a new way. Here's the whole idea, built from the ground up, one step at a time.</p>
+  <div class="card reveal" id="derive"></div>
+
+  <h2 class="reveal">Ride the tangent</h2>
+  <p class="lead reveal">Now watch it live. Here's a curve and its tangent at <b>a</b>. Slide <b>a</b> to move the tangent point;
+    slide <b>zoom</b> to close in. Watch two things: as you zoom in, the curve <em>becomes</em> the line
+    (local linearity), and the estimate <span style="color:#e8a13c">L(x)</span> snaps toward the true
+    <span style="color:var(--approx)">f(x)</span>. The gap between them is the error — and its direction is set
+    by which way the curve bends.</p>
+
+  <div class="card reveal">
+    <div class="scen-btns" id="laScen"></div>
+    <div class="exbody">
+      <div class="exviz">
+        <svg id="laPlot" viewBox="0 0 520 400" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="legend">
+          <span><b style="background:#bf34c9"></b>the curve f(x)</span>
+          <span><b style="background:#e8a13c"></b>tangent line L(x)</span>
+          <span><b style="background:#e884ea"></b>the estimate at x</span>
+        </div>
+      </div>
+      <div class="exctrl">
+        <div class="srow"><span class="sname">tangent point a</span><input type="range" id="laA"><span class="sval" id="laAval"></span></div>
+        <div class="srow"><span class="sname">zoom in →</span><input type="range" id="laZoom" min="0" max="1" step="0.001" value="0.3"><span class="sval" id="laZval"></span></div>
+        <div class="laread" id="laRead"></div>
+        <div class="badge" id="laBadge"></div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="reveal">The linearization, part by part</h2>
+  <p class="lead reveal">Every linear approximation is this one formula. Read it as a set of directions: start
+    where you know the value, then walk along the tangent's slope for however far you've stepped.</p>
+  <div class="anat reveal">
+    <div class="tmpl">
+      L(x) = <span class="chip base">f(a)</span> + <span class="chip slope">f&prime;(a)</span> · <span class="chip step">(x &minus; a)</span>
+    </div>
+    <div class="note">
+      <b style="color:#9fd0c4">f(a)</b> — the known height at the anchor point &nbsp;·&nbsp;
+      <b style="color:var(--approx)">f&prime;(a)</b> — the tangent's slope there &nbsp;·&nbsp;
+      <b style="color:#d59a52">(x &minus; a)</b> — how far you step from the anchor. The step is
+      <b>(x&nbsp;&minus;&nbsp;a)</b>, never just x — anchoring at a is the whole point, and the classic slip is
+      writing f&prime;(a)·x. Small step, good estimate; big step, the curve escapes the line.
+    </div>
+  </div>
+
+  <h2 class="reveal">The ideas everything else builds on</h2>
+  <div class="concepts reveal">
+    <div class="concept">
+      <h3>Local linearity</h3>
+      <p>Zoom far enough into a smooth point and the curve is indistinguishable from a straight line — its
+        <span class="key">tangent</span>. That's what makes the estimate work at all.</p>
+      <div class="m" id="c1"></div>
+    </div>
+    <div class="concept">
+      <h3>The linearization</h3>
+      <p>The tangent line written as a function: <span class="key">L(x) = f(a) + f&prime;(a)(x&minus;a)</span>.
+        Use it in place of f near a. Exact at a, approximate nearby.</p>
+      <div class="m" id="c2"></div>
+    </div>
+    <div class="concept">
+      <h3>Over or under — read the bend</h3>
+      <p>Concave <span class="key">up</span>: the tangent lies below, so L <b>under-</b>estimates. Concave
+        <span class="key">down</span>: tangent above, L <b>over-</b>estimates. The sign of f&Prime;(a) decides.</p>
+      <div class="m" id="c3"></div>
+    </div>
+    <div class="concept">
+      <h3>Differentials</h3>
+      <p>The same idea in change-language: <span class="key">dy = f&prime;(x)\,dx</span> estimates the output
+        change Δy for a small input change dx — the tangent's rise over that step.</p>
+      <div class="m" id="c4"></div>
+    </div>
+  </div>
+
+  <h2 class="reveal">Your turn</h2>
+  <p class="lead reveal">Six problems — build a linearization, estimate with it, and call the over/under. Try each
+    before revealing.</p>
+  <div class="reveal" id="practice"></div>
+
+  <h2 class="reveal">Quick quiz</h2>
+  <p class="lead reveal">Six fast checks. Pick an answer to see whether it's right and why — then work all six.</p>
+  <div class="card reveal" id="quizCard">
+    <div class="row" style="margin-bottom:12px">
+      <div class="qtag" id="qProgress">Question 1 of 6</div>
+      <span class="score" id="qScore">Score: 0 / 0</span>
+    </div>
+    <div class="qtext" id="qText"></div>
+    <div class="quiz-opts" id="qOpts"></div>
+    <div class="feedback" id="qFb"></div>
+    <button class="next" id="qNext" style="margin-top:14px;width:100%;display:none">Next question →</button>
+  </div>
+
+  <h2 class="reveal">Common mistakes &amp; exam tips</h2>
+  <div class="mistakes reveal">
+    <div class="mistake"><h4>Writing f&prime;(a)·x instead of f&prime;(a)(x&minus;a)</h4><p>The step is measured <i>from the anchor</i>. Forgetting the &minus;a shifts the whole line and wrecks the estimate. Always L(x)=f(a)+f&prime;(a)(x&minus;a).</p></div>
+    <div class="mistake"><h4>Estimating far from a</h4><p>The tangent only hugs the curve near the anchor. Use the value of a closest to your target — √4.1 from a=4, not a=1 — or the error balloons.</p></div>
+    <div class="mistake"><h4>Flipping over- and under-estimate</h4><p>Concave <i>up</i> means the tangent is <i>below</i> the curve, so L under-estimates. It feels backwards — draw the bend and the tangent to be sure.</p></div>
+    <div class="mistake"><h4>Calling the estimate exact</h4><p>L(x) equals f(x) only at x = a. Everywhere else it's an approximation; say "approximately" and know there's an error.</p></div>
+    <div class="mistake"><h4>Confusing dy with Δy</h4><p>dy = f&prime;(x)dx is the <i>tangent-line</i> change (the estimate); Δy = f(x+dx)&minus;f(x) is the true change. dy approximates Δy for small dx.</p></div>
+    <div class="mistake"><h4>Using the wrong sign of the slope</h4><p>If f is decreasing at a, f&prime;(a) &lt; 0 and the linearization slopes down. Compute f&prime;(a) with its sign and keep it.</p></div>
+  </div>
+  <div class="tipbox reveal">
+    <h4>On the AP exam</h4>
+    <ul>
+      <li>State the linearization explicitly: <span id="tipL"></span>. Show f(a) and f&prime;(a) before plugging in x.</li>
+      <li>Pick the anchor a to be a nearby value you can evaluate exactly (a perfect square, 0, 1, π/…).</li>
+      <li>Asked over- or under-estimate? Find the sign of <b>f&Prime;(a)</b> — up ⇒ under, down ⇒ over — and justify with concavity.</li>
+      <li>"Tangent-line approximation," "linearization," and "differentials" are three names for the same tangent.</li>
+    </ul>
+  </div>
+
+  <div class="whatsnext reveal">
+    You can now trade any smooth curve for its tangent and estimate with it — the first taste of replacing a hard
+    function with a simple one (Taylor series, in Unit&nbsp;10, is this idea taken to the limit). Next: what to do
+    when a limit refuses to resolve — continue to <a href="lhopitals-rule.html">L&rsquo;H&ocirc;pital&rsquo;s Rule →</a>,
+    or head back to the <a href="unit4.html">Unit 4 Guide</a>.
+  </div>
+
+  <footer class="reveal">Linear Approximation · part of the Unit 4 guide · open in any browser, no install needed.</footer>
+</div>
+
+<script>
+const SVGNS="http://www.w3.org/2000/svg";
+const el=(t,a,txt)=>{const e=document.createElementNS(SVGNS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;};
+const T=(s)=>tex(s,s,false);
+const MAG="#bf34c9", ORCH="#e884ea", GOLD="#e8a13c", TEAL="#3fd0b0", MUT="#6b5f5a";
+
+/* ============ SIGNATURE: RIDE THE TANGENT ============ */
+const SCEN=[
+ { key:"sqrt", name:"√x", disp:"\\sqrt{x}", f:x=>Math.sqrt(x), d1:x=>1/(2*Math.sqrt(x)), d2:x=>-1/(4*x*Math.sqrt(x)),
+   aMin:1, aMax:8, a0:4, wMin:0.12, wMax:3 },
+ { key:"exp", name:"eˣ", disp:"e^{x}", f:x=>Math.exp(x), d1:x=>Math.exp(x), d2:x=>Math.exp(x),
+   aMin:-1.5, aMax:1.5, a0:0, wMin:0.08, wMax:1.6 },
+ { key:"wave", name:"2 + sin x", disp:"2+\\sin x", f:x=>2+Math.sin(x), d1:x=>Math.cos(x), d2:x=>-Math.sin(x),
+   aMin:0.4, aMax:6, a0:1, wMin:0.1, wMax:2 },
+];
+const LW=520, LH=400, LP=44;
+let si=0, la=SCEN[0].a0, lz=0.3;
+const laPlot=document.getElementById("laPlot");
+function S(){ return SCEN[si]; }
+function halfW(){ const s=S(); return s.wMax*Math.pow(s.wMin/s.wMax, lz); }   /* log zoom: lz 0→wide, 1→tight */
+function mapper(dom,yr){ const [x0,x1]=dom,[y0,y1]=yr;
+  return { sx:x=>LP+((x-x0)/(x1-x0))*(LW-2*LP), sy:v=>LH-LP-((v-y0)/(y1-y0))*(LH-2*LP) }; }
+function drawLA(){ const s=S(), W=halfW(), dx=0.6*W, x=la+dx, dom=[la-W, la+W];
+  const Lf=t=>s.f(la)+s.d1(la)*(t-la);
+  // y-range across window (curve + tangent)
+  let ys=[]; for(let i=0;i<=40;i++){ const t=dom[0]+(i/40)*(dom[1]-dom[0]); ys.push(s.f(t)); ys.push(Lf(t)); }
+  let y0=Math.min(...ys), y1=Math.max(...ys); const pad=(y1-y0||1)*0.16; y0-=pad; y1+=pad;
+  const M=mapper(dom,[y0,y1]); laPlot.innerHTML="";
+  // frame
+  laPlot.appendChild(el("rect",{x:LP,y:LP,width:LW-2*LP,height:LH-2*LP,fill:"none",stroke:"#241f2e"}));
+  // over/under shaded region between curve and tangent
+  let dc="M", dt=""; const N=120;
+  for(let i=0;i<=N;i++){ const t=dom[0]+(i/N)*(dom[1]-dom[0]); dc+=(i?"L":"")+M.sx(t).toFixed(1)+" "+M.sy(s.f(t)).toFixed(1)+" "; }
+  for(let i=N;i>=0;i--){ const t=dom[0]+(i/N)*(dom[1]-dom[0]); dt+="L"+M.sx(t).toFixed(1)+" "+M.sy(Lf(t)).toFixed(1)+" "; }
+  const cc=s.d2(la), shade=Math.abs(cc)<0.02?"rgba(150,150,150,.05)":(cc>0?"rgba(63,208,176,.10)":"rgba(232,161,60,.12)");
+  laPlot.appendChild(el("path",{d:dc+dt+"Z",fill:shade,stroke:"none"}));
+  // tangent line
+  laPlot.appendChild(el("line",{x1:M.sx(dom[0]),y1:M.sy(Lf(dom[0])),x2:M.sx(dom[1]),y2:M.sy(Lf(dom[1])),stroke:GOLD,"stroke-width":2.4,"stroke-linecap":"round"}));
+  // curve
+  let cd=""; for(let i=0;i<=200;i++){ const t=dom[0]+(i/200)*(dom[1]-dom[0]); cd+=(i?"L":"M")+M.sx(t).toFixed(1)+" "+M.sy(s.f(t)).toFixed(1)+" "; }
+  laPlot.appendChild(el("path",{d:cd,fill:"none",stroke:MAG,"stroke-width":2.8,"stroke-linejoin":"round"}));
+  // anchor point a
+  laPlot.appendChild(el("line",{x1:M.sx(la),y1:M.sy(s.f(la)),x2:M.sx(la),y2:LH-LP,stroke:MUT,"stroke-width":1,"stroke-dasharray":"3 3",opacity:.5}));
+  laPlot.appendChild(el("circle",{cx:M.sx(la),cy:M.sy(s.f(la)),r:5.5,fill:GOLD,stroke:"#1c1714","stroke-width":1.4}));
+  laPlot.appendChild(el("text",{x:M.sx(la),y:LH-LP+15,fill:GOLD,"font-size":11,"text-anchor":"middle","font-family":"var(--mono)"},"a = "+(+la.toFixed(2))));
+  // estimate at x: error bar between curve and tangent
+  const fx=s.f(x), Lx=Lf(x);
+  laPlot.appendChild(el("line",{x1:M.sx(x),y1:M.sy(fx),x2:M.sx(x),y2:M.sy(Lx),stroke:(cc>0?TEAL:GOLD),"stroke-width":2.4,"stroke-linecap":"round",opacity:.9}));
+  laPlot.appendChild(el("circle",{cx:M.sx(x),cy:M.sy(Lx),r:4.5,fill:GOLD}));
+  laPlot.appendChild(el("circle",{cx:M.sx(x),cy:M.sy(fx),r:5,fill:ORCH,stroke:"#1c1714","stroke-width":1.3}));
+  laPlot.appendChild(el("text",{x:M.sx(x),y:LH-LP+15,fill:ORCH,"font-size":11,"text-anchor":"middle","font-family":"var(--mono)"},"x = "+(+x.toFixed(2))));
+}
+function updateLA(){ const s=S(), W=halfW(), dx=0.6*W, x=la+dx, fx=s.f(x), Lx=s.f(la)+s.d1(la)*dx, err=fx-Lx, cc=s.d2(la);
+  document.getElementById("laRead").innerHTML=
+    '<div class="lrow"><span class="k">f(a)</span><span class="v">'+s.f(la).toFixed(3)+'</span></div>'+
+    '<div class="lrow"><span class="k">f&prime;(a) — slope</span><span class="v">'+s.d1(la).toFixed(3)+'</span></div>'+
+    '<div class="lrow"><span class="k">step (x − a)</span><span class="v">'+dx.toFixed(3)+'</span></div>'+
+    '<div class="lrow"><span class="k">estimate L(x)</span><span class="v" style="color:#f0c07a">'+Lx.toFixed(3)+'</span></div>'+
+    '<div class="lrow"><span class="k">actual f(x)</span><span class="v" style="color:#f0a8f2">'+fx.toFixed(3)+'</span></div>'+
+    '<div class="lrow"><span class="k">error |f − L|</span><span class="v">'+Math.abs(err).toFixed(4)+'</span></div>';
+  const bd=document.getElementById("laBadge"); bd.classList.remove("under","over","flat");
+  if(Math.abs(cc)<0.02){ bd.classList.add("flat"); bd.innerHTML='Nearly exact here<small>f″(a) ≈ 0 — you\'re near an inflection, so the line barely misses</small>'; }
+  else if(cc>0){ bd.classList.add("under"); bd.innerHTML='L under-estimates<small>concave up (f″ &gt; 0): the tangent lies below the curve</small>'; }
+  else { bd.classList.add("over"); bd.innerHTML='L over-estimates<small>concave down (f″ &lt; 0): the tangent lies above the curve</small>'; }
+}
+function renderLA(){ drawLA(); updateLA(); document.getElementById("laAval").textContent=(+la.toFixed(2)); document.getElementById("laZval").textContent=(0.6*halfW()).toFixed(2); }
+function wireA(){ const s=S(), inp=document.getElementById("laA"); inp.min=s.aMin; inp.max=s.aMax; inp.step=0.01; inp.value=la; }
+document.getElementById("laA").addEventListener("input",e=>{ la=parseFloat(e.target.value); renderLA(); });
+document.getElementById("laZoom").addEventListener("input",e=>{ lz=parseFloat(e.target.value); renderLA(); });
+function renderScen(){ document.getElementById("laScen").innerHTML=SCEN.map((s,i)=>'<button data-i="'+i+'" class="'+(i===si?"on":"")+'">'+s.name+'</button>').join("");
+  document.querySelectorAll("#laScen button").forEach(b=>b.onclick=()=>{ si=+b.dataset.i; la=S().a0; lz=0.3; document.getElementById("laZoom").value=lz;
+    renderScen(); wireA(); renderLA(); }); }
+
+/* ============ derivation (understanding) ============ */
+const DERIVE=[
+ { t:"Up close, a curve is a line.",
+   p:"Zoom into any smooth point and the curve flattens onto its tangent — you'll feel this in the tool just below. So near <b>a</b>, we can trade the curve for a straight line and barely lose a thing. The only question left is <i>which</i> line." },
+ { t:"Which line? The one that matches at a.",
+   p:"Of every line you could draw, the <b>tangent</b> is the one that agrees with the curve in the two ways that matter at a: it touches the same point, and it leaves at the same slope. That double agreement is why it hugs the curve so tightly nearby.",
+   m:"\\text{through }(a,\\,f(a)),\\quad \\text{slope }=f'(a)" },
+ { t:"Write that line down — and meet an old friend.",
+   p:"A line through (a, f(a)) with slope f&prime;(a) is nothing exotic. It's <b>point-slope form</b>, straight from algebra. Solve for y and rename it L(x):",
+   m:"y-f(a)=f'(a)(x-a)\\ \\Longrightarrow\\ L(x)=f(a)+f'(a)(x-a)",
+   note:"There is no new formula here. The linearization <i>is</i> the tangent line from Unit&nbsp;2 — just written as a function you can plug into." },
+ { t:"Use it to estimate — anchor, then step.",
+   p:"Near a, f(x) &approx; L(x). To get a hard value, anchor at an easy one and walk along the tangent. Watch it work on &radic;4.1:",
+   steps:[["Anchor at a = 4, where the value is easy:","\\sqrt4=2"],
+          ["Find the slope there:","f'(x)=\\tfrac{1}{2\\sqrt x}\\ \\Rightarrow\\ f'(4)=\\tfrac14"],
+          ["The step from 4 to 4.1 is 0.1; the tangent rises slope&nbsp;&times;&nbsp;step:","\\tfrac14(0.1)=0.025"],
+          ["Add that to the anchor:","\\sqrt{4.1}\\approx 2+0.025=2.025"]],
+   note:"A calculator says 2.02485 — matched to four places with nothing but arithmetic. That's the payoff." },
+ { t:"Which way did we miss? Read the bend.",
+   p:"Our answer came out a hair <b>high</b>, and the curve tells you why. &radic;x is <b>concave down</b>, so it curls <i>below</i> its straight tangent — the tangent rides above the curve, so anything read off it is a touch too big (an over-estimate). Flip the bend and you flip the miss: concave up puts the tangent underneath, and estimates come out too small." },
+];
+function renderDerive(){
+  document.getElementById("derive").innerHTML=DERIVE.map((d,i)=>{
+    let inner='<div style="font-size:14.5px"><b style="color:var(--ink)">'+d.t+'</b>'+
+      '<div style="color:var(--muted);margin-top:6px;line-height:1.65;font-size:13.5px">'+d.p+'</div>';
+    if(d.m) inner+='<div class="why-m" style="margin-top:10px">'+T(d.m)+'</div>';
+    if(d.steps) inner+='<div style="margin-top:8px">'+d.steps.map(s=>'<div style="display:flex;gap:12px;align-items:center;margin-top:8px;flex-wrap:wrap"><span style="font-size:12.5px;color:var(--muted);flex:1 1 210px">'+s[0]+'</span><span class="why-m" style="margin:0">'+T(s[1])+'</span></div>').join("")+'</div>';
+    if(d.note) inner+='<div style="font-size:12.5px;color:var(--faint);margin-top:10px;border-left:2px solid rgba(191,52,201,.45);padding-left:11px;line-height:1.55">'+d.note+'</div>';
+    inner+='</div>';
+    return '<div class="why-step" style="padding:14px 0"><div class="why-n" style="background:var(--approx);color:#fff;border:none;flex:none;width:24px;height:24px">'+(i+1)+'</div>'+inner+'</div>';
+  }).join("");
+}
+
+/* ============ static bits ============ */
+function renderBits(){ const s=(id,l)=>{const n=document.getElementById(id); if(n) n.innerHTML=T(l);};
+  s("tipL","L(x)=f(a)+f'(a)(x-a)");
+  s("c1","f(x)\\approx L(x)\\ \\text{ for }x\\text{ near }a");
+  s("c2","L(x)=f(a)+f'(a)(x-a)");
+  s("c3","f''>0\\Rightarrow\\text{under},\\ \\ f''<0\\Rightarrow\\text{over}");
+  s("c4","dy=f'(x)\\,dx");
+}
+
+/* ============ practice ============ */
+const PRAC=[
+ { tag:"The classic estimate", q:()=>'Use a linearization of '+T("f(x)=\\sqrt{x}")+' at '+T("a=4")+' to estimate '+T("\\sqrt{4.1}")+'.',
+   sol:[{t:"f(4)=2 and f′(x)=1/(2√x), so f′(4)=¼. Build L:",m:"L(x)=2+\\tfrac14(x-4)"},{t:"Estimate at x = 4.1:",m:"L(4.1)=2+\\tfrac14(0.1)=2.025"},{t:"√x is concave down, so this over-estimates (true value ≈ 2.0248).",m:null}] },
+ { tag:"Build & estimate", q:()=>'Find the linearization of '+T("f(x)=e^{x}")+' at '+T("a=0")+' and estimate '+T("e^{0.05}")+'.',
+   sol:[{t:"f(0)=1, f′(0)=1:",m:"L(x)=1+x"},{t:"Estimate:",m:"e^{0.05}\\approx L(0.05)=1.05"},{t:"eˣ is concave up → under-estimate (true ≈ 1.0513).",m:null}] },
+ { tag:"Over or under?", q:()=>'For '+T("f(x)=x^3")+', is the tangent-line estimate of '+T("f(2.1)")+' at '+T("a=2")+' an over- or under-estimate?',
+   sol:[{t:"Check concavity: f″(x)=6x, so f″(2)=12 > 0 — concave up.",m:"f''(2)>0\\Rightarrow\\text{under-estimate}"},{t:"(L(2.1)=8+12(0.1)=9.2, true value 9.261.)",m:null}] },
+ { tag:"Differentials", q:()=>'Water depth is '+T("y=\\sqrt{x}")+'. Use differentials to estimate the change in y as x goes from 9 to 9.2.',
+   sol:[{t:"dy = f′(x)dx with f′(9)=1/(2·3)=1/6 and dx=0.2:",m:"dy=\\tfrac16(0.2)\\approx0.033"}] },
+ { tag:"Logarithm", q:()=>'Estimate '+T("\\ln(1.1)")+' with a linearization of '+T("\\ln x")+' at '+T("a=1")+'.',
+   sol:[{t:"ln 1 = 0, and (ln x)′ = 1/x → f′(1)=1:",m:"L(x)=0+1\\,(x-1)=x-1"},{t:"Estimate:",m:"\\ln(1.1)\\approx0.1\\ \\ (\\text{true }0.0953,\\ \\text{over})"}] },
+ { tag:"General estimate", q:()=>'A function has '+T("f(3)=10")+' and '+T("f'(3)=-2")+'. Approximate '+T("f(3.4)")+'.',
+   sol:[{t:"L(x)=f(3)+f′(3)(x−3):",m:"L(x)=10-2(x-3)"},{t:"At x = 3.4:",m:"f(3.4)\\approx10-2(0.4)=9.2"}] }
+];
+function renderPractice(){
+  document.getElementById("practice").innerHTML=PRAC.map((p,i)=>{
+    const steps=p.sol.map((st,j)=>'<div class="why-step"><div class="why-n">'+(j+1)+'</div><div><div class="why-t">'+st.t+'</div>'+(st.m?'<div class="why-m">'+T(st.m)+'</div>':'')+'</div></div>').join("");
+    return '<div class="prob"><div class="prob-tag">'+p.tag+'</div><div class="prob-q">'+p.q()+'</div>'
+      +'<button class="soltoggle" data-i="'+i+'">Show solution</button><div class="sol" id="sol'+i+'">'+steps+'</div></div>';
+  }).join("");
+  document.querySelectorAll(".soltoggle").forEach(btn=>{ btn.onclick=()=>{ const i=btn.getAttribute("data-i"), s=document.getElementById("sol"+i);
+    btn.textContent=s.classList.toggle("show")?"Hide solution":"Show solution"; }; });
+}
+
+/* ============ quiz ============ */
+const QUIZ=[
+ { q:()=>'The linearization of f at a is:',
+   opts:[{h:()=>T("L(x)=f(a)+f'(a)(x-a)"),ok:true},{h:()=>T("L(x)=f(a)+f'(a)x"),ok:false},{h:()=>T("L(x)=f(a)\\cdot f'(a)(x-a)"),ok:false},{h:()=>T("L(x)=f'(a)+f(a)(x-a)"),ok:false}],
+   fb:"Start at f(a) and walk along the slope f′(a) for a step of (x − a). The step is measured from a — not just x." },
+ { q:()=>'The tangent-line estimate is most accurate when x is:',
+   opts:[{h:()=>"close to a",ok:true},{h:()=>"far from a",ok:false},{h:()=>"equal to f(a)",ok:false},{h:()=>"where f′=0",ok:false}],
+   fb:"Local linearity only holds near the anchor — the closer x is to a, the smaller the error." },
+ { q:()=>'If f is concave up near a, the linearization gives an:',
+   opts:[{h:()=>"under-estimate",ok:true},{h:()=>"over-estimate",ok:false},{h:()=>"exact value",ok:false},{h:()=>"undefined value",ok:false}],
+   fb:"Concave up ⇒ the tangent lies below the curve ⇒ L(x) < f(x), an under-estimate." },
+ { q:()=>'In '+T("L(x)=f(a)+f'(a)(x-a)")+', the factor '+T("f'(a)")+' is:',
+   opts:[{h:()=>"the slope of the tangent at a",ok:true},{h:()=>"the height of the curve at a",ok:false},{h:()=>"the error",ok:false},{h:()=>"the step size",ok:false}],
+   fb:"f′(a) is the tangent's slope — the rate at which the estimate rises as you step away from a." },
+ { q:()=>'If '+T("f(2)=5")+' and '+T("f'(2)=3")+', the linear approximation of '+T("f(2.1)")+' is:',
+   opts:[{h:()=>T("5.3"),ok:true},{h:()=>T("5.0"),ok:false},{h:()=>T("8.0"),ok:false},{h:()=>T("15.3"),ok:false}],
+   fb:"L(2.1)=5+3(0.1)=5.3. Multiply the slope by the step (0.1), then add to f(2)." },
+ { q:()=>'The differential '+T("dy")+' equals:',
+   opts:[{h:()=>T("f'(x)\\,dx"),ok:true},{h:()=>T("f(x)\\,dx"),ok:false},{h:()=>T("f'(x)+dx"),ok:false},{h:()=>T("\\dfrac{dx}{f'(x)}"),ok:false}],
+   fb:"dy = f′(x)dx — the tangent-line change in y for a small input change dx. It approximates the true Δy." }
+];
+let qi=0,qScore=0,qDone=0,qAnswered=false;
+const qOpts=document.getElementById("qOpts"),qFb=document.getElementById("qFb"),qNext=document.getElementById("qNext");
+function renderQuiz(){ qAnswered=false; const item=QUIZ[qi];
+  document.getElementById("qText").innerHTML=item.q();
+  document.getElementById("qProgress").textContent="Question "+(qi+1)+" of "+QUIZ.length;
+  document.getElementById("qScore").textContent="Score: "+qScore+" / "+qDone;
+  qFb.innerHTML=""; qNext.style.display="none";
+  qNext.textContent = qi<QUIZ.length-1 ? "Next question →" : "Restart quiz ↺";
+  qOpts.innerHTML="";
+  item.opts.forEach(o=>{ const b=document.createElement("button"); b.innerHTML=o.h();
+    b.onclick=()=>{ if(qAnswered)return; qAnswered=true; qDone++;
+      [...qOpts.children].forEach((bb,k)=>{ bb.disabled=true; if(item.opts[k].ok) bb.classList.add("correct"); });
+      if(o.ok){ qScore++; b.classList.add("correct"); qFb.innerHTML='<span style="color:var(--conv);font-weight:600">✓ Correct.</span> <span style="color:var(--muted)">'+item.fb+'</span>'; }
+      else { b.classList.add("wrong"); qFb.innerHTML='<span style="color:var(--div);font-weight:600">✗ Not quite.</span> <span style="color:var(--muted)">'+item.fb+'</span>'; }
+      document.getElementById("qScore").textContent="Score: "+qScore+" / "+qDone; qNext.style.display="block";
+    };
+    qOpts.appendChild(b); });
+}
+qNext.onclick=()=>{ if(qi<QUIZ.length-1){ qi++; } else { qi=0; qScore=0; qDone=0; } renderQuiz(); };
+
+/* ============ init ============ */
+function boot(){ renderScen(); wireA(); renderLA(); renderDerive(); renderBits(); renderPractice(); renderQuiz(); }
+boot();
+if(!window.katex){ let tries=0; const t=setInterval(()=>{ if(window.katex){ clearInterval(t); renderDerive(); renderBits(); renderPractice(); renderQuiz(); updateLA(); }
+  else if(++tries>40) clearInterval(t); },150); }
+document.querySelectorAll('.reveal').forEach((n,i)=>{ n.style.animationDelay=Math.min(i*28,440)+'ms'; });
+</script>
+</body>
+</html>

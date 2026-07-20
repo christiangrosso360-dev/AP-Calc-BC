@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Straight-Line Motion · Unit 4 Guide</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%23190b1c%27%2F%3E%3Cline%20x1%3D%276%27%20y1%3D%2716%27%20x2%3D%2726%27%20y2%3D%2716%27%20stroke%3D%27%23453f33%27%20stroke-width%3D%272%27%2F%3E%3Ccircle%20cx%3D%2720%27%20cy%3D%2716%27%20r%3D%274%27%20fill%3D%27%23bf34c9%27%2F%3E%3Cline%20x1%3D%2720%27%20y1%3D%2716%27%20x2%3D%2729%27%20y2%3D%2716%27%20stroke%3D%27%23e884ea%27%20stroke-width%3D%272.4%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="styles.css">
+<script src="helpers.js"></script>
+<style>
+  :root{ --approx:#bf34c9; --gold:#bf34c9; --true:#e884ea;
+         --glow:rgba(191,52,201,.09); --wrap-max:1060px; }
+  .sub{color:var(--muted);font-size:15px;margin-top:8px;max-width:660px}
+  h2{font-family:var(--display);font-weight:600;font-size:21px;margin:40px 0 8px;letter-spacing:-0.01em}
+  p.lead{font-size:15.5px;max-width:720px;margin:8px 0}
+  .big-idea{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:18px;max-width:790px}
+  .big-idea b{color:var(--approx)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -26px rgba(0,0,0,.7)}
+  svg{width:100%;display:block;border-radius:10px}
+  button{font-family:var(--body);cursor:pointer;border-radius:9px;border:1px solid var(--line);
+    background:var(--panel-2);color:var(--ink);padding:10px 13px;font-size:13.5px;text-align:left;
+    transition:transform .14s,border-color .14s,background .14s}
+  button:hover{border-color:var(--gold);transform:translateY(-1px)}
+  button:active{transform:translateY(0) scale(.99)}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-top:12px;flex-wrap:wrap}
+  .legend b{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+  .plotcap{font-size:12.5px;color:var(--muted);text-align:center;margin-top:10px}
+  .exbody{display:flex;gap:26px;align-items:flex-start}
+  .exviz{flex:1 1 56%;min-width:0}
+  .exctrl{flex:1 1 40%;min-width:0;display:flex;flex-direction:column}
+  @media(max-width:820px){ .exbody{flex-direction:column;gap:20px} .exviz{flex:none;width:100%} }
+  .mctrls{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+  .play{background:var(--approx);color:#fff;border-color:var(--approx);font-weight:600;text-align:center;box-shadow:0 8px 18px -10px var(--approx);flex:none;min-width:96px}
+  .play:hover{filter:brightness(1.06)}
+  .mscrub{flex:1;accent-color:var(--approx)}
+  .mrow{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .mrow:last-child{border-bottom:none}
+  .mrow .k{color:var(--muted)} .mrow .val{font-family:var(--mono);color:var(--ink);font-size:14.5px}
+  .statusbadge{margin-top:14px;border-radius:12px;padding:14px 16px;text-align:center;font-weight:600;font-size:16px;
+    border:1px solid var(--line);background:var(--panel-2);transition:all .2s}
+  .statusbadge .dir{font-family:var(--display);font-size:20px;display:block;margin-bottom:2px}
+  .statusbadge.up{border-color:rgba(191,52,201,.5);background:rgba(191,52,201,.12);color:#f0a8f2}
+  .statusbadge.down{border-color:rgba(232,161,60,.5);background:rgba(232,161,60,.12);color:#f0c07a}
+  .statusbadge.rest{border-color:rgba(63,208,176,.5);background:rgba(63,208,176,.12);color:#7fe0cc}
+  .whybadge{font-size:12.5px;color:var(--muted);margin-top:8px;font-family:var(--mono);text-align:center}
+  .scen-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .scen-btns button{flex:1;text-align:center;padding:8px 6px;font-size:12px;font-weight:600}
+  .predict{margin-top:14px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
+  .callbtn{width:100%;text-align:center;font-weight:600;background:var(--panel);border-color:var(--line-2)}
+  .pchoices{display:flex;gap:8px}
+  .pchoices button{flex:1;text-align:center;font-weight:600}
+  .pfb{margin-top:10px;font-size:13px;line-height:1.5}
+  .ptally{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:8px;text-align:right}
+  /* sign chart */
+  .signchart{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px}
+  .signchart th,.signchart td{border:1px solid var(--line);padding:9px 8px;text-align:center}
+  .signchart th{color:var(--muted);font-weight:500;background:var(--panel-2);font-family:var(--mono);font-size:12.5px}
+  .signchart td.lab{text-align:left;color:var(--muted);font-family:var(--mono);font-size:12px;background:var(--panel-2)}
+  .signchart .pos{color:#7fe0cc;font-weight:600} .signchart .neg{color:#f0a8f2;font-weight:600}
+  .signchart .su{color:#f0a8f2;font-weight:600} .signchart .sd{color:#f0c07a;font-weight:600}
+  .signchart .tp{color:var(--muted);font-style:italic}
+  /* concepts */
+  .concepts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+  @media(max-width:680px){.concepts{grid-template-columns:1fr}}
+  .concept{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;transition:transform .2s,box-shadow .2s}
+  .concept:hover{transform:translateY(-3px);box-shadow:0 16px 30px -20px rgba(43,41,37,.45)}
+  .concept h3{font-family:var(--display);font-size:16px;margin:0 0 6px}
+  .concept p{font-size:13.5px;margin:6px 0;color:var(--ink)}
+  .concept .m{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:8px;text-align:center}
+  .key{color:var(--approx);font-weight:600}
+  /* practice */
+  .prob{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:14px}
+  .prob-tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--approx);font-weight:600}
+  .prob-q{font-size:14.5px;line-height:1.65;margin:6px 0 12px}
+  .soltoggle{font-size:13px;padding:7px 14px}
+  .sol{display:none;margin-top:12px;border-top:1px solid var(--line);padding-top:6px}
+  .sol.show{display:block}
+  .why-step{display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .why-step:last-child{border-bottom:none}
+  .why-n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--bg);color:var(--muted);font-family:var(--mono);font-size:11px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .why-t{font-size:13px;line-height:1.5}
+  .why-m{margin-top:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:7px 10px;overflow-x:auto;text-align:center}
+  /* mistakes + tips */
+  .mistakes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  @media(max-width:680px){.mistakes{grid-template-columns:1fr}}
+  .mistake{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--div);border-radius:10px;padding:13px 16px}
+  .mistake h4{margin:0 0 4px;font-size:14px;font-family:var(--display)}
+  .mistake p{margin:0;font-size:13px;color:var(--muted);line-height:1.55}
+  .tipbox{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:14px 18px;max-width:820px}
+  .tipbox h4{margin:0 0 8px;font-size:14px;font-family:var(--display);color:var(--approx)}
+  .tipbox ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:var(--ink)}
+  .tipbox li{margin:5px 0}
+  /* quiz */
+  .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .qtag{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .qtext{font-size:15px;font-weight:600;margin-bottom:12px;line-height:1.5}
+  .quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:520px){.quiz-opts{grid-template-columns:1fr}}
+  .quiz-opts button{font-size:14px;padding:11px 14px;text-align:left}
+  .quiz-opts button.correct{background:rgba(63,208,176,.16);border-color:var(--conv);color:var(--conv)}
+  .quiz-opts button.wrong{background:rgba(224,100,79,.16);border-color:var(--div);color:var(--div)}
+  .quiz-opts button:disabled{cursor:default;opacity:.92}
+  .quiz-opts button:disabled:hover{transform:none;border-color:var(--line)}
+  .quiz-opts button.correct:disabled:hover{border-color:var(--conv)}
+  .quiz-opts button.wrong:disabled:hover{border-color:var(--div)}
+  .feedback{margin-top:14px;font-size:14px;min-height:24px;line-height:1.5}
+  .score{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .next{background:var(--approx);color:#fff;border-color:var(--approx);font-weight:600;text-align:center;box-shadow:0 8px 18px -10px var(--approx)}
+  .next:hover{filter:brightness(1.06);border-color:var(--approx)}
+  .whatsnext{max-width:720px;margin-top:18px;font-size:14px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+  .whatsnext a{color:var(--approx);text-decoration:none;font-weight:600}
+  .whatsnext a:hover{text-decoration:underline}
+  footer{color:var(--muted);font-size:12px;margin-top:44px;border-top:1px solid var(--line);padding-top:14px}
+  @keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .reveal{opacity:0;animation:riseIn .6s cubic-bezier(.2,.7,.2,1) forwards}
+  .tex-fallback{font-family:var(--mono);font-size:13px}
+  button:focus-visible, a:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:8px}
+  @media (prefers-reduced-motion:reduce){.reveal{animation:none;opacity:1}*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="unit4.html">← Unit 4 Guide</a>
+  <header class="reveal">
+    <h1>Straight-Line <span class="em">Motion</span></h1>
+    <div class="sub">One particle on a line, described by three functions one derivative apart. Position tells
+      you <i>where</i>; its derivative, velocity, tells you <i>how fast and which way</i>; and <i>its</i>
+      derivative, acceleration, tells you whether the motion is winding up or winding down.</div>
+  </header>
+
+  <div class="big-idea reveal">
+    Differentiate to <b>descend the chain</b>: position <span style="color:var(--ink)">x(t)</span> &rarr;
+    velocity <span style="color:var(--ink)">v(t) = x&prime;(t)</span> &rarr; acceleration
+    <span style="color:var(--ink)">a(t) = v&prime;(t)</span>. The <b>signs</b> carry the meaning &mdash; the sign
+    of v gives the direction, and comparing the signs of v and a tells you the one thing students always miss:
+    whether the particle is <b>speeding up or slowing down</b>.
+  </div>
+
+  <h2 class="reveal">The Motion Scrubber</h2>
+  <p class="lead reveal">Below is a particle on its line, and the three graphs that describe it. <b>Press play</b>
+    &mdash; or drag the time cursor. Watch the dot move, reverse, and race: velocity is the slope of position,
+    acceleration is the slope of velocity, and the badge reads out the direction and whether it's speeding up or
+    slowing down at every instant.</p>
+
+  <div class="card reveal">
+    <div class="exbody">
+      <div class="exviz">
+        <svg id="mPlot" viewBox="0 0 520 456" preserveAspectRatio="xMidYMid meet" style="touch-action:none;cursor:ew-resize">
+          <defs>
+            <radialGradient id="sphereG" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#f9c2f9"/><stop offset=".45" stop-color="#e884ea"/><stop offset="1" stop-color="#9d28a6"/></radialGradient>
+            <radialGradient id="glowG"><stop offset="0" stop-color="#e884ea" stop-opacity=".6"/><stop offset="1" stop-color="#e884ea" stop-opacity="0"/></radialGradient>
+          </defs>
+          <g id="mLayer"></g>
+        </svg>
+        <div class="plotcap">drag anywhere to scrub · watch the arrows — same direction means speeding up</div>
+      </div>
+      <div class="exctrl">
+        <div class="scen-btns" id="mScen"></div>
+        <div class="mctrls">
+          <button class="play" id="mPlay">▶ Play</button>
+          <input type="range" class="mscrub" id="mScrub" min="0" max="4" step="0.01" value="0.5">
+        </div>
+        <div class="mrow"><span class="k">time t</span><span class="val" id="mT">0.50 s</span></div>
+        <div class="mrow"><span class="k">position x(t)</span><span class="val" id="mX"></span></div>
+        <div class="mrow"><span class="k">velocity v(t)</span><span class="val" id="mV"></span></div>
+        <div class="mrow"><span class="k">acceleration a(t)</span><span class="val" id="mA"></span></div>
+        <div class="mrow"><span class="k">speed |v|</span><span class="val" id="mSpd"></span></div>
+        <div class="statusbadge rest" id="mStatus"><span class="dir">—</span><span id="mStatusSub"></span></div>
+        <div class="whybadge" id="mWhy"></div>
+        <div class="predict">
+          <button class="callbtn" id="pCall">🤔 Your call — jump to a mystery instant</button>
+          <div class="pchoices" id="pChoices" style="display:none">
+            <button id="pUp">Speeding up</button>
+            <button id="pDown">Slowing down</button>
+          </div>
+          <div class="pfb" id="pFb"></div>
+          <div class="ptally" id="pTally"></div>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><b style="background:#bf34c9"></b>velocity arrow (v)</span>
+      <span><b style="background:#e8a13c"></b>acceleration arrow (a)</span>
+      <span style="color:var(--muted)">arrows aligned → speeding up · opposed → slowing down</span>
+    </div>
+  </div>
+
+  <h2 class="reveal">Speeding up or slowing down?</h2>
+  <p class="lead reveal">Here's the rule the whole topic hinges on: a particle <b>speeds up when velocity and
+    acceleration share a sign</b>, and <b>slows down when their signs disagree</b>. A negative acceleration does
+    <i>not</i> mean "slowing" — it only slows the particle if the particle is moving in the positive direction.
+    The sign chart lays out every interval of our example, <span id="scEq"></span>.</p>
+  <div class="card reveal">
+    <table class="signchart" id="signChart"></table>
+    <p style="font-size:13px;color:var(--muted);margin:12px 0 0;line-height:1.6">Read it in columns: on
+      <b style="color:var(--ink)">(1, 2)</b> the particle moves <span class="neg">left</span> (v &lt; 0) with
+      <span class="neg">negative</span> acceleration — same sign, so it's <span class="su">speeding up</span>.
+      On <b style="color:var(--ink)">(2, 3)</b> acceleration flips positive while velocity is still negative —
+      opposite signs, so it's <span class="sd">slowing down</span> toward its turn at t = 3.</p>
+  </div>
+
+  <h2 class="reveal">The ideas everything else builds on</h2>
+  <div class="concepts reveal">
+    <div class="concept">
+      <h3>Descend the chain</h3>
+      <p>Velocity is the derivative of position; acceleration is the derivative of velocity — so
+        <span class="key">a = v&prime; = x&Prime;</span>. Each step down measures the rate of the one above.</p>
+      <div class="m" id="c1"></div>
+    </div>
+    <div class="concept">
+      <h3>Speed is |velocity|</h3>
+      <p>Velocity has a sign (direction); <span class="key">speed = |v|</span> never does. A velocity of
+        &minus;8 and +8 are opposite directions but the same speed.</p>
+      <div class="m" id="c2"></div>
+    </div>
+    <div class="concept">
+      <h3>Direction from the sign of v</h3>
+      <p><span class="key">v &gt; 0</span> moves in the positive direction, <span class="key">v &lt; 0</span> the
+        negative. Where v = 0 and changes sign, the particle is momentarily at rest and <b>turns around</b>.</p>
+      <div class="m" id="c3"></div>
+    </div>
+    <div class="concept">
+      <h3>Speeding up ⟺ same signs</h3>
+      <p>The particle speeds up exactly when <span class="key">v·a &gt; 0</span> (v and a agree) and slows when
+        v·a &lt; 0. Equivalently: speed grows when a points the same way as motion.</p>
+      <div class="m" id="c4"></div>
+    </div>
+  </div>
+
+  <h2 class="reveal">Distance vs. displacement</h2>
+  <p class="lead reveal">Because the particle backtracks, two "how far" questions have different answers.
+    <b>Displacement</b> is where it ended up minus where it started — direction counts, so backtracking cancels.
+    <b>Total distance</b> adds up every leg as a positive length — split the trip at each turn (v = 0) and sum
+    the pieces.</p>
+  <div class="card reveal" id="distCard"></div>
+
+  <h2 class="reveal">Your turn</h2>
+  <p class="lead reveal">Six problems on our particle <span id="prEq"></span>. Try each before revealing.</p>
+  <div class="reveal" id="practice"></div>
+
+  <h2 class="reveal">Quick quiz</h2>
+  <p class="lead reveal">Six fast checks. Pick an answer to see whether it's right and why — then work through all six.</p>
+  <div class="card reveal" id="quizCard">
+    <div class="row" style="margin-bottom:12px">
+      <div class="qtag" id="qProgress">Question 1 of 6</div>
+      <span class="score" id="qScore">Score: 0 / 0</span>
+    </div>
+    <div class="qtext" id="qText"></div>
+    <div class="quiz-opts" id="qOpts"></div>
+    <div class="feedback" id="qFb"></div>
+    <button class="next" id="qNext" style="margin-top:14px;width:100%;display:none">Next question →</button>
+  </div>
+
+  <h2 class="reveal">Common mistakes &amp; exam tips</h2>
+  <div class="mistakes reveal">
+    <div class="mistake"><h4>"Negative acceleration = slowing down"</h4><p>Only if velocity is positive. If v &lt; 0 and a &lt; 0, the particle is speeding up (moving negative, faster). Always compare the two signs.</p></div>
+    <div class="mistake"><h4>Confusing speed with velocity</h4><p>Speed is |v| and is never negative. "Speeding up" is about |v| growing, which is the v·a &gt; 0 test — not about the sign of v alone.</p></div>
+    <div class="mistake"><h4>Distance = displacement</h4><p>Only when the particle never turns around. If v changes sign, split at each turn and add the absolute legs for total distance; displacement is just end &minus; start.</p></div>
+    <div class="mistake"><h4>"At rest" means a = 0</h4><p>At rest means <i>v</i> = 0, not a = 0. At a turning point v = 0 but acceleration is usually nonzero — that's what pulls it back.</p></div>
+    <div class="mistake"><h4>Forgetting to check both v = 0 roots</h4><p>Velocity is often a quadratic with two zeros. Both can be turning points; test the sign of v on each interval before concluding direction.</p></div>
+    <div class="mistake"><h4>Reading position height as speed</h4><p>On the position graph, speed is the <i>steepness</i>, not the height. The particle can be far out (high x) yet momentarily still (slope 0).</p></div>
+  </div>
+  <div class="tipbox reveal">
+    <h4>On the AP exam</h4>
+    <ul>
+      <li>To decide speeding up / slowing down, find the signs of <b>both</b> v(t) and a(t) at that instant and compare — same sign is speeding up.</li>
+      <li>"At rest" &rArr; solve <b>v(t) = 0</b>. "Changes direction" &rArr; v(t) = 0 <i>and</i> v changes sign there.</li>
+      <li>Total distance on [a, b]: <span id="tipDist"></span> — or split at the turns and sum the absolute legs.</li>
+      <li>Velocity is the derivative of position and the antiderivative of acceleration — you'll move both directions on the chain in later units.</li>
+    </ul>
+  </div>
+
+  <div class="whatsnext reveal">
+    You can now read a particle's whole story off its position function — direction, speed, and whether it's
+    winding up or down. Next, two quantities change at once and their rates are chained together by a single
+    equation: continue to <a href="related-rates.html">Related Rates →</a>, or head back to the
+    <a href="unit4.html">Unit 4 Guide</a>.
+  </div>
+
+  <footer class="reveal">Straight-Line Motion · part of the Unit 4 guide · open in any browser, no install needed.</footer>
+</div>
+
+<script>
+const SVGNS="http://www.w3.org/2000/svg";
+const el=(t,a,txt)=>{const e=document.createElementNS(SVGNS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;};
+const T=(s)=>tex(s,s,false);
+const MAG="#bf34c9", ORCH="#e884ea", GOLD="#e8a13c", TEAL="#3fd0b0";
+
+/* ============ SIGNATURE: THE MOTION SCRUBBER ============ */
+const MW=520, ML=44, MR=16, plotW=MW-ML-MR, PI=Math.PI;
+const SCEN=[
+ { name:"Cubic wiggle", kind:"pod", unit:"m", dom:[0,4], vMax:9, aMax:12,
+   x:t=>t*t*t-6*t*t+9*t, v:t=>3*t*t-12*t+9, a:t=>6*t-12,
+   pos:[-0.7,4.7], xr:[-0.9,4.7], vr:[-4.5,10.5], ar:[-13.5,13.5] },
+ { name:"Braking car", kind:"car", unit:"m", dom:[0,5], vMax:20, aMax:6,
+   x:t=>20*t-2*t*t, v:t=>20-4*t, a:t=>-4,
+   pos:[-3,53], xr:[-3,54], vr:[-3,22], ar:[-9,9] },
+ { name:"Spring", kind:"spring", unit:"m", dom:[0,4], vMax:3*PI/2, aMax:3*PI*PI/4,
+   x:t=>3*Math.sin(PI*t/2), v:t=>(3*PI/2)*Math.cos(PI*t/2), a:t=>-(3*PI*PI/4)*Math.sin(PI*t/2),
+   pos:[-3.7,3.7], xr:[-3.7,3.7], vr:[-5.6,5.6], ar:[-8.6,8.6] },
+];
+let si=0, mt=0.5, mPlaying=false, mRAF=null, mLast=0, pMasked=false, pRight=0, pTotal=0;
+const mPlot=document.getElementById("mPlot");
+function S(){ return SCEN[si]; }
+const sxT=t=>ML+(t-S().dom[0])/(S().dom[1]-S().dom[0])*plotW;
+const ixT=px=>S().dom[0]+(px-ML)/plotW*(S().dom[1]-S().dom[0]);
+const posMap=p=>ML+(p-S().pos[0])/(S().pos[1]-S().pos[0])*plotW;
+const TRACK_Y=90, PAN_TOP=134, PAN_H=96, PAN_GAP=8;
+const PAN_NAME=["position   x(t)","velocity   v(t) = x′(t)","acceleration   a(t) = v′(t)"];
+function panTop(i){ return PAN_TOP+i*(PAN_H+PAN_GAP); }
+function panYR(i){ const s=S(); return [s.xr,s.vr,s.ar][i]; }
+function panF(i){ const s=S(); return [s.x,s.v,s.a][i]; }
+function syP(i,val){ const yr=panYR(i), top=panTop(i); return top+PAN_H-((val-yr[0])/(yr[1]-yr[0]))*PAN_H; }
+function harrow(L,x1,y,x2,color,w,lab){ if(Math.abs(x2-x1)<2) return; const dir=x2>x1?1:-1;
+  L.appendChild(el("line",{x1,y1:y,x2,y2:y,stroke:color,"stroke-width":w||3.4,"stroke-linecap":"round"}));
+  L.appendChild(el("path",{d:"M"+x2+" "+y+" l"+(-dir*7)+" -4.5 l0 9 z",fill:color}));
+  if(lab) L.appendChild(el("text",{x:x2+dir*9,y:y+4,fill:color,"font-size":11,"text-anchor":dir>0?"start":"end","font-family":"var(--mono)"},lab)); }
+/* ---- distinct models per scenario, drawn as clean line-art (same language as the gauge & gears) ---- */
+const OBJ_FILL="rgba(191,52,201,0.12)";
+function glowUnder(L,cx){ L.appendChild(el("ellipse",{cx,cy:TRACK_Y+3,rx:30,ry:8,fill:"url(#glowG)",opacity:.4})); }
+function objPod(L,cx){
+  glowUnder(L,cx);
+  L.appendChild(el("rect",{x:cx-25,y:TRACK_Y-13,width:50,height:24,rx:12,fill:OBJ_FILL,stroke:MAG,"stroke-width":2}));
+  L.appendChild(el("circle",{cx:cx+9,cy:TRACK_Y-1,r:4.2,fill:"none",stroke:MAG,"stroke-width":1.6,opacity:.85}));
+  L.appendChild(el("line",{x1:cx-15,y1:TRACK_Y-7,x2:cx-15,y2:TRACK_Y+5,stroke:MAG,"stroke-width":1.4,opacity:.5}));
+  L.appendChild(el("circle",{cx:cx-15,cy:TRACK_Y-1,r:2,fill:ORCH}));
+}
+function objCar(L,cx){
+  glowUnder(L,cx);
+  [cx-14,cx+14].forEach(wx=>{ L.appendChild(el("circle",{cx:wx,cy:TRACK_Y+2,r:6.5,fill:"#140a17",stroke:MAG,"stroke-width":2}));
+    L.appendChild(el("circle",{cx:wx,cy:TRACK_Y+2,r:1.8,fill:MAG,opacity:.8})); });
+  const b="M"+(cx-26)+" "+(TRACK_Y+2)+" L"+(cx-26)+" "+(TRACK_Y-6)+" Q"+(cx-26)+" "+(TRACK_Y-13)+" "+(cx-18)+" "+(TRACK_Y-14)+" L"+(cx-10)+" "+(TRACK_Y-15)+" Q"+(cx-6)+" "+(TRACK_Y-27)+" "+(cx+5)+" "+(TRACK_Y-27)+" L"+(cx+12)+" "+(TRACK_Y-26)+" Q"+(cx+21)+" "+(TRACK_Y-24)+" "+(cx+24)+" "+(TRACK_Y-13)+" L"+(cx+26)+" "+(TRACK_Y-6)+" L"+(cx+26)+" "+(TRACK_Y+2)+" Z";
+  L.appendChild(el("path",{d:b,fill:OBJ_FILL,stroke:MAG,"stroke-width":2,"stroke-linejoin":"round"}));
+  L.appendChild(el("path",{d:"M"+(cx-7)+" "+(TRACK_Y-15)+" Q"+(cx-3)+" "+(TRACK_Y-25)+" "+(cx+5)+" "+(TRACK_Y-25)+" L"+(cx+9)+" "+(TRACK_Y-15)+" Z",fill:"none",stroke:MAG,"stroke-width":1.4,opacity:.55}));
+  L.appendChild(el("circle",{cx:cx+25,cy:TRACK_Y-9,r:2,fill:"#ffe9a8"}));
+}
+function objSpring(L,cx){
+  L.appendChild(el("line",{x1:ML,y1:TRACK_Y-19,x2:ML,y2:TRACK_Y+15,stroke:"#5a5145","stroke-width":3,"stroke-linecap":"round"}));
+  const x0=ML+4, x1=cx-16, coils=15, span=Math.max(6,x1-x0), amp=7; let d="M"+x0+" "+TRACK_Y;
+  for(let i=1;i<coils;i++){ const xx=x0+(i/coils)*span, yy=TRACK_Y+((i%2)?-amp:amp); d+=" L"+xx.toFixed(1)+" "+yy; }
+  d+=" L"+x1.toFixed(1)+" "+TRACK_Y;
+  L.appendChild(el("path",{d,fill:"none",stroke:"#8f5aa0",opacity:.85,"stroke-width":1.8,"stroke-linejoin":"round"}));
+  glowUnder(L,cx);
+  L.appendChild(el("rect",{x:cx-15,y:TRACK_Y-15,width:30,height:30,rx:6,fill:OBJ_FILL,stroke:MAG,"stroke-width":2}));
+  L.appendChild(el("circle",{cx,cy:TRACK_Y,r:2.4,fill:ORCH}));
+}
+function drawObject(L,kind,cx){ if(kind==="car") objCar(L,cx); else if(kind==="spring") objSpring(L,cx); else objPod(L,cx); }
+function drawMotion(){
+  const s=S(), L=document.getElementById("mLayer"); L.innerHTML="";
+  L.appendChild(el("text",{x:ML,y:16,fill:"#8a7f78","font-size":11,"font-family":"var(--mono)"},"the object on its line — velocity (v) & acceleration (a): aligned means speeding up"));
+  L.appendChild(el("line",{x1:ML,y1:TRACK_Y,x2:MW-MR,y2:TRACK_Y,stroke:"#453f33","stroke-width":2.5,"stroke-linecap":"round"}));
+  const big=(s.pos[1]-s.pos[0])>20;
+  for(let p=Math.ceil(s.pos[0]);p<=Math.floor(s.pos[1]);p++){ if(big&&p%10!==0) continue; const px=posMap(p);
+    L.appendChild(el("line",{x1:px,y1:TRACK_Y-4,x2:px,y2:TRACK_Y+4,stroke:"#5a5145","stroke-width":1.3}));
+    L.appendChild(el("text",{x:px,y:TRACK_Y+18,fill:"#6b5f5a","font-size":9,"text-anchor":"middle","font-family":"var(--mono)"},p)); }
+  const cxp=posMap(s.x(mt)), cv=s.v(mt), ca=s.a(mt);
+  if(s.kind!=="spring"){ const tw=(s.dom[1]-s.dom[0])*0.14;
+    for(let k=4;k>=1;k--){ const tt=mt-(k/4)*tw; if(tt<s.dom[0]) continue;
+      L.appendChild(el("circle",{cx:posMap(s.x(tt)),cy:TRACK_Y,r:15*(1-k/6),fill:"url(#glowG)",opacity:0.32*(1-k/5.5)})); } }
+  drawObject(L,s.kind,cxp);
+  harrow(L,cxp,TRACK_Y-56,cxp+(cv/s.vMax)*46,MAG,3.4,"v");
+  harrow(L,cxp,TRACK_Y-40,cxp+(ca/s.aMax)*46,GOLD,3.2,"a");
+  /* ---- three panels ---- */
+  for(let i=0;i<3;i++){ const top=panTop(i), yr=panYR(i), f=panF(i);
+    L.appendChild(el("rect",{x:ML,y:top,width:plotW,height:PAN_H,fill:"#161019",stroke:"#241f2e",rx:6}));
+    L.appendChild(el("text",{x:ML+8,y:top+14,fill:"#9a9183","font-size":11,"font-family":"var(--mono)"},PAN_NAME[i]));
+    if(yr[0]<0&&yr[1]>0){ const zy=syP(i,0); L.appendChild(el("line",{x1:ML,y1:zy,x2:ML+plotW,y2:zy,stroke:"#3a3346","stroke-width":1,"stroke-dasharray":"2 3"})); }
+    let d=""; for(let k=0;k<=200;k++){ const t=s.dom[0]+(k/200)*(s.dom[1]-s.dom[0]), yy=Math.max(yr[0],Math.min(yr[1],f(t))); d+=(k?"L":"M")+sxT(t).toFixed(1)+" "+syP(i,yy).toFixed(1)+" "; }
+    L.appendChild(el("path",{d,fill:"none",stroke:MAG,"stroke-width":2.3,"stroke-linejoin":"round"}));
+    const cvv=Math.max(yr[0],Math.min(yr[1],f(mt)));
+    L.appendChild(el("circle",{cx:sxT(mt),cy:syP(i,cvv),r:4.5,fill:ORCH,stroke:"#1c1714","stroke-width":1.3})); }
+  L.appendChild(el("line",{x1:sxT(mt),y1:panTop(0)-4,x2:sxT(mt),y2:panTop(2)+PAN_H+4,stroke:ORCH,"stroke-width":1.2,"stroke-dasharray":"4 4",opacity:.65}));
+}
+function statusOf(){ const v=S().v(mt), a=S().a(mt), spd=Math.abs(v);
+  if(spd<0.12) return {cls:"rest",dir:"At rest",sub:"momentarily stopped — about to turn",why:"v = 0"};
+  const moving=v>0?"Moving right":"Moving left", prod=v*a;
+  if(Math.abs(a)<0.12) return {cls:prod>=0?"up":"down",dir:moving,sub:"at top speed (a = 0)",why:"a = 0 · speed steady for an instant"};
+  if(prod>0) return {cls:"up",dir:moving,sub:"— speeding up",why:"v and a have the SAME sign  →  v·a > 0"};
+  return {cls:"down",dir:moving,sub:"— slowing down",why:"v and a have OPPOSITE signs  →  v·a < 0"};
+}
+function updateReadout(){ const s=S(), x=s.x(mt), v=s.v(mt), a=s.a(mt);
+  document.getElementById("mT").textContent=mt.toFixed(2)+" s";
+  document.getElementById("mX").textContent=x.toFixed(2)+" "+s.unit;
+  document.getElementById("mV").textContent=(v>=0?"+":"")+v.toFixed(2)+" "+s.unit+"/s";
+  document.getElementById("mA").textContent=(a>=0?"+":"")+a.toFixed(2)+" "+s.unit+"/s²";
+  document.getElementById("mSpd").textContent=Math.abs(v).toFixed(2)+" "+s.unit+"/s";
+  const badge=document.getElementById("mStatus"), dir=badge.querySelector(".dir"), sub=document.getElementById("mStatusSub"), why=document.getElementById("mWhy");
+  badge.classList.remove("up","down","rest");
+  if(pMasked){ badge.classList.add("rest"); dir.textContent="?"; sub.textContent="your call — speeding up or slowing down?"; why.textContent=""; return; }
+  const st=statusOf(); badge.classList.add(st.cls); dir.textContent=st.dir; sub.textContent=st.sub; why.textContent=st.why;
+}
+function renderMotion(){ drawMotion(); updateReadout(); const sc=document.getElementById("mScrub"); sc.value=mt; }
+function stopPlay(){ mPlaying=false; document.getElementById("mPlay").textContent="▶ Play"; if(mRAF){cancelAnimationFrame(mRAF);mRAF=null;} }
+function clearPredict(){ pMasked=false; document.getElementById("pChoices").style.display="none"; document.getElementById("pCall").style.display="block"; }
+document.getElementById("mPlay").onclick=()=>{ if(mPlaying){ stopPlay(); return; }
+  clearPredict(); mPlaying=true; document.getElementById("mPlay").textContent="❚❚ Pause"; mLast=performance.now();
+  if(mt>=S().dom[1]-0.001) mt=S().dom[0];
+  const step=(now)=>{ if(!mPlaying) return; const dt=(now-mLast)/1000; mLast=now; mt+=dt*0.72;
+    if(mt>=S().dom[1]){ mt=S().dom[1]; renderMotion(); stopPlay(); return; } renderMotion(); mRAF=requestAnimationFrame(step); };
+  mRAF=requestAnimationFrame(step); };
+document.getElementById("mScrub").addEventListener("input",e=>{ stopPlay(); mt=parseFloat(e.target.value); renderMotion(); });
+(function(){ let drag=false;
+  const set=(e)=>{ const r=mPlot.getBoundingClientRect(), cx=(e.touches?e.touches[0].clientX:e.clientX);
+    const px=(cx-r.left)/r.width*MW; mt=Math.max(S().dom[0],Math.min(S().dom[1],ixT(px))); renderMotion(); };
+  mPlot.addEventListener("pointerdown",e=>{ stopPlay(); drag=true; set(e); e.preventDefault(); });
+  window.addEventListener("pointermove",e=>{ if(drag) set(e); });
+  window.addEventListener("pointerup",()=>drag=false);
+})();
+/* scenario switch */
+function renderScen(){ document.getElementById("mScen").innerHTML=SCEN.map((s,i)=>'<button data-i="'+i+'" class="'+(i===si?"on":"")+'">'+s.name+'</button>').join("");
+  document.querySelectorAll("#mScen button").forEach(b=>b.onclick=()=>{ stopPlay(); clearPredict(); si=+b.dataset.i;
+    const sc=document.getElementById("mScrub"); sc.min=S().dom[0]; sc.max=S().dom[1]; mt=S().dom[0]+(S().dom[1]-S().dom[0])*0.14;
+    renderScen(); renderMotion(); }); }
+/* predict-then-reveal */
+document.getElementById("pCall").onclick=()=>{ stopPlay(); const s=S(); let tries=0,tt;
+  do{ tt=s.dom[0]+Math.random()*(s.dom[1]-s.dom[0]); tries++; } while(tries<50 && (Math.abs(s.v(tt))<0.7 || Math.abs(s.a(tt))<0.7));
+  mt=tt; pMasked=true; renderMotion();
+  document.getElementById("pCall").style.display="none"; document.getElementById("pChoices").style.display="flex"; document.getElementById("pFb").innerHTML=""; };
+function guess(choice){ const st=statusOf(), correct=(st.cls===choice); pTotal++; if(correct) pRight++;
+  clearPredict(); renderMotion();
+  const v=S().v(mt), a=S().a(mt), same=v*a>0;
+  const reason="Here "+(v>0?"v > 0 (moving right)":"v < 0 (moving left)")+" and "+(a>0?"a > 0":"a < 0")+" — "+(same?"same sign, so speeding up.":"opposite signs, so slowing down.");
+  document.getElementById("pFb").innerHTML=(correct?'<span style="color:var(--conv);font-weight:600">✓ Right.</span> ':'<span style="color:var(--div);font-weight:600">✗ Not quite.</span> ')+'<span style="color:var(--muted)">'+reason+'</span>';
+  document.getElementById("pTally").textContent="You: "+pRight+" / "+pTotal; }
+document.getElementById("pUp").onclick=()=>guess("up");
+document.getElementById("pDown").onclick=()=>guess("down");
+
+/* ============ SIGN CHART ============ */
+function renderSignChart(){
+  const cols=[["(0, 1)","+","−","right","slowing"],["(1, 2)","−","−","left","speeding"],["(2, 3)","−","+","left","slowing"],["(3, 4)","+","+","right","speeding"]];
+  const cell=(s)=> s==="+"?'<span class="pos">+</span>':(s==="−"?'<span class="neg">−</span>':s);
+  let html='<tr><th class="lab">interval of t</th>'+cols.map(c=>'<th>'+c[0]+'</th>').join("")+'</tr>';
+  html+='<tr><td class="lab">sign of v (direction)</td>'+cols.map(c=>'<td>'+cell(c[1])+'</td>').join("")+'</tr>';
+  html+='<tr><td class="lab">sign of a</td>'+cols.map(c=>'<td>'+cell(c[2])+'</td>').join("")+'</tr>';
+  html+='<tr><td class="lab">moving…</td>'+cols.map(c=>'<td>'+c[3]+'</td>').join("")+'</tr>';
+  html+='<tr><td class="lab">speed is…</td>'+cols.map(c=>'<td class="'+(c[4]==="speeding"?"su":"sd")+'">'+c[4]+' '+(c[4]==="speeding"?"up":"down")+'</td>').join("")+'</tr>';
+  document.getElementById("signChart").innerHTML=html;
+}
+
+/* ============ DISTANCE vs DISPLACEMENT ============ */
+function renderDist(){
+  document.getElementById("distCard").innerHTML =
+    '<div style="font-size:14px;line-height:1.7">The particle turns at <b>t = 1</b> (x = 4) and <b>t = 3</b> '+
+    '(x = 0). Positions at the split points: '+T("x(0)=0,\\ x(1)=4,\\ x(3)=0,\\ x(4)=4")+'.'+
+    '<div class="why-step" style="border:none;margin-top:6px"><div class="why-n">D</div><div><div class="why-t"><b>Displacement</b> on [0, 4] = end − start:</div>'+
+    '<div class="why-m">'+T("x(4)-x(0)=4-0=4\\text{ m}")+'</div></div></div>'+
+    '<div class="why-step" style="border:none"><div class="why-n">T</div><div><div class="why-t"><b>Total distance</b> = sum of the absolute legs:</div>'+
+    '<div class="why-m">'+T("|4-0|+|0-4|+|4-0|=4+4+4=12\\text{ m}")+'</div></div></div>'+
+    '<span style="color:var(--muted);font-size:13px">Three times the displacement — because the middle two legs backtrack and cancel in the displacement, but all count as distance.</span></div>';
+}
+
+/* ============ static bits ============ */
+function renderBits(){
+  const s=(id,l)=>{const n=document.getElementById(id); if(n) n.innerHTML=T(l);};
+  s("scEq","x(t)=t^3-6t^2+9t");
+  s("prEq","x(t)=t^3-6t^2+9t\\text{ (metres, }t\\text{ in s, on }0\\le t\\le4)");
+  s("tipDist","\\displaystyle\\int_a^b |v(t)|\\,dt");
+  s("c1","a=\\dfrac{dv}{dt}=\\dfrac{d^2x}{dt^2}");
+  s("c2","\\text{speed}=|v(t)|");
+  s("c3","v>0\\Rightarrow{\\rightarrow},\\quad v<0\\Rightarrow{\\leftarrow}");
+  s("c4","v\\cdot a>0\\ \\Leftrightarrow\\ \\text{speeding up}");
+}
+
+/* ============ practice ============ */
+const PRAC=[
+ { tag:"At rest", q:()=>'When is the particle at rest on [0, 4]?',
+   sol:[{t:"At rest means v = 0. Factor the velocity:",m:"v(t)=3t^2-12t+9=3(t-1)(t-3)=0"},{t:"So it is at rest at:",m:"t=1\\text{ s and }t=3\\text{ s}"}] },
+ { tag:"Moving left", q:()=>'On what interval is the particle moving in the negative direction?',
+   sol:[{t:"Moving left means v < 0. Between the roots of 3(t−1)(t−3):",m:"1<t<3"}] },
+ { tag:"Speeding up?", q:()=>'At '+T("t=0.5")+', is the particle speeding up or slowing down?',
+   sol:[{t:"Find both signs:",m:"v(0.5)=3.75>0,\\quad a(0.5)=6(0.5)-12=-9<0"},{t:"Opposite signs (v·a < 0):",m:"\\text{slowing down}"}] },
+ { tag:"Total distance", q:()=>'Find the total distance traveled on [0, 4].',
+   sol:[{t:"Split at the turns t = 1, 3. Positions: x(0)=0, x(1)=4, x(3)=0, x(4)=4:",m:"|4-0|+|0-4|+|4-0|=12\\text{ m}"}] },
+ { tag:"Displacement", q:()=>'Find the displacement on [0, 4].',
+   sol:[{t:"Displacement is end minus start:",m:"x(4)-x(0)=4-0=4\\text{ m}"}] },
+ { tag:"Speeding-up set", q:()=>'On which intervals is the particle speeding up?',
+   sol:[{t:"Speeding up where v·a > 0. Signs: v>0 on (0,1)∪(3,4), a>0 on (2,4). Agreeing intervals:",m:"(1,2)\\ \\cup\\ (3,4)"}] }
+];
+function renderPractice(){
+  document.getElementById("practice").innerHTML=PRAC.map((p,i)=>{
+    const steps=p.sol.map((st,j)=>'<div class="why-step"><div class="why-n">'+(j+1)+'</div><div><div class="why-t">'+st.t+'</div>'+(st.m?'<div class="why-m">'+T(st.m)+'</div>':'')+'</div></div>').join("");
+    return '<div class="prob"><div class="prob-tag">'+p.tag+'</div><div class="prob-q">'+p.q()+'</div>'
+      +'<button class="soltoggle" data-i="'+i+'">Show solution</button><div class="sol" id="sol'+i+'">'+steps+'</div></div>';
+  }).join("");
+  document.querySelectorAll(".soltoggle").forEach(btn=>{ btn.onclick=()=>{ const i=btn.getAttribute("data-i"), s=document.getElementById("sol"+i);
+    btn.textContent=s.classList.toggle("show")?"Hide solution":"Show solution"; }; });
+}
+
+/* ============ quiz ============ */
+const QUIZ=[
+ { q:()=>'The speed of a particle is:',
+   opts:[{h:()=>T("|v(t)|"),ok:true},{h:()=>T("v(t)"),ok:false},{h:()=>T("a(t)"),ok:false},{h:()=>T("x(t)"),ok:false}],
+   fb:"Speed is the magnitude of velocity, |v(t)| — always ≥ 0. Velocity carries the direction; speed doesn't." },
+ { q:()=>'A particle is speeding up exactly when:',
+   opts:[{h:()=>"v and a have the same sign",ok:true},{h:()=>"a < 0",ok:false},{h:()=>"v > 0",ok:false},{h:()=>"a > 0",ok:false}],
+   fb:"Speeding up ⟺ v·a > 0. The sign of a alone tells you nothing without the sign of v." },
+ { q:()=>'If '+T("v(t)>0")+' and '+T("a(t)<0")+', the particle is:',
+   opts:[{h:()=>"moving right, slowing down",ok:true},{h:()=>"moving right, speeding up",ok:false},{h:()=>"moving left, slowing down",ok:false},{h:()=>"at rest",ok:false}],
+   fb:"v > 0 is rightward; opposite signs (v·a < 0) means slowing down." },
+ { q:()=>'The particle is at rest when:',
+   opts:[{h:()=>T("v(t)=0"),ok:true},{h:()=>T("a(t)=0"),ok:false},{h:()=>T("x(t)=0"),ok:false},{h:()=>T("v(t)=a(t)"),ok:false}],
+   fb:"At rest means velocity is zero. a = 0 is a top-speed instant, and x = 0 is just a position." },
+ { q:()=>'True or false: negative acceleration always means the particle is slowing down.',
+   opts:[{h:()=>"False — only if it's moving in the + direction",ok:true},{h:()=>"True",ok:false},{h:()=>"False — it means moving left",ok:false},{h:()=>"True, if v ≠ 0",ok:false}],
+   fb:"If v < 0 and a < 0, the particle speeds up (moving negative, faster). Negative a slows it only when v > 0." },
+ { q:()=>'On a velocity graph, v crosses zero going + to −. At that instant the particle:',
+   opts:[{h:()=>"is momentarily at rest and reverses direction",ok:true},{h:()=>"is at its starting position",ok:false},{h:()=>"has zero acceleration",ok:false},{h:()=>"is moving fastest",ok:false}],
+   fb:"A sign change in v means the particle stops (v = 0) and turns around — from the + direction to the − direction." }
+];
+let qi=0,qScore=0,qDone=0,qAnswered=false;
+const qOpts=document.getElementById("qOpts"),qFb=document.getElementById("qFb"),qNext=document.getElementById("qNext");
+function renderQuiz(){ qAnswered=false; const item=QUIZ[qi];
+  document.getElementById("qText").innerHTML=item.q();
+  document.getElementById("qProgress").textContent="Question "+(qi+1)+" of "+QUIZ.length;
+  document.getElementById("qScore").textContent="Score: "+qScore+" / "+qDone;
+  qFb.innerHTML=""; qNext.style.display="none";
+  qNext.textContent = qi<QUIZ.length-1 ? "Next question →" : "Restart quiz ↺";
+  qOpts.innerHTML="";
+  item.opts.forEach(o=>{ const b=document.createElement("button"); b.innerHTML=o.h();
+    b.onclick=()=>{ if(qAnswered)return; qAnswered=true; qDone++;
+      [...qOpts.children].forEach((bb,k)=>{ bb.disabled=true; if(item.opts[k].ok) bb.classList.add("correct"); });
+      if(o.ok){ qScore++; b.classList.add("correct"); qFb.innerHTML='<span style="color:var(--conv);font-weight:600">✓ Correct.</span> <span style="color:var(--muted)">'+item.fb+'</span>'; }
+      else { b.classList.add("wrong"); qFb.innerHTML='<span style="color:var(--div);font-weight:600">✗ Not quite.</span> <span style="color:var(--muted)">'+item.fb+'</span>'; }
+      document.getElementById("qScore").textContent="Score: "+qScore+" / "+qDone; qNext.style.display="block";
+    };
+    qOpts.appendChild(b); });
+}
+qNext.onclick=()=>{ if(qi<QUIZ.length-1){ qi++; } else { qi=0; qScore=0; qDone=0; } renderQuiz(); };
+
+/* ============ init ============ */
+function boot(){ renderScen(); renderMotion(); renderSignChart(); renderDist(); renderBits(); renderPractice(); renderQuiz(); }
+boot();
+if(!window.katex){ let tries=0; const t=setInterval(()=>{ if(window.katex){ clearInterval(t); renderDist(); renderBits(); renderPractice(); renderQuiz(); }
+  else if(++tries>40) clearInterval(t); },150); }
+document.querySelectorAll('.reveal').forEach((n,i)=>{ n.style.animationDelay=Math.min(i*28,440)+'ms'; });
+</script>
+</body>
+</html>

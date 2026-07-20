@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Exam Practice — Mixed Review &amp; FRQ · Unit 4</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%23140a17%22/%3E%3Ctext%20x%3D%2216%22%20y%3D%2223%22%20font-size%3D%2222%22%20text-anchor%3D%22middle%22%20font-family%3D%22Georgia%2Cserif%22%20font-weight%3D%22700%22%20fill%3D%22%23bf34c9%22%3E%26%23931%3B%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="styles.css">
+<script src="helpers.js"></script>
+<style>
+  :root{ --approx:#bf34c9; --emerald:#bf34c9; --cyan:#bf34c9; --true:#3fd0b0; --glow:rgba(191,52,201,.08); --wrap-max:820px; }
+  .sub{color:var(--muted);font-size:15px;margin-top:8px;max-width:680px}
+  h2{font-family:var(--display);font-weight:600;font-size:21px;margin:40px 0 8px;letter-spacing:-0.01em}
+  p.lead{font-size:15.5px;max-width:720px;margin:8px 0}
+  .big-idea{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-top:18px} .big-idea b{color:var(--approx)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -26px rgba(0,0,0,.7);margin-top:14px}
+  .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .score{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  button{font-family:var(--body);cursor:pointer;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);padding:10px 13px;font-size:14px;text-align:left;transition:transform .14s,border-color .14s,background .14s}
+  button:hover{border-color:var(--emerald);transform:translateY(-1px)} button:active{transform:translateY(0) scale(.99)} button:disabled{cursor:default}
+  .qtag{display:inline-flex;gap:8px;align-items:center;font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:3px 10px;margin-bottom:10px;background:var(--panel-2)}
+  .qtag .calc{font-size:10px;letter-spacing:.03em;padding-left:8px;border-left:1px solid var(--line-2);color:var(--muted)}
+  .qtag .calc.no{color:#c98a8a} .qtag .calc.yes{color:#7fb0d8}
+  .qprompt{font-size:15.5px;font-weight:500;margin:6px 0 4px;line-height:1.5}
+  .qmath{font-family:var(--mono);font-size:16px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:14px;text-align:center;margin:12px 0;overflow-x:auto} .qmath .katex{font-size:1.06em}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+  @media(max-width:560px){.opts{grid-template-columns:1fr}}
+  .opts button{text-align:center;font-size:14.5px;padding:11px}
+  .opts button.correct{background:rgba(63,208,176,.16);border-color:var(--conv);color:var(--conv);font-weight:600}
+  .opts button.wrong{background:rgba(224,100,79,.16);border-color:var(--div);color:var(--div)}
+  .fb{font-size:13.5px;line-height:1.55;margin-top:12px;background:var(--bg);border-radius:9px;padding:11px 13px;display:none} .fb.show{display:block} .fb .ftag{font-weight:600}
+  .fb .ftag.ok{color:var(--conv)} .fb .ftag.bad{color:var(--div)}
+  .next{background:var(--approx);color:#fff;border-color:var(--approx);font-weight:600;text-align:center;width:100%;box-shadow:0 8px 18px -10px var(--approx);margin-top:16px;display:none} .next.show{display:block}
+  .review-link{display:inline-block;margin-top:8px;font-size:12.5px;font-family:var(--mono);color:var(--emerald);text-decoration:none} .review-link:hover{text-decoration:underline}
+  /* FRQ */
+  .frq-given{background:var(--panel-2);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:12px 0}
+  .frq-given .katex{font-size:1.05em} .frq-given .gl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .frq-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .frq-tabs button{font-size:13px;padding:9px 13px;text-align:center;border-radius:9px}
+  .frq-tabs button.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+  .frq-desc{font-size:13px;color:var(--muted);background:var(--bg);border-radius:9px;padding:9px 13px;margin-bottom:6px} .frq-desc b{color:var(--approx)}
+  .frq-table{width:100%;border-collapse:collapse;margin:6px 0 2px;font-family:var(--mono);font-size:13.5px}
+  .frq-table th,.frq-table td{border:1px solid var(--line);padding:7px 10px;text-align:center;color:var(--ink)} .frq-table th{color:var(--muted);font-weight:500}
+  .part{border-top:1px solid var(--line);padding:16px 0 4px} .part:first-child{border-top:none}
+  .part-h{display:flex;justify-content:space-between;align-items:center;gap:10px} .part-l{font-weight:600;font-size:14.5px;color:var(--ink)} .part-pts{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .part-q{font-size:14.5px;line-height:1.55;margin:8px 0 4px}
+  .frq-fields{display:flex;flex-direction:column;gap:10px;margin:4px 0 12px}
+  .frq-field{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .frq-flabel{font-size:14px;min-width:54px;color:var(--ink)} .frq-flabel .katex{font-size:1em}
+  .frq-input{font-family:var(--mono);font-size:14px;padding:8px 11px;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);color:var(--ink);min-width:140px}
+  .frq-input:focus{outline:none;border-color:var(--emerald)} .frq-input.ok{border-color:var(--conv);background:rgba(63,208,176,.16)} .frq-input.no{border-color:var(--div);background:rgba(224,100,79,.16)}
+  .frq-check{background:var(--ink);color:var(--panel);border-color:var(--ink);font-size:13px;padding:8px 14px} .frq-check:hover{background:#d8d2c6} .frq-check:disabled{opacity:.5}
+  .frq-sol{display:none;margin-top:10px;font-size:13.5px;line-height:1.6;background:var(--bg);border-left:2px solid var(--emerald);border-radius:0 9px 9px 0;padding:11px 14px} .frq-sol.show{display:block}
+  .frq-sol .stepm{font-family:var(--mono);background:var(--panel-2);border:1px solid var(--line);border-radius:7px;padding:7px 10px;margin:7px 0;overflow-x:auto;font-size:13px}
+  .rubric{margin-top:10px} .rubric-h{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .rubric label{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--ink);padding:5px 0;cursor:pointer} .rubric input{margin-top:3px;accent-color:var(--emerald)}
+  .reveal-sol{font-family:var(--mono);font-size:12.5px;color:var(--emerald);background:none;border:1px dashed var(--line-2);width:100%;text-align:center;margin-top:8px}
+  .scoreline{font-family:var(--mono);font-size:14px;color:var(--ink);background:var(--panel-2);border-radius:9px;padding:12px 14px;margin-top:14px;text-align:center} .scoreline b{color:var(--emerald)}
+  .weakrow{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13.5px}
+  .weakbar{flex:1;height:8px;background:var(--panel-2);border-radius:5px;overflow:hidden} .weakbar i{display:block;height:100%;background:var(--emerald);border-radius:5px}
+  .weaklabel{min-width:160px;color:var(--ink)} .weakpct{font-family:var(--mono);font-size:12px;color:var(--muted);min-width:48px;text-align:right}
+  @keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .reveal{opacity:0;animation:riseIn .6s cubic-bezier(.2,.7,.2,1) forwards}
+  @media (prefers-reduced-motion:reduce){.reveal{animation:none;opacity:1}*{transition:none!important}}
+  footer{color:var(--muted);font-size:12px;margin-top:50px;border-top:1px solid var(--line);padding-top:14px}
+  .tex-fallback{font-family:var(--mono);font-size:13px;color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="unit4.html">← Unit 4</a>
+  <header class="reveal">
+    <h1>Exam <span class="em">Practice</span></h1>
+    <div class="sub">Mixed multiple choice across all of Unit 4 — interpreting rates in context, straight-line motion,
+      related rates, linear approximation, and L&rsquo;H&ocirc;pital&rsquo;s rule — plus a free-response trainer built on
+      real AP question shapes. Every answer is worked and verified, and every wrong option is a mistake worth knowing.</div>
+  </header>
+
+  <div class="big-idea reveal">
+    <b>How to use this.</b> The multiple choice pulls a fresh batch of 12 from a bank of 50, mixing every topic and both
+    exam sections — each question is tagged <b>calculator</b> or <b>no calculator</b>, the way the real test splits them.
+    Answer, read the worked explanation, and your weak spots surface at the bottom. Then train the free-response
+    format — one scenario, several chained parts — exactly how Section II works.
+  </div>
+
+  <h2 class="reveal">Mixed multiple choice</h2>
+  <div class="card reveal" id="mcCard">
+    <div class="row">
+      <span class="score" id="mcProgress">Question 1 of 12</span>
+      <span class="score" id="mcScore">Score: 0</span>
+    </div>
+    <div class="qtag" id="mcTag"></div>
+    <div class="qprompt" id="mcPrompt"></div>
+    <div class="qmath" id="mcMath"></div>
+    <div class="opts" id="mcOpts"></div>
+    <div class="fb" id="mcFb"></div>
+    <button class="next" id="mcNext">Next question →</button>
+    <div id="mcDone" style="display:none"></div>
+  </div>
+
+  <h2 class="reveal">Free-response trainer <span style="font-family:var(--mono);font-size:13px;color:var(--approx);font-weight:400">· Section II style</span></h2>
+  <p class="lead reveal">One scenario, several chained parts — exactly how the real FRQ works. Pick a problem below; type
+    what you can, then check the worked solution and score your reasoning against the rubric.</p>
+  <div class="frq-tabs reveal" id="frqTabs"></div>
+  <div class="card reveal" id="frqCard">
+    <div class="frq-desc" id="frqDesc"></div>
+    <div class="frq-given">
+      <div class="gl">Given</div>
+      <div id="frqGiven"></div>
+      <div id="frqGivenNote" style="font-size:12.5px;color:var(--muted);margin-top:8px"></div>
+      <div id="frqGivenExtra"></div>
+    </div>
+    <div id="frqParts"></div>
+    <div class="scoreline" id="frqScore" style="display:none"></div>
+  </div>
+
+  <h2 class="reveal">Where you stand</h2>
+  <div class="card reveal" id="weakCard">
+    <div id="weakBody" style="font-size:14px;color:var(--muted)">Finish some multiple-choice questions and your topic breakdown shows up here.</div>
+  </div>
+
+  <footer class="reveal">Exam Practice · Unit 4 · part of the Visual AP Calculus guide · open in any browser, no install needed.</footer>
+</div>
+
+<script>
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+const TOPICS={
+  rates:["Rates in context","rates-in-context.html"],
+  motion:["Straight-line motion","straight-line-motion.html"],
+  related:["Related rates","related-rates.html"],
+  linear:["Linear approximation","linear-approximation.html"],
+  lhopital:["L'Hôpital's rule","lhopitals-rule.html"]
+};
+
+// ===================== MC BANK (50, all verified in Node) =====================
+const MC=[
+ // ============ RATES IN CONTEXT (10) ============
+ {topic:"rates",calc:false,prompt:"Water drains from a tank so that the volume remaining is \\(V(t)\\) liters after \\(t\\) minutes. If \\(V'(10)=-3\\), what is the best interpretation?",
+  opts:[{t:"At \\(t=10\\) min, the volume is decreasing at a rate of \\(3\\) liters per minute",correct:true},{t:"At \\(t=10\\) min, there are \\(3\\) liters left in the tank"},{t:"Over the first \\(10\\) minutes, \\(3\\) liters drained out"},{t:"At \\(t=10\\) min, the volume is decreasing by \\(3\\) liters per minute per minute"}],
+  explain:`<b>A derivative is an instantaneous rate, carrying the units "output per input."</b> Here output is liters, input is minutes, so \\(V'(10)=-3\\) means the volume is changing at \\(-3\\) liters/minute <i>at the instant</i> \\(t=10\\) — decreasing at \\(3\\) L/min.<br><br><b>Why each distractor is a specific mistake:</b><br>• "\\(3\\) liters left" confuses the <i>rate</i> \\(V'\\) with the <i>amount</i> \\(V\\).<br>• "\\(3\\) liters over 10 minutes" reports an average change, not the instantaneous rate at a single instant.<br>• "per minute per minute" gives \\(V''\\) units (acceleration of volume), not \\(V'\\).<br><br><b>The principle:</b> read the units off the derivative — first derivative is output-per-input at an instant; the sign tells increasing vs decreasing.`},
+ {topic:"rates",calc:false,prompt:"A population is modeled by \\(P(t)\\), measured in thousands of people, where \\(t\\) is in years. What are the units of \\(P'(t)\\)?",
+  opts:[{t:"Thousands of people per year",correct:true},{t:"Thousands of people"},{t:"Years per thousand people"},{t:"Thousands of people per year per year"}],
+  explain:`<b>The derivative's units are always (units of output) / (units of input).</b> Output is thousands of people, input is years, so \\(P'(t)\\) is in <b>thousands of people per year</b>.<br><br><b>Why each distractor is a specific mistake:</b><br>• "Thousands of people" are the units of \\(P\\) itself, not its rate of change.<br>• "Years per thousand people" inverts the ratio.<br>• "per year per year" is the units of \\(P''\\).<br><br><b>The principle:</b> differentiating divides output units by input units — once.`},
+ {topic:"rates",calc:false,prompt:"A function \\(f\\) satisfies \\(f(2)=5\\) and \\(f(6)=17\\). What is the average rate of change of \\(f\\) on the interval \\([2,6]\\)?",
+  opts:[{t:"3",correct:true},{t:"12"},{t:"22"},{t:"6"}],
+  explain:`<b>Average rate of change is the slope of the secant line:</b> \\(\\dfrac{f(6)-f(2)}{6-2}=\\dfrac{17-5}{4}=\\dfrac{12}{4}=3\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>12</b> is just \\(f(6)-f(2)\\) — the change in output, without dividing by the change in input.<br>• <b>22</b> adds the outputs \\(5+17\\).<br>• <b>6</b> divides by the wrong thing or uses \\(f(6)/... \\).<br><br><b>The principle:</b> average rate of change is a difference quotient — rise over run — never just the rise.`},
+ {topic:"rates",calc:false,prompt:"At time \\(t=3\\), a quantity \\(H(t)\\) has \\(H'(3)>0\\) and \\(H''(3)<0\\). Which statement is true at \\(t=3\\)?",
+  opts:[{t:"\\(H\\) is increasing, but at a decreasing rate",correct:true},{t:"\\(H\\) is increasing, and at an increasing rate"},{t:"\\(H\\) is decreasing, but slowing its decrease"},{t:"\\(H\\) has a local maximum"}],
+  explain:`<b>The first derivative controls direction; the second controls how the rate itself changes.</b> \\(H'(3)>0\\) means \\(H\\) is increasing. \\(H''(3)<0\\) means \\(H'\\) is decreasing, so the increase is slowing — <b>increasing at a decreasing rate</b>.<br><br><b>Why each distractor is a specific mistake:</b><br>• "increasing at an increasing rate" would need \\(H''>0\\).<br>• "decreasing" contradicts \\(H'>0\\).<br>• A local max needs \\(H'=0\\), not \\(H'>0\\).<br><br><b>The principle:</b> "increasing at a decreasing rate" = \\(H'>0\\) with \\(H''<0\\) — direction from \\(H'\\), curvature of the story from \\(H''\\).`},
+ {topic:"rates",calc:false,prompt:"A pebble is dropped and its height is \\(h(t)=100-4.9t^{2}\\) meters after \\(t\\) seconds. What is the velocity of the pebble at \\(t=2\\)?",
+  opts:[{t:"-19.6\\text{ m/s}",correct:true},{t:"19.6\\text{ m/s}"},{t:"-9.8\\text{ m/s}"},{t:"80.4\\text{ m/s}"}],
+  explain:`<b>Velocity is the derivative of position.</b> \\(h'(t)=-9.8t\\), so \\(h'(2)=-9.8(2)=-19.6\\) m/s. The negative sign means the pebble is moving downward.<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>\\(19.6\\)</b> drops the sign — that's the <i>speed</i>, but the question asks for velocity, which is signed.<br>• <b>\\(-9.8\\)</b> is the coefficient / the acceleration \\(h''(t)\\), not the velocity at \\(t=2\\).<br>• <b>\\(80.4\\)</b> is \\(h(2)=100-19.6\\), the <i>height</i>, not the rate.<br><br><b>The principle:</b> velocity = \\(h'\\) with its sign; height is \\(h\\); acceleration is \\(h''\\).`},
+ {topic:"rates",calc:false,prompt:"The table gives values of a differentiable function \\(g\\). Using the table, which is the best estimate of \\(g'(4)\\)?",
+  math:"\\begin{array}{c|cccc} x & 2 & 4 & 6 \\\\ \\hline g(x) & 10 & 18 & 30 \\end{array}",
+  opts:[{t:"5",correct:true},{t:"8"},{t:"4"},{t:"6"}],
+  explain:`<b>With a value on each side, the symmetric difference gives the best estimate:</b> \\(g'(4)\\approx\\dfrac{g(6)-g(2)}{6-2}=\\dfrac{30-10}{4}=5\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>8</b> is a one-sided slope on \\([2,4]\\): \\(\\dfrac{18-10}{2}\\).<br>• <b>6</b> is the one-sided slope on \\([4,6]\\): \\(\\dfrac{30-18}{2}\\).<br>• <b>4</b> divides \\(g(6)-g(2)=20\\) by \\(5\\) instead of \\(4\\).<br><br><b>The principle:</b> when the point has data on both sides, the symmetric (centered) difference quotient over the widest balanced interval is the most accurate estimate of the derivative.`},
+ {topic:"rates",calc:false,prompt:"A company's profit is \\(P(x)\\) dollars when \\(x\\) units are made. At \\(x=50\\), \\(P'(50)=0\\) and \\(P''(50)<0\\). What does this say?",
+  opts:[{t:"Profit is (locally) maximized at \\(x=50\\) units",correct:true},{t:"Profit is (locally) minimized at \\(x=50\\) units"},{t:"Profit is zero at \\(x=50\\) units"},{t:"Profit is increasing at \\(x=50\\) units"}],
+  explain:`<b>\\(P'=0\\) marks a critical point; the sign of \\(P''\\) classifies it (second-derivative test).</b> \\(P''(50)<0\\) means concave down, so \\(x=50\\) is a <b>local maximum</b> of profit.<br><br><b>Why each distractor is a specific mistake:</b><br>• A local <i>minimum</i> would require \\(P''>0\\).<br>• "Profit is zero" confuses \\(P'=0\\) (rate is zero) with \\(P=0\\) (amount is zero).<br>• "Increasing" contradicts \\(P'=0\\); at that instant the profit is momentarily not changing.<br><br><b>The principle:</b> \\(P'=0\\) with \\(P''<0\\) ⇒ local max; \\(P'=0\\) with \\(P''>0\\) ⇒ local min. Rate zero ≠ value zero.`},
+ {topic:"rates",calc:true,prompt:"The temperature of a cooling cup of coffee is \\(T(t)=70+120e^{-0.05t}\\) degrees Fahrenheit after \\(t\\) minutes. At what rate is the temperature changing at \\(t=10\\) minutes?",
+  opts:[{t:"-3.639\\text{ °F/min}",correct:true},{t:"-6.000\\text{ °F/min}"},{t:"142.78\\text{ °F/min}"},{t:"3.639\\text{ °F/min}"}],
+  explain:`<b>Differentiate and evaluate.</b> \\(T'(t)=120\\cdot(-0.05)e^{-0.05t}=-6e^{-0.05t}\\). At \\(t=10\\): \\(T'(10)=-6e^{-0.5}\\approx-6(0.6065)=-3.639\\) °F/min.<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>\\(-6\\)</b> forgets the \\(e^{-0.05t}\\) factor — that's the coefficient, i.e. \\(T'(0)\\).<br>• <b>\\(142.78\\)</b> is \\(T(10)\\), the temperature, not its rate.<br>• <b>\\(+3.639\\)</b> drops the sign — the coffee is cooling, so the rate is negative.<br><br><b>The principle:</b> a rate "at a time" is \\(T'\\) evaluated there — differentiate first (chain rule included), then plug in, and keep the sign.`},
+ {topic:"rates",calc:false,prompt:"Grain is added to a silo so that after \\(t\\) hours the amount is \\(A(t)\\) tons, with \\(A'(t)>0\\) and \\(A''(t)>0\\). Which describes the silo?",
+  opts:[{t:"The amount of grain is increasing at an increasing rate",correct:true},{t:"The amount of grain is increasing at a decreasing rate"},{t:"The amount of grain is decreasing"},{t:"The amount of grain is constant"}],
+  explain:`<b>\\(A'>0\\) ⇒ increasing; \\(A''>0\\) ⇒ the rate itself is increasing.</b> So grain is piling up faster and faster — <b>increasing at an increasing rate</b>.<br><br><b>Why each distractor is a specific mistake:</b><br>• "increasing at a decreasing rate" needs \\(A''<0\\).<br>• "decreasing" contradicts \\(A'>0\\).<br>• "constant" needs \\(A'=0\\).<br><br><b>The principle:</b> both derivatives positive means the quantity and its speed are both growing — the classic "accelerating growth."`},
+ {topic:"rates",calc:false,prompt:"\\(R(t)\\) is the rate (in gallons per hour) at which water flows into a reservoir at time \\(t\\) hours. What does \\(R'(5)=2\\) mean?",
+  opts:[{t:"At \\(t=5\\) hr, the flow rate is increasing by \\(2\\) gallons per hour, per hour",correct:true},{t:"At \\(t=5\\) hr, water is flowing in at \\(2\\) gallons per hour"},{t:"In \\(5\\) hours, \\(2\\) gallons have flowed in"},{t:"At \\(t=5\\) hr, there are \\(2\\) gallons in the reservoir"}],
+  explain:`<b>\\(R\\) is already a rate (gal/hr); its derivative \\(R'\\) is the rate at which that rate changes.</b> So \\(R'(5)=2\\) means the inflow rate is <i>increasing</i> at \\(2\\) gallons per hour, per hour (gal/hr²).<br><br><b>Why each distractor is a specific mistake:</b><br>• "flowing in at \\(2\\) gal/hr" is \\(R(5)\\), the rate itself — not its derivative.<br>• "\\(2\\) gallons in 5 hours" and "\\(2\\) gallons in the reservoir" both describe amounts of water (\\(\\int R\\,dt\\)), not \\(R'\\).<br><br><b>The principle:</b> when the quantity is <i>already</i> a rate, its derivative measures how fast that rate is changing — the units gain a second "per hour."`},
+
+ // ============ STRAIGHT-LINE MOTION (10) ============
+ {topic:"motion",calc:false,prompt:"A particle moves along a line with position \\(x(t)=t^{3}-6t^{2}+9t\\). At which time(s) is the particle at rest?",
+  opts:[{t:"t=1\\text{ and }t=3",correct:true},{t:"t=0\\text{ and }t=3"},{t:"t=2"},{t:"t=1\\text{ and }t=2"}],
+  explain:`<b>"At rest" means velocity is zero.</b> \\(v(t)=x'(t)=3t^2-12t+9=3(t^2-4t+3)=3(t-1)(t-3)\\). So \\(v=0\\) at \\(t=1\\) and \\(t=3\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>\\(t=0,3\\)</b> mis-factors, or reads a root of \\(x(t)\\) instead of \\(v(t)\\).<br>• <b>\\(t=2\\)</b> is where the <i>acceleration</i> \\(a=6t-12\\) is zero, not the velocity.<br>• <b>\\(t=1,2\\)</b> mixes a velocity root with an acceleration root.<br><br><b>The principle:</b> at rest ⇔ \\(v(t)=0\\); differentiate position first, then solve.`},
+ {topic:"motion",calc:false,prompt:"For the particle with \\(x(t)=t^{3}-6t^{2}+9t\\), is the particle speeding up or slowing down at \\(t=2.5\\)?",
+  opts:[{t:"Slowing down",correct:true},{t:"Speeding up"},{t:"Neither — it is at rest"},{t:"Moving at constant speed"}],
+  explain:`<b>Speeding up ⇔ velocity and acceleration have the same sign; slowing down ⇔ opposite signs.</b><br>\\(v(t)=3(t-1)(t-3)\\): at \\(t=2.5\\), \\(v=3(1.5)(-0.5)=-2.25<0\\). \\(a(t)=6t-12\\): \\(a(2.5)=3>0\\). Opposite signs ⇒ <b>slowing down</b>.<br><br><b>Why each distractor is a specific mistake:</b><br>• "Speeding up" would need \\(v\\) and \\(a\\) with matching signs.<br>• "At rest" is false: \\(v(2.5)\\neq0\\).<br>• "Constant speed" needs \\(a=0\\) (or \\(|v|\\) not changing), but \\(a(2.5)=3\\).<br><br><b>The principle:</b> compare the <i>signs</i> of \\(v\\) and \\(a\\) — same ⇒ speeding up, opposite ⇒ slowing down. Speeding-up is not the same as "velocity positive."`},
+ {topic:"motion",calc:false,prompt:"A particle on a line has velocity \\(v(t)=t^{2}-4\\) for \\(0\\le t\\le 3\\). What is the total distance traveled?",
+  opts:[{t:"\\dfrac{23}{3}",correct:true},{t:"3"},{t:"\\dfrac{16}{3}"},{t:"-3"}],
+  explain:`<b>Total distance integrates speed \\(|v|\\); the particle reverses where \\(v=0\\).</b> \\(v=t^2-4=0\\) at \\(t=2\\), so split there: \\(v<0\\) on \\([0,2]\\), \\(v>0\\) on \\([2,3]\\).<br>\\(\\displaystyle\\int_0^2|v|\\,dt=-\\int_0^2(t^2-4)\\,dt=-\\Big[\\tfrac{t^3}{3}-4t\\Big]_0^2=-\\big(\\tfrac83-8\\big)=\\tfrac{16}{3}\\).<br>\\(\\displaystyle\\int_2^3(t^2-4)\\,dt=\\Big[\\tfrac{t^3}{3}-4t\\Big]_2^3=(9-12)-\\big(\\tfrac83-8\\big)=-3+\\tfrac{16}{3}=\\tfrac73\\).<br>Total distance \\(=\\tfrac{16}{3}+\\tfrac{7}{3}=\\dfrac{23}{3}\\approx7.667\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>3</b> is the magnitude of <i>displacement</i>, \\(\\big|\\int_0^3 v\\,dt\\big|=|-3|\\) — integrating \\(v\\) without splitting at the reversal.<br>• <b>\\(\\tfrac{16}{3}\\)</b> keeps only the first piece \\([0,2]\\).<br>• <b>\\(-3\\)</b> is the signed displacement — distance can't be negative.<br><br><b>The principle:</b> distance integrates \\(|v|\\); split at every sign change of \\(v\\), then add the absolute areas.`},
+ {topic:"motion",calc:false,prompt:"A particle moves with velocity \\(v(t)=2t-6\\) (m/s). What is the speed of the particle at \\(t=1\\)?",
+  opts:[{t:"4\\text{ m/s}",correct:true},{t:"-4\\text{ m/s}"},{t:"2\\text{ m/s}"},{t:"6\\text{ m/s}"}],
+  explain:`<b>Speed is the absolute value of velocity.</b> \\(v(1)=2(1)-6=-4\\) m/s, so the speed is \\(|-4|=4\\) m/s.<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>\\(-4\\)</b> is the velocity — speed is never negative.<br>• <b>\\(2\\)</b> is the acceleration \\(v'(t)=2\\).<br>• <b>\\(6\\)</b> reads off the constant term.<br><br><b>The principle:</b> speed \\(=|v|\\ge0\\); velocity keeps its sign, speed drops it.`},
+ {topic:"motion",calc:false,prompt:"A particle has velocity \\(v(t)=t^{2}-2t-3\\). For what values of \\(t\\ge0\\) is the particle moving in the positive direction?",
+  opts:[{t:"t>3",correct:true},{t:"t<3"},{t:"t>-1"},{t:"1<t<3"}],
+  explain:`<b>Positive direction ⇔ \\(v(t)>0\\).</b> \\(v=t^2-2t-3=(t-3)(t+1)\\). For \\(t\\ge0\\), the factor \\(t+1>0\\), so the sign follows \\(t-3\\): \\(v>0\\) exactly when \\(t>3\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>\\(t<3\\)</b> is where \\(v<0\\) (moving negative) on this domain.<br>• <b>\\(t>-1\\)</b> ignores the root \\(t=3\\) and the domain.<br>• <b>\\(1<t<3\\)</b> comes from mis-factoring the quadratic.<br><br><b>The principle:</b> direction is the sign of \\(v\\); factor, find the roots, and test — but respect the domain \\(t\\ge0\\).`},
+ {topic:"motion",calc:false,prompt:"If a particle's position is \\(x(t)\\), which quantity equals its acceleration?",
+  opts:[{t:"x''(t)",correct:true},{t:"x'(t)"},{t:"|x'(t)|"},{t:"\\displaystyle\\int x(t)\\,dt"}],
+  explain:`<b>Acceleration is the second derivative of position</b> (the derivative of velocity): \\(a(t)=v'(t)=x''(t)\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>\\(x'(t)\\)</b> is the velocity.<br>• <b>\\(|x'(t)|\\)</b> is the speed.<br>• the integral of position has no standard physical meaning here.<br><br><b>The principle:</b> position \\(\\xrightarrow{\\,d/dt\\,}\\) velocity \\(\\xrightarrow{\\,d/dt\\,}\\) acceleration — two derivatives down.`},
+ {topic:"motion",calc:false,prompt:"A particle has \\(v(t)=3t^{2}\\) (ft/s) and is at position \\(x=5\\) ft when \\(t=1\\). What is its position at \\(t=2\\)?",
+  opts:[{t:"11\\text{ ft}",correct:true},{t:"8\\text{ ft}"},{t:"12\\text{ ft}"},{t:"7\\text{ ft}"}],
+  explain:`<b>Recover position with the accumulation form and the initial condition:</b> \\(x(2)=x(1)+\\displaystyle\\int_1^2 3t^2\\,dt\\).<br>\\(\\displaystyle\\int_1^2 3t^2\\,dt=\\big[t^3\\big]_1^2=8-1=7\\). So \\(x(2)=5+7=11\\) ft.<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>8</b> is \\(x(1)+t^3\\big|_{... }\\) mishandled, or the antiderivative \\(t^3\\) at \\(t=2\\) minus... losing the initial value.<br>• <b>12</b> is \\(v(2)=3(4)\\) — the velocity, not position.<br>• <b>7</b> is the displacement \\(\\int_1^2 v\\,dt\\) alone, forgetting to add \\(x(1)=5\\).<br><br><b>The principle:</b> new position = old position + \\(\\int v\\,dt\\); the initial position is not optional.`},
+ {topic:"motion",calc:false,prompt:"A particle has velocity \\(v(t)=t^{2}-4t+3\\). At \\(t=2\\), the velocity is \\(-1\\) and the acceleration is \\(0\\). What is happening to the particle's speed at \\(t=2\\)?",
+  opts:[{t:"Its speed is momentarily neither increasing nor decreasing",correct:true},{t:"It is speeding up"},{t:"It is slowing down"},{t:"It is at rest"}],
+  explain:`<b>Whether speed increases depends on the sign of acceleration relative to velocity — and here \\(a=0\\).</b> With \\(a(2)=0\\), there is no push either way at that instant, so the speed is momentarily neither increasing nor decreasing. (Indeed \\(a(t)=2t-4\\) changes sign at \\(t=2\\).)<br><br><b>Why each distractor is a specific mistake:</b><br>• "speeding up"/"slowing down" both require \\(a\\neq0\\) with a definite sign relation to \\(v\\).<br>• "at rest" needs \\(v=0\\), but \\(v(2)=-1\\).<br><br><b>The principle:</b> \\(a=0\\) at an instant means the speed is at a momentary standstill in its change — often the boundary between speeding up and slowing down.`},
+ {topic:"motion",calc:true,prompt:"A particle moves with velocity \\(v(t)=\\sin(t^{2})\\) for \\(0\\le t\\le 2\\). What is the acceleration at \\(t=1.5\\)?",
+  opts:[{t:"-1.885",correct:true},{t:"0.778"},{t:"-0.628"},{t:"1.885"}],
+  explain:`<b>Acceleration is \\(v'(t)\\); use the chain rule.</b> \\(a(t)=\\cos(t^2)\\cdot 2t=2t\\cos(t^2)\\). At \\(t=1.5\\): \\(a=2(1.5)\\cos(2.25)=3\\cos(2.25)\\approx 3(-0.6282)=-1.885\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>0.778</b> is \\(v(1.5)=\\sin(2.25)\\) — the velocity, not its derivative.<br>• <b>\\(-0.628\\)</b> is \\(\\cos(2.25)\\) — differentiating \\(\\sin(t^2)\\) to \\(\\cos(t^2)\\) but forgetting the chain-rule factor \\(2t\\).<br>• <b>\\(+1.885\\)</b> drops the sign (\\(\\cos(2.25)\\) is negative).<br><br><b>The principle:</b> \\(\\dfrac{d}{dt}\\sin(t^2)=2t\\cos(t^2)\\) — the inner derivative \\(2t\\) is essential, and keep the sign of the cosine.`},
+ {topic:"motion",calc:false,prompt:"A particle's position is \\(x(t)=t^{3}-6t^{2}+9t\\) for \\(0\\le t\\le4\\). What is the particle's displacement over \\([0,4]\\)?",
+  opts:[{t:"4",correct:true},{t:"8",},{t:"0"},{t:"-4"}],
+  explain:`<b>Displacement is the net change in position:</b> \\(x(4)-x(0)\\). \\(x(4)=64-96+36=4\\) and \\(x(0)=0\\), so displacement \\(=4-0=4\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>0</b> assumes the particle returns to start; it does not (\\(x(4)=4\\)).<br>• <b>8</b> and <b>\\(-4\\)</b> come from arithmetic slips in \\(x(4)\\) (e.g. sign errors on \\(-6t^2\\)).<br><br><b>The principle:</b> displacement \\(=x(b)-x(a)\\) (signed net change); it differs from total distance whenever the particle reverses direction.`},
+
+ // ============ RELATED RATES (10) ============
+ {topic:"related",calc:false,prompt:"The radius of a circle increases at \\(3\\) cm/s. How fast is the area increasing when the radius is \\(5\\) cm? (\\(A=\\pi r^{2}\\))",
+  opts:[{t:"30\\pi\\text{ cm}^2/\\text{s}",correct:true},{t:"25\\pi\\text{ cm}^2/\\text{s}"},{t:"6\\pi\\text{ cm}^2/\\text{s}"},{t:"30\\text{ cm}^2/\\text{s}"}],
+  explain:`<b>Differentiate the relation with respect to time.</b> \\(A=\\pi r^2\\Rightarrow \\dfrac{dA}{dt}=2\\pi r\\dfrac{dr}{dt}\\). With \\(r=5\\), \\(\\dfrac{dr}{dt}=3\\): \\(\\dfrac{dA}{dt}=2\\pi(5)(3)=30\\pi\\) cm²/s.<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>\\(25\\pi\\)</b> is the area \\(\\pi r^2\\) at \\(r=5\\) — plugging into \\(A\\), not \\(dA/dt\\).<br>• <b>\\(6\\pi\\)</b> forgets the \\(r\\): \\(2\\pi\\cdot\\dfrac{dr}{dt}\\).<br>• <b>30</b> drops the \\(\\pi\\).<br><br><b>The principle:</b> differentiate implicitly in \\(t\\) first (chain rule brings out \\(dr/dt\\)), <i>then</i> substitute the instant's values — never plug in before differentiating.`},
+ {topic:"related",calc:false,prompt:"A spherical balloon is inflated so its radius grows at \\(2\\) in/s. How fast is the volume increasing when \\(r=3\\) in? (\\(V=\\tfrac{4}{3}\\pi r^{3}\\))",
+  opts:[{t:"72\\pi\\text{ in}^3/\\text{s}",correct:true},{t:"36\\pi\\text{ in}^3/\\text{s}"},{t:"24\\pi\\text{ in}^3/\\text{s}"},{t:"144\\pi\\text{ in}^3/\\text{s}"}],
+  explain:`<b>Differentiate the volume relation:</b> \\(V=\\tfrac43\\pi r^3\\Rightarrow\\dfrac{dV}{dt}=4\\pi r^2\\dfrac{dr}{dt}\\). With \\(r=3\\), \\(\\dfrac{dr}{dt}=2\\): \\(\\dfrac{dV}{dt}=4\\pi(9)(2)=72\\pi\\) in³/s.<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>\\(36\\pi\\)</b> forgets the \\(\\dfrac{dr}{dt}=2\\) factor (uses \\(4\\pi r^2\\) alone).<br>• <b>\\(24\\pi\\)</b> mishandles the power rule (e.g. \\(\\tfrac43\\pi\\cdot 3r^2\\) then a slip, or \\(4\\pi r\\)).<br>• <b>\\(144\\pi\\)</b> doubles — e.g. \\(8\\pi r^2\\).<br><br><b>The principle:</b> \\(\\dfrac{d}{dt}(r^3)=3r^2\\dfrac{dr}{dt}\\); the \\(3\\) cancels the \\(\\tfrac13\\), leaving \\(4\\pi r^2\\,dr/dt\\).`},
+ {topic:"related",calc:false,prompt:"A 5-meter ladder leans on a wall. Its base slides away from the wall at \\(1\\) m/s. When the base is \\(3\\) m from the wall, how fast is the top sliding down? (Use \\(x^{2}+y^{2}=25\\).)",
+  opts:[{t:"-\\dfrac{3}{4}\\text{ m/s}",correct:true},{t:"-\\dfrac{4}{3}\\text{ m/s}"},{t:"-1\\text{ m/s}"},{t:"-\\dfrac{3}{5}\\text{ m/s}"}],
+  explain:`<b>Differentiate \\(x^2+y^2=25\\) in time:</b> \\(2x\\dfrac{dx}{dt}+2y\\dfrac{dy}{dt}=0\\Rightarrow\\dfrac{dy}{dt}=-\\dfrac{x}{y}\\dfrac{dx}{dt}\\).<br>When \\(x=3\\), \\(y=\\sqrt{25-9}=4\\), and \\(\\dfrac{dx}{dt}=1\\): \\(\\dfrac{dy}{dt}=-\\dfrac{3}{4}(1)=-\\dfrac34\\) m/s (downward).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>\\(-\\tfrac43\\)</b> inverts the ratio \\(x/y\\).<br>• <b>\\(-1\\)</b> assumes the top drops as fast as the base moves — false except symmetrically.<br>• <b>\\(-\\tfrac35\\)</b> uses the hypotenuse \\(5\\) in place of \\(y=4\\).<br><br><b>The principle:</b> find the missing side with the Pythagorean relation at the instant, then use \\(\\dfrac{dy}{dt}=-\\dfrac{x}{y}\\dfrac{dx}{dt}\\).`},
+ {topic:"related",calc:false,prompt:"Water fills a cone (vertex down) with radius always half its depth, so \\(r=\\tfrac{h}{2}\\). Which formula gives the volume in terms of \\(h\\) alone? (\\(V=\\tfrac13\\pi r^{2}h\\))",
+  opts:[{t:"V=\\dfrac{\\pi h^{3}}{12}",correct:true},{t:"V=\\dfrac{\\pi h^{3}}{3}"},{t:"V=\\dfrac{\\pi h^{2}}{12}"},{t:"V=\\dfrac{\\pi h^{3}}{4}"}],
+  explain:`<b>Substitute the constraint \\(r=\\tfrac{h}{2}\\) before differentiating</b> so \\(V\\) has one variable: \\(V=\\tfrac13\\pi\\left(\\tfrac{h}{2}\\right)^2 h=\\tfrac13\\pi\\cdot\\tfrac{h^2}{4}\\cdot h=\\dfrac{\\pi h^3}{12}\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>\\(\\tfrac{\\pi h^3}{3}\\)</b> forgot to substitute \\(r=\\tfrac h2\\) (left \\(r^2h\\) as \\(h^3\\) without the \\(\\tfrac14\\)).<br>• <b>\\(\\tfrac{\\pi h^2}{12}\\)</b> dropped a factor of \\(h\\).<br>• <b>\\(\\tfrac{\\pi h^3}{4}\\)</b> squared \\(\\tfrac h2\\) but forgot the \\(\\tfrac13\\).<br><br><b>The principle:</b> use the similar-triangle relationship to reduce to one variable <i>first</i>; then \\(dV/dt\\) won't carry an unwanted \\(dr/dt\\).`},
+ {topic:"related",calc:false,prompt:"Two quantities satisfy \\(xy=12\\). If \\(x\\) increases at \\(2\\) units/s, how fast is \\(y\\) changing when \\(x=3\\)?",
+  opts:[{t:"-\\dfrac{8}{3}\\text{ units/s}",correct:true},{t:"\\dfrac{8}{3}\\text{ units/s}"},{t:"-\\dfrac{2}{3}\\text{ units/s}"},{t:"-8\\text{ units/s}"}],
+  explain:`<b>Differentiate the product with the product rule:</b> \\(\\dfrac{d}{dt}(xy)=x\\dfrac{dy}{dt}+y\\dfrac{dx}{dt}=0\\).<br>When \\(x=3\\), \\(y=\\tfrac{12}{3}=4\\), \\(\\dfrac{dx}{dt}=2\\): \\(3\\dfrac{dy}{dt}+4(2)=0\\Rightarrow\\dfrac{dy}{dt}=-\\dfrac{8}{3}\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>\\(+\\tfrac83\\)</b> drops the sign — but if \\(x\\) grows and \\(xy\\) is fixed, \\(y\\) must shrink.<br>• <b>\\(-\\tfrac23\\)</b> forgets the factor \\(y=4\\).<br>• <b>\\(-8\\)</b> forgets to divide by \\(x=3\\).<br><br><b>The principle:</b> a product constraint needs the product rule; solve for the unknown rate after substituting the instant's \\(x,y\\).`},
+ {topic:"related",calc:false,prompt:"The edge of a cube grows at \\(0.5\\) cm/s. How fast is the volume growing when the edge is \\(4\\) cm? (\\(V=s^{3}\\))",
+  opts:[{t:"24\\text{ cm}^3/\\text{s}",correct:true},{t:"48\\text{ cm}^3/\\text{s}"},{t:"8\\text{ cm}^3/\\text{s}"},{t:"12\\text{ cm}^3/\\text{s}"}],
+  explain:`<b>Differentiate:</b> \\(V=s^3\\Rightarrow\\dfrac{dV}{dt}=3s^2\\dfrac{ds}{dt}=3(4)^2(0.5)=3(16)(0.5)=24\\) cm³/s.<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>48</b> forgets the \\(\\dfrac{ds}{dt}=0.5\\) and uses \\(3s^2=48\\).<br>• <b>8</b> uses \\(2s\\dfrac{ds}{dt}\\) (area rule) instead of \\(3s^2\\).<br>• <b>12</b> uses \\(3s\\) instead of \\(3s^2\\).<br><br><b>The principle:</b> power rule in time: \\(\\dfrac{d}{dt}(s^3)=3s^2\\dfrac{ds}{dt}\\) — keep the exponent's power on \\(s\\).`},
+ {topic:"related",calc:true,prompt:"Sand pours onto a pile shaped so its volume is \\(V=\\tfrac{\\pi}{12}h^{3}\\). If \\(\\dfrac{dV}{dt}=10\\) ft³/min, how fast is the height rising when \\(h=4\\) ft?",
+  opts:[{t:"0.796\\text{ ft/min}",correct:true},{t:"2.500\\text{ ft/min}"},{t:"3.183\\text{ ft/min}"},{t:"0.265\\text{ ft/min}"}],
+  explain:`<b>Differentiate and solve for \\(dh/dt\\):</b> \\(\\dfrac{dV}{dt}=\\dfrac{\\pi}{12}\\cdot3h^2\\dfrac{dh}{dt}=\\dfrac{\\pi h^2}{4}\\dfrac{dh}{dt}\\).<br>At \\(h=4\\): \\(10=\\dfrac{\\pi(16)}{4}\\dfrac{dh}{dt}=4\\pi\\dfrac{dh}{dt}\\Rightarrow\\dfrac{dh}{dt}=\\dfrac{10}{4\\pi}\\approx0.796\\) ft/min.<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>2.5</b> is \\(\\dfrac{10}{4}\\), dropping the \\(\\pi\\).<br>• <b>3.183</b> is \\(\\dfrac{10}{\\pi}\\), dropping the \\(4\\).<br>• <b>0.265</b> divides by an extra factor of \\(3\\).<br><br><b>The principle:</b> differentiate to relate the rates, substitute \\(h\\), then isolate the unknown rate — carry \\(\\pi\\) and all constants through.`},
+ {topic:"related",calc:false,prompt:"In a related-rates problem, a person 6 ft tall walks away from a 15-ft lamppost, and \\(s\\) is the tip-of-shadow distance from the post. Setting up similar triangles gives \\(s=\\tfrac{5}{3}x\\), where \\(x\\) is the person's distance from the post. If the person walks at \\(4\\) ft/s, how fast does the shadow's tip move?",
+  opts:[{t:"\\dfrac{20}{3}\\text{ ft/s}",correct:true},{t:"4\\text{ ft/s}"},{t:"\\dfrac{8}{3}\\text{ ft/s}"},{t:"\\dfrac{5}{3}\\text{ ft/s}"}],
+  explain:`<b>Differentiate the linear relation:</b> \\(s=\\tfrac53x\\Rightarrow\\dfrac{ds}{dt}=\\tfrac53\\dfrac{dx}{dt}=\\tfrac53(4)=\\dfrac{20}{3}\\) ft/s.<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>4</b> is the person's speed \\(dx/dt\\) — the tip of the shadow moves faster than the person.<br>• <b>\\(\\tfrac83\\)</b> is the speed of the shadow's <i>length</i> \\((s-x)\\), \\(\\tfrac23\\dfrac{dx}{dt}\\), not its tip.<br>• <b>\\(\\tfrac53\\)</b> forgets to multiply by \\(dx/dt=4\\).<br><br><b>The principle:</b> once the geometry gives a clean relation between the changing lengths, differentiate <i>that</i> relation; be sure you're tracking the quantity asked (tip position vs shadow length).`},
+ {topic:"related",calc:true,prompt:"Two cars leave an intersection: one heads east at \\(30\\) mph, the other north at \\(40\\) mph. How fast is the distance between them increasing after any time (they started together)?",
+  opts:[{t:"50\\text{ mph}",correct:true},{t:"70\\text{ mph}"},{t:"35\\text{ mph}"},{t:"10\\text{ mph}"}],
+  explain:`<b>With \\(D^2=x^2+y^2\\), differentiate:</b> \\(2D\\dfrac{dD}{dt}=2x\\dfrac{dx}{dt}+2y\\dfrac{dy}{dt}\\). Because both cars move at constant speed from the origin, \\(x=30t,\\ y=40t,\\ D=50t\\), giving \\(\\dfrac{dD}{dt}=\\dfrac{x(30)+y(40)}{D}=\\dfrac{30t(30)+40t(40)}{50t}=\\dfrac{2500t}{50t}=50\\) mph.<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>70</b> just adds the speeds \\(30+40\\) — but they move at right angles, so distances add by Pythagoras, not linearly.<br>• <b>35</b> averages the speeds.<br>• <b>10</b> subtracts them.<br><br><b>The principle:</b> perpendicular motions combine through \\(D^2=x^2+y^2\\); here the separation grows at \\(\\sqrt{30^2+40^2}=50\\) mph.`},
+ {topic:"related",calc:false,prompt:"Which is the correct <i>first step</i> for a related-rates problem where the volume of a sphere changes over time?",
+  opts:[{t:"Differentiate \\(V=\\tfrac43\\pi r^{3}\\) with respect to \\(t\\), keeping \\(r\\) a function of \\(t\\)",correct:true},{t:"Plug the given radius into \\(V=\\tfrac43\\pi r^{3}\\) first, then differentiate"},{t:"Differentiate \\(V=\\tfrac43\\pi r^{3}\\) with respect to \\(r\\) only"},{t:"Set \\(\\tfrac{dV}{dt}=\\tfrac43\\pi r^{3}\\)"}],
+  explain:`<b>Differentiate the relation with respect to time while the variables are still symbolic</b>, so the chain rule produces the rate you want: \\(\\dfrac{dV}{dt}=4\\pi r^2\\dfrac{dr}{dt}\\). Only <i>after</i> differentiating do you substitute the instant's values.<br><br><b>Why each distractor is a specific mistake:</b><br>• Plugging in the radius first turns \\(r\\) into a constant, so its derivative becomes \\(0\\) — you lose the relationship entirely.<br>• Differentiating with respect to \\(r\\) only gives \\(dV/dr\\), not \\(dV/dt\\).<br>• Setting \\(\\dfrac{dV}{dt}=\\tfrac43\\pi r^3\\) confuses the quantity with its rate.<br><br><b>The principle:</b> differentiate symbolically in \\(t\\) first, substitute numbers last — the order is what makes related rates work.`},
+
+ // ============ LINEAR APPROXIMATION (10) ============
+ {topic:"linear",calc:false,prompt:"Let \\(f(x)=\\sqrt{x}\\). Using the tangent line at \\(a=4\\), estimate \\(\\sqrt{4.1}\\).",
+  opts:[{t:"2.025",correct:true},{t:"2.050"},{t:"2.100"},{t:"2.005"}],
+  explain:`<b>Linearization:</b> \\(L(x)=f(a)+f'(a)(x-a)\\). Here \\(f(4)=2\\), \\(f'(x)=\\tfrac{1}{2\\sqrt x}\\Rightarrow f'(4)=\\tfrac14\\). So \\(L(4.1)=2+\\tfrac14(0.1)=2+0.025=2.025\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>2.050</b> uses slope \\(\\tfrac12\\) instead of \\(\\tfrac14\\) (forgot the \\(2\\) in \\(2\\sqrt x\\)).<br>• <b>2.100</b> uses slope \\(1\\), or just adds \\(0.1\\).<br>• <b>2.005</b> uses slope \\(\\tfrac{1}{20}\\) or an arithmetic slip.<br><br><b>The principle:</b> plug \\(f(a)\\), \\(f'(a)\\), and \\((x-a)\\) into \\(L\\); the whole game is getting the slope \\(f'(a)\\) right.`},
+ {topic:"linear",calc:false,prompt:"For \\(f(x)=\\sqrt{x}\\), the tangent-line estimate of \\(\\sqrt{4.1}\\) is an over- or underestimate?",
+  opts:[{t:"Overestimate, because \\(f\\) is concave down",correct:true},{t:"Underestimate, because \\(f\\) is concave up"},{t:"Overestimate, because \\(f\\) is increasing"},{t:"Exact, because the tangent line matches \\(f\\)"}],
+  explain:`<b>Concavity decides over/under: a tangent line lies above a concave-down curve.</b> \\(f''(x)=-\\tfrac14x^{-3/2}<0\\), so \\(\\sqrt x\\) is concave down and the tangent line sits <i>above</i> the curve — the estimate is an <b>overestimate</b>.<br><br><b>Why each distractor is a specific mistake:</b><br>• "underestimate / concave up" has the concavity backwards (\\(f''<0\\) here).<br>• "increasing" is true but irrelevant — <i>concavity</i>, not direction, controls over/under.<br>• the tangent matches \\(f\\) only <i>at</i> \\(a\\), not nearby.<br><br><b>The principle:</b> \\(f''<0\\) (concave down) ⇒ tangent above ⇒ overestimate; \\(f''>0\\) (concave up) ⇒ tangent below ⇒ underestimate.`},
+ {topic:"linear",calc:false,prompt:"A function has \\(f(2)=3\\) and \\(f'(2)=-1\\). Use the local linearization to estimate \\(f(2.1)\\).",
+  opts:[{t:"2.9",correct:true},{t:"3.1"},{t:"2.0"},{t:"3.0"}],
+  explain:`<b>\\(L(x)=f(2)+f'(2)(x-2)\\):</b> \\(L(2.1)=3+(-1)(0.1)=3-0.1=2.9\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>3.1</b> uses slope \\(+1\\) — dropping the negative sign of \\(f'(2)\\).<br>• <b>2.0</b> multiplies by \\(1\\) instead of \\(0.1\\) (uses \\(x-2=1\\)).<br>• <b>3.0</b> ignores the correction term entirely.<br><br><b>The principle:</b> the linear estimate adds \\(f'(a)\\cdot(x-a)\\) to \\(f(a)\\); respect the sign of the slope and the small size of \\(x-a\\).`},
+ {topic:"linear",calc:false,prompt:"What is the linearization \\(L(x)\\) of \\(f(x)=e^{x}\\) at \\(a=0\\)?",
+  opts:[{t:"L(x)=1+x",correct:true},{t:"L(x)=x"},{t:"L(x)=e^{x}"},{t:"L(x)=1+e x"}],
+  explain:`<b>\\(L(x)=f(0)+f'(0)(x-0)\\).</b> Since \\(f(0)=1\\) and \\(f'(x)=e^x\\Rightarrow f'(0)=1\\), we get \\(L(x)=1+1\\cdot x=1+x\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>\\(x\\)</b> forgets \\(f(0)=1\\) (the \\(y\\)-intercept).<br>• <b>\\(e^x\\)</b> is the function itself, not its tangent line.<br>• <b>\\(1+ex\\)</b> uses \\(f'(0)=e\\) instead of \\(1\\).<br><br><b>The principle:</b> the linearization at \\(0\\) is \\(f(0)+f'(0)x\\); for \\(e^x\\) both are \\(1\\), giving the famous \\(e^x\\approx1+x\\) near \\(0\\).`},
+ {topic:"linear",calc:false,prompt:"Using a tangent-line approximation, estimate \\(\\ln(1.1)\\). (Use \\(f(x)=\\ln x\\) at \\(a=1\\).)",
+  opts:[{t:"0.1",correct:true},{t:"1.1"},{t:"0.0"},{t:"0.05"}],
+  explain:`<b>At \\(a=1\\):</b> \\(f(1)=\\ln1=0\\), \\(f'(x)=\\tfrac1x\\Rightarrow f'(1)=1\\). So \\(L(1.1)=0+1(0.1)=0.1\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>1.1</b> reports the input, not \\(\\ln\\) of it.<br>• <b>0.0</b> forgets the correction term \\(f'(1)(x-1)\\).<br>• <b>0.05</b> uses slope \\(\\tfrac12\\).<br><br><b>The principle:</b> \\(\\ln(1+x)\\approx x\\) for small \\(x\\), straight from the tangent line at \\(1\\) (slope \\(1\\), passing through \\((1,0)\\)).`},
+ {topic:"linear",calc:false,prompt:"For \\(f(x)=x^{3}\\), use differentials to estimate the change in \\(f\\) as \\(x\\) goes from \\(2\\) to \\(2.01\\).",
+  opts:[{t:"0.12",correct:true},{t:"0.01"},{t:"0.06"},{t:"1.2"}],
+  explain:`<b>The differential \\(dy=f'(x)\\,dx\\) estimates the change.</b> \\(f'(x)=3x^2\\Rightarrow f'(2)=12\\), and \\(dx=0.01\\), so \\(dy=12(0.01)=0.12\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>0.01</b> is just \\(dx\\) — forgetting to multiply by the slope.<br>• <b>0.06</b> uses \\(f'(2)=6\\) (mis-differentiating \\(x^3\\) as \\(3x\\)).<br>• <b>1.2</b> slips a decimal place.<br><br><b>The principle:</b> \\(dy=f'(x)\\,dx\\) — the derivative times the small input change — is the linear (tangent-line) estimate of the output change.`},
+ {topic:"linear",calc:false,prompt:"The tangent-line approximation of \\(g(x)=x^{2}\\) near \\(a=3\\) will produce estimates that are:",
+  opts:[{t:"Underestimates, because \\(g\\) is concave up",correct:true},{t:"Overestimates, because \\(g\\) is concave up"},{t:"Underestimates, because \\(g\\) is increasing"},{t:"Exact everywhere"}],
+  explain:`<b>\\(g''(x)=2>0\\), so \\(g\\) is concave up and its tangent line lies below the curve</b> — the linear estimates come out as <b>underestimates</b>.<br><br><b>Why each distractor is a specific mistake:</b><br>• "overestimate / concave up" states the concavity right but the conclusion backwards.<br>• "increasing" is irrelevant to over/under — concavity is what matters.<br>• a parabola is not linear, so the tangent is exact only at \\(x=3\\).<br><br><b>The principle:</b> concave up ⇒ curve above its tangent ⇒ tangent-line values underestimate.`},
+ {topic:"linear",calc:true,prompt:"Use the linearization of \\(f(x)=\\sqrt[3]{x}\\) at \\(a=8\\) to approximate \\(\\sqrt[3]{8.5}\\). Which is closest?",
+  opts:[{t:"2.0417",correct:true},{t:"2.5000"},{t:"2.1667"},{t:"2.0833"}],
+  explain:`<b>\\(f(8)=2\\), \\(f'(x)=\\tfrac13x^{-2/3}\\Rightarrow f'(8)=\\tfrac13\\cdot\\tfrac14=\\tfrac{1}{12}\\).</b> So \\(L(8.5)=2+\\tfrac{1}{12}(0.5)=2+0.0417=2.0417\\). (True value \\(\\approx2.0408\\).)<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>2.5</b> adds \\(0.5\\) directly — using slope \\(1\\).<br>• <b>2.1667</b> uses slope \\(\\tfrac13\\) (forgot the \\(x^{-2/3}=\\tfrac14\\)).<br>• <b>2.0833</b> uses slope \\(\\tfrac16\\).<br><br><b>The principle:</b> for \\(x^{1/3}\\), \\(f'(x)=\\tfrac13x^{-2/3}\\); at \\(x=8\\) that's \\(\\tfrac{1}{12}\\) — small slope, so \\(\\sqrt[3]{x}\\) barely moves.`},
+ {topic:"linear",calc:false,prompt:"Near \\(x=0\\), which is the best linear approximation of \\(\\sin x\\)?",
+  opts:[{t:"\\sin x\\approx x",correct:true},{t:"\\sin x\\approx 1"},{t:"\\sin x\\approx 1-x"},{t:"\\sin x\\approx x^{2}"}],
+  explain:`<b>At \\(a=0\\):</b> \\(\\sin0=0\\), \\(\\dfrac{d}{dx}\\sin x=\\cos x\\Rightarrow\\) slope \\(=\\cos0=1\\). So \\(L(x)=0+1\\cdot x=x\\), i.e. \\(\\sin x\\approx x\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>\\(1\\)</b> is \\(\\cos0\\) — the slope value mistaken for the approximation.<br>• <b>\\(1-x\\)</b> is the linearization of \\(\\cos x\\), not \\(\\sin x\\).<br>• <b>\\(x^2\\)</b> isn't linear and doesn't match the slope.<br><br><b>The principle:</b> \\(\\sin x\\approx x\\) near \\(0\\) is the tangent line through the origin with slope \\(1\\) — this is exactly why \\(\\lim_{x\\to0}\\tfrac{\\sin x}{x}=1\\).`},
+ {topic:"linear",calc:false,prompt:"The linearization of \\(f\\) at \\(a\\) gives a good approximation of \\(f(x)\\) when:",
+  opts:[{t:"\\(x\\) is close to \\(a\\)",correct:true},{t:"\\(x\\) is far from \\(a\\)"},{t:"\\(f\\) is a straight line only"},{t:"\\(f'(a)=0\\)"}],
+  explain:`<b>The tangent line hugs the curve only near the point of tangency.</b> The approximation \\(f(x)\\approx L(x)\\) is good when \\(x\\) is <b>close to \\(a\\)</b>; the error grows with \\((x-a)^2\\)-scale as you move away.<br><br><b>Why each distractor is a specific mistake:</b><br>• "far from \\(a\\)" is exactly when the estimate degrades.<br>• the method is <i>useful precisely because</i> \\(f\\) need not be linear — it works for curves.<br>• \\(f'(a)=0\\) just makes the tangent horizontal; it doesn't govern accuracy.<br><br><b>The principle:</b> local linearity is <i>local</i> — trust the tangent line only for small \\(|x-a|\\).`},
+
+ // ============ L'HÔPITAL'S RULE (10) ============
+ {topic:"lhopital",calc:false,prompt:"Evaluate \\(\\displaystyle\\lim_{x\\to0}\\frac{\\sin x}{x}\\).",
+  opts:[{t:"1",correct:true},{t:"0"},{t:"\\infty"},{t:"\\text{does not exist}"}],
+  explain:`<b>Substitution gives \\(\\tfrac00\\), an indeterminate form — apply L'Hôpital:</b> \\(\\displaystyle\\lim_{x\\to0}\\frac{\\sin x}{x}=\\lim_{x\\to0}\\frac{\\cos x}{1}=\\cos0=1\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>0</b> assumes the numerator "wins" because \\(\\sin0=0\\) — but the denominator also \\(\\to0\\) at the same rate.<br>• <b>\\(\\infty\\)</b> assumes the denominator wins.<br>• "does not exist" — the limit is perfectly well-defined.<br><br><b>The principle:</b> at \\(\\tfrac00\\), the answer is the ratio of the rates \\(\\tfrac{f'}{g'}\\); here \\(\\tfrac{\\cos0}{1}=1\\).`},
+ {topic:"lhopital",calc:false,prompt:"Evaluate \\(\\displaystyle\\lim_{x\\to2}\\frac{x^{2}-4}{x-2}\\).",
+  opts:[{t:"4",correct:true},{t:"1"},{t:"0"},{t:"2"}],
+  explain:`<b>Form is \\(\\tfrac00\\).</b> By L'Hôpital: \\(\\displaystyle\\lim_{x\\to2}\\frac{2x}{1}=4\\). (Or factor: \\(\\tfrac{(x-2)(x+2)}{x-2}=x+2\\to4\\).)<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>1</b> differentiates numerator and denominator but forgets to evaluate, or cancels wrongly.<br>• <b>0</b> plugs into the numerator only.<br>• <b>2</b> is \\(x\\to2\\) itself, not the limit value.<br><br><b>The principle:</b> \\(\\tfrac00\\) ⇒ take \\(\\tfrac{f'}{g'}=\\tfrac{2x}{1}\\), then substitute — or equivalently cancel the shared \\((x-2)\\).`},
+ {topic:"lhopital",calc:false,prompt:"Evaluate \\(\\displaystyle\\lim_{x\\to0}\\frac{x+1}{x+2}\\).",
+  opts:[{t:"\\dfrac{1}{2}",correct:true},{t:"1"},{t:"0"},{t:"\\text{apply L'Hôpital}"}],
+  explain:`<b>Check the form first!</b> Substituting gives \\(\\tfrac{0+1}{0+2}=\\tfrac12\\) — a real number, <b>not</b> indeterminate. So you are already done: the limit is \\(\\tfrac12\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>1</b> is the trap: blindly applying L'Hôpital gives \\(\\tfrac{1}{1}=1\\) — but L'Hôpital is <i>invalid</i> here because the form isn't \\(\\tfrac00\\) or \\(\\tfrac{\\infty}{\\infty}\\).<br>• <b>0</b> plugs into the numerator only.<br>• "apply L'Hôpital" is exactly the wrong instinct.<br><br><b>The principle:</b> always substitute first; L'Hôpital applies <i>only</i> to indeterminate forms. Using it on a determinate form gives wrong answers.`},
+ {topic:"lhopital",calc:false,prompt:"Evaluate \\(\\displaystyle\\lim_{x\\to0}\\frac{1-\\cos x}{x^{2}}\\).",
+  opts:[{t:"\\dfrac{1}{2}",correct:true},{t:"0"},{t:"1"},{t:"\\infty"}],
+  explain:`<b>Form \\(\\tfrac00\\); apply L'Hôpital, then check the form again:</b> \\(\\displaystyle\\lim_{x\\to0}\\frac{\\sin x}{2x}\\) is still \\(\\tfrac00\\). Apply once more: \\(\\displaystyle\\lim_{x\\to0}\\frac{\\cos x}{2}=\\frac{1}{2}\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>0</b> stops too early or mis-evaluates \\(\\tfrac{\\sin x}{2x}\\) as \\(0\\).<br>• <b>1</b> forgets the \\(2\\) in the denominator after differentiating \\(x^2\\).<br>• <b>\\(\\infty\\)</b> assumes the denominator dominates.<br><br><b>The principle:</b> re-check the form after each application; keep differentiating top and bottom while it stays \\(\\tfrac00\\).`},
+ {topic:"lhopital",calc:false,prompt:"Evaluate \\(\\displaystyle\\lim_{x\\to\\infty}\\frac{3x^{2}+2}{x^{2}-1}\\).",
+  opts:[{t:"3",correct:true},{t:"\\infty"},{t:"0"},{t:"1"}],
+  explain:`<b>Form \\(\\tfrac{\\infty}{\\infty}\\).</b> L'Hôpital twice (or compare leading terms): \\(\\dfrac{6x}{2x}=3\\), still valid, \\(\\to3\\). Equivalently the ratio of leading coefficients \\(\\tfrac{3}{1}=3\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>\\(\\infty\\)</b> looks only at the numerator growing.<br>• <b>0</b> looks only at the denominator.<br>• <b>1</b> assumes same-degree polynomials always give \\(1\\) — it's the ratio of leading <i>coefficients</i>, here \\(3\\).<br><br><b>The principle:</b> \\(\\tfrac{\\infty}{\\infty}\\) with equal-degree polynomials ⇒ ratio of leading coefficients; L'Hôpital confirms it.`},
+ {topic:"lhopital",calc:false,prompt:"Evaluate \\(\\displaystyle\\lim_{x\\to0}\\frac{\\tan x}{x}\\).",
+  opts:[{t:"1",correct:true},{t:"0"},{t:"\\infty"},{t:"\\dfrac{\\pi}{2}"}],
+  explain:`<b>Form \\(\\tfrac00\\).</b> \\(\\dfrac{d}{dx}\\tan x=\\sec^2 x\\), so by L'Hôpital \\(\\displaystyle\\lim_{x\\to0}\\frac{\\sec^2 x}{1}=\\sec^2 0=1\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>0</b> assumes \\(\\tan0=0\\) settles it, ignoring the denominator's zero.<br>• <b>\\(\\infty\\)</b> confuses this with \\(\\tan x\\) near \\(\\tfrac\\pi2\\).<br>• <b>\\(\\tfrac\\pi2\\)</b> is unrelated.<br><br><b>The principle:</b> near \\(0\\), \\(\\tan x\\approx x\\) (slope \\(\\sec^2 0=1\\)), so the ratio \\(\\to1\\).`},
+ {topic:"lhopital",calc:false,prompt:"Evaluate \\(\\displaystyle\\lim_{x\\to0}\\frac{\\sin 3x}{\\sin 2x}\\).",
+  opts:[{t:"\\dfrac{3}{2}",correct:true},{t:"1"},{t:"\\dfrac{2}{3}"},{t:"0"}],
+  explain:`<b>Form \\(\\tfrac00\\).</b> By L'Hôpital: \\(\\displaystyle\\lim_{x\\to0}\\frac{3\\cos 3x}{2\\cos 2x}=\\frac{3\\cos0}{2\\cos0}=\\frac{3}{2}\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>1</b> forgets the chain-rule factors \\(3\\) and \\(2\\), differentiating to \\(\\tfrac{\\cos3x}{\\cos2x}\\).<br>• <b>\\(\\tfrac23\\)</b> flips the ratio.<br>• <b>0</b> plugs into the numerator only.<br><br><b>The principle:</b> the chain rule matters — \\(\\dfrac{d}{dx}\\sin(kx)=k\\cos(kx)\\); the limit becomes the ratio of the inside coefficients, \\(\\tfrac32\\).`},
+ {topic:"lhopital",calc:false,prompt:"Evaluate \\(\\displaystyle\\lim_{x\\to\\infty}\\frac{\\ln x}{x}\\).",
+  opts:[{t:"0",correct:true},{t:"1"},{t:"\\infty"},{t:"\\text{does not exist}"}],
+  explain:`<b>Form \\(\\tfrac{\\infty}{\\infty}\\).</b> By L'Hôpital: \\(\\displaystyle\\lim_{x\\to\\infty}\\frac{1/x}{1}=\\lim_{x\\to\\infty}\\frac{1}{x}=0\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>1</b> assumes \\(\\tfrac\\infty\\infty=1\\).<br>• <b>\\(\\infty\\)</b> assumes \\(\\ln x\\) keeps pace with \\(x\\) — it doesn't; logs grow far slower.<br>• "does not exist" — the limit is a clean \\(0\\).<br><br><b>The principle:</b> polynomials (even just \\(x\\)) dominate logarithms at infinity, so \\(\\tfrac{\\ln x}{x}\\to0\\).`},
+ {topic:"lhopital",calc:false,prompt:"To evaluate \\(\\displaystyle\\lim_{x\\to0^{+}} x\\ln x\\), which first step makes L'Hôpital applicable?",
+  opts:[{t:"Rewrite as \\(\\dfrac{\\ln x}{1/x}\\), an \\(\\tfrac{-\\infty}{\\infty}\\) form",correct:true},{t:"Apply L'Hôpital directly to the product",correct:false},{t:"Conclude the limit is \\(-\\infty\\) since \\(\\ln x\\to-\\infty\\)"},{t:"Conclude the limit is \\(0\\) since \\(x\\to0\\)"}],
+  explain:`<b>The form is \\(0\\cdot(-\\infty)\\), which L'Hôpital can't touch directly — convert it to a quotient first.</b> Writing \\(x\\ln x=\\dfrac{\\ln x}{1/x}\\) gives \\(\\tfrac{-\\infty}{\\infty}\\), now L'Hôpital-ready: \\(\\dfrac{1/x}{-1/x^2}=-x\\to0\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• "apply directly to the product" — L'Hôpital requires a <i>quotient</i> of the form \\(\\tfrac00\\) or \\(\\tfrac\\infty\\infty\\).<br>• concluding \\(-\\infty\\) or \\(0\\) just picks one factor and ignores the tug-of-war.<br><br><b>The principle:</b> \\(0\\cdot\\infty\\) must be rewritten as a fraction before L'Hôpital; the true limit here is \\(0\\).`},
+ {topic:"lhopital",calc:false,prompt:"Evaluate \\(\\displaystyle\\lim_{x\\to0}\\frac{e^{x}-1}{x}\\).",
+  opts:[{t:"1",correct:true},{t:"0"},{t:"e"},{t:"\\infty"}],
+  explain:`<b>Form \\(\\tfrac00\\).</b> By L'Hôpital: \\(\\displaystyle\\lim_{x\\to0}\\frac{e^{x}}{1}=e^{0}=1\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>0</b> uses \\(e^0-1=0\\) in the numerator only.<br>• <b>\\(e\\)</b> evaluates \\(e^x\\) at \\(x=1\\) instead of \\(x=0\\).<br>• <b>\\(\\infty\\)</b> assumes the denominator dominates.<br><br><b>The principle:</b> \\(\\tfrac{e^x-1}{x}\\to1\\) is the statement that \\(e^x\\) has slope \\(1\\) at \\(0\\) — the derivative of \\(e^x\\) at \\(0\\) by definition.`}
+];
+
+// ===================== MC ENGINE (batches of 12) =====================
+let mcBatch=[], mcIdx=0, mcScore=0, mcAnswered=false;
+const stats={};
+Object.keys(TOPICS).forEach(k=>stats[k]={right:0,total:0});
+
+function mathify(h){return (h||"").replace(/\\\((.+?)\\\)/g,(m,t)=>{try{return window.katex?katex.renderToString(t,{throwOnError:false}):'<span class="tex-fallback">'+t+'</span>';}catch(e){return m;}});}
+function renderOpt(t){
+  if(t.indexOf("\\(")>=0) return mathify(t);
+  if(/[\\^_{}]/.test(t)){
+    try{return window.katex?katex.renderToString(t,{throwOnError:false}):'<span class="tex-fallback">'+t+'</span>';}catch(e){return t;}
+  }
+  if(/[A-Za-z]{2,}/.test(t)) return mathify(t);
+  try{return window.katex?katex.renderToString(t,{throwOnError:false}):'<span class="tex-fallback">'+t+'</span>';}catch(e){return t;}
+}
+function calcBadge(q){
+  return q.calc ? '<span class="calc yes">▲ calculator</span>' : '<span class="calc no">✕ no calculator</span>';
+}
+
+function newBatch(){
+  mcBatch=shuffle(MC).slice(0,12); mcIdx=0; mcScore=0;
+  document.getElementById('mcDone').style.display='none';
+  document.getElementById('mcTag').style.display='';
+  document.getElementById('mcPrompt').style.display='';
+  document.getElementById('mcOpts').style.display='';
+  renderMC();
+}
+function renderMC(){
+  mcAnswered=false;
+  const q=mcBatch[mcIdx];
+  document.getElementById('mcProgress').textContent="Question "+(mcIdx+1)+" of "+mcBatch.length;
+  document.getElementById('mcScore').textContent="Score: "+mcScore;
+  document.getElementById('mcTag').innerHTML='<span>'+TOPICS[q.topic][0]+'</span>'+calcBadge(q);
+  document.getElementById('mcPrompt').innerHTML=mathify(q.prompt);
+  const mm=document.getElementById('mcMath');
+  if(q.math){mm.style.display='';mm.innerHTML=tex(q.math,q.math,true);}else{mm.style.display='none';}
+  const opts=document.getElementById('mcOpts'); opts.innerHTML="";
+  const list=shuffle(q.opts.map((o)=>({...o})));
+  list.forEach(o=>{const b=document.createElement('button');b.innerHTML=renderOpt(o.t);b.dataset.correct=!!o.correct;b.onclick=()=>pickMC(b,q);opts.appendChild(b);});
+  const fb=document.getElementById('mcFb');fb.className="fb";fb.innerHTML="";
+  document.getElementById('mcNext').className="next";
+}
+function pickMC(btn,q){
+  if(mcAnswered)return; mcAnswered=true;
+  const correct=btn.dataset.correct==="true";
+  stats[q.topic].total++; if(correct){stats[q.topic].right++;mcScore++;}
+  [...document.getElementById('mcOpts').children].forEach(b=>{b.disabled=true;if(b.dataset.correct==="true")b.classList.add('correct');});
+  if(!correct)btn.classList.add('wrong');
+  const fb=document.getElementById('mcFb');
+  fb.className="fb show";
+  fb.innerHTML='<span class="ftag '+(correct?'ok':'bad')+'">'+(correct?'Correct. ':'Not quite. ')+'</span>'+mathify(q.explain)+
+    '<br><a class="review-link" href="'+TOPICS[q.topic][1]+'">Review: '+TOPICS[q.topic][0]+' →</a>';
+  document.getElementById('mcScore').textContent="Score: "+mcScore;
+  const nx=document.getElementById('mcNext'); nx.className="next show";
+  nx.textContent = mcIdx<mcBatch.length-1 ? "Next question →" : "See batch results →";
+  renderWeak();
+}
+document.getElementById('mcNext').onclick=()=>{
+  if(mcIdx<mcBatch.length-1){mcIdx++;renderMC();}
+  else{
+    document.getElementById('mcTag').style.display='none';
+    document.getElementById('mcPrompt').style.display='none';
+    document.getElementById('mcMath').style.display='none';
+    document.getElementById('mcOpts').style.display='none';
+    document.getElementById('mcFb').className="fb";
+    document.getElementById('mcNext').className="next";
+    const pct=Math.round(100*mcScore/mcBatch.length);
+    const msg=pct>=85?"Exam-ready across the board.":pct>=65?"Solid — clean up the misses below.":"Keep drilling; your weak topics are flagged below.";
+    const d=document.getElementById('mcDone');
+    d.style.display='block';
+    d.innerHTML='<div style="text-align:center;padding:10px"><div style="font-family:var(--display);font-size:34px;font-weight:600;color:var(--emerald)">'+mcScore+' / '+mcBatch.length+'</div><p style="color:var(--muted);margin:8px auto 16px;max-width:420px;font-size:14px">'+msg+'</p></div>';
+    const r=document.createElement('button');r.className="next show";r.style.maxWidth="240px";r.style.margin="4px auto 0";r.textContent="↺ Get a new batch of 12";r.onclick=newBatch;d.appendChild(r);
+    document.getElementById('mcProgress').textContent="Batch complete";
+  }
+};
+
+// ===================== WEAK-SPOTS =====================
+function renderWeak(){
+  const rows=Object.keys(TOPICS).filter(k=>stats[k].total>0);
+  const body=document.getElementById('weakBody');
+  if(!rows.length){return;}
+  rows.sort((a,b)=>(stats[a].right/stats[a].total)-(stats[b].right/stats[b].total));
+  body.innerHTML=rows.map(k=>{
+    const s=stats[k],pct=Math.round(100*s.right/s.total);
+    return '<div class="weakrow"><span class="weaklabel">'+TOPICS[k][0]+'</span><span class="weakbar"><i style="width:'+pct+'%"></i></span><span class="weakpct">'+s.right+'/'+s.total+'</span></div>';
+  }).join('')+'<p style="font-size:12.5px;color:var(--muted);margin-top:12px">Lowest topics first. Tap a topic in the question feedback to jump to its lesson.</p>';
+}
+
+// ===================== FRQ TRAINER =====================
+function frqNorm(s){return (s||"").toLowerCase().replace(/\s+/g,"").replace(/−/g,"-").replace(/·/g,"*").replace(/\{|\}/g,"");}
+const FRQS=[
+ { label:"Particle Motion",
+   desc:"<b>Acceleration & rest → direction with justification → total distance → position.</b> The classic rectilinear-motion problem, no calculator, worth 9 points. Every value here is exact — the reversals are what make total distance differ from displacement.",
+   given:"v(t)=t^{2}-4t+3,\\qquad 0\\le t\\le 5",
+   givenNote:"A particle moves along the x-axis with velocity v(t) = t² − 4t + 3 (in meters per second) for 0 ≤ t ≤ 5. At time t = 0 the particle is at position x = 2. No calculator.",
+   givenFall:"v(t) = t² − 4t + 3 for 0 ≤ t ≤ 5; x(0) = 2 (no calculator).",
+  parts:[
+   {pl:"Part A",pts:2,topic:"motion",q:"Find the acceleration \\(a(t)\\), and find all times in \\([0,5]\\) at which the particle is at rest.",
+    fields:[{label:"a(t)=",hint:"e.g. 2t-4",match:s=>{const n=frqNorm(s);return ["2t-4","a(t)=2t-4","2*t-4"].includes(n);}},{label:"\\text{at rest at }t=",hint:"e.g. 1, 3",match:s=>{const n=frqNorm(s);return ["1,3","3,1","t=1,3","1and3"].includes(n);}}],
+    sol:`<b>Acceleration is the derivative of velocity:</b> \\(a(t)=v'(t)=2t-4\\).<br><b>At rest ⇔ \\(v(t)=0\\):</b> \\(t^2-4t+3=(t-1)(t-3)=0\\Rightarrow t=1\\) and \\(t=3\\) (both in \\([0,5]\\)).<br><br><b>Scoring:</b> one point for \\(a(t)=2t-4\\), one for both rest times \\(t=1,3\\). A common slip is solving \\(a(t)=0\\) (giving \\(t=2\\)) instead of \\(v(t)=0\\).`,
+    rubric:["\\(a(t)=2t-4\\)","Solved \\(v(t)=(t-1)(t-3)=0\\Rightarrow t=1,3\\)"]},
+   {pl:"Part B",pts:3,topic:"motion",q:"At \\(t=2.5\\), is the particle moving left or right, and is it speeding up or slowing down? Justify with the signs of \\(v\\) and \\(a\\).",
+    fields:[{label:"\\text{direction:}",hint:"left or right",match:s=>["left","movingleft"].includes(frqNorm(s))},{label:"\\text{speed:}",hint:"speeding up / slowing down",match:s=>{const n=frqNorm(s);return ["slowingdown","slowing"].includes(n);}}],
+    sol:`<b>Direction is the sign of \\(v\\); speeding up/slowing down compares the signs of \\(v\\) and \\(a\\).</b><br><b>At \\(t=2.5\\):</b> \\(v(2.5)=6.25-10+3=-0.75<0\\) → moving <b>left</b>. \\(a(2.5)=2(2.5)-4=1>0\\).<br>Since \\(v<0\\) and \\(a>0\\) have <b>opposite signs</b>, the particle is <b>slowing down</b>.<br><br><b>Scoring:</b> one point for the direction with \\(v(2.5)<0\\), one for \\(a(2.5)>0\\), one for the conclusion "slowing down because \\(v\\) and \\(a\\) have opposite signs." Stating "slowing down" without the sign comparison earns the value but not the justification point.`,
+    rubric:["\\(v(2.5)=-0.75<0\\) ⇒ moving left","\\(a(2.5)=1>0\\)","Opposite signs ⇒ slowing down (with justification)"]},
+   {pl:"Part C",pts:2,topic:"motion",q:"Find the total distance traveled by the particle over the interval \\([0,3]\\).",
+    fields:[{label:"\\text{distance}=",hint:"e.g. 8/3",match:s=>{const n=frqNorm(s);return ["8/3","2.667","2.6667","2.67"].includes(n);}}],
+    sol:`<b>Total distance integrates speed \\(|v|\\); split at the rest time \\(t=1\\)</b> where \\(v\\) changes sign (\\(v>0\\) on \\([0,1)\\), \\(v<0\\) on \\((1,3)\\)).<br>\\(\\displaystyle\\int_0^1 v\\,dt=\\Big[\\tfrac{t^3}{3}-2t^2+3t\\Big]_0^1=\\tfrac13-2+3=\\tfrac43\\).<br>\\(\\displaystyle\\int_1^3 v\\,dt=\\Big[\\tfrac{t^3}{3}-2t^2+3t\\Big]_1^3=(9-18+9)-\\tfrac43=0-\\tfrac43=-\\tfrac43\\).<br>Total distance \\(=\\left|\\tfrac43\\right|+\\left|-\\tfrac43\\right|=\\dfrac{8}{3}\\approx2.667\\) m.<br><br><b>Scoring:</b> one point for splitting at \\(t=1\\) and integrating \\(|v|\\), one for the value \\(\\tfrac83\\). Integrating \\(v\\) straight over \\([0,3]\\) gives displacement \\(0\\) — the classic error.`,
+    rubric:["Split at \\(t=1\\); integrated \\(|v|\\) over each piece","Total distance \\(=\\tfrac43+\\tfrac43=\\tfrac{8}{3}\\)"]},
+   {pl:"Part D",pts:2,topic:"motion",q:"Given \\(x(0)=2\\), find the position \\(x(3)\\).",
+    fields:[{label:"x(3)=",hint:"a number",match:s=>{const n=frqNorm(s);return ["2","x(3)=2"].includes(n);}}],
+    sol:`<b>Use accumulation with the initial condition:</b> \\(x(3)=x(0)+\\displaystyle\\int_0^3 v(t)\\,dt\\).<br>\\(\\displaystyle\\int_0^3 (t^2-4t+3)\\,dt=\\Big[\\tfrac{t^3}{3}-2t^2+3t\\Big]_0^3=9-18+9=0\\).<br>So \\(x(3)=2+0=2\\).<br><br><b>Scoring:</b> one point for the accumulation setup \\(x(0)+\\int_0^3 v\\,dt\\) (initial condition present), one for the value \\(2\\). Note this uses net displacement (\\(\\int v\\)), not total distance — a nice contrast with Part C.`,
+    rubric:["Set up \\(x(3)=2+\\displaystyle\\int_0^3 v\\,dt\\)","\\(\\int_0^3 v\\,dt=0\\Rightarrow x(3)=2\\)"]}
+  ]},
+
+ { label:"Rate in Context (table)",
+   desc:"<b>Average rate → estimate a derivative from a table → interpret in a sentence → tangent-line prediction with over/under.</b> A table-based problem worth 8 points, mixing contextual rates with a linear approximation. Estimates come straight from the data.",
+   given:"\\text{Water depth } H(t)\\text{ (meters) at selected times } t\\text{ (hours):}",
+   givenNote:"H is a differentiable, increasing function giving the water depth (in meters) in a tank at time t hours. The table shows selected values. The depth rises ever more slowly, so H is concave down.",
+   givenFall:"H(t): H(0)=2.0, H(3)=3.8, H(5)=5.1, H(7)=6.0, H(10)=6.8 (concave down).",
+   table:{head:["t (hr)","0","3","5","7","10"],rows:[["H(t) (m)","2.0","3.8","5.1","6.0","6.8"]]},
+  parts:[
+   {pl:"Part A",pts:2,topic:"rates",q:"Find the average rate of change of \\(H\\) over the interval \\([3,7]\\). Include units.",
+    fields:[{label:"\\text{avg rate}=",hint:"e.g. 0.55 m/hr",match:s=>{const n=frqNorm(s);return ["0.55","0.55m/hr","0.55m/hour","11/20","0.55meters/hour"].includes(n)||n.startsWith("0.55");}}],
+    sol:`<b>Average rate of change is the secant slope:</b> \\(\\dfrac{H(7)-H(3)}{7-3}=\\dfrac{6.0-3.8}{4}=\\dfrac{2.2}{4}=0.55\\) meters per hour.<br><br><b>Scoring:</b> one point for the difference quotient, one for the value with units (m/hr). Dropping the units, or dividing by the wrong \\(\\Delta t\\), loses a point.`,
+    rubric:["\\(\\dfrac{H(7)-H(3)}{7-3}=\\dfrac{2.2}{4}\\)","\\(=0.55\\) meters per hour (with units)"]},
+   {pl:"Part B",pts:3,topic:"rates",q:"Estimate \\(H'(5)\\) using the table, and interpret its meaning in a complete sentence with units.",
+    fields:[{label:"H'(5)\\approx",hint:"a number",match:s=>{const n=frqNorm(s);return ["0.55","11/20"].includes(n)||n.startsWith("0.55");}}],
+    sol:`<b>Estimate the derivative with the symmetric difference around \\(t=5\\)</b> (using the neighbors \\(t=3\\) and \\(t=7\\)): \\(H'(5)\\approx\\dfrac{H(7)-H(3)}{7-3}=\\dfrac{6.0-3.8}{4}=0.55\\) m/hr.<br><b>Interpretation:</b> "At \\(t=5\\) hours, the water depth is increasing at approximately \\(0.55\\) meters per hour."<br><br><b>Scoring:</b> one point for using a difference quotient centered at \\(t=5\\), one for the value \\(0.55\\), one for an interpretation in context (a sentence naming <i>depth increasing</i> at \\(0.55\\) m/hr). Calling \\(0.55\\) "the depth" instead of "the rate" loses the interpretation point.`,
+    rubric:["Symmetric estimate \\(\\dfrac{H(7)-H(3)}{7-3}=0.55\\)","Value \\(H'(5)\\approx0.55\\) m/hr","Sentence: depth is increasing at \\(\\approx0.55\\) m/hr at \\(t=5\\)"]},
+   {pl:"Part C",pts:3,topic:"linear",q:"Use the tangent line to \\(H\\) at \\(t=5\\) (with your estimate of \\(H'(5)\\)) to approximate \\(H(6)\\). Is this an over- or underestimate? Justify.",
+    fields:[{label:"H(6)\\approx",hint:"a number",match:s=>{const n=frqNorm(s);return ["5.65","5.6","5.65m"].includes(n)||n.startsWith("5.65");}},{label:"\\text{over or under?}",hint:"over or under",match:s=>{const n=frqNorm(s);return ["over","overestimate"].includes(n);}}],
+    sol:`<b>Tangent-line (local linear) approximation:</b> \\(H(6)\\approx H(5)+H'(5)(6-5)=5.1+0.55(1)=5.65\\) m.<br><b>Over or under?</b> \\(H\\) is <b>concave down</b> (the depth rises ever more slowly), so the tangent line lies <i>above</i> the curve — this is an <b>overestimate</b>.<br><br><b>Scoring:</b> one point for the linearization setup, one for the value \\(5.65\\), one for "overestimate because \\(H\\) is concave down." Saying "overestimate" with no concavity reason loses the justification point.`,
+    rubric:["\\(H(6)\\approx H(5)+H'(5)(1)=5.1+0.55\\)","\\(=5.65\\) meters","Overestimate — \\(H\\) is concave down, so the tangent lies above the curve"]}
+  ]},
+
+ { label:"Related Rates (cone)",
+   desc:"<b>Reduce to one variable → find \\(dh/dt\\) → find \\(dr/dt\\) → rate of the surface area.</b> A calculator-active conical-tank problem worth 9 points. Similar triangles collapse the two dimensions into one before differentiating.",
+   given:"\\dfrac{dV}{dt}=8\\text{ ft}^3/\\text{min},\\quad V=\\tfrac13\\pi r^{2}h,\\quad r=\\tfrac{h}{4}",
+   givenNote:"Water is pumped into a cone-shaped tank (vertex down) at a constant 8 ft³/min. The tank is 12 ft tall with top radius 3 ft, so by similar triangles r = h/4 at every depth. A calculator is allowed.",
+   givenFall:"dV/dt = 8 ft³/min into a cone with r = h/4; V = (1/3)πr²h.",
+  parts:[
+   {pl:"Part A",pts:2,topic:"related",q:"Using \\(r=\\tfrac{h}{4}\\), write the volume \\(V\\) as a function of \\(h\\) alone.",
+    fields:[{label:"V=",hint:"e.g. pi h^3/48",match:s=>{const n=frqNorm(s);return ["\\pih^3/48","pih^3/48","(\\pih^3)/48","(pih^3)/48","\\pi/48h^3","pi/48h^3","\\pih^{3}/48"].includes(n);}}],
+    sol:`<b>Substitute the constraint before differentiating:</b> \\(V=\\tfrac13\\pi r^2 h=\\tfrac13\\pi\\left(\\tfrac h4\\right)^2 h=\\tfrac13\\pi\\cdot\\tfrac{h^2}{16}\\cdot h=\\dfrac{\\pi h^3}{48}\\).<br><br><b>Scoring:</b> one point for squaring \\(r=\\tfrac h4\\) correctly (the \\(\\tfrac{1}{16}\\)), one for \\(V=\\tfrac{\\pi h^3}{48}\\). Forgetting to substitute leaves a stray \\(r\\) (and a stray \\(dr/dt\\)) in the next step.`,
+    rubric:["Substituted \\(r=\\tfrac h4\\): \\(V=\\tfrac13\\pi\\tfrac{h^2}{16}h\\)","\\(V=\\dfrac{\\pi h^3}{48}\\)"]},
+   {pl:"Part B",pts:3,topic:"related",q:"Find the rate \\(\\dfrac{dh}{dt}\\) at which the water level rises when \\(h=6\\) ft.",
+    fields:[{label:"\\dfrac{dh}{dt}=",hint:"e.g. 1.132 ft/min",match:s=>{const n=frqNorm(s);return ["1.132","1.13","32/(9\\pi)","32/9\\pi","1.1318"].includes(n)||n.startsWith("1.13");}}],
+    sol:`<b>Differentiate \\(V=\\tfrac{\\pi h^3}{48}\\) in time:</b> \\(\\dfrac{dV}{dt}=\\dfrac{\\pi\\cdot3h^2}{48}\\dfrac{dh}{dt}=\\dfrac{\\pi h^2}{16}\\dfrac{dh}{dt}\\).<br><b>At \\(h=6\\), \\(\\dfrac{dV}{dt}=8\\):</b> \\(8=\\dfrac{\\pi(36)}{16}\\dfrac{dh}{dt}=\\dfrac{9\\pi}{4}\\dfrac{dh}{dt}\\Rightarrow\\dfrac{dh}{dt}=\\dfrac{32}{9\\pi}\\approx1.132\\) ft/min.<br><br><b>Scoring:</b> one point for differentiating to \\(\\dfrac{dV}{dt}=\\dfrac{\\pi h^2}{16}\\dfrac{dh}{dt}\\), one for substituting \\(h=6\\) and \\(\\dfrac{dV}{dt}=8\\), one for the value \\(\\dfrac{32}{9\\pi}\\approx1.132\\). Plugging \\(h=6\\) in <i>before</i> differentiating is the classic error.`,
+    rubric:["\\(\\dfrac{dV}{dt}=\\dfrac{\\pi h^2}{16}\\dfrac{dh}{dt}\\)","Substituted \\(h=6\\), \\(\\dfrac{dV}{dt}=8\\): \\(8=\\dfrac{9\\pi}{4}\\dfrac{dh}{dt}\\)","\\(\\dfrac{dh}{dt}=\\dfrac{32}{9\\pi}\\approx1.132\\) ft/min"]},
+   {pl:"Part C",pts:2,topic:"related",q:"Find the rate \\(\\dfrac{dr}{dt}\\) at which the water's surface radius grows when \\(h=6\\) ft.",
+    fields:[{label:"\\dfrac{dr}{dt}=",hint:"e.g. 0.283 ft/min",match:s=>{const n=frqNorm(s);return ["0.283","0.28","8/(9\\pi)","8/9\\pi","0.2829","0.2830"].includes(n)||n.startsWith("0.283");}}],
+    sol:`<b>The constraint \\(r=\\tfrac h4\\) differentiates directly:</b> \\(\\dfrac{dr}{dt}=\\tfrac14\\dfrac{dh}{dt}=\\tfrac14\\cdot\\dfrac{32}{9\\pi}=\\dfrac{8}{9\\pi}\\approx0.283\\) ft/min.<br><br><b>Scoring:</b> one point for \\(\\dfrac{dr}{dt}=\\tfrac14\\dfrac{dh}{dt}\\), one for the value. Re-deriving from scratch works too, but the linear constraint makes it a one-liner.`,
+    rubric:["\\(\\dfrac{dr}{dt}=\\tfrac14\\dfrac{dh}{dt}\\)","\\(=\\dfrac{8}{9\\pi}\\approx0.283\\) ft/min"]},
+   {pl:"Part D",pts:2,topic:"related",q:"The water's surface is a circle of area \\(A=\\pi r^{2}\\). Find \\(\\dfrac{dA}{dt}\\) when \\(h=6\\) ft.",
+    fields:[{label:"\\dfrac{dA}{dt}=",hint:"e.g. 2.667 ft^2/min",match:s=>{const n=frqNorm(s);return ["8/3","2.667","2.6667","2.67","8/3ft^2/min"].includes(n)||n.startsWith("2.667");}}],
+    sol:`<b>Differentiate \\(A=\\pi r^2\\):</b> \\(\\dfrac{dA}{dt}=2\\pi r\\dfrac{dr}{dt}\\). At \\(h=6\\), \\(r=\\tfrac h4=1.5\\), and \\(\\dfrac{dr}{dt}=\\dfrac{8}{9\\pi}\\):<br>\\(\\dfrac{dA}{dt}=2\\pi(1.5)\\cdot\\dfrac{8}{9\\pi}=3\\pi\\cdot\\dfrac{8}{9\\pi}=\\dfrac{24}{9}=\\dfrac{8}{3}\\approx2.667\\) ft²/min.<br><br><b>Scoring:</b> one point for \\(\\dfrac{dA}{dt}=2\\pi r\\dfrac{dr}{dt}\\) with \\(r=1.5\\), one for the value \\(\\tfrac83\\). Notice the \\(\\pi\\)'s cancel — a clean check that the setup is right.`,
+    rubric:["\\(\\dfrac{dA}{dt}=2\\pi r\\dfrac{dr}{dt}\\), with \\(r=1.5\\)","\\(=\\dfrac{8}{3}\\approx2.667\\) ft²/min"]}
+  ]},
+
+ { label:"Linearize + L'Hôpital",
+   desc:"<b>Linearization → over/under from concavity → a \\(0/0\\) limit → applying L'Hôpital twice.</b> A no-calculator problem worth 9 points, all built on one function \\(f(x)=e^{2x}\\) — tying local linearity to the indeterminate-form limits it explains.",
+   given:"f(x)=e^{2x}",
+   givenNote:"Let f(x) = e^{2x}. No calculator; give exact values.",
+   givenFall:"f(x) = e^(2x) (no calculator).",
+  parts:[
+   {pl:"Part A",pts:2,topic:"linear",q:"Find the linearization \\(L(x)\\) of \\(f\\) at \\(x=0\\), and use it to approximate \\(f(0.1)=e^{0.2}\\).",
+    fields:[{label:"L(x)=",hint:"e.g. 1+2x",match:s=>{const n=frqNorm(s);return ["1+2x","l(x)=1+2x","2x+1"].includes(n);}},{label:"f(0.1)\\approx",hint:"a number",match:s=>{const n=frqNorm(s);return ["1.2","1.20"].includes(n);}}],
+    sol:`<b>\\(L(x)=f(0)+f'(0)x\\).</b> Here \\(f(0)=e^0=1\\), \\(f'(x)=2e^{2x}\\Rightarrow f'(0)=2\\). So \\(L(x)=1+2x\\).<br><b>Approximation:</b> \\(f(0.1)\\approx L(0.1)=1+2(0.1)=1.2\\). (True \\(e^{0.2}\\approx1.221\\).)<br><br><b>Scoring:</b> one point for \\(L(x)=1+2x\\) (correct \\(f(0)\\) and \\(f'(0)\\)), one for \\(1.2\\). Using \\(f'(0)=1\\) (forgetting the chain-rule \\(2\\)) is the common slip.`,
+    rubric:["\\(f(0)=1,\\ f'(0)=2\\Rightarrow L(x)=1+2x\\)","\\(f(0.1)\\approx1.2\\)"]},
+   {pl:"Part B",pts:2,topic:"linear",q:"Is the approximation in Part A an over- or underestimate? Justify with concavity.",
+    fields:[{label:"\\text{over or under?}",hint:"over or under",match:s=>{const n=frqNorm(s);return ["under","underestimate"].includes(n);}}],
+    sol:`<b>Check the second derivative:</b> \\(f''(x)=4e^{2x}>0\\) for all \\(x\\), so \\(f\\) is <b>concave up</b>. A concave-up curve lies <i>above</i> its tangent line, so the linear estimate is an <b>underestimate</b>. (Indeed \\(1.2<1.221\\).)<br><br><b>Scoring:</b> one point for \\(f''>0\\) (concave up), one for concluding "underestimate" from it. "Underestimate" without the concavity reason earns nothing here.`,
+    rubric:["\\(f''(x)=4e^{2x}>0\\) ⇒ concave up","Concave up ⇒ tangent below curve ⇒ underestimate"]},
+   {pl:"Part C",pts:2,topic:"lhopital",q:"Evaluate \\(\\displaystyle\\lim_{x\\to0}\\frac{e^{2x}-1}{\\sin x}\\).",
+    fields:[{label:"\\text{limit}=",hint:"a number",match:s=>["2","limit=2"].includes(frqNorm(s))}],
+    sol:`<b>Substitution gives \\(\\tfrac00\\) — apply L'Hôpital:</b> \\(\\displaystyle\\lim_{x\\to0}\\frac{e^{2x}-1}{\\sin x}=\\lim_{x\\to0}\\frac{2e^{2x}}{\\cos x}=\\frac{2e^0}{\\cos0}=\\frac{2}{1}=2\\).<br><br><b>Scoring:</b> one point for confirming \\(\\tfrac00\\) and differentiating top and bottom, one for the value \\(2\\). Forgetting the chain-rule \\(2\\) on \\(e^{2x}\\) gives the wrong answer \\(1\\).`,
+    rubric:["Form \\(\\tfrac00\\); \\(\\dfrac{d}{dx}\\)-top \\(=2e^{2x}\\), bottom \\(=\\cos x\\)","\\(\\dfrac{2e^0}{\\cos0}=2\\)"]},
+   {pl:"Part D",pts:3,topic:"lhopital",q:"Evaluate \\(\\displaystyle\\lim_{x\\to0}\\frac{e^{2x}-1-2x}{x^{2}}\\), applying L'Hôpital as many times as needed and checking the form each time.",
+    fields:[{label:"\\text{limit}=",hint:"a number",match:s=>["2","limit=2"].includes(frqNorm(s))}],
+    sol:`<b>Check the form, apply, re-check.</b> At \\(x=0\\): numerator \\(=1-1-0=0\\), denominator \\(=0\\) — form \\(\\tfrac00\\).<br><b>First L'Hôpital:</b> \\(\\displaystyle\\lim_{x\\to0}\\frac{2e^{2x}-2}{2x}\\). Still \\(\\tfrac{2-2}{0}=\\tfrac00\\).<br><b>Second L'Hôpital:</b> \\(\\displaystyle\\lim_{x\\to0}\\frac{4e^{2x}}{2}=\\frac{4}{2}=2\\).<br><br><b>Scoring:</b> one point for confirming the first \\(\\tfrac00\\) and differentiating, one for recognizing it is <i>still</i> \\(\\tfrac00\\) and applying again, one for the value \\(2\\). Stopping after one application (and mis-reporting \\(0\\)) is the trap.`,
+    rubric:["First application: \\(\\dfrac{2e^{2x}-2}{2x}\\), still \\(\\tfrac00\\)","Second application: \\(\\dfrac{4e^{2x}}{2}\\)","Limit \\(=2\\)"]}
+  ]}
+];
+
+let frqActive=0;
+function buildFrqTabs(){
+  const t=document.getElementById('frqTabs');t.innerHTML="";
+  FRQS.forEach((f,i)=>{const b=document.createElement('button');b.textContent=f.label;if(i===frqActive)b.classList.add('on');b.onclick=()=>{frqActive=i;buildFrqTabs();renderFRQ();};t.appendChild(b);});
+}
+function renderFRQ(){
+  const f=FRQS[frqActive];
+  document.getElementById('frqDesc').innerHTML=mathify(f.desc);
+  document.getElementById('frqGiven').innerHTML=tex(f.given,f.givenFall,true);
+  document.getElementById('frqGivenNote').textContent=f.givenNote;
+  const extra=document.getElementById('frqGivenExtra');
+  if(f.table){
+    let html='<table class="frq-table"><thead><tr>'+f.table.head.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>';
+    f.table.rows.forEach(r=>{html+='<tr>'+r.map((c,ci)=>ci===0?'<th>'+c+'</th>':'<td>'+c+'</td>').join('')+'</tr>';});
+    html+='</tbody></table>';
+    extra.innerHTML=html;
+  } else { extra.innerHTML=""; }
+  document.getElementById('frqScore').style.display='none';
+  const wrap=document.getElementById('frqParts');wrap.innerHTML="";
+  f.parts.forEach((p,pi)=>{
+    const div=document.createElement('div');div.className="part";
+    let fieldsHtml='<div class="frq-fields">';
+    p.fields.forEach((fl,fi)=>{
+      fieldsHtml+='<div class="frq-field"><span class="frq-flabel">'+tex(fl.label,fl.label,false)+'</span>'+
+        '<input class="frq-input" id="f'+pi+'_'+fi+'" placeholder="'+(fl.hint||'')+'" autocomplete="off"></div>';
+    });
+    fieldsHtml+='</div>';
+    let rubricHtml='<div class="rubric"><div class="rubric-h">Score your reasoning ('+p.pts+' pt'+(p.pts>1?'s':'')+')</div>';
+    p.rubric.forEach((r,ri)=>{rubricHtml+='<label><input type="checkbox" id="r'+pi+'_'+ri+'" onchange="updFrqScore()"> <span>'+mathify(r)+'</span></label>';});
+    rubricHtml+='</div>';
+    div.innerHTML='<div class="part-h"><span class="part-l">'+p.pl+'</span><span class="part-pts">'+p.pts+' pt'+(p.pts>1?'s':'')+'</span></div>'+
+      '<div class="part-q">'+mathify(p.q)+'</div>'+fieldsHtml+
+      '<button class="frq-check" onclick="checkFrqPart('+pi+')">Check answer</button>'+
+      '<button class="reveal-sol" onclick="document.getElementById(\'sol'+pi+'\').classList.add(\'show\');this.style.display=\'none\'">show worked solution</button>'+
+      '<div class="frq-sol" id="sol'+pi+'">'+mathify(p.sol)+rubricHtml+'</div>';
+    wrap.appendChild(div);
+  });
+}
+function checkFrqPart(pi){
+  const p=FRQS[frqActive].parts[pi];
+  p.fields.forEach((fl,fi)=>{
+    const inp=document.getElementById('f'+pi+'_'+fi);
+    if(!inp.value.trim()){inp.classList.remove('ok','no');return;}
+    const ok=fl.match(inp.value);
+    inp.classList.toggle('ok',ok);inp.classList.toggle('no',!ok);
+  });
+  document.getElementById('sol'+pi).classList.add('show');
+}
+function updFrqScore(){
+  const f=FRQS[frqActive];let got=0,tot=0;
+  f.parts.forEach((p,pi)=>{tot+=p.pts;let checked=0;p.rubric.forEach((r,ri)=>{const c=document.getElementById('r'+pi+'_'+ri);if(c&&c.checked)checked++;});got+=Math.round(p.pts*checked/p.rubric.length);});
+  const sl=document.getElementById('frqScore');sl.style.display='block';
+  sl.innerHTML='Self-scored: <b>'+got+' / '+tot+'</b> points'+(got===tot?' — full marks. ':' ')+'<span style="color:var(--muted);font-size:12.5px">(check rubric boxes for each part you earned)</span>';
+}
+window.checkFrqPart=checkFrqPart;window.updFrqScore=updFrqScore;
+
+// ===================== BOOT =====================
+function boot(){newBatch();buildFrqTabs();renderFRQ();}
+boot();
+if(window.addEventListener)window.addEventListener('load',()=>{if(window.katex){newBatch();renderFRQ();}});
+if(!window.katex){let t=0;const iv=setInterval(()=>{if(window.katex){clearInterval(iv);newBatch();renderFRQ();}else if(++t>60)clearInterval(iv);},100);}
+document.querySelectorAll('.reveal').forEach((n,i)=>{n.style.animationDelay=Math.min(i*40,360)+'ms';});
+</script>
+</body>
+</html>

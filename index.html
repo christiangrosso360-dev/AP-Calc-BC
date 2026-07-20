@@ -35,6 +35,7 @@
     --u9:#3fb6d8; --u9b:#6dd4ef;
     --u10:#a98cf0; --u10b:#c4adff;
     --u3:#f0843c; --u3b:#f7a468;
+    --u4:#bf34c9; --u4b:#e884ea;
     --crimson:#e0644f;
     --display:'Fraunces',Georgia,serif; --body:'Spline Sans',system-ui,sans-serif;
     --mono:'Spline Sans Mono',ui-monospace,Menlo,monospace;
@@ -218,9 +219,15 @@
   .u3:hover{border-color:rgba(240,132,60,.42);box-shadow:0 30px 66px -40px rgba(0,0,0,.92),0 0 50px -26px rgba(240,132,60,.4)}
   .u3:hover .card-art{border-color:rgba(240,132,60,.25)} .u3:hover .card-art svg{filter:drop-shadow(0 0 12px rgba(240,132,60,.5))}
   .u3:hover .uname{text-shadow:0 0 22px rgba(240,132,60,.5)} .u3:hover .chip{border-color:rgba(240,132,60,.34);color:#f6bd93}
+  .u4{--cardc:var(--u4);--cardglow:rgba(191,52,201,.20)}
+  .u4:hover{border-color:rgba(191,52,201,.42);box-shadow:0 30px 66px -40px rgba(0,0,0,.92),0 0 50px -26px rgba(191,52,201,.4)}
+  .u4:hover .card-art{border-color:rgba(191,52,201,.25)} .u4:hover .card-art svg{filter:drop-shadow(0 0 12px rgba(191,52,201,.5))}
+  .u4:hover .uname{text-shadow:0 0 22px rgba(191,52,201,.5)} .u4:hover .chip{border-color:rgba(191,52,201,.34);color:#e0a8e6}
   /* freshly-launched badge (reusable) */
   .card .newtag{position:absolute;z-index:3;top:13px;right:13px;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#1c1206;background:linear-gradient(100deg,var(--u3b),var(--u3));border-radius:30px;padding:3px 9px;box-shadow:0 4px 15px -4px rgba(240,132,60,.7);animation:newPulse 2.6s ease-in-out infinite}
   @keyframes newPulse{0%,100%{box-shadow:0 4px 14px -5px rgba(240,132,60,.5)}50%{box-shadow:0 5px 22px -3px rgba(240,132,60,.95)}}
+  .u4 .newtag{color:#fff;background:linear-gradient(100deg,var(--u4b),var(--u4));box-shadow:0 4px 15px -4px rgba(191,52,201,.7);animation:newPulseM 2.6s ease-in-out infinite}
+  @keyframes newPulseM{0%,100%{box-shadow:0 4px 14px -5px rgba(191,52,201,.5)}50%{box-shadow:0 5px 22px -3px rgba(191,52,201,.95)}}
   @media (prefers-reduced-motion:reduce){.card .newtag{animation:none}}
 
   /* ---------- roadmap ---------- */
@@ -228,7 +235,7 @@
   .progress-track{flex:1;height:5px;border-radius:30px;background:var(--line);overflow:hidden;max-width:320px}
   .progress-fill{height:100%;width:0;border-radius:30px;transition:width 1.2s cubic-bezier(.2,.7,.2,1);
     background:linear-gradient(90deg,var(--u8),var(--u9) 55%,var(--u10))}
-  .group-fade.shown .progress-fill{width:80%}
+  .group-fade.shown .progress-fill{width:90%}
   .sec-head .t .sn{color:var(--gold-glow);font-weight:600;margin-right:1px}
   .rrow{--d:0s}
   @keyframes rowSweep{0%{background:transparent}38%{background:rgba(255,255,255,.05)}100%{background:transparent}}
@@ -535,7 +542,6 @@
       </a>
       <!-- Unit 3 -->
       <a class="card u3" href="unit3.html">
-        <span class="newtag">New</span>
         <div class="card-art" aria-hidden="true">
           <svg viewBox="0 0 150 118" width="150" height="118" fill="none">
             <path d="M22 96 H130" stroke="currentColor" stroke-width="2" opacity=".22" stroke-linecap="round"/>
@@ -551,6 +557,26 @@
           <h3 class="uname">Differentiation: Composite, Implicit &amp; Inverse</h3>
           <p class="udesc">The chain rule, implicit differentiation, derivatives of inverse &amp; inverse-trig functions, selecting the right procedure, and higher-order derivatives &mdash; where differentiation becomes reading structure.</p>
           <div class="chips"><span class="chip">Chain rule</span><span class="chip">Implicit</span><span class="chip">Inverse</span><span class="chip">Selecting</span><span class="chip">Higher&#8209;order</span></div>
+          <span class="go">Open unit <span class="arr">&#8594;</span></span>
+        </div>
+      </a>
+      <!-- Unit 4 -->
+      <a class="card u4" href="unit4.html">
+        <span class="newtag">New</span>
+        <div class="card-art" aria-hidden="true">
+          <svg viewBox="0 0 150 118" width="150" height="118" fill="none">
+            <path d="M28 95 A 47 47 0 0 1 122 95" stroke="currentColor" stroke-width="2" opacity=".22" stroke-linecap="round"/>
+            <path d="M34.3 71.5 L 40.4 75 M51.5 54.3 L 55 60.4 M75 48 L 75 55 M98.5 54.3 L 95 60.4 M115.7 71.5 L 109.6 75" stroke="currentColor" stroke-width="1.5" opacity=".42" stroke-linecap="round"/>
+            <path class="cdraw" pathLength="1" d="M75 95 L 95 60" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+            <circle cx="75" cy="95" r="4.2" fill="var(--bg)" stroke="currentColor" stroke-width="2.2"/>
+            <circle cx="95" cy="60" r="3" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="unum">Unit 04</div>
+          <h3 class="uname">Contextual Applications of Differentiation</h3>
+          <p class="udesc">Interpreting derivatives as rates in context, straight&#8209;line motion, related rates, linear approximation, and L&rsquo;H&ocirc;pital&rsquo;s rule &mdash; the derivative put to work as a rate of change.</p>
+          <div class="chips"><span class="chip">Rates</span><span class="chip">Motion</span><span class="chip">Related rates</span><span class="chip">Linear approx</span><span class="chip">L&rsquo;H&ocirc;pital</span></div>
           <span class="go">Open unit <span class="arr">&#8594;</span></span>
         </div>
       </a>
@@ -674,7 +700,7 @@
     <div class="sec-head">
       <div class="t"><span class="sn">02</span>The whole course</div>
       <h2>The full BC roadmap</h2>
-      <p class="sub">All ten College&nbsp;Board units, in order. Eight are live; the rest are on the way &mdash; each will get the same visual, manipulable treatment.</p>
+      <p class="sub">All ten College&nbsp;Board units, in order. Nine are live; the last is on the way &mdash; each will get the same visual, manipulable treatment.</p>
     </div>
     <div class="search" id="search">
       <span class="sic" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
@@ -683,13 +709,13 @@
     </div>
     <div class="progress-wrap">
       <div class="progress-track"><div class="progress-fill"></div></div>
-      <div class="progress-label"><b>8</b> of 10 units ready</div>
+      <div class="progress-label"><b>9</b> of 10 units ready</div>
     </div>
     <div class="road">
       <a class="rrow live" href="unit1.html" style="--rc:var(--u1)"><span class="rnum">01</span><span class="rdot"></span><span class="rtitle">Limits &amp; Continuity<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
       <a class="rrow live" href="unit2.html" style="--rc:var(--u2)"><span class="rnum">02</span><span class="rdot"></span><span class="rtitle">Differentiation: Definition &amp; Basic Rules<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
       <a class="rrow live" href="unit3.html" style="--rc:var(--u3)"><span class="rnum">03</span><span class="rdot"></span><span class="rtitle">Differentiation: Composite, Implicit &amp; Inverse<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
-      <div class="rrow soon"><span class="rnum">04</span><span class="rdot"></span><span class="rtitle">Contextual Applications of Differentiation<span class="rwhat">Related rates, motion along a line, and linear approximation in context.</span></span><span class="pill">Soon</span><span class="rarr">&#8594;</span></div>
+      <a class="rrow live" href="unit4.html" style="--rc:var(--u4)"><span class="rnum">04</span><span class="rdot"></span><span class="rtitle">Contextual Applications of Differentiation<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
       <div class="rrow soon"><span class="rnum">05</span><span class="rdot"></span><span class="rtitle">Analytical Applications of Differentiation<span class="rwhat">The Mean Value Theorem, curve sketching, optimization, and concavity.</span></span><span class="pill">Soon</span><span class="rarr">&#8594;</span></div>
       <a class="rrow live" href="unit6.html" style="--rc:var(--u6)"><span class="rnum">06</span><span class="rdot"></span><span class="rtitle">Integration &amp; Accumulation of Change<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
       <a class="rrow live" href="unit7.html" style="--rc:var(--u7)"><span class="rnum">07</span><span class="rdot"></span><span class="rtitle">Differential Equations<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
@@ -931,6 +957,13 @@
    {u:3,k:'lesson',t:'Higher-Order Derivatives',f:'higher-order-derivatives.html',kw:'higher order second third derivative notation position velocity acceleration concavity'},
    {u:3,k:'exam',t:'Unit 3 \u2014 Exam Practice',f:'unit3-exam-practice.html',kw:'exam practice mcq frq test chain implicit inverse higher order selecting'},
    {u:3,k:'sheet',t:'Unit 3 \u2014 Cheat Sheet',f:'unit3-cheatsheet.html',kw:'cheat sheet formulas review chain implicit inverse trig higher order'},
+   {u:4,k:'lesson',t:'Interpreting Rates in Context',f:'rates-in-context.html',kw:'rate of change context units interpretation meaning derivative average instantaneous increasing decreasing at a rate'},
+   {u:4,k:'lesson',t:'Straight-Line Motion',f:'straight-line-motion.html',kw:'motion position velocity acceleration speed speeding up slowing down displacement distance particle rectilinear line'},
+   {u:4,k:'lesson',t:'Related Rates',f:'related-rates.html',kw:'related rates ladder cone balloon shadow filling implicit differentiate with respect to time chain rule dv dt'},
+   {u:4,k:'lesson',t:'Linear Approximation',f:'linear-approximation.html',kw:'linear approximation linearization tangent line local linearity differential over under estimate concavity'},
+   {u:4,k:'lesson',t:"L'H\u00f4pital's Rule",f:'lhopitals-rule.html',kw:'lhopital hopital indeterminate form 0/0 infinity limit ratio derivatives quotient'},
+   {u:4,k:'exam',t:'Unit 4 \u2014 Exam Practice',f:'unit4-exam-practice.html',kw:'exam practice mcq frq test rates motion related rates linear approximation lhopital'},
+   {u:4,k:'sheet',t:'Unit 4 \u2014 Cheat Sheet',f:'unit4-cheatsheet.html',kw:'cheat sheet formulas review rates motion related rates linear approximation lhopital'},
    {u:6,k:'lesson',t:'Riemann Sums & the Definite Integral',f:'riemann-sums.html',kw:'riemann sum left right midpoint trapezoid rectangle approximation table overestimate underestimate definite integral accumulation'},
    {u:6,k:'lesson',t:'The Fundamental Theorem',f:'fundamental-theorem.html',kw:'fundamental theorem ftc accumulation function g(x) chain rule bound graph analysis area'},
    {u:6,k:'lesson',t:'Antiderivatives & u-Substitution',f:'antiderivatives.html',kw:'antiderivative deck u-substitution u sub reverse chain rule completing square arctan long division'},
@@ -967,7 +1000,7 @@
    {u:10,k:'sheet',t:'Unit 10 \u2014 Cheat Sheet',f:'unit10-cheatsheet.html',kw:'cheat sheet formulas review'}
   ];
   var byF={}; CAT.forEach(function(c){byF[c.f]=c;});
-  var UNAME={1:'Unit 1',2:'Unit 2',3:'Unit 3',6:'Unit 6',7:'Unit 7',8:'Unit 8',9:'Unit 9',10:'Unit 10'};
+  var UNAME={1:'Unit 1',2:'Unit 2',3:'Unit 3',4:'Unit 4',6:'Unit 6',7:'Unit 7',8:'Unit 8',9:'Unit 9',10:'Unit 10'};
   var lpu={7:0,8:0,9:0,10:0}; CAT.forEach(function(c){if(c.k==='lesson')lpu[c.u]++;});
 
   var visited={}, last=null;
@@ -983,7 +1016,7 @@
       var c=byF[lf], kl=c.k==='lesson'?'Lesson':(c.k==='exam'?'Exam practice':'Cheat sheet');
       document.getElementById('continueName').innerHTML=c.t+' <em>'+UNAME[c.u]+' \u00b7 '+kl+'</em>';
       document.getElementById('continueGo').setAttribute('href',c.f);
-      document.getElementById('continueOverall').innerHTML='<b>'+lessonsDone+'</b> of 39 lessons explored';
+      document.getElementById('continueOverall').innerHTML='<b>'+lessonsDone+'</b> of 44 lessons explored';
       bar.classList.add('show');
     }
   }

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Derivative in Context · Unit 4 Guide</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%23190b1c%27%2F%3E%3Cpath%20d%3D%27M6%2024%20A%2013%2013%200%200%201%2026%2024%27%20fill%3D%27none%27%20stroke%3D%27%23bf34c9%27%20stroke-width%3D%272.4%27%20stroke-linecap%3D%27round%27%2F%3E%3Cline%20x1%3D%2716%27%20y1%3D%2723%27%20x2%3D%2723%27%20y2%3D%2714%27%20stroke%3D%27%23e884ea%27%20stroke-width%3D%272.4%27%20stroke-linecap%3D%27round%27%2F%3E%3Ccircle%20cx%3D%2716%27%20cy%3D%2723%27%20r%3D%272.4%27%20fill%3D%27%23e884ea%27%2F%3E%3C%2Fsvg%3E" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="styles.css">
+<script src="helpers.js"></script>
+<style>
+  /* page accent: Unit 4 magenta. base palette/fonts/chrome come from styles.css */
+  :root{ --approx:#bf34c9; --gold:#bf34c9; --true:#e884ea;
+         --glow:rgba(191,52,201,.09); --wrap-max:1060px; }
+  .sub{color:var(--muted);font-size:15px;margin-top:8px;max-width:660px}
+  h2{font-family:var(--display);font-weight:600;font-size:21px;margin:40px 0 8px;letter-spacing:-0.01em}
+  p.lead{font-size:15.5px;max-width:720px;margin:8px 0}
+  .big-idea{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:18px;max-width:790px}
+  .big-idea b{color:var(--approx)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -26px rgba(0,0,0,.7)}
+  svg{width:100%;display:block;border-radius:10px}
+  button{font-family:var(--body);cursor:pointer;border-radius:9px;border:1px solid var(--line);
+    background:var(--panel-2);color:var(--ink);padding:10px 13px;font-size:13.5px;text-align:left;
+    transition:transform .14s,border-color .14s,background .14s}
+  button:hover{border-color:var(--gold);transform:translateY(-1px)}
+  button:active{transform:translateY(0) scale(.99)}
+  button.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-top:12px;flex-wrap:wrap}
+  .legend b{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+  .plotcap{font-size:12.5px;color:var(--muted);text-align:center;margin-top:10px}
+  /* explorer layout */
+  .exbody{display:flex;gap:26px;align-items:flex-start}
+  .exviz{flex:1 1 54%;min-width:0}
+  .exctrl{flex:1 1 42%;min-width:0;display:flex;flex-direction:column}
+  @media(max-width:820px){ .exbody{flex-direction:column;gap:20px} .exviz{flex:none;width:100%} }
+  .scen-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .scen-btns button{flex:1;text-align:center;padding:9px 8px;font-size:12.5px}
+  .sb-name{font-weight:600}
+  .gaugewrap{display:flex;justify-content:center;margin-top:4px}
+  .gaugewrap svg{max-width:320px}
+  .exread{margin-top:14px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:14.5px;color:var(--ink);line-height:1.6}
+  .exread .amt{color:var(--true);font-weight:600}
+  .exread .rt{color:var(--approx);font-weight:600}
+  .hint{font-size:12.5px;color:var(--muted);margin-top:8px;font-family:var(--mono)}
+  .srow{display:grid;grid-template-columns:120px 1fr 78px;align-items:center;gap:12px;margin-top:10px}
+  .srow .sname{font-size:12.5px;color:var(--muted)}
+  .srow input[type=range]{width:100%;accent-color:var(--approx)}
+  .sval{font-family:var(--mono);font-size:13px;color:var(--ink);text-align:right}
+  /* anatomy */
+  .anat{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-top:14px;max-width:820px}
+  .anat .tmpl{font-size:16px;line-height:2.1;color:var(--ink)}
+  .chip{display:inline-block;border-radius:7px;padding:2px 9px;font-weight:600;font-size:14px;border:1px solid transparent}
+  .chip.when{color:#d59a52;border-color:rgba(213,154,82,.4);background:rgba(213,154,82,.1)}
+  .chip.dir{color:var(--approx);border-color:rgba(191,52,201,.4);background:rgba(191,52,201,.1)}
+  .chip.num{color:var(--true);border-color:rgba(232,132,234,.4);background:rgba(232,132,234,.1)}
+  .chip.unit{color:#9fd0c4;border-color:rgba(63,208,176,.4);background:rgba(63,208,176,.1)}
+  .anat .note{font-size:13px;color:var(--muted);margin-top:12px;line-height:1.6}
+  .anat .note b{color:var(--ink)}
+  /* concepts */
+  .concepts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+  @media(max-width:680px){.concepts{grid-template-columns:1fr}}
+  .concept{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;
+    transition:transform .2s,box-shadow .2s}
+  .concept:hover{transform:translateY(-3px);box-shadow:0 16px 30px -20px rgba(43,41,37,.45)}
+  .concept h3{font-family:var(--display);font-size:16px;margin:0 0 6px}
+  .concept p{font-size:13.5px;margin:6px 0;color:var(--ink)}
+  .concept .m{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:8px;text-align:center}
+  .key{color:var(--approx);font-weight:600}
+  /* table */
+  .dtable{border-collapse:collapse;margin:10px 0;font-family:var(--mono);font-size:13.5px}
+  .dtable th,.dtable td{border:1px solid var(--line);padding:7px 14px;text-align:center;color:var(--ink)}
+  .dtable th{color:var(--muted);font-weight:500;background:var(--panel-2)}
+  /* practice */
+  .prob{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:14px}
+  .prob-tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--approx);font-weight:600}
+  .prob-q{font-size:14.5px;line-height:1.65;margin:6px 0 12px}
+  .soltoggle{font-size:13px;padding:7px 14px}
+  .sol{display:none;margin-top:12px;border-top:1px solid var(--line);padding-top:6px}
+  .sol.show{display:block}
+  .why-step{display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .why-step:last-child{border-bottom:none}
+  .why-n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--bg);color:var(--muted);
+    font-family:var(--mono);font-size:11px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .why-t{font-size:13px;line-height:1.5}
+  .why-m{margin-top:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:7px 10px;overflow-x:auto;text-align:center}
+  /* mistakes + tips */
+  .mistakes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  @media(max-width:680px){.mistakes{grid-template-columns:1fr}}
+  .mistake{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--div);border-radius:10px;padding:13px 16px}
+  .mistake h4{margin:0 0 4px;font-size:14px;font-family:var(--display)}
+  .mistake p{margin:0;font-size:13px;color:var(--muted);line-height:1.55}
+  .tipbox{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:14px 18px;max-width:820px}
+  .tipbox h4{margin:0 0 8px;font-size:14px;font-family:var(--display);color:var(--approx)}
+  .tipbox ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:var(--ink)}
+  .tipbox li{margin:5px 0}
+  /* quiz */
+  .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .qtag{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .qtext{font-size:15px;font-weight:600;margin-bottom:12px;line-height:1.5}
+  .quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:520px){.quiz-opts{grid-template-columns:1fr}}
+  .quiz-opts button{font-size:14px;padding:11px 14px;text-align:left}
+  .quiz-opts button.correct{background:rgba(63,208,176,.16);border-color:var(--conv);color:var(--conv)}
+  .quiz-opts button.wrong{background:rgba(224,100,79,.16);border-color:var(--div);color:var(--div)}
+  .quiz-opts button:disabled{cursor:default;opacity:.92}
+  .quiz-opts button:disabled:hover{transform:none;border-color:var(--line)}
+  .quiz-opts button.correct:disabled:hover{border-color:var(--conv)}
+  .quiz-opts button.wrong:disabled:hover{border-color:var(--div)}
+  .feedback{margin-top:14px;font-size:14px;min-height:24px;line-height:1.5}
+  .score{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .next{background:var(--approx);color:#fff;border-color:var(--approx);font-weight:600;text-align:center;box-shadow:0 8px 18px -10px var(--approx)}
+  .next:hover{filter:brightness(1.06);border-color:var(--approx)}
+  .whatsnext{max-width:720px;margin-top:18px;font-size:14px;color:var(--muted);
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+  .whatsnext a{color:var(--approx);text-decoration:none;font-weight:600}
+  .whatsnext a:hover{text-decoration:underline}
+  footer{color:var(--muted);font-size:12px;margin-top:44px;border-top:1px solid var(--line);padding-top:14px}
+  @keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .reveal{opacity:0;animation:riseIn .6s cubic-bezier(.2,.7,.2,1) forwards}
+  .tex-fallback{font-family:var(--mono);font-size:13px}
+  button:focus-visible, a:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:8px}
+  @media (prefers-reduced-motion:reduce){.reveal{animation:none;opacity:1}*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="unit4.html">← Unit 4 Guide</a>
+  <header class="reveal">
+    <h1>The Derivative <span class="em">in Context</span></h1>
+    <div class="sub">A derivative isn't an abstract slope — it's a <b>rate of change</b> with units bolted on.
+      Read it right and <span style="color:var(--ink)">f&prime;(a)</span> tells you exactly how fast something
+      real is changing, in what direction, measured in what units.</div>
+  </header>
+
+  <div class="big-idea reveal">
+    Two numbers describe any changing quantity at an instant: <b>how much there is</b> and <b>how fast it's
+    changing</b>. The first is the function value <span style="color:var(--ink)">f(a)</span> — the <i>amount</i>.
+    The second is the derivative <span style="color:var(--ink)">f&prime;(a)</span> — the <i>rate</i>, always
+    carrying units of <b>(output units) per (input units)</b>. This whole unit is about not confusing the two.
+  </div>
+
+  <h2 class="reveal">The Rate Reader</h2>
+  <p class="lead reveal">Here's a real quantity changing over time. <b>Drag the dot along the curve.</b> The
+    tangent's steepness is the instantaneous rate — and the gauge reads it off in the right units, filling or
+    falling. Watch how the <span style="color:var(--true)">amount</span> (the height) and the
+    <span style="color:var(--approx)">rate</span> (the slope) move independently. Switch scenarios: the units
+    change with the context.</p>
+
+  <div class="card reveal">
+    <div class="scen-btns" id="scenBtns"></div>
+    <div class="exbody">
+      <div class="exviz">
+        <svg id="rrPlot" viewBox="0 0 520 400" preserveAspectRatio="xMidYMid meet" style="touch-action:none;cursor:ew-resize"></svg>
+        <div class="legend" id="rrLegend"></div>
+        <div class="plotcap">drag the dot — or grab anywhere on the plot</div>
+      </div>
+      <div class="exctrl">
+        <div class="gaugewrap"><svg id="rrGauge" viewBox="0 0 300 244" preserveAspectRatio="xMidYMid meet"></svg></div>
+        <div class="exread" id="rrRead"></div>
+        <div class="hint" id="rrHint"></div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="reveal">How to say what f&prime;(a) means</h2>
+  <p class="lead reveal">On the exam, "interpret f&prime;(a)" wants a full sentence — never just a number. It has
+    four slots, and dropping any one loses the point. Fill them in the same order every time.</p>
+  <div class="anat reveal">
+    <div class="tmpl">
+      <span class="chip when">At t = 6 min</span>,
+      the water is <span class="chip dir">draining</span>
+      at <span class="chip num">4</span>
+      <span class="chip unit">gallons per minute</span>.
+    </div>
+    <div class="note">
+      <b style="color:#d59a52">When</b> — the input value, with its unit &nbsp;·&nbsp;
+      <b style="color:var(--approx)">Direction</b> — the sign: rising / falling, filling / draining, warming / cooling &nbsp;·&nbsp;
+      <b style="color:var(--true)">How fast</b> — the size |f&prime;(a)| &nbsp;·&nbsp;
+      <b style="color:#9fd0c4">Units</b> — always output-per-input.
+      The units are the tell: if V is in gallons and t in minutes, f&prime; can only be
+      <span id="anatUnit"></span>. Get the units and you've almost written the sentence.
+    </div>
+  </div>
+
+  <h2 class="reveal">Average rate vs. the rate at an instant</h2>
+  <p class="lead reveal">A table or two points only give you an <b>average</b> rate — the slope of a
+    <span style="color:var(--true)">secant</span> line across an interval. The derivative is the
+    <b>instantaneous</b> rate — the slope of the <span style="color:var(--approx)">tangent</span> at a single
+    point. Shrink the interval and watch the average home in on it.</p>
+  <div class="card reveal">
+    <div class="exbody">
+      <div class="exviz">
+        <svg id="avPlot" viewBox="0 0 520 400" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="legend">
+          <span><b style="background:#bf34c9"></b>tangent — instantaneous rate</span>
+          <span><b style="background:#3fd0b0"></b>secant — average rate</span>
+        </div>
+      </div>
+      <div class="exctrl">
+        <div class="srow"><span class="sname">interval width h</span><input type="range" id="avH" min="0.1" max="4" step="0.1" value="3"><span class="sval" id="avHval">3.0</span></div>
+        <div class="exread" id="avRead"></div>
+        <div class="hint">The average rate is a difference quotient; the instantaneous rate is its limit as h&nbsp;&rarr;&nbsp;0.</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="reveal">The ideas everything else builds on</h2>
+  <div class="concepts reveal">
+    <div class="concept">
+      <h3>Rate = slope of the tangent</h3>
+      <p>The derivative <span class="key">f&prime;(a)</span> is the slope of the curve at that instant — how
+        fast the output changes per unit of input, right now.</p>
+      <div class="m" id="c1"></div>
+    </div>
+    <div class="concept">
+      <h3>Units always divide</h3>
+      <p>A rate's units are <span class="key">output per input</span>. Gallons and minutes give gal/min;
+        dollars and widgets give $/widget. The units come straight from the context.</p>
+      <div class="m" id="c2"></div>
+    </div>
+    <div class="concept">
+      <h3>Amount is not rate</h3>
+      <p><span class="key">f(a)</span> is how much there is; <span class="key">f&prime;(a)</span> is how fast
+        it's changing. A tank can be nearly full yet draining fast, or nearly empty yet filling fast.</p>
+      <div class="m" id="c3"></div>
+    </div>
+    <div class="concept">
+      <h3>Average vs. instantaneous</h3>
+      <p>Two points give the <span class="key">average</span> rate — a secant slope. One point gives the
+        <span class="key">instantaneous</span> rate — the tangent slope, the limit as the interval shrinks.</p>
+      <div class="m" id="c4"></div>
+    </div>
+  </div>
+
+  <h2 class="reveal">Reading a rate off a table</h2>
+  <p class="lead reveal">When you only have a table, you can't get the exact derivative — but you can estimate
+    it with the average rate over the <b>tightest interval around the point</b>, ideally one on each side.</p>
+  <div class="card reveal">
+    <p style="font-size:14px;margin:0 0 6px;color:var(--muted)">A balloon's volume V (liters) at time t (seconds):</p>
+    <table class="dtable">
+      <tr><th>t (s)</th><td>0</td><td>2</td><td>4</td><td>6</td><td>8</td></tr>
+      <tr><th>V (L)</th><td>3</td><td>10</td><td>17</td><td>30</td><td>41</td></tr>
+    </table>
+    <p style="font-size:14px;line-height:1.7;margin:8px 0 0" id="tableWork"></p>
+  </div>
+
+  <h2 class="reveal">Your turn</h2>
+  <p class="lead reveal">Six problems on interpreting rates in context — units, direction, amount-vs-rate, and a
+    table estimate. Try each before revealing.</p>
+  <div class="reveal" id="practice"></div>
+
+  <h2 class="reveal">Quick quiz</h2>
+  <p class="lead reveal">Six fast checks. Pick an answer to see whether it's right and why — then work through
+    all six.</p>
+  <div class="card reveal" id="quizCard">
+    <div class="row" style="margin-bottom:12px">
+      <div class="qtag" id="qProgress">Question 1 of 6</div>
+      <span class="score" id="qScore">Score: 0 / 0</span>
+    </div>
+    <div class="qtext" id="qText"></div>
+    <div class="quiz-opts" id="qOpts"></div>
+    <div class="feedback" id="qFb"></div>
+    <button class="next" id="qNext" style="margin-top:14px;width:100%;display:none">Next question →</button>
+  </div>
+
+  <h2 class="reveal">Common mistakes &amp; exam tips</h2>
+  <div class="mistakes reveal">
+    <div class="mistake"><h4>Dropping the units</h4><p>"f&prime;(6) = &minus;4" is not an interpretation. The rate is &minus;4 <i>gallons per minute</i>. Units are graded, and they tell you what the number means.</p></div>
+    <div class="mistake"><h4>Confusing amount with rate</h4><p>"There are &minus;4 gallons" is nonsense. f(6) is the amount; f&prime;(6) is the rate. A negative rate means the amount is <i>decreasing</i>, not that the amount is negative.</p></div>
+    <div class="mistake"><h4>Flipping the units</h4><p>A rate is output <i>per</i> input. Gallons per minute, not minutes per gallon. Wrong order, wrong quantity.</p></div>
+    <div class="mistake"><h4>Ignoring the sign</h4><p>f&prime;(a) &gt; 0 means increasing; f&prime;(a) &lt; 0 means decreasing. Say the direction — "draining," "cooling," "shrinking" — not just the size.</p></div>
+    <div class="mistake"><h4>Calling a secant the derivative</h4><p>An average rate over [a, b] is a secant slope, not f&prime;(a). It only estimates the instantaneous rate — and best when the interval is small and centered.</p></div>
+    <div class="mistake"><h4>Reading the height as the rate</h4><p>A tall curve isn't a fast one. Steepness — not height — is the rate. The tank can be full (high) and momentarily still (rate 0) at the same instant.</p></div>
+  </div>
+  <div class="tipbox reveal">
+    <h4>On the AP exam</h4>
+    <ul>
+      <li>Interpretation answers need all four parts: <b>when</b>, <b>direction</b>, <b>how fast</b>, and <b>units</b>. A number alone earns nothing.</li>
+      <li>Get the units first — they're output-per-input, read straight off the axes — and the rest of the sentence almost writes itself.</li>
+      <li>"How much / how many" asks for <b>f(a)</b>; "how fast / rate / growing" asks for <b>f&prime;(a)</b>. Read the verb.</li>
+      <li>Estimating f&prime;(a) from a table? Use a symmetric difference <span id="tipSym"></span> when you have points on both sides.</li>
+    </ul>
+  </div>
+
+  <div class="whatsnext reveal">
+    You can now read any derivative as a rate — with a direction and units. Next, point that skill at the most
+    important context of all: a particle moving along a line, where position, velocity, and acceleration are
+    three derivatives deep. Continue to <a href="straight-line-motion.html">Straight-Line Motion →</a>, or head
+    back to the <a href="unit4.html">Unit 4 Guide</a>.
+  </div>
+
+  <footer class="reveal">The Derivative in Context · part of the Unit 4 guide · open in any browser, no install needed.</footer>
+</div>
+
+<script>
+const SVGNS="http://www.w3.org/2000/svg";
+const el=(t,a,txt)=>{const e=document.createElementNS(SVGNS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;};
+const T=(s)=>tex(s,s,false);
+const MAG="#bf34c9", ORCH="#e884ea", GOLD="#e8a13c", TEAL="#3fd0b0", DIM="#453f33";
+
+/* shared plot helpers */
+function mapper(dom,yr,W,H,P){ const x0=dom[0],x1=dom[1],y0=yr[0],y1=yr[1];
+  return { sx:x=>P+((x-x0)/(x1-x0))*(W-2*P), sy:v=>H-P-((v-y0)/(y1-y0))*(H-2*P),
+           ix:px=>x0+((px-P)/(W-2*P))*(x1-x0), x0,x1,y0,y1 }; }
+function drawAxes(svg,M,W,H,P,xlab,ylab){
+  for(let g=0;g<=4;g++){ const yy=M.y0+(g/4)*(M.y1-M.y0), py=M.sy(yy);
+    svg.appendChild(el("line",{x1:P,y1:py,x2:W-P,y2:py,stroke:"#2c2420"}));
+    svg.appendChild(el("text",{x:P-7,y:py+3,fill:"#6b5f5a","font-size":10,"text-anchor":"end","font-family":"var(--mono)"},Math.round(yy))); }
+  for(let g=0;g<=6;g++){ const xx=M.x0+(g/6)*(M.x1-M.x0), px=M.sx(xx);
+    svg.appendChild(el("text",{x:px,y:H-P+15,fill:"#6b5f5a","font-size":10,"text-anchor":"middle","font-family":"var(--mono)"},(+xx.toFixed(1)))); }
+  svg.appendChild(el("text",{x:W-P,y:H-P+30,fill:"#8a7f78","font-size":11,"text-anchor":"end","font-family":"var(--mono)"},xlab));
+  svg.appendChild(el("text",{x:P-30,y:P-14,fill:"#8a7f78","font-size":11,"font-family":"var(--mono)"},ylab));
+}
+function curvePath(M,f,dom,N){ let d=""; for(let i=0;i<=N;i++){ const x=dom[0]+(i/N)*(dom[1]-dom[0]); d+=(i?"L":"M")+M.sx(x).toFixed(1)+" "+M.sy(f(x)).toFixed(1)+" "; } return d; }
+
+/* ============ 1 · THE RATE READER (signature) ============ */
+const SCEN=[
+  { key:"tank", name:"Water tank",
+    f:t=>20+30*Math.sin(Math.PI*t/10), df:t=>3*Math.PI*Math.cos(Math.PI*t/10),
+    dom:[0,10], yr:[0,56], xlab:"t (min)", ylab:"V (gal)", unit:"gal / min",
+    outU:"gallons", inU:"minute", noun:"the tank", amount:v=>"holds "+v.toFixed(0)+" gal",
+    pos:"filling", neg:"draining", zero:"momentarily full — the level is holding steady",
+    grange:[-10,10] },
+  { key:"coffee", name:"Coffee cooling",
+    f:t=>70+110*Math.exp(-0.06*t), df:t=>-6.6*Math.exp(-0.06*t),
+    dom:[0,40], yr:[60,190], xlab:"t (min)", ylab:"T (°F)", unit:"°F / min",
+    outU:"degrees", inU:"minute", noun:"the coffee", amount:v=>"is at "+v.toFixed(0)+"°F",
+    pos:"warming", neg:"cooling", zero:"holding its temperature",
+    grange:[-7,0] },
+  { key:"trip", name:"Road trip",
+    f:t=>50*t+20*Math.sin(Math.PI*t/2), df:t=>50+10*Math.PI*Math.cos(Math.PI*t/2),
+    dom:[0,4], yr:[0,210], xlab:"t (hours)", ylab:"s (mi)", unit:"mph",
+    outU:"miles", inU:"hour", noun:"you", amount:v=>"have driven "+v.toFixed(0)+" mi",
+    pos:"speeding along", neg:"backing up", zero:"stopped",
+    grange:[0,90] },
+];
+const RRW=520, RRH=400, RRP=46;
+let si=0, rt=2;
+const rrPlot=document.getElementById("rrPlot"), rrGauge=document.getElementById("rrGauge");
+
+function scen(){ return SCEN[si]; }
+function renderRRLegend(){ const s=scen();
+  document.getElementById("rrLegend").innerHTML =
+    '<span><b style="background:'+MAG+'"></b>'+s.ylab+' over '+s.xlab+'</span>'+
+    '<span><b style="background:'+GOLD+'"></b>tangent = rate at this instant</span>'+
+    '<span><b style="background:'+ORCH+'"></b>you are here</span>';
+}
+function renderRRPlot(){ const s=scen(), M=mapper(s.dom,s.yr,RRW,RRH,RRP); rrPlot.innerHTML="";
+  drawAxes(rrPlot,M,RRW,RRH,RRP,s.xlab,s.ylab);
+  // zero-rate reference (max/min) faint marker where df=0 within domain, optional skip
+  rrPlot.appendChild(el("path",{d:curvePath(M,s.f,s.dom,320),fill:"none",stroke:MAG,"stroke-width":2.8,"stroke-linejoin":"round"}));
+  const v=s.f(rt), m=s.df(rt);
+  // tangent segment (in data units: slope m). draw across a window
+  const halfT=(s.dom[1]-s.dom[0])*0.16;
+  const t1=Math.max(s.dom[0],rt-halfT), t2=Math.min(s.dom[1],rt+halfT);
+  const y1=v+m*(t1-rt), y2=v+m*(t2-rt);
+  rrPlot.appendChild(el("line",{x1:M.sx(t1),y1:M.sy(y1),x2:M.sx(t2),y2:M.sy(y2),stroke:GOLD,"stroke-width":2.6,"stroke-linecap":"round"}));
+  // guide lines to axes (amount + time)
+  rrPlot.appendChild(el("line",{x1:M.sx(rt),y1:M.sy(v),x2:M.sx(rt),y2:RRH-RRP,stroke:ORCH,"stroke-width":1.2,"stroke-dasharray":"3 4",opacity:.6}));
+  rrPlot.appendChild(el("line",{x1:M.sx(rt),y1:M.sy(v),x2:RRP,y2:M.sy(v),stroke:TEAL,"stroke-width":1.2,"stroke-dasharray":"3 4",opacity:.55}));
+  // the draggable point
+  rrPlot.appendChild(el("circle",{cx:M.sx(rt),cy:M.sy(v),r:12,fill:ORCH,opacity:.16}));
+  rrPlot.appendChild(el("circle",{cx:M.sx(rt),cy:M.sy(v),r:6,fill:ORCH,stroke:"#1c1714","stroke-width":1.6}));
+}
+/* SVG gauge that reads the current rate */
+const GCX=150, GCY=150, GR=92, GA0=135, GSW=270, D2R=Math.PI/180;
+function gpt(r,deg){ const a=deg*D2R; return [GCX+r*Math.cos(a), GCY+r*Math.sin(a)]; }
+function garc(r,d0,d1){ const p0=gpt(r,d0), p1=gpt(r,d1), large=(d1-d0)>180?1:0;
+  return "M"+p0[0].toFixed(1)+" "+p0[1].toFixed(1)+" A "+r+" "+r+" 0 "+large+" 1 "+p1[0].toFixed(1)+" "+p1[1].toFixed(1); }
+function renderGauge(){ const s=scen(), g0=s.grange[0], g1=s.grange[1], m=s.df(rt); rrGauge.innerHTML="";
+  const frac=v=>Math.max(0,Math.min(1,(v-g0)/(g1-g0)));
+  const angOf=v=>GA0+frac(v)*GSW;
+  // track
+  rrGauge.appendChild(el("path",{d:garc(GR,GA0,GA0+GSW),fill:"none",stroke:DIM,"stroke-width":11,"stroke-linecap":"round"}));
+  // value arc from zero position (or g0) to current
+  const zeroV=(g0<=0&&g1>=0)?0:g0, aZero=angOf(zeroV), aVal=angOf(m);
+  rrGauge.appendChild(el("path",{d:garc(GR,Math.min(aZero,aVal),Math.max(aZero,aVal)),fill:"none",stroke:MAG,"stroke-width":11,"stroke-linecap":"round"}));
+  // ticks
+  for(let i=0;i<=10;i++){ const a=GA0+(i/10)*GSW, o=gpt(GR*1.05,a), q=gpt(GR*0.9,a);
+    rrGauge.appendChild(el("line",{x1:o[0],y1:o[1],x2:q[0],y2:q[1],stroke:"#5a5145","stroke-width":2})); }
+  // zero marker
+  if(g0<0&&g1>0){ const o=gpt(GR*1.12,aZero), q=gpt(GR*0.86,aZero);
+    rrGauge.appendChild(el("line",{x1:o[0],y1:o[1],x2:q[0],y2:q[1],stroke:"#9a9183","stroke-width":2}));
+    const lp=gpt(GR*1.24,aZero); rrGauge.appendChild(el("text",{x:lp[0],y:lp[1]+3,fill:"#9a9183","font-size":11,"text-anchor":"middle","font-family":"var(--mono)"},"0")); }
+  // needle
+  const np=gpt(GR*0.82,aVal), tp=gpt(GR*0.16,aVal+180), perp=aVal+90;
+  const b1=gpt(0,0); const bw=5;
+  const pb1=[GCX+bw*Math.cos(perp*D2R),GCY+bw*Math.sin(perp*D2R)], pb2=[GCX-bw*Math.cos(perp*D2R),GCY-bw*Math.sin(perp*D2R)];
+  rrGauge.appendChild(el("path",{d:"M"+np[0].toFixed(1)+" "+np[1].toFixed(1)+" L"+pb1[0].toFixed(1)+" "+pb1[1].toFixed(1)+" L"+tp[0].toFixed(1)+" "+tp[1].toFixed(1)+" L"+pb2[0].toFixed(1)+" "+pb2[1].toFixed(1)+" Z",fill:ORCH}));
+  rrGauge.appendChild(el("circle",{cx:GCX,cy:GCY,r:9,fill:MAG}));
+  rrGauge.appendChild(el("circle",{cx:GCX,cy:GCY,r:4,fill:"#ece5f4"}));
+  // readout
+  rrGauge.appendChild(el("text",{x:GCX,y:GCY-GR*0.5,fill:"#9a9183","font-size":10.5,"text-anchor":"middle","font-family":"var(--mono)","letter-spacing":"2"},"RATE"));
+  rrGauge.appendChild(el("text",{x:GCX,y:GCY+GR*0.62,fill:"#ece5f4","font-size":30,"text-anchor":"middle","font-family":"var(--display)","font-weight":"600"},(m>=0?"+":"")+m.toFixed(1)));
+  rrGauge.appendChild(el("text",{x:GCX,y:GCY+GR*0.62+20,fill:GOLD,"font-size":12,"text-anchor":"middle","font-family":"var(--mono)"},s.unit));
+}
+function renderRRRead(){ const s=scen(), v=s.f(rt), m=s.df(rt);
+  let dir; if(Math.abs(m)<0.05) dir='<span class="rt">'+s.zero+'</span>';
+  else dir=(m>0?s.pos:s.neg)+' at <span class="rt">'+Math.abs(m).toFixed(1)+' '+s.unit+'</span>';
+  document.getElementById("rrRead").innerHTML =
+    'At <b>'+(+rt.toFixed(1))+' '+(s.key==="trip"?"hr":"min")+'</b>, '+s.noun+' <span class="amt">'+s.amount(v)+'</span> and is '+dir+'.';
+  document.getElementById("rrHint").textContent =
+    "amount f(t) = height = "+v.toFixed(1)+"   ·   rate f′(t) = slope = "+m.toFixed(2);
+}
+function renderRR(){ renderRRLegend(); renderRRPlot(); renderGauge(); renderRRRead(); }
+function renderScenBtns(){ document.getElementById("scenBtns").innerHTML =
+  SCEN.map((s,i)=>'<button data-i="'+i+'" class="'+(i===si?'on':'')+'"><span class="sb-name">'+s.name+'</span></button>').join("");
+  document.querySelectorAll("#scenBtns button").forEach(b=>b.onclick=()=>{ si=+b.dataset.i;
+    rt=(scen().dom[0]+scen().dom[1])*0.28; renderScenBtns(); renderRR(); }); }
+/* drag */
+(function(){ let drag=false;
+  const setFromEvt=(e)=>{ const r=rrPlot.getBoundingClientRect(), cx=(e.touches?e.touches[0].clientX:e.clientX);
+    const px=(cx-r.left)/r.width*RRW; const M=mapper(scen().dom,scen().yr,RRW,RRH,RRP);
+    rt=Math.max(scen().dom[0],Math.min(scen().dom[1],M.ix(px))); renderRR(); };
+  const down=(e)=>{ drag=true; setFromEvt(e); e.preventDefault(); };
+  const move=(e)=>{ if(drag) setFromEvt(e); };
+  const up=()=>{ drag=false; };
+  rrPlot.addEventListener("pointerdown",down); window.addEventListener("pointermove",move); window.addEventListener("pointerup",up);
+})();
+
+/* ============ 2 · AVERAGE -> INSTANTANEOUS ============ */
+const AVW=520, AVH=400, AVP=46, avF=t=>20+30*Math.sin(Math.PI*t/10), avDF=t=>3*Math.PI*Math.cos(Math.PI*t/10), avA=3, avDom=[0,10], avYr=[0,56];
+let avH=3;
+const avPlot=document.getElementById("avPlot");
+function renderAv(){ const M=mapper(avDom,avYr,AVW,AVH,AVP); avPlot.innerHTML="";
+  drawAxes(avPlot,M,AVW,AVH,AVP,"t (min)","V (gal)");
+  avPlot.appendChild(el("path",{d:curvePath(M,avF,avDom,320),fill:"none",stroke:MAG,"stroke-width":2.6,opacity:.55,"stroke-linejoin":"round"}));
+  const va=avF(avA), m=avDF(avA);
+  // tangent
+  const y1=va+m*(avDom[0]-avA), y2=va+m*(avDom[1]-avA);
+  avPlot.appendChild(el("line",{x1:M.sx(avDom[0]),y1:M.sy(y1),x2:M.sx(avDom[1]),y2:M.sy(y2),stroke:MAG,"stroke-width":2.4,"stroke-linecap":"round",opacity:.9}));
+  // secant over [a, a+h]
+  const b=Math.min(avDom[1],avA+avH), vb=avF(b), avg=(vb-va)/(b-avA);
+  const sy1=va+avg*(avDom[0]-avA), sy2=va+avg*(avDom[1]-avA);
+  avPlot.appendChild(el("line",{x1:M.sx(avDom[0]),y1:M.sy(sy1),x2:M.sx(avDom[1]),y2:M.sy(sy2),stroke:TEAL,"stroke-width":2.4,"stroke-linecap":"round"}));
+  avPlot.appendChild(el("circle",{cx:M.sx(avA),cy:M.sy(va),r:5.5,fill:MAG,stroke:"#1c1714","stroke-width":1.4}));
+  avPlot.appendChild(el("circle",{cx:M.sx(b),cy:M.sy(vb),r:5.5,fill:TEAL,stroke:"#1c1714","stroke-width":1.4}));
+  const avg2=avg;
+  document.getElementById("avRead").innerHTML =
+    'Average rate over <b>[3, '+(+b.toFixed(1))+']</b> = '+
+    '<span style="color:#3fd0b0;font-weight:600">'+avg2.toFixed(2)+' gal/min</span>.<br>'+
+    'Instantaneous rate <b>V′(3)</b> = <span style="color:var(--approx);font-weight:600">'+m.toFixed(2)+' gal/min</span>. '+
+    'Gap: '+Math.abs(avg2-m).toFixed(2)+'.';
+}
+document.getElementById("avH").addEventListener("input",e=>{ avH=parseFloat(e.target.value); document.getElementById("avHval").textContent=avH.toFixed(1); renderAv(); });
+
+/* ============ static math bits ============ */
+function renderBits(){
+  const s=(id,l)=>{const n=document.getElementById(id); if(n) n.innerHTML=T(l);};
+  s("anatUnit","\\dfrac{\\text{gallons}}{\\text{minute}}");
+  s("tipSym","f'(a)\\approx\\dfrac{f(a+h)-f(a-h)}{2h}");
+  s("c1","f'(a)=\\lim_{h\\to0}\\dfrac{f(a+h)-f(a)}{h}");
+  s("c2","[\\,f'\\,]=\\dfrac{[\\text{output}]}{[\\text{input}]}");
+  s("c3","f(a)\\ \\text{vs.}\\ f'(a)");
+  s("c4","\\dfrac{f(b)-f(a)}{b-a}\\ \\xrightarrow[b\\to a]{}\\ f'(a)");
+  // table worked estimate: V at t=4, symmetric (V(6)-V(2))/(6-2) = (30-10)/4 = 5
+  document.getElementById("tableWork").innerHTML =
+    'Estimate <b>V′(4)</b> with the balanced interval [2, 6]: '+
+    T("V'(4)\\approx\\dfrac{V(6)-V(2)}{6-2}=\\dfrac{30-10}{4}=5\\ \\text{L/s}")+
+    '<br><span style="color:var(--muted)">At t = 4 s the balloon is inflating at about <b style="color:var(--ink)">5 liters per second</b>. '+
+    'A one-sided estimate like (V(6)&minus;V(4))/2 = 6.5 is rougher — the centered difference is best.</span>';
+}
+
+/* ============ concepts already inline; practice ============ */
+const PRAC=[
+ { tag:"Interpret with units", q:()=>'A fuel tank holds V(t) gallons t minutes into a drive, and '+T("V'(20)=-0.4")+'. Interpret this in a sentence.',
+   sol:[{t:"Sign is negative, so the amount is decreasing; units are gallons per minute:",m:"\\text{At }t=20\\text{ min, fuel is being used at }0.4\\text{ gal/min.}"}] },
+ { tag:"Units of a rate", q:()=>'A town’s population is P(t) people, t years after 2000. What are the units of '+T("P'(t)")+'?',
+   sol:[{t:"Output per input:",m:"\\dfrac{\\text{people}}{\\text{year}}\\quad(\\text{people per year})"}] },
+ { tag:"Amount vs. rate", q:()=>'A drug’s blood concentration is C(t) mg/L, t hours after a dose, with '+T("C(3)=8")+' and '+T("C'(3)=-0.5")+'. What does each number mean?',
+   sol:[{t:"C(3) is the amount present:",m:"8\\ \\text{mg/L in the blood at }t=3\\text{ h}"},{t:"C′(3) is the rate — negative, so falling:",m:"\\text{dropping at }0.5\\ \\text{mg/L per hour}"}] },
+ { tag:"Estimate from a table", q:()=>'A rod’s temperature H (°C) at position x (cm): H(2)=54, H(4)=61, H(6)=78. Estimate '+T("H'(4)")+'.',
+   sol:[{t:"Balanced difference around x = 4:",m:"H'(4)\\approx\\dfrac{H(6)-H(2)}{6-2}=\\dfrac{78-54}{4}=6\\ \\text{°C/cm}"}] },
+ { tag:"Rate is zero", q:()=>'At the instant a launched ball reaches its peak height, its height h(t) satisfies '+T("h'(t)=0")+'. What is happening?',
+   sol:[{t:"Zero rate means the amount is momentarily not changing:",m:"\\text{the ball is momentarily at rest — the top of its arc}"}] },
+ { tag:"Marginal cost", q:()=>'Producing x phones costs C(x) dollars, with '+T("C'(200)=45")+'. Interpret.',
+   sol:[{t:"Dollars per phone, at x = 200:",m:"\\text{the }201^{\\text{st}}\\text{ phone costs about \\$45 to make}"}] }
+];
+function renderPractice(){
+  document.getElementById("practice").innerHTML=PRAC.map((p,i)=>{
+    const steps=p.sol.map((st,j)=>'<div class="why-step"><div class="why-n">'+(j+1)+'</div><div><div class="why-t">'+st.t+'</div>'+(st.m?'<div class="why-m">'+T(st.m)+'</div>':'')+'</div></div>').join("");
+    return '<div class="prob"><div class="prob-tag">'+p.tag+'</div><div class="prob-q">'+p.q()+'</div>'
+      +'<button class="soltoggle" data-i="'+i+'">Show solution</button><div class="sol" id="sol'+i+'">'+steps+'</div></div>';
+  }).join("");
+  document.querySelectorAll(".soltoggle").forEach(btn=>{ btn.onclick=()=>{ const i=btn.getAttribute("data-i"), s=document.getElementById("sol"+i);
+    btn.textContent=s.classList.toggle("show")?"Hide solution":"Show solution"; }; });
+}
+
+/* ============ quiz ============ */
+const QUIZ=[
+ { q:()=>'A pool holds W(t) liters t minutes after filling starts. The units of '+T("W'(t)")+' are:',
+   opts:[{h:()=>"liters per minute",ok:true},{h:()=>"liters",ok:false},{h:()=>"minutes per liter",ok:false},{h:()=>"minutes",ok:false}],
+   fb:"A rate is output per input: liters per minute. Liters alone is the amount; the flipped order is the wrong quantity." },
+ { q:()=>'If '+T("f'(a)<0")+' in context, the quantity is:',
+   opts:[{h:()=>"decreasing",ok:true},{h:()=>"negative",ok:false},{h:()=>"increasing",ok:false},{h:()=>"zero",ok:false}],
+   fb:"A negative rate means the amount is falling. It does not mean the amount itself is negative." },
+ { q:()=>'A tank has '+T("V(6)=40")+' and '+T("V'(6)=-3")+'. Which is the amount of water present?',
+   opts:[{h:()=>T("V(6)=40\\text{ gal}"),ok:true},{h:()=>T("V'(6)=-3"),ok:false},{h:()=>"both",ok:false},{h:()=>"neither",ok:false}],
+   fb:"f(a) is the amount (40 gal); f′(a) is the rate (draining at 3 gal/min)." },
+ { q:()=>'A plant’s height is H(t) cm, t days after sprouting, and '+T("H'(3)=2.5")+'. Best interpretation:',
+   opts:[{h:()=>"On day 3 the plant is growing at 2.5 cm/day",ok:true},{h:()=>"The plant is 2.5 cm tall on day 3",ok:false},{h:()=>"The plant grew 2.5 cm total",ok:false},{h:()=>"On day 3 the plant grows at 2.5 days/cm",ok:false}],
+   fb:"H′(3) is the instantaneous rate on day 3 — growth of 2.5 cm per day. The others confuse amount, total, or flip the units." },
+ { q:()=>'The quantity '+T("\\dfrac{f(b)-f(a)}{b-a}")+' gives the:',
+   opts:[{h:()=>"average rate over [a, b]",ok:true},{h:()=>"instantaneous rate at a",ok:false},{h:()=>"amount at b",ok:false},{h:()=>"total change squared",ok:false}],
+   fb:"That difference quotient is a secant slope — the average rate over the interval. The instantaneous rate is its limit as b → a." },
+ { q:()=>'A car’s position is s(t) with '+T("s'(5)=0")+' for an instant. This means:',
+   opts:[{h:()=>"the car is momentarily stopped",ok:true},{h:()=>"the car is at the origin",ok:false},{h:()=>"the car has gone 0 miles",ok:false},{h:()=>"the car is speeding up",ok:false}],
+   fb:"Rate zero means position isn’t changing at that instant — momentarily at rest. It says nothing about where the car is." }
+];
+let qi=0,qScore=0,qDone=0,qAnswered=false;
+const qOpts=document.getElementById("qOpts"),qFb=document.getElementById("qFb"),qNext=document.getElementById("qNext");
+function renderQuiz(){ qAnswered=false; const item=QUIZ[qi];
+  document.getElementById("qText").innerHTML=item.q();
+  document.getElementById("qProgress").textContent="Question "+(qi+1)+" of "+QUIZ.length;
+  document.getElementById("qScore").textContent="Score: "+qScore+" / "+qDone;
+  qFb.innerHTML=""; qNext.style.display="none";
+  qNext.textContent = qi<QUIZ.length-1 ? "Next question →" : "Restart quiz ↺";
+  qOpts.innerHTML="";
+  item.opts.forEach(o=>{ const b=document.createElement("button"); b.innerHTML=o.h();
+    b.onclick=()=>{ if(qAnswered)return; qAnswered=true; qDone++;
+      [...qOpts.children].forEach((bb,k)=>{ bb.disabled=true; if(item.opts[k].ok) bb.classList.add("correct"); });
+      if(o.ok){ qScore++; b.classList.add("correct"); qFb.innerHTML='<span style="color:var(--conv);font-weight:600">✓ Correct.</span> <span style="color:var(--muted)">'+item.fb+'</span>'; }
+      else { b.classList.add("wrong"); qFb.innerHTML='<span style="color:var(--div);font-weight:600">✗ Not quite.</span> <span style="color:var(--muted)">'+item.fb+'</span>'; }
+      document.getElementById("qScore").textContent="Score: "+qScore+" / "+qDone; qNext.style.display="block";
+    };
+    qOpts.appendChild(b); });
+}
+qNext.onclick=()=>{ if(qi<QUIZ.length-1){ qi++; } else { qi=0; qScore=0; qDone=0; } renderQuiz(); };
+
+/* ============ init + KaTeX refresh ============ */
+function boot(){ renderScenBtns(); renderRR(); renderAv(); renderBits(); renderPractice(); renderQuiz(); }
+boot();
+if(!window.katex){ let tries=0; const t=setInterval(()=>{ if(window.katex){ clearInterval(t); renderBits(); renderRR(); renderAv(); renderPractice(); renderQuiz(); }
+  else if(++tries>40) clearInterval(t); },150); }
+document.querySelectorAll('.reveal').forEach((n,i)=>{ n.style.animationDelay=Math.min(i*28,440)+'ms'; });
+</script>
+</body>
+</html>
