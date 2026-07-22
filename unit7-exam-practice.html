@@ -498,5 +498,6 @@ if(window.addEventListener)window.addEventListener('load',()=>{if(window.katex){
 if(!window.katex){let t=0;const iv=setInterval(()=>{if(window.katex){clearInterval(iv);newBatch();renderFRQ();}else if(++t>60)clearInterval(iv);},100);}
 document.querySelectorAll('.reveal').forEach((n,i)=>{n.style.animationDelay=Math.min(i*40,360)+'ms';});
 </script>
+<script src="tutor.js"></script>
 </body>
 </html>

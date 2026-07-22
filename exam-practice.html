@@ -822,5 +822,6 @@ init();
 if(!window.katex){ let tries=0; const t=setInterval(()=>{ if(window.katex){clearInterval(t); renderGiven(); buildFRQ(); renderMC(); } else if(++tries>40)clearInterval(t); },150); }
 document.querySelectorAll('.reveal').forEach((n,i)=>{n.style.animationDelay=Math.min(i*45,360)+'ms';});
 </script>
+<script src="tutor.js"></script>
 </body>
 </html>
