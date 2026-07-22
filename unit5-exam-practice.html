@@ -54,6 +54,7 @@
   .tb.thinking span:nth-child(2){animation-delay:.2s} .tb.thinking span:nth-child(3){animation-delay:.4s}
   @keyframes tdot{0%,60%,100%{opacity:.25}30%{opacity:1}}
   .tutor-err{color:var(--div);font-size:12.5px;font-family:var(--mono);padding:0 14px 10px}
+  .tutor-mathfb{font-family:var(--mono);font-size:.94em;background:rgba(255,255,255,.06);border-radius:4px;padding:1px 5px}
   .tutor-inrow{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
   .tutor-inrow input{flex:1;background:var(--panel);border:1px solid var(--line-2);border-radius:9px;color:var(--ink);font-family:var(--body);font-size:13.5px;padding:9px 12px}
   .tutor-inrow input:focus{outline:none;border-color:var(--approx)}
@@ -588,13 +589,29 @@ function tutorStrip(s){ return String(s||'')
   .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ')
   .replace(/&mdash;/g,'—').replace(/&rarr;/g,'→').replace(/&rsquo;/g,'’').replace(/&ldquo;|&rdquo;/g,'"'); }
 function tutorEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+/* AI-generated LaTeX isn't as clean as our hand-written content — an unmatched \( or a
+   malformed command anywhere in the message would otherwise render KaTeX's red "can't
+   parse this" text across the whole line. Render each \(...\) piece independently, on
+   the RAW (pre-escape, pre-<br>) text, so one bad expression can't swallow surrounding
+   HTML or wreck the rest of the message; a piece that fails degrades to plain monospace
+   text instead of KaTeX's red error output. */
 function tutorRender(s){
-  let t=tutorEsc(s);
-  t=t.replace(/\$([^$\n]+)\$/g,'\\($1\\)');                  // tolerate $…$ from the model
-  t=t.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>');
-  t=t.replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s.,;:!?)]|$)/g,'$1<i>$2</i>');
-  t=t.replace(/\n/g,'<br>');
-  return mathify(t);
+  var raw=String(s||"");
+  raw=raw.replace(/\$([^$\n]+)\$/g,function(m,inner){ return "\\(" + inner + "\\)"; });
+  var store=[];
+  raw=raw.replace(/\\\(([\s\S]+?)\\\)/g,function(m,inner){
+    var html;
+    try{ html=window.katex?katex.renderToString(inner,{throwOnError:true,strict:false}):null; }
+    catch(e){ html=null; }
+    if(html==null) html="<code class=\"tutor-mathfb\">"+tutorEsc(inner.trim())+"</code>";
+    store.push(html); return "MATHPH"+(store.length-1)+"ENDPH";
+  });
+  var t=tutorEsc(raw);
+  t=t.replace(/\*\*([^*]+)\*\*/g,function(m,inner){ return "<b>"+inner+"</b>"; });
+  t=t.replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s.,;:!?)]|$)/g,function(m,pre,inner){ return pre+"<i>"+inner+"</i>"; });
+  t=t.replace(/\n/g,"<br>");
+  t=t.replace(/MATHPH(\d+)ENDPH/g,function(m,i){ return store[+i]; });
+  return t;
 }
 
 function tutorSystem(ctx){
