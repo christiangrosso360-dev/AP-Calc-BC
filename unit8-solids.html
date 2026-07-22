@@ -219,6 +219,23 @@
   </div>
   <div class="eq reveal" id="discEq"></div>
 
+  <!-- ===== YOUR TURN · Revolve (The Instrument) ===== -->
+  <style>
+    .tryit{background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid rgba(70,199,208,.35);border-radius:16px;padding:20px 22px 22px;margin:30px 0;box-shadow:0 1px 0 rgba(255,255,255,.04) inset}
+    .tryit h3{font-family:var(--display);font-weight:600;font-size:19px;margin:0 0 8px;color:var(--emerald-glow)}
+    .tryit p{font-size:14px;color:var(--muted);line-height:1.6;margin:0;max-width:780px}
+    .tryit p b{color:var(--ink)} .tryit p .mono{font-family:var(--mono);font-size:.92em;color:var(--emerald-glow)}
+    .tryit iframe{width:100%;border:1px solid var(--line);border-radius:12px;height:900px;background:var(--bg);display:block;margin-top:16px;transition:height .2s}
+  </style>
+  <div class="tryit reveal">
+    <h3>▶ Now build one from <em>your</em> curves</h3>
+    <p>The model above is one example. Here's the same machine — but <b>you type the curves</b>, straight from your homework. Pick the axis (x, y, or any line like <span class="mono">y=3</span>), hit <b>Revolve</b>, and it hands you the disc / washer / shell setup in your own numbers — then press <b>Sweep</b> to watch the volume build.</p>
+    <iframe id="revolveFrame" src="revolve.html?embed=1" title="Revolve — build a solid of revolution from your own curves" loading="lazy"></iframe>
+  </div>
+  <script>
+    window.addEventListener('message',function(e){ if(e&&e.data&&e.data.revolveH){ var f=document.getElementById('revolveFrame'); if(f) f.style.height=Math.max(640,e.data.revolveH)+'px'; }});
+  </script>
+
   <!-- ===== 2 · ONE FORMULA ===== -->
   <h2 class="reveal"><span class="n">2</span> · It's all one formula</h2>
   <p class="lead reveal">Most guides hand you a "disc formula" and a separate "washer formula" and make you memorize which to
