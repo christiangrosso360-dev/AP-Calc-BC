@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Revolve — build a solid from your own curves · The Instrument</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%230d0c0a%22/%3E%3Cellipse%20cx%3D%2216%22%20cy%3D%2216%22%20rx%3D%2210%22%20ry%3D%224.5%22%20fill%3D%22none%22%20stroke%3D%22%2335c7d6%22%20stroke-width%3D%222%22/%3E%3Cpath%20d%3D%22M6%2016%20a10%204.5%200%200%200%2020%200%22%20fill%3D%22none%22%20stroke%3D%22%2335c7d6%22%20stroke-width%3D%222%22%20opacity%3D%22.5%22/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<link rel="stylesheet" href="styles.css">
+<script src="helpers.js"></script>
+<style>
+  :root{
+    --approx:#35c7d6; --gold:#35c7d6; --true:#3fd0b0;
+    --glow:rgba(53,199,214,.10); --wrap-max:1180px;
+    --cyan:#35c7d6; --cyan-glow:#7fe4ef; --amber:#e8a13c; --rose:#e0644f;
+  }
+  .lede{color:var(--muted);font-size:15.5px;max-width:660px;margin:12px 0 0;line-height:1.6}
+  .beta{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--cyan);border:1px solid rgba(53,199,214,.4);border-radius:20px;padding:3px 10px;margin-left:10px;vertical-align:middle}
+
+  /* ---- input console ---- */
+  .console{background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--line-2);
+    border-radius:16px;padding:18px 20px;margin-top:22px;box-shadow:0 1px 0 rgba(255,255,255,.04) inset}
+  .inrow{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--muted)}
+  .field label b{color:var(--cyan-glow);font-weight:500}
+  .field input{background:var(--bg);border:1px solid var(--line-2);border-radius:9px;color:var(--ink);
+    font-family:var(--mono);font-size:15px;padding:10px 12px;width:100%;transition:border-color .15s}
+  .field input:focus{outline:none;border-color:var(--cyan)}
+  .field.fn input{width:186px} .field.bd input{width:70px}
+  .axis-seg{display:flex;gap:0;border:1px solid var(--line-2);border-radius:9px;overflow:hidden}
+  .aseg{background:var(--bg);border:none;border-right:1px solid var(--line-2);color:var(--muted);
+    font-family:var(--mono);font-size:12.5px;padding:9px 12px;cursor:pointer;display:flex;align-items:center;gap:2px;transition:background .15s,color .15s}
+  .aseg:last-child{border-right:none}
+  .aseg.on{background:rgba(53,199,214,.16);color:var(--cyan-glow)}
+  .aseg.cust input{width:34px;background:transparent;border:none;border-bottom:1px dashed var(--line-2);
+    color:inherit;font-family:var(--mono);font-size:12.5px;padding:0 1px;text-align:center}
+  .aseg.cust input:focus{outline:none;border-bottom-color:var(--cyan)}
+  .go{background:var(--cyan);color:#062023;font-family:var(--mono);font-weight:500;font-size:14px;border:none;
+    border-radius:9px;padding:11px 22px;cursor:pointer;box-shadow:0 8px 20px -10px var(--cyan);transition:transform .15s,box-shadow .15s}
+  .go:hover{transform:translateY(-1px);box-shadow:0 12px 26px -10px var(--cyan)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .chip{font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--bg);border:1px solid var(--line);
+    border-radius:20px;padding:6px 13px;cursor:pointer;transition:border-color .15s,color .15s}
+  .chip:hover{border-color:var(--cyan);color:var(--cyan-glow)}
+  .chip .k{color:var(--faint);margin-left:6px}
+  .err{color:var(--rose);font-family:var(--mono);font-size:12.5px;margin-top:12px;min-height:16px}
+
+  /* ---- stage: 2D + 3D ---- */
+  .stage{display:grid;grid-template-columns:1fr 1.25fr;gap:16px;margin-top:18px}
+  @media(max-width:860px){.stage{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px 10px;position:relative;min-width:0}
+  .panel .plabel{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+  .panel .plabel .hint{color:var(--faint);text-transform:none;letter-spacing:0;font-size:11px}
+  #cv2d{width:100%;height:340px;display:block;border-radius:8px}
+  #wrap3d{width:100%;height:400px;border-radius:8px;overflow:hidden;position:relative;
+    background:radial-gradient(ellipse 70% 60% at 50% 40%, rgba(53,199,214,.06), transparent 70%)}
+  #cv3d{width:100%;height:100%;display:block;cursor:grab}
+  #cv3d.drag{cursor:grabbing}
+  .badge3d{position:absolute;left:12px;bottom:10px;font-family:var(--mono);font-size:11px;color:var(--muted);
+    background:rgba(13,12,10,.7);border:1px solid var(--line);border-radius:6px;padding:4px 9px;pointer-events:none}
+  .sweepbtn{font-family:var(--mono);font-size:11.5px;color:#062023;background:var(--cyan);border:none;border-radius:6px;
+    padding:5px 13px;cursor:pointer;text-transform:none;letter-spacing:0;transition:transform .15s,box-shadow .15s}
+  .sweepbtn:hover{transform:translateY(-1px);box-shadow:0 6px 16px -8px var(--cyan)}
+  .sweepbtn:disabled{opacity:.45;cursor:default;transform:none;box-shadow:none}
+  .lab3d{position:absolute;transform:translate(-50%,-50%);font-family:var(--mono);font-size:12px;font-weight:500;
+    color:#062023;background:var(--cyan-glow);border-radius:5px;padding:1px 7px;pointer-events:none;white-space:nowrap;
+    box-shadow:0 2px 8px -2px rgba(0,0,0,.55);z-index:3}
+  .lab3d.dim{background:var(--amber);color:#1a1206}
+
+  /* ---- analysis ---- */
+  .analysis{background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--line);
+    border-radius:14px;padding:18px 22px;margin-top:16px}
+  .method-hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .method-tag{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#062023;
+    background:var(--cyan);border-radius:6px;padding:5px 11px;font-weight:500}
+  .method-hd h3{font-family:var(--display);font-weight:600;font-size:19px;margin:0;color:var(--ink)}
+  .why{color:var(--muted);font-size:14px;line-height:1.6;margin:12px 0 0;max-width:780px}
+  .why b{color:var(--cyan-glow);font-weight:500}
+  .why.warn b{color:var(--amber)}
+  .setup{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-top:14px;overflow-x:auto}
+  .setup .katex-display{margin:.3em 0}
+  .valrow{display:flex;flex-wrap:wrap;gap:26px;margin-top:14px}
+  .val{display:flex;flex-direction:column;gap:3px}
+  .val .vk{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+  .val .vv{font-family:var(--display);font-size:22px;color:var(--cyan-glow)}
+  .val .vv small{font-size:13px;color:var(--muted);font-family:var(--mono)}
+
+  footer{color:var(--muted);font-size:12px;margin-top:40px;border-top:1px solid var(--line);padding-top:14px}
+  footer a{color:var(--cyan);text-decoration:none}
+  /* embed mode: hide own chrome so it drops cleanly inside a lesson */
+  body.embed{padding:4px 2px}
+  body.embed .backlink,body.embed header,body.embed footer{display:none}
+  body.embed .console{margin-top:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="index.html">← Visual Calculus</a>
+  <header>
+    <h1>Revolve<span class="em">.</span><span class="beta">The Instrument · beta</span></h1>
+    <p class="lede">Type the curves from <i>your</i> homework. Watch your region lift off the page and sweep into a solid you can grab and spin — with the disc / washer / shell setup written out in your own numbers.</p>
+  </header>
+
+  <div class="console">
+    <div class="inrow">
+      <div class="field fn"><label>curve <b>ƒ(x)</b></label><input id="fIn" value="sqrt(x)" autocomplete="off" spellcheck="false"></div>
+      <div class="field fn"><label>curve <b>g(x)</b> <span style="color:var(--faint)">(blank = x-axis)</span></label><input id="gIn" value="x^2" autocomplete="off" spellcheck="false"></div>
+      <div class="field bd"><label>from <b>a</b></label><input id="aIn" placeholder="auto" autocomplete="off" spellcheck="false"></div>
+      <div class="field bd"><label>to <b>b</b></label><input id="bIn" placeholder="auto" autocomplete="off" spellcheck="false"></div>
+      <div class="field"><label>revolve about</label>
+        <div class="axis-seg" id="axisSeg">
+          <button class="aseg on" data-axis="x">x-axis</button>
+          <button class="aseg" data-axis="y">y-axis</button>
+          <label class="aseg cust" data-axis="hk">y=<input id="hkIn" value="3" spellcheck="false"></label>
+          <label class="aseg cust" data-axis="vh">x=<input id="vhIn" value="-1" spellcheck="false"></label>
+        </div>
+      </div>
+      <button class="go" id="goBtn">Revolve ⟳</button>
+    </div>
+    <div class="chips" id="chips">
+      <span class="chip" data-f="sqrt(x)" data-g="x^2" data-a="" data-b="" data-axis="x">√x &amp; x²<span class="k">x-axis · washer</span></span>
+      <span class="chip" data-f="sin(x)" data-g="" data-a="0" data-b="pi" data-axis="x">sin x on [0,π]<span class="k">disc</span></span>
+      <span class="chip" data-f="x^2" data-g="x" data-a="" data-b="" data-axis="y">x² &amp; x<span class="k">y-axis · shell</span></span>
+      <span class="chip" data-f="x^2" data-g="2x" data-a="" data-b="" data-axis="y">x² &amp; 2x<span class="k">y-axis · shell</span></span>
+      <span class="chip" data-f="sqrt(x)" data-g="x^2" data-a="" data-b="" data-axis="hk" data-k="-1">√x &amp; x²<span class="k">about y=−1</span></span>
+      <span class="chip" data-f="4-x^2" data-g="" data-a="-2" data-b="2" data-axis="x">4−x²<span class="k">disc</span></span>
+    </div>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="stage">
+    <div class="panel">
+      <div class="plabel"><span>The region</span><span class="hint">this is what revolves</span></div>
+      <canvas id="cv2d"></canvas>
+    </div>
+    <div class="panel">
+      <div class="plabel"><span>The solid</span><span style="display:flex;gap:10px;align-items:center"><span class="hint">drag · scroll to zoom</span><button class="sweepbtn" id="sweepBtn">▶ Sweep</button></span></div>
+      <div id="wrap3d"><canvas id="cv3d"></canvas><div class="badge3d" id="badge3d"></div></div>
+    </div>
+  </div>
+
+  <div class="analysis" id="analysis" style="display:none">
+    <div class="method-hd"><span class="method-tag" id="mTag">Washer</span><h3 id="mTitle">Revolving about the x-axis</h3></div>
+    <p class="why" id="mWhy"></p>
+    <div class="setup" id="mSetup"></div>
+    <div class="valrow" id="mVals"></div>
+  </div>
+
+  <footer>Revolve · the first tool in <b style="color:var(--muted)">The Instrument</b> — point every visual we've built at your own functions. Part of the <a href="index.html">Visual AP Calculus</a> guide.</footer>
+</div>
+
+<script>
+/* ============================================================
+   1 · EXPRESSION PARSER  (recursive descent → AST)
+   ============================================================ */
+function tokenize(s){
+  s=s.replace(/\s+/g,''); if(!s) throw new Error('empty');
+  const T=[]; let i=0;
+  const dig=c=>c>='0'&&c<='9', alp=c=>(c>='a'&&c<='z')||(c>='A'&&c<='Z');
+  while(i<s.length){ const c=s[i];
+    if(dig(c)||c==='.'){ let j=i+1; while(j<s.length&&(dig(s[j])||s[j]==='.'))j++; T.push({t:'num',v:parseFloat(s.slice(i,j))}); i=j; }
+    else if(alp(c)){ let j=i+1; while(j<s.length&&(alp(s[j])||dig(s[j])))j++; T.push({t:'id',v:s.slice(i,j).toLowerCase()}); i=j; }
+    else if('+-*/^()'.includes(c)){ T.push({t:c}); i++; }
+    else throw new Error('unexpected "'+c+'"'); }
+  return T;
+}
+const FN_ALIAS={arcsin:'asin',arccos:'acos',arctan:'atan'};
+function parse(str){
+  const T=tokenize(str); let p=0; const peek=()=>T[p], adv=()=>T[p++];
+  function expr(){ let a=term(); while(peek()&&(peek().t==='+'||peek().t==='-')){ const o=adv().t; a={t:o==='+'?'add':'sub',a,b:term()}; } return a; }
+  function term(){ let a=unary(); while(peek()){ const k=peek().t; if(k==='*'||k==='/'){ adv(); a={t:k==='*'?'mul':'div',a,b:unary()}; } else if(k==='num'||k==='id'||k==='('){ a={t:'mul',a,b:unary()}; } else break; } return a; }
+  function unary(){ if(peek()&&peek().t==='-'){ adv(); return {t:'neg',a:unary()}; } if(peek()&&peek().t==='+'){ adv(); return unary(); } return pow(); }
+  function pow(){ const a=atom(); if(peek()&&peek().t==='^'){ adv(); return {t:'pow',a,b:unary()}; } return a; }
+  function atom(){ const k=peek(); if(!k) throw new Error('unexpected end');
+    if(k.t==='num'){ adv(); return {t:'num',v:k.v}; }
+    if(k.t==='('){ adv(); const e=expr(); expect(')'); return e; }
+    if(k.t==='id'){ adv(); const nm=k.v;
+      if(nm==='x') return {t:'var'};
+      if(nm==='pi') return {t:'const',v:Math.PI,name:'pi'};
+      if(nm==='tau') return {t:'const',v:2*Math.PI,name:'tau'};
+      if(peek()&&peek().t==='('){ adv(); const arg=expr(); expect(')'); return {t:'call',name:FN_ALIAS[nm]||nm,arg}; }
+      if(nm==='e') return {t:'const',v:Math.E,name:'e'};
+      throw new Error('unknown name "'+nm+'"'); }
+    throw new Error('unexpected token'); }
+  function expect(t){ if(!peek()||peek().t!==t) throw new Error('expected "'+t+'"'); adv(); }
+  const ast=expr(); if(p<T.length) throw new Error('trailing input'); return ast;
+}
+const FNS={ sin:Math.sin,cos:Math.cos,tan:Math.tan,asin:Math.asin,acos:Math.acos,atan:Math.atan,
+  sinh:Math.sinh,cosh:Math.cosh,tanh:Math.tanh,sec:x=>1/Math.cos(x),csc:x=>1/Math.sin(x),cot:x=>1/Math.tan(x),
+  ln:Math.log,log:x=>Math.log10(x),log2:x=>Math.log2(x),exp:Math.exp,sqrt:Math.sqrt,cbrt:Math.cbrt,abs:Math.abs };
+function ev(n,x){ switch(n.t){
+  case 'num': return n.v; case 'var': return x; case 'const': return n.v;
+  case 'neg': return -ev(n.a,x);
+  case 'add': return ev(n.a,x)+ev(n.b,x); case 'sub': return ev(n.a,x)-ev(n.b,x);
+  case 'mul': return ev(n.a,x)*ev(n.b,x); case 'div': return ev(n.a,x)/ev(n.b,x);
+  case 'pow': return Math.pow(ev(n.a,x),ev(n.b,x));
+  case 'call': { const f=FNS[n.name]; if(!f) throw new Error('unknown function "'+n.name+'"'); return f(ev(n.arg,x)); } } }
+
+/* AST → LaTeX */
+function fmtNum(v){ if(!isFinite(v)) return String(v); if(Math.abs(v-Math.round(v))<1e-9) return String(Math.round(v)); return (+v.toFixed(4)).toString(); }
+function texEmit(n,parent){ let s,prec;
+  switch(n.t){
+    case 'num': s=fmtNum(n.v); prec=5; break;
+    case 'var': s='x'; prec=5; break;
+    case 'const': s=(n.name==='pi'?'\\pi':n.name==='tau'?'\\tau':n.name==='e'?'e':fmtNum(n.v)); prec=5; break;
+    case 'neg': s='-'+texEmit(n.a,3); prec=2; break;
+    case 'add': s=texEmit(n.a,1)+'+'+texEmit(n.b,1); prec=1; break;
+    case 'sub': s=texEmit(n.a,1)+'-'+texEmit(n.b,2); prec=1; break;
+    case 'mul': { const l=texEmit(n.a,2), r=texEmit(n.b,2); s=(n.a.t==='num'&&n.b.t!=='num')?l+r:l+'\\cdot '+r; prec=2; break; }
+    case 'div': s='\\dfrac{'+texEmit(n.a,0)+'}{'+texEmit(n.b,0)+'}'; prec=5; break;
+    case 'pow': s=texEmit(n.a,5)+'^{'+texEmit(n.b,0)+'}'; prec=4; break;
+    case 'call': s=texCall(n); prec=5; break; }
+  if(prec<parent) return '\\left('+s+'\\right)'; return s; }
+function texCall(n){ const a=texEmit(n.arg,0), nm=n.name;
+  if(nm==='sqrt') return '\\sqrt{'+a+'}'; if(nm==='cbrt') return '\\sqrt[3]{'+a+'}';
+  if(nm==='abs') return '\\left|'+a+'\\right|'; if(nm==='exp') return 'e^{'+a+'}';
+  if(nm==='ln') return '\\ln\\!\\left('+a+'\\right)'; if(nm==='log') return '\\log\\!\\left('+a+'\\right)';
+  if(nm==='asin') return '\\arcsin\\!\\left('+a+'\\right)'; if(nm==='acos') return '\\arccos\\!\\left('+a+'\\right)'; if(nm==='atan') return '\\arctan\\!\\left('+a+'\\right)';
+  return '\\'+nm+'\\!\\left('+a+'\\right)'; }
+function toTex(ast){ return texEmit(ast,0); }
+
+/* ============================================================
+   2 · NUMERICS  (roots, region, integration)
+   ============================================================ */
+function safe(fn,x){ try{ const y=fn(x); return isFinite(y)?y:NaN; }catch(e){ return NaN; } }
+function simpson(g,a,b,n){ if(n%2)n++; const h=(b-a)/n; let s=g(a)+g(b);
+  for(let i=1;i<n;i++){ const y=g(a+i*h); s+=(i%2?4:2)*(isFinite(y)?y:0); } return s*h/3; }
+function boundaries(f,g,x0,x1){
+  const N=5000, cand=[]; const d=x=>{const a=safe(f,x),b=safe(g,x); return a-b;};
+  const s=[]; for(let i=0;i<=N;i++){ const x=x0+(x1-x0)*i/N; const a=safe(f,x),b=safe(g,x), ok=isFinite(a)&&isFinite(b);
+    s.push({x,d:ok?a-b:NaN,ok,scale:Math.max(1,Math.abs(a),Math.abs(b))}); }
+  const tolOf=k=>1e-5*s[k].scale; let i=0;
+  while(i<=N){ if(!s[i].ok){i++;continue;} let j=i; while(j+1<=N&&s[j+1].ok)j++;
+    if(Math.abs(s[i].d)<tolOf(i)) cand.push(s[i].x);
+    if(Math.abs(s[j].d)<tolOf(j)) cand.push(s[j].x);
+    for(let k=i;k<j;k++){ const d0=s[k].d,d1=s[k+1].d;
+      if(d0*d1<0){ let lo=s[k].x,hi=s[k+1].x,fl=d0; for(let t=0;t<60;t++){const m=(lo+hi)/2,fm=d(m); if(!isFinite(fm)){lo=m;continue;} if(fl*fm<=0)hi=m; else{lo=m;fl=fm;}} cand.push((lo+hi)/2); }
+      else if(k>i&&k<j){ const dm=Math.abs(s[k].d); if(dm<tolOf(k)&&Math.abs(s[k-1].d)>=dm&&Math.abs(s[k+1].d)>=dm) cand.push(s[k].x); } }
+    i=j+1; }
+  cand.sort((p,q)=>p-q); const out=[]; for(const c of cand){ if(!out.length||Math.abs(c-out[out.length-1])>1e-4) out.push(c); } return out;
+}
+function getRegion(fAst,gAst,aStr,bStr){
+  const f=x=>ev(fAst,x); const g=gAst?(x=>ev(gAst,x)):(()=>0);
+  let a,b; const aG=aStr!==''&&aStr!=null, bG=bStr!==''&&bStr!=null;
+  if(aG&&bG){ a=ev(parse(aStr),0); b=ev(parse(bStr),0); if(a>b)[a,b]=[b,a]; }
+  else { const cands=boundaries(f,g,-30,30);
+    if(cands.length<2) throw new Error('couldn’t find where the curves meet — set the bounds a and b');
+    let best=-1,bi=-1;
+    for(let i=0;i<cands.length-1;i++){ const lo=cands[i],hi=cands[i+1]; if(hi-lo<1e-3)continue;
+      const mid=(lo+hi)/2; if(!isFinite(safe(f,mid))||!isFinite(safe(g,mid))) continue;
+      const area=Math.abs(simpson(x=>{const v=safe(f,x)-safe(g,x);return isFinite(v)?v:0;},lo,hi,200));
+      if(area>best){best=area;bi=i;} }
+    if(bi<0) throw new Error('couldn’t find a bounded region — set the bounds a and b');
+    a=cands[bi]; b=cands[bi+1]; }
+  return {f,g,a,b};
+}
+
+/* ============================================================
+   3 · ANALYZE  (per axis: profile, method, volume)
+   axis = {type:'h'|'v', k}   h→ line y=k   v→ line x=k
+   ============================================================ */
+function analyze(reg,axis){
+  const {f,g,a,b}=reg;
+  const TB=x=>{ let t=safe(f,x),s=safe(g,x); const okt=isFinite(t),oks=isFinite(s);
+    if(!okt&&!oks) return null; if(!okt)t=s; if(!oks)s=t; return {T:Math.max(t,s),B:Math.min(t,s)}; };
+  if(axis.type==='h'){
+    const k=axis.k, NX=160, xs=[],Ro=[],Ri=[]; let straddle=false,maxR=0,anyInner=false;
+    for(let i=0;i<=NX;i++){ const x=a+(b-a)*i/NX; const tb=TB(x)||{T:k,B:k};
+      if(tb.B<k-1e-9&&tb.T>k+1e-9) straddle=true;
+      const dT=Math.abs(tb.T-k), dB=Math.abs(tb.B-k), ro=Math.max(dT,dB), ri=Math.min(dT,dB);
+      xs.push(x); Ro.push(ro); Ri.push(straddle?0:ri); if(ro>maxR)maxR=ro; if(ri>1e-6)anyInner=true; }
+    const isDisc = !anyInner || straddle;
+    const volume=Math.PI*simpson(x=>{ const tb=TB(x); if(!tb)return 0; const ro=Math.max(Math.abs(tb.T-k),Math.abs(tb.B-k)), ri=isDisc?0:Math.min(Math.abs(tb.T-k),Math.abs(tb.B-k)); return ro*ro-ri*ri; },a,b,2000);
+    return {dir:'x',axis,k,a,b,xs,Ro,Ri:isDisc?Ro.map(_=>0):Ri,isDisc,straddle,maxR,method:isDisc?'Disc':'Washer',volume};
+  } else {
+    const h=axis.k, NX=260;
+    const volume=2*Math.PI*simpson(x=>{ const tb=TB(x); if(!tb)return 0; return Math.abs(x-h)*(tb.T-tb.B); },a,b,2000);
+    const straddle=(h>a+1e-9&&h<b-1e-9);
+    let ymin=Infinity,ymax=-Infinity;
+    for(let i=0;i<=NX;i++){ const tb=TB(a+(b-a)*i/NX); if(tb){ ymin=Math.min(ymin,tb.B); ymax=Math.max(ymax,tb.T); } }
+    if(!isFinite(ymin)){ymin=0;ymax=1;}
+    const NY=150, ys=[],Ro=[],Ri=[]; let maxR=0,anyInner=false;
+    for(let j=0;j<=NY;j++){ const y=ymin+(ymax-ymin)*j/NY; let xL=Infinity,xR=-Infinity;
+      for(let i=0;i<=NX;i++){ const x=a+(b-a)*i/NX; const tb=TB(x); if(!tb)continue; if(y>=tb.B-1e-9&&y<=tb.T+1e-9){ xL=Math.min(xL,x); xR=Math.max(xR,x); } }
+      if(!isFinite(xL)){ ys.push(y); Ro.push(0); Ri.push(0); continue; }
+      const dL=Math.abs(xL-h), dR=Math.abs(xR-h); let ro,ri;
+      if(h>=xL-1e-9&&h<=xR+1e-9){ ro=Math.max(dL,dR); ri=0; } else { ro=Math.max(dL,dR); ri=Math.min(dL,dR); }
+      ys.push(y); Ro.push(ro); Ri.push(ri); if(ro>maxR)maxR=ro; if(ri>1e-6)anyInner=true; }
+    const isDisc=!anyInner;
+    return {dir:'y',axis,h,a,b,ys,Ro,Ri:isDisc?Ro.map(_=>0):Ri,isDisc,straddle,maxR,ymin,ymax,method:'Shell',volume,repX:(a+b)/2};
+  }
+}
+
+/* ============================================================
+   4 · 2D REGION RENDER
+   ============================================================ */
+function draw2D(reg,topIsF,axis){
+  const cv=document.getElementById('cv2d'), ctx=cv.getContext('2d');
+  const dpr=Math.min(devicePixelRatio||1,2), W=cv.clientWidth, H=cv.clientHeight;
+  cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
+  const {f,g,a,b}=reg; const NS=200, pad=(b-a)*0.14; let xL=a-pad,xR=b+pad;
+  if(axis.type==='v'){ xL=Math.min(xL,axis.k-pad*0.5); xR=Math.max(xR,axis.k+pad*0.5); }
+  let ymin=Infinity,ymax=-Infinity;
+  for(let i=0;i<=NS;i++){ const x=xL+(xR-xL)*i/NS; for(const fn of [f,g]){ const y=safe(fn,x); if(isFinite(y)){ if(y<ymin)ymin=y; if(y>ymax)ymax=y; } } }
+  if(!isFinite(ymin)){ymin=-1;ymax=1;}
+  ymin=Math.min(ymin,0,axis.type==='h'?axis.k:0); ymax=Math.max(ymax,0,axis.type==='h'?axis.k:0);
+  const yp=(ymax-ymin)*0.12||1; ymin-=yp; ymax+=yp;
+  const mx=42,my=22, X=x=>mx+(x-xL)/(xR-xL)*(W-mx-14), Y=y=>H-my-(y-ymin)/(ymax-ymin)*(H-my-14);
+  // base axes
+  const y0=Y(0); ctx.strokeStyle='#4a4334'; ctx.lineWidth=1.2; ctx.beginPath(); ctx.moveTo(X(xL),y0); ctx.lineTo(X(xR),y0); ctx.stroke();
+  if(X(0)>=mx&&X(0)<=W-14){ ctx.strokeStyle='#332e25'; ctx.beginPath(); ctx.moveTo(X(0),Y(ymax)); ctx.lineTo(X(0),Y(ymin)); ctx.stroke(); }
+  // region shade
+  const top=topIsF?f:g, bot=topIsF?g:f; ctx.beginPath(); let st=false;
+  for(let i=0;i<=NS;i++){ const x=a+(b-a)*i/NS, y=safe(top,x); const px=X(x),py=Y(isFinite(y)?y:0); if(!st){ctx.moveTo(px,py);st=true;}else ctx.lineTo(px,py); }
+  for(let i=NS;i>=0;i--){ const x=a+(b-a)*i/NS, y=safe(bot,x); ctx.lineTo(X(x),Y(isFinite(y)?y:0)); }
+  ctx.closePath(); ctx.fillStyle='rgba(53,199,214,.14)'; ctx.fill();
+  // curves
+  function plot(fn,color,w){ ctx.strokeStyle=color; ctx.lineWidth=w; ctx.beginPath(); let s2=false;
+    for(let i=0;i<=NS*2;i++){ const x=xL+(xR-xL)*i/(NS*2), y=safe(fn,x); if(!isFinite(y)||y<ymin-9||y>ymax+9){ s2=false; continue; }
+      const px=X(x),py=Y(y); if(!s2){ctx.moveTo(px,py);s2=true;}else ctx.lineTo(px,py); } ctx.stroke(); }
+  plot(g,'#e8a13c',2); plot(f,'#7fe4ef',2.4);
+  // bounds
+  ctx.setLineDash([4,4]); ctx.strokeStyle='rgba(154,145,131,.5)'; ctx.lineWidth=1;
+  for(const xb of [a,b]){ ctx.beginPath(); ctx.moveTo(X(xb),Y(ymax)); ctx.lineTo(X(xb),Y(ymin)); ctx.stroke(); } ctx.setLineDash([]);
+  // axis of revolution (accent, dashed)
+  ctx.save(); ctx.setLineDash([7,4]); ctx.strokeStyle='rgba(53,199,214,.75)'; ctx.lineWidth=1.6; ctx.fillStyle='#35c7d6'; ctx.font='11px "Spline Sans Mono",monospace';
+  if(axis.type==='h'){ const yy=Y(axis.k); ctx.beginPath(); ctx.moveTo(X(xL),yy); ctx.lineTo(X(xR),yy); ctx.stroke(); ctx.textAlign='left'; ctx.fillText(axis.k===0?'axis  y=0':'axis  y='+fmtNum(axis.k),X(xL)+5,yy-5); }
+  else { const xx=X(axis.k); ctx.beginPath(); ctx.moveTo(xx,Y(ymax)); ctx.lineTo(xx,Y(ymin)); ctx.stroke(); ctx.textAlign='left'; ctx.fillText(axis.k===0?'axis x=0':'axis x='+fmtNum(axis.k),xx+5,Y(ymax)+12); }
+  ctx.restore();
+  // a,b labels
+  ctx.fillStyle='#9a9183'; ctx.font='12px "Spline Sans Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText('a='+fmtNum(a),X(a),H-6); ctx.fillText('b='+fmtNum(b),X(b),H-6);
+}
+
+/* ============================================================
+   5 · 3D SOLID (Three.js, hand-built geometry + orbit)
+   ============================================================ */
+var THREEOK=!!window.THREE, scene,camera,renderer,solidGroup,raf3d,orbit={az:0.9,el:0.42,r:6,tx:0,ty:0,tz:0},autoSpin=true;
+function init3D(){
+  if(!window.THREE) return false;
+  const cv=document.getElementById('cv3d');
+  renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true}); renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+  scene=new THREE.Scene(); camera=new THREE.PerspectiveCamera(42,1,0.01,1000);
+  scene.add(new THREE.AmbientLight(0xffffff,0.62));
+  const d1=new THREE.DirectionalLight(0xbfefff,0.75); d1.position.set(4,6,8); scene.add(d1);
+  const d2=new THREE.DirectionalLight(0xffe0b0,0.35); d2.position.set(-6,-3,-4); scene.add(d2);
+  solidGroup=new THREE.Group(); scene.add(solidGroup); sizeRenderer(); bindOrbit(cv);
+  new ResizeObserver(sizeRenderer).observe(document.getElementById('wrap3d'));
+  (function loop(){ raf3d=requestAnimationFrame(loop); if(autoSpin) orbit.az+=0.0035;
+    const cx=orbit.tx,cy=orbit.ty,cz=orbit.tz;
+    camera.position.set(cx+orbit.r*Math.cos(orbit.el)*Math.cos(orbit.az), cy+orbit.r*Math.sin(orbit.el), cz+orbit.r*Math.cos(orbit.el)*Math.sin(orbit.az));
+    camera.lookAt(cx,cy,cz); renderer.render(scene,camera); updateLabels(); })();
+  return true;
+}
+function sizeRenderer(){ if(!renderer)return; const w=document.getElementById('wrap3d'); const W=w.clientWidth,H=w.clientHeight;
+  renderer.setSize(W,H,false); camera.aspect=W/H; camera.updateProjectionMatrix(); }
+function bindOrbit(cv){ let dragging=false,lx=0,ly=0;
+  const pt=e=>{ const t=e.touches?e.touches[0]:e; return {x:t.clientX,y:t.clientY}; };
+  const down=e=>{dragging=true;autoSpin=false;cv.classList.add('drag');const p=pt(e);lx=p.x;ly=p.y;e.preventDefault();};
+  const move=e=>{ if(!dragging)return; const p=pt(e); orbit.az-=(p.x-lx)*0.008; orbit.el+=(p.y-ly)*0.008; orbit.el=Math.max(-1.45,Math.min(1.45,orbit.el)); lx=p.x;ly=p.y; };
+  const up=()=>{dragging=false;cv.classList.remove('drag');};
+  cv.addEventListener('mousedown',down); window.addEventListener('mousemove',move); window.addEventListener('mouseup',up);
+  cv.addEventListener('touchstart',down,{passive:false}); window.addEventListener('touchmove',move,{passive:false}); window.addEventListener('touchend',up);
+  cv.addEventListener('wheel',e=>{ autoSpin=false; orbit.r*=(1+Math.sign(e.deltaY)*0.08); orbit.r=Math.max(0.5,Math.min(80,orbit.r)); e.preventDefault(); },{passive:false});
+}
+function clearGroup(){ if(!solidGroup)return; while(solidGroup.children.length){ const c=solidGroup.children.pop(); if(c.geometry)c.geometry.dispose(); if(c.material)c.material.dispose(); solidGroup.remove(c); } }
+function addLine(pts,color){ solidGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color}))); }
+
+/* floating labels: HTML chips anchored to 3D points, projected each frame */
+var LABELS=[], labelPool=[];
+function ensureLabels(n){ const wrap=document.getElementById('wrap3d'); while(labelPool.length<n){ const d=document.createElement('div'); d.className='lab3d'; d.style.display='none'; wrap.appendChild(d); labelPool.push(d); } }
+function updateLabels(){
+  if(!camera) return; const wrap=document.getElementById('wrap3d'), W=wrap.clientWidth, H=wrap.clientHeight;
+  ensureLabels(LABELS.length);
+  for(let i=0;i<labelPool.length;i++){ const d=labelPool[i];
+    if(i>=LABELS.length||sweeping){ d.style.display='none'; continue; }
+    const L=LABELS[i], v=L.v.clone(); v.project(camera);
+    if(v.z>1){ d.style.display='none'; continue; }
+    d.textContent=L.text; d.className='lab3d'+(L.cls?' '+L.cls:'');
+    d.style.left=((v.x*0.5+0.5)*W)+'px'; d.style.top=((-v.y*0.5+0.5)*H)+'px'; d.style.display='block';
+  }
+}
+
+/* build solid from an analyze() result — works for both axis orientations */
+function buildSolid(A,reg,keepCam){
+  if(!THREEOK) return; clearGroup(); LABELS=[];
+  const dir=A.dir, off=(dir==='x')?A.k:A.h, P=(dir==='x')?A.xs:A.ys, Ro=A.Ro, Ri=A.Ri, N=P.length-1, NT=72;
+  const pos=[],idx=[]; let vc=0;
+  const V=(p,R,th)=>{ if(dir==='x') pos.push(p, off+R*Math.cos(th), R*Math.sin(th)); else pos.push(off+R*Math.cos(th), p, R*Math.sin(th)); vc++; };
+  const ring=(p,R)=>{ const base=vc; for(let j=0;j<=NT;j++) V(p,R,2*Math.PI*j/NT); return base; };
+  function surface(Rarr){ let prev=ring(P[0],Rarr[0]); for(let i=1;i<=N;i++){ const cur=ring(P[i],Rarr[i]); for(let j=0;j<NT;j++){ idx.push(prev+j,cur+j,prev+j+1, prev+j+1,cur+j,cur+j+1);} prev=cur; } }
+  surface(Ro); if(!A.isDisc) surface(Ri);
+  function cap(i){ const p=P[i],Rout=Ro[i],Rin=A.isDisc?0:Ri[i], ob=ring(p,Rout);
+    if(A.isDisc){ const c=vc; if(dir==='x')pos.push(p,off,0); else pos.push(off,p,0); vc++; for(let j=0;j<NT;j++) idx.push(c,ob+j,ob+j+1); }
+    else { const ib=ring(p,Rin); for(let j=0;j<NT;j++){ idx.push(ob+j,ib+j,ob+j+1, ob+j+1,ib+j,ib+j+1);} } }
+  cap(0); cap(N);
+  const geo=new THREE.BufferGeometry(); geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); geo.setIndex(idx); geo.computeVertexNormals();
+  solidGroup.add(new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:0x35c7d6,transparent:true,opacity:0.29,roughness:0.4,metalness:0.05,side:THREE.DoubleSide,depthWrite:false})));
+  // generating profile lines at theta=0
+  function profLine(Rarr,color){ const pts=[]; for(let i=0;i<=N;i++){ pts.push(dir==='x'?new THREE.Vector3(P[i],off+Rarr[i],0):new THREE.Vector3(off+Rarr[i],P[i],0)); }
+    solidGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color}))); }
+  profLine(Ro,0x7fe4ef); if(!A.isDisc) profLine(Ri,0xe8a13c);
+  // axis of revolution
+  const lo=P[0],hi=P[N],padA=(hi-lo)*0.16;
+  const ax = dir==='x'? [new THREE.Vector3(lo-padA,off,0),new THREE.Vector3(hi+padA,off,0)] : [new THREE.Vector3(off,lo-padA,0),new THREE.Vector3(off,hi+padA,0)];
+  solidGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(ax),new THREE.LineBasicMaterial({color:0x8a7f6a})));
+  // representative element
+  if(A.method==='Shell') repShell(A,reg); else repSlice(A);
+  // center + fit
+  let cx,cy; if(dir==='x'){ cx=(P[0]+P[N])/2; cy=off; } else { cx=off; cy=(P[0]+P[N])/2; }
+  orbit.tx=cx; orbit.ty=cy; orbit.tz=0;
+  if(!keepCam){ const span=Math.max(Math.abs(P[N]-P[0]),A.maxR*2,0.5); orbit.r=span*1.75; orbit.az=0.9; orbit.el=0.42; autoSpin=true; }
+  document.getElementById('badge3d').textContent=A.method.toLowerCase()+' method · drag to spin';
+}
+/* representative washer/disc slice (horizontal axis) */
+function repSlice(A){ const dir=A.dir, off=A.k, P=A.xs, NT=72, mi=Math.round(P.length/2), xm=P[mi], Rout=A.Ro[mi], Rin=A.isDisc?0:A.Ri[mi];
+  const w=Math.max((A.b-A.a)*0.03,1e-3), pos=[],idx=[]; let vc=0;
+  const V=(x,R,th)=>{ pos.push(x, off+R*Math.cos(th), R*Math.sin(th)); vc++; };
+  const ring=(x,R)=>{ const base=vc; for(let j=0;j<=NT;j++) V(x,R,2*Math.PI*j/NT); return base; };
+  [Rout,Rin].forEach((R,k)=>{ if(k===1&&A.isDisc)return; const r0=ring(xm-w,R),r1=ring(xm+w,R); for(let j=0;j<NT;j++) idx.push(r0+j,r1+j,r0+j+1, r0+j+1,r1+j,r1+j+1); });
+  [xm-w,xm+w].forEach(xx=>{ const ob=ring(xx,Rout); if(A.isDisc){ const c=vc; pos.push(xx,off,0); vc++; for(let j=0;j<NT;j++) idx.push(c,ob+j,ob+j+1); } else { const ib=ring(xx,Rin); for(let j=0;j<NT;j++) idx.push(ob+j,ib+j,ob+j+1, ob+j+1,ib+j,ib+j+1); } });
+  addRep(pos,idx);
+  // radial ruler + labels (along +y at the slice)
+  addLine([new THREE.Vector3(xm,off,0),new THREE.Vector3(xm,off+Rout,0)],0x7fe4ef);
+  LABELS.push({v:new THREE.Vector3(xm,off+Rout,0),text:A.isDisc?'radius':'R',cls:''});
+  if(!A.isDisc) LABELS.push({v:new THREE.Vector3(xm,off+Rin,0),text:'r',cls:'dim'});
+}
+/* representative cylindrical shell (vertical axis) */
+function repShell(A,reg){ const h=A.h, xm=A.repX, R=Math.abs(xm-h), NT=72;
+  let yb=safe(reg.g,xm), yt=safe(reg.f,xm); if(!isFinite(yb))yb=yt; if(!isFinite(yt))yt=yb;
+  const B=Math.min(yb,yt),T=Math.max(yb,yt), pos=[],idx=[]; let vc=0; const dR=Math.max(R*0.03,(A.b-A.a)*0.012);
+  const V=(y,r,th)=>{ pos.push(h+r*Math.cos(th), y, r*Math.sin(th)); vc++; };
+  const ring=(y,r)=>{ const base=vc; for(let j=0;j<=NT;j++) V(y,r,2*Math.PI*j/NT); return base; };
+  [R+dR,R-dR].forEach(r=>{ const r0=ring(B,r),r1=ring(T,r); for(let j=0;j<NT;j++) idx.push(r0+j,r1+j,r0+j+1, r0+j+1,r1+j,r1+j+1); });
+  [B,T].forEach(yy=>{ const ob=ring(yy,R+dR), ib=ring(yy,R-dR); for(let j=0;j<NT;j++) idx.push(ob+j,ib+j,ob+j+1, ob+j+1,ib+j,ib+j+1); });
+  addRep(pos,idx);
+  // radius + height rulers and labels
+  const mid=(B+T)/2;
+  addLine([new THREE.Vector3(h,mid,0),new THREE.Vector3(h+R,mid,0)],0x7fe4ef);
+  addLine([new THREE.Vector3(h+R,B,0),new THREE.Vector3(h+R,T,0)],0xe8a13c);
+  LABELS.push({v:new THREE.Vector3(h+R*0.5,mid,0),text:'radius',cls:''});
+  LABELS.push({v:new THREE.Vector3(h+R,T,0),text:'height',cls:'dim'});
+}
+function addRep(pos,idx){ const sg=new THREE.BufferGeometry(); sg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); sg.setIndex(idx); sg.computeVertexNormals();
+  solidGroup.add(new THREE.Mesh(sg,new THREE.MeshStandardMaterial({color:0x9fefff,transparent:true,opacity:0.82,roughness:0.3,metalness:0.1,side:THREE.DoubleSide}))); }
+
+/* ---- SWEEP ANIMATION: region rotates into the solid, then slices stack + volume ticks up ---- */
+var CUR=null, sweeping=false, sweepTok=0;
+function easeInOut(t){ return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2; }
+function resample(P,Ro,Ri,M){ const RP=[],RRo=[],RRi=[],last=P.length-1;
+  for(let i=0;i<=M;i++){ const t=i/M*last, lo=Math.floor(t), hi=Math.min(last,lo+1), fr=t-lo;
+    RP.push(P[lo]+(P[hi]-P[lo])*fr); RRo.push(Ro[lo]+(Ro[hi]-Ro[lo])*fr); RRi.push(Ri[lo]+(Ri[hi]-Ri[lo])*fr); } return {RP,RRo,RRi}; }
+function buildSweepSurface(A){
+  const dir=A.dir, off=(dir==='x')?A.k:A.h, M=60, NT=54;
+  const {RP,RRo,RRi}=resample(dir==='x'?A.xs:A.ys, A.Ro, A.Ri, M);
+  const pos3=(arr,k,p,R,th)=>{ if(dir==='x'){arr[k]=p;arr[k+1]=off+R*Math.cos(th);arr[k+2]=R*Math.sin(th);} else {arr[k]=off+R*Math.cos(th);arr[k+1]=p;arr[k+2]=R*Math.sin(th);} };
+  function mkGrid(){ const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(new Float32Array((M+1)*(NT+1)*3),3));
+    const idx=[]; for(let i=0;i<M;i++)for(let j=0;j<NT;j++){ const a0=i*(NT+1)+j; idx.push(a0,(i+1)*(NT+1)+j,a0+1, a0+1,(i+1)*(NT+1)+j,(i+1)*(NT+1)+j+1);} g.setIndex(idx); return g; }
+  const mat=new THREE.MeshStandardMaterial({color:0x35c7d6,transparent:true,opacity:0.32,roughness:0.4,side:THREE.DoubleSide,depthWrite:false});
+  const outG=mkGrid(), outMesh=new THREE.Mesh(outG,mat); solidGroup.add(outMesh);
+  let inG=null; if(!A.isDisc){ inG=mkGrid(); solidGroup.add(new THREE.Mesh(inG,mat)); }
+  const leadG=new THREE.BufferGeometry(); leadG.setAttribute('position',new THREE.Float32BufferAttribute(new Float32Array((M+1)*2*3),3));
+  const lidx=[]; for(let i=0;i<M;i++){ const o0=i*2; lidx.push(o0,o0+1,o0+2, o0+2,o0+1,o0+3);} leadG.setIndex(lidx);
+  const leadMesh=new THREE.Mesh(leadG,new THREE.MeshStandardMaterial({color:0x9fefff,transparent:true,opacity:0.9,side:THREE.DoubleSide,roughness:0.3}));
+  solidGroup.add(leadMesh);
+  // axis line
+  const lo=RP[0],hi=RP[M],pa=(hi-lo)*0.16;
+  const ax=dir==='x'?[new THREE.Vector3(lo-pa,off,0),new THREE.Vector3(hi+pa,off,0)]:[new THREE.Vector3(off,lo-pa,0),new THREE.Vector3(off,hi+pa,0)];
+  solidGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(ax),new THREE.LineBasicMaterial({color:0x8a7f6a})));
+  function setTheta(tm){
+    const oa=outG.attributes.position.array; let k=0;
+    for(let i=0;i<=M;i++)for(let j=0;j<=NT;j++){ pos3(oa,k,RP[i],RRo[i],tm*j/NT); k+=3; } outG.attributes.position.needsUpdate=true; outG.computeVertexNormals();
+    if(inG){ const ia=inG.attributes.position.array; k=0; for(let i=0;i<=M;i++)for(let j=0;j<=NT;j++){ pos3(ia,k,RP[i],RRi[i],tm*j/NT); k+=3; } inG.attributes.position.needsUpdate=true; inG.computeVertexNormals(); }
+    const la=leadG.attributes.position.array; k=0; for(let i=0;i<=M;i++){ pos3(la,k,RP[i],RRo[i],tm); k+=3; pos3(la,k,RP[i],A.isDisc?0:RRi[i],tm); k+=3; } leadG.attributes.position.needsUpdate=true; leadG.computeVertexNormals();
+  }
+  setTheta(0.0001);
+  return {setTheta,mat,leadMesh};
+}
+function sliceMesh(pos,idx){ const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); g.setIndex(idx); g.computeVertexNormals();
+  return new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x9fefff,transparent:true,opacity:0.85,roughness:0.3,metalness:0.1,side:THREE.DoubleSide})); }
+function makeWasher(xc,w,Rout,Rin,off,isDisc){ const NT=44,pos=[],idx=[]; let vc=0;
+  const V=(x,R,th)=>{pos.push(x,off+R*Math.cos(th),R*Math.sin(th));vc++;}; const ring=(x,R)=>{const b=vc;for(let j=0;j<=NT;j++)V(x,R,2*Math.PI*j/NT);return b;};
+  [Rout,Rin].forEach((R,k)=>{ if(k===1&&isDisc)return; const r0=ring(xc-w,R),r1=ring(xc+w,R); for(let j=0;j<NT;j++)idx.push(r0+j,r1+j,r0+j+1,r0+j+1,r1+j,r1+j+1); });
+  [xc-w,xc+w].forEach(xx=>{ const ob=ring(xx,Rout); if(isDisc){const c=vc;pos.push(xx,off,0);vc++;for(let j=0;j<NT;j++)idx.push(c,ob+j,ob+j+1);} else {const ib=ring(xx,Rin);for(let j=0;j<NT;j++)idx.push(ob+j,ib+j,ob+j+1,ob+j+1,ib+j,ib+j+1);} });
+  return sliceMesh(pos,idx); }
+function makeShellMesh(h,R,yb,yt,dR){ const NT=44,pos=[],idx=[],B=Math.min(yb,yt),T=Math.max(yb,yt),ri=Math.max(1e-4,R-dR); let vc=0;
+  const V=(y,r,th)=>{pos.push(h+r*Math.cos(th),y,r*Math.sin(th));vc++;}; const ring=(y,r)=>{const b=vc;for(let j=0;j<=NT;j++)V(y,r,2*Math.PI*j/NT);return b;};
+  [R+dR,ri].forEach(r=>{const r0=ring(B,r),r1=ring(T,r);for(let j=0;j<NT;j++)idx.push(r0+j,r1+j,r0+j+1,r0+j+1,r1+j,r1+j+1);});
+  [B,T].forEach(yy=>{const ob=ring(yy,R+dR),ib=ring(yy,ri);for(let j=0;j<NT;j++)idx.push(ob+j,ib+j,ob+j+1,ob+j+1,ib+j,ib+j+1);});
+  return sliceMesh(pos,idx); }
+function buildSlices(A,reg){
+  const dir=A.dir, plen=(dir==='x'?A.xs:A.ys).length, K=Math.min(26,plen-1), meshes=[],vols=[]; let cum=0;
+  const dx=(A.b-A.a)/K;
+  for(let s=0;s<K;s++){ const xc=A.a+dx*(s+0.5), t=(xc-A.a)/(A.b-A.a)*(plen-1), ii=Math.max(0,Math.min(plen-1,Math.round(t)));
+    if(dir==='x'){ const Rout=A.Ro[ii], Rin=A.isDisc?0:A.Ri[ii]; meshes.push(makeWasher(xc,dx*0.46,Rout,Rin,A.k,A.isDisc)); cum+=Math.PI*(Rout*Rout-Rin*Rin)*dx; }
+    else { const tb={T:Math.max(safe(reg.f,xc),safe(reg.g,xc)),B:Math.min(safe(reg.f,xc),safe(reg.g,xc))}; const R=Math.abs(xc-A.h); meshes.push(makeShellMesh(A.h,R,tb.B,tb.T,dx*0.42)); cum+=2*Math.PI*R*(tb.T-tb.B)*dx; }
+    vols.push(cum); }
+  meshes.forEach(m=>{ m.visible=false; solidGroup.add(m); });
+  return {meshes,vols};
+}
+function playSweep(){
+  if(!CUR||!THREEOK||sweeping) return; sweeping=true; autoSpin=false; const tok=++sweepTok;
+  document.getElementById('sweepBtn').disabled=true;
+  clearGroup(); LABELS=[];
+  const A=CUR.A, reg=CUR.reg, sw=buildSweepSurface(A), slices=buildSlices(A,reg), badge=document.getElementById('badge3d');
+  const T1=1300,T2=1900,start=performance.now();
+  (function frame(now){
+    if(tok!==sweepTok) return;
+    const t=now-start;
+    if(t<T1){ const p=easeInOut(t/T1); sw.setTheta(Math.max(0.0001,p*2*Math.PI)); sw.leadMesh.visible=p<0.99; badge.textContent='sweeping the region around the axis…'; requestAnimationFrame(frame); }
+    else if(t<T1+T2){ sw.leadMesh.visible=false; sw.setTheta(2*Math.PI); sw.mat.opacity=0.11;
+      const p=(t-T1)/T2, n=Math.min(slices.meshes.length,Math.floor(p*slices.meshes.length)+1);
+      for(let i=0;i<slices.meshes.length;i++) slices.meshes[i].visible=(i<n);
+      const v=slices.vols[Math.max(0,n-1)]||0; badge.textContent='V ≈ '+v.toFixed(3)+'   ·   '+n+'/'+slices.meshes.length+' '+(A.dir==='x'?'slices':'shells');
+      requestAnimationFrame(frame); }
+    else { sweeping=false; document.getElementById('sweepBtn').disabled=false; buildSolid(CUR.A,CUR.reg,true); autoSpin=true;
+      badge.textContent='exact V = '+(+A.volume.toFixed(4))+'  ·  drag to spin'; }
+  })(performance.now());
+}
+
+/* ============================================================
+   6 · ANALYSIS PANEL
+   ============================================================ */
+function renderAnalysis(reg,topIsF,A){
+  document.getElementById('analysis').style.display='';
+  const fT=toTex(FAST), gT=GAST?toTex(GAST):'0';
+  const topTex=topIsF?fT:gT, botTex=topIsF?gT:fT;
+  const mid=(A.a+A.b)/2, tb={T:Math.max(safe(reg.f,mid),safe(reg.g,mid)),B:Math.min(safe(reg.f,mid),safe(reg.g,mid))};
+  let title,why,integrand,coeff='\\pi',warnCls='';
+  const nk=v=>fmtNum(v);
+  if(A.dir==='x'){
+    const k=A.k;
+    title = k===0?'Revolving about the x-axis':'Revolving about the line y='+nk(k);
+    const above = tb.B>=k-1e-9;
+    const dist=cTex=>{ if(k===0) return cTex; if(above) return k>0?cTex+'-'+nk(k):cTex+'+'+nk(-k); return nk(k)+'-'+cTex; };
+    const sq=t=>'\\left('+t+'\\right)^{2}';
+    let RoCore,RiCore;
+    if(above){ RoCore=dist(topTex); RiCore=dist(botTex); } else { RoCore=dist(botTex); RiCore=dist(topTex); }
+    if(A.straddle){ warnCls=' warn'; why='Your region straddles the axis y='+nk(k)+', so the revolved solid overlaps itself — I’m showing the outer envelope. Keep the region on <b>one side</b> of the axis for a clean solid.'; }
+    else if(A.isDisc){ why='The region sits right against the axis — <b>no gap underneath</b> — so each slice sweeps a <b>full disc</b>. Radius = distance from the axis to the curve.'; }
+    else { why='There’s a <b>gap between the region and the axis</b>, so each slice is a <b>washer</b>: outer radius reaches the far curve, inner radius stops at the near curve.'; }
+    integrand = A.isDisc ? sq(RoCore) : sq(RoCore)+'-'+sq(RiCore);
+    var tex=coeff+'\\int_{'+nk(A.a)+'}^{'+nk(A.b)+'}\\Big['+integrand+'\\Big]\\,dx';
+  } else {
+    const h=A.h; coeff='2\\pi';
+    title = h===0?'Revolving about the y-axis':'Revolving about the line x='+nk(h);
+    const rightRad = h===0?'x':(h>0?'\\left(x-'+nk(h)+'\\right)':'\\left(x+'+nk(-h)+'\\right)');
+    const rad = A.straddle ? '\\left|x-'+nk(h)+'\\right|' : (A.a>=h ? rightRad : '\\left('+nk(h)+'-x\\right)');
+    const hgt = '\\left('+topTex+'-'+botTex+'\\right)';
+    why='Revolving about a <b>vertical</b> line, it’s cleanest to sweep the region into <b>nested cylindrical shells</b> — each vertical strip becomes a shell with <b>radius</b> = distance to the axis and <b>height</b> = top − bottom.';
+    if(A.straddle){ warnCls=' warn'; why+=' <b>Note:</b> the axis passes through your interval, so the two sides overlap when revolved.'; }
+    var tex=coeff+'\\int_{'+nk(A.a)+'}^{'+nk(A.b)+'}'+rad+'\\,'+hgt+'\\,dx';
+  }
+  document.getElementById('mTag').textContent=A.method+' method';
+  document.getElementById('mTitle').textContent=title;
+  const whyEl=document.getElementById('mWhy'); whyEl.className='why'+warnCls; whyEl.innerHTML=why;
+  const tx='V='+tex;
+  const setup=document.getElementById('mSetup');
+  try{ setup.innerHTML=window.katex?katex.renderToString(tx,{throwOnError:false,displayMode:true}):'<span class="tex-fallback">'+tx+'</span>'; }catch(e){ setup.innerHTML='<span class="tex-fallback">'+tx+'</span>'; }
+  document.getElementById('mVals').innerHTML=
+    '<div class="val"><span class="vk">Volume</span><span class="vv">'+(+A.volume.toFixed(4))+' <small>units³</small></span></div>'+
+    '<div class="val"><span class="vk">In terms of π</span><span class="vv">'+(+(A.volume/Math.PI).toFixed(4))+'π</span></div>'+
+    '<div class="val"><span class="vk">Interval</span><span class="vv" style="font-size:18px">['+nk(A.a)+', '+nk(A.b)+']</span></div>';
+}
+
+/* ============================================================
+   7 · DRIVER
+   ============================================================ */
+var FAST=null,GAST=null,AXIS_MODE='x';
+function currentAxis(){
+  if(AXIS_MODE==='x') return {type:'h',k:0};
+  if(AXIS_MODE==='y') return {type:'v',k:0};
+  if(AXIS_MODE==='hk'){ const v=parseFloat(document.getElementById('hkIn').value); return {type:'h',k:isFinite(v)?v:0}; }
+  const v=parseFloat(document.getElementById('vhIn').value); return {type:'v',k:isFinite(v)?v:0};
+}
+function run(){
+  const err=document.getElementById('err'); err.textContent='';
+  const fs=document.getElementById('fIn').value.trim(), gs=document.getElementById('gIn').value.trim();
+  const as=document.getElementById('aIn').value.trim(), bs=document.getElementById('bIn').value.trim();
+  if(sweeping){ sweepTok++; sweeping=false; const sb=document.getElementById('sweepBtn'); if(sb)sb.disabled=false; }
+  try{
+    if(!fs) throw new Error('enter a curve ƒ(x)');
+    FAST=parse(fs); GAST=gs?parse(gs):null;
+    const reg=getRegion(FAST,GAST,as,bs);
+    if(!(reg.b>reg.a)) throw new Error('the interval is empty — check a and b');
+    const axis=currentAxis();
+    const mid=(reg.a+reg.b)/2, topIsF=safe(reg.f,mid)>=safe(reg.g,mid);
+    const A=analyze(reg,axis);
+    draw2D(reg,topIsF,axis);
+    if(THREEOK) buildSolid(A,reg);
+    renderAnalysis(reg,topIsF,A);
+    CUR={A,reg};
+  }catch(e){ err.textContent='⚠ '+e.message; }
+}
+function setAxis(m){ AXIS_MODE=m; [...document.querySelectorAll('.aseg')].forEach(el=>el.classList.toggle('on',el.dataset.axis===m)); run(); }
+document.getElementById('goBtn').onclick=run;
+document.getElementById('sweepBtn').onclick=playSweep;
+['fIn','gIn','aIn','bIn'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter')run(); }));
+document.getElementById('axisSeg').addEventListener('click',e=>{ const el=e.target.closest('[data-axis]'); if(el) setAxis(el.dataset.axis); });
+['hkIn','vhIn'].forEach(id=>{ const el=document.getElementById(id);
+  el.addEventListener('focus',()=>setAxis(id==='hkIn'?'hk':'vh'));
+  el.addEventListener('keydown',e=>{ if(e.key==='Enter')run(); });
+  el.addEventListener('input',()=>{ if((AXIS_MODE==='hk')===(id==='hkIn')) run(); }); });
+document.getElementById('chips').addEventListener('click',e=>{ const c=e.target.closest('.chip'); if(!c)return;
+  document.getElementById('fIn').value=c.dataset.f; document.getElementById('gIn').value=c.dataset.g;
+  document.getElementById('aIn').value=c.dataset.a; document.getElementById('bIn').value=c.dataset.b;
+  const ax=c.dataset.axis||'x';
+  if(ax==='hk'&&c.dataset.k!=null) document.getElementById('hkIn').value=c.dataset.k;
+  if(ax==='vh'&&c.dataset.k!=null) document.getElementById('vhIn').value=c.dataset.k;
+  AXIS_MODE=ax; [...document.querySelectorAll('.aseg')].forEach(el=>el.classList.toggle('on',el.dataset.axis===ax));
+  run(); });
+
+function postHeight(){ if(window.parent!==window){ try{ parent.postMessage({revolveH:Math.ceil(document.documentElement.scrollHeight)+6},'*'); }catch(e){} } }
+function boot(){
+  if(/[?&]embed/.test(location.search)) document.body.classList.add('embed');
+  THREEOK=init3D(); run();
+  if(window.parent!==window){ postHeight(); try{ new ResizeObserver(postHeight).observe(document.body); }catch(e){} window.addEventListener('resize',postHeight); setTimeout(postHeight,400); }
+  if(!window.katex){ let n=0; const iv=setInterval(()=>{ if(window.katex){clearInterval(iv); run(); postHeight();} else if(++n>60)clearInterval(iv); },100); } }
+window.addEventListener('load',boot);
+</script>
+</body>
+</html>
