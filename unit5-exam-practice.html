@@ -627,7 +627,8 @@ function tutorSystem(ctx){
 function buildMCContext(){
   const q=LAST_MC.q, picked=LAST_MC.pickedT;
   const opts=q.opts.map(o=>'- '+tutorStrip(o.t)+(o.correct?'   [CORRECT ANSWER]':'')+(o.t===picked?'   [STUDENT PICKED THIS]':'')).join('\n');
-  return { body:'MULTIPLE-CHOICE (topic: '+TOPICS[q.topic][0]+')\n\nQUESTION:\n'+tutorStrip(q.prompt)
+  return { kind:'mc', correct:LAST_MC.correct, pickedText:picked,
+    body:'MULTIPLE-CHOICE (topic: '+TOPICS[q.topic][0]+')\n\nQUESTION:\n'+tutorStrip(q.prompt)
     +(q.math?'\nGIVEN: \\('+q.math+'\\)':'')
     +'\n\nOPTIONS:\n'+opts
     +'\n\nSTUDENT RESULT: '+(LAST_MC.correct?'answered CORRECTLY (they may want to understand it more deeply).':'picked the option marked [STUDENT PICKED THIS] — wrong.')
@@ -637,7 +638,7 @@ function buildFrqContext(pi){
   const f=FRQS[frqActive], p=f.parts[pi];
   let given='GIVEN: \\('+f.given+'\\)\n'+tutorStrip(f.givenNote||'');
   if(f.table){ given+='\nTABLE: '+f.table.head.join(' | ')+'\n'+f.table.rows.map(r=>r.join(' | ')).join('\n'); }
-  return { body:'FREE-RESPONSE — '+tutorStrip(f.label)+', '+p.pl+' ('+p.pts+' points, topic: '+TOPICS[p.topic][0]+')\n\n'+given
+  return { kind:'frq', body:'FREE-RESPONSE — '+tutorStrip(f.label)+', '+p.pl+' ('+p.pts+' points, topic: '+TOPICS[p.topic][0]+')\n\n'+given
     +'\n\nTHE PART THE STUDENT IS WORKING ON:\n'+tutorStrip(p.q)
     +'\n\nAUTHORITATIVE WORKED SOLUTION:\n'+tutorStrip(p.sol)
     +'\n\nRUBRIC (what earns the points):\n'+p.rubric.map(r=>'- '+tutorStrip(r)).join('\n') };
@@ -646,10 +647,25 @@ function buildFrqContext(pi){
 function openMcTutor(){ const d=document.getElementById('mcTutorDock'); if(d) openTutor(d,buildMCContext()); }
 function openFrqTutor(pi){ const d=document.getElementById('frqTutorDock'+pi); if(d) openTutor(d,buildFrqContext(pi)); }
 
+/* Free, local greeting — no API call. The AI only gets involved once the
+   student actually replies, which roughly halves API usage per session. */
+const MC_WRONG_OPENERS=['Hey! I see you picked "PICKED" — let\'s find where that went sideways. What was your first move on this one?',
+  'Hey! "PICKED" isn\'t quite it, but it\'s usually a specific, fixable slip. What did you try?',
+  'Hey! Let\'s dig into "PICKED" — walk me through how you got there?'];
+const MC_RIGHT_OPENERS=['Nice, you got that one! Want to go a level deeper on why it works, or move on?',
+  'You nailed it — want to talk through the *why*, or is that enough for this one?'];
+const FRQ_OPENERS=['Hey! Let\'s work through this part together — what have you got so far, or where\'s it getting stuck?',
+  'Hey! Where would you like to start — your own attempt, or a hint on the first move?'];
+function localOpener(ctx){
+  const arr = ctx.kind==='mc' ? (ctx.correct?MC_RIGHT_OPENERS:MC_WRONG_OPENERS) : FRQ_OPENERS;
+  const pick = arr[Math.floor(Math.random()*arr.length)];
+  return pick.replace('PICKED', (ctx.pickedText||'').replace(/"/g,"'").slice(0,60));
+}
+
 function openTutor(dock,ctx){
   if(TUTOR.dock&&TUTOR.dock!==dock) TUTOR.dock.innerHTML='';           // one session at a time
   if(dock.querySelector('.tutor-panel')){ dock.innerHTML=''; TUTOR.dock=null; return; }  // toggle closed
-  TUTOR={dock:dock,msgs:[],busy:false,ctx:ctx};
+  TUTOR={dock:dock,msgs:[{role:'tutor',text:localOpener(ctx)}],busy:false,ctx:ctx};
   dock.innerHTML='<div class="tutor-panel">'
     +'<div class="tutor-head"><span>🎓 tutor</span><button title="close" onclick="closeTutor()">×</button></div>'
     +'<div class="tutor-log" id="tutorLog"></div>'
@@ -657,9 +673,7 @@ function openTutor(dock,ctx){
     +'<div class="tutor-inrow"><input id="tutorIn" placeholder="type your answer or question…" autocomplete="off">'
     +'<button class="tutor-send" id="tutorSend" onclick="tutorSendMsg()">Send</button></div></div>';
   document.getElementById('tutorIn').addEventListener('keydown',e=>{ if(e.key==='Enter') tutorSendMsg(); });
-  // opener: hidden primer turn so the tutor greets + diagnoses (not rendered in the log)
-  TUTOR.msgs.push({role:'user',text:'(I just clicked "Walk me through it" on this problem. Greet me in one short friendly line and ask one opening question based on my result.)',hidden:true});
-  tutorCall();
+  tutorLogRender();   // show the free local opener — no API call until the student replies
 }
 function closeTutor(){ if(TUTOR.dock){TUTOR.dock.innerHTML='';TUTOR.dock=null;} }
 

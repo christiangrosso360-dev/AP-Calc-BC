@@ -139,7 +139,8 @@
     var m = LAST_MC; if (!m) return { body: '(no question context)' };
     var q = m.norm;
     var opts = q.opts.map(function (o) { return '- ' + tStrip(o.t) + (o.correct ? '   [CORRECT ANSWER]' : ''); }).join('\n');
-    return { body: 'MULTIPLE-CHOICE (topic: ' + q.topicName + ')\n\nQUESTION:\n' + tStrip(q.prompt)
+    return { kind: 'mc', correct: m.correct, pickedText: m.pickedText,
+      body: 'MULTIPLE-CHOICE (topic: ' + q.topicName + ')\n\nQUESTION:\n' + tStrip(q.prompt)
       + (q.math ? '\nGIVEN: \\(' + q.math + '\\)' : '')
       + '\n\nOPTIONS:\n' + opts
       + '\n\nSTUDENT PICKED: "' + m.pickedText + '" — ' + (m.correct ? 'and it was CORRECT (they may want deeper understanding).' : 'which is WRONG.')
@@ -153,7 +154,28 @@
     if (nf.table) body += 'TABLE:\n' + nf.table + '\n';
     body += '\nTHE PART THE STUDENT IS WORKING ON:\n' + nf.part.q + '\n\nAUTHORITATIVE WORKED SOLUTION:\n' + nf.part.sol;
     if (nf.part.rubric) body += '\n\nRUBRIC (what earns the points):\n' + nf.part.rubric;
-    return { body: body };
+    return { kind: 'frq', body: body };
+  }
+
+  /* Free, local greeting — no API call. The AI only gets involved once the
+     student actually replies, which roughly halves API usage per session. */
+  var MC_WRONG_OPENERS = [
+    'Hey! I see you picked "PICKED" — let\'s find where that went sideways. What was your first move on this one?',
+    'Hey! "PICKED" isn\'t quite it, but it\'s usually a specific, fixable slip. What did you try?',
+    'Hey! Let\'s dig into "PICKED" — walk me through how you got there?'
+  ];
+  var MC_RIGHT_OPENERS = [
+    'Nice, you got that one! Want to go a level deeper on why it works, or move on?',
+    'You nailed it — want to talk through the *why*, or is that enough for this one?'
+  ];
+  var FRQ_OPENERS = [
+    'Hey! Let\'s work through this part together — what have you got so far, or where\'s it getting stuck?',
+    'Hey! Where would you like to start — your own attempt, or a hint on the first move?'
+  ];
+  function localOpener(ctx) {
+    var arr = ctx.kind === 'mc' ? (ctx.correct ? MC_RIGHT_OPENERS : MC_WRONG_OPENERS) : FRQ_OPENERS;
+    var pick = arr[Math.floor(Math.random() * arr.length)];
+    return pick.replace('PICKED', (ctx.pickedText || '').replace(/"/g, "'").slice(0, 60));
   }
 
   /* ---------- chat UI ---------- */
@@ -162,7 +184,7 @@
   function openTutor(dock, ctx) {
     if (TUTOR.dock && TUTOR.dock !== dock) TUTOR.dock.innerHTML = '';
     if (dock.querySelector('.tutor-panel')) { dock.innerHTML = ''; TUTOR.dock = null; return; }
-    TUTOR = { dock: dock, msgs: [], busy: false, ctx: ctx };
+    TUTOR = { dock: dock, msgs: [{ role: 'tutor', text: localOpener(ctx) }], busy: false, ctx: ctx };
     dock.innerHTML = '<div class="tutor-panel">'
       + '<div class="tutor-head"><span>🎓 tutor</span><button title="close" onclick="closeTutor()">×</button></div>'
       + '<div class="tutor-log" id="tutorLog"></div>'
@@ -170,8 +192,7 @@
       + '<div class="tutor-inrow"><input id="tutorIn" placeholder="type your answer or question…" autocomplete="off">'
       + '<button class="tutor-send" id="tutorSend" onclick="tutorSendMsg()">Send</button></div></div>';
     document.getElementById('tutorIn').addEventListener('keydown', function (e) { if (e.key === 'Enter') tutorSendMsg(); });
-    TUTOR.msgs.push({ role: 'user', text: '(I just clicked "Walk me through it" on this problem. Greet me in one short friendly line and ask one opening question based on my result.)', hidden: true });
-    tutorCall();
+    logRender();   // show the free local opener — no API call until the student replies
   }
   function closeTutor() { if (TUTOR.dock) { TUTOR.dock.innerHTML = ''; TUTOR.dock = null; } }
   function logRender() {
