@@ -34,6 +34,31 @@
   .fb .ftag.ok{color:var(--conv)} .fb .ftag.bad{color:var(--div)}
   .next{background:var(--approx);color:#241a02;border-color:var(--approx);font-weight:600;text-align:center;width:100%;box-shadow:0 8px 18px -10px var(--approx);margin-top:16px;display:none} .next.show{display:block}
   .review-link{display:inline-block;margin-top:8px;font-size:12.5px;font-family:var(--mono);color:var(--emerald);text-decoration:none} .review-link:hover{text-decoration:underline}
+
+  /* ---- AI tutor ---- */
+  .tutor-row{margin-top:12px}
+  .tutor-btn{font-family:var(--mono);font-size:12.5px;color:var(--approx);background:transparent;border:1px solid rgba(240,180,41,.45);border-radius:20px;padding:7px 15px;cursor:pointer;transition:all .15s}
+  .tutor-btn:hover{background:rgba(240,180,41,.12);border-color:var(--approx)}
+  .tutor-panel{margin-top:12px;background:var(--bg);border:1px solid rgba(240,180,41,.3);border-radius:12px;overflow:hidden;animation:tutorIn .25s ease}
+  @keyframes tutorIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .tutor-head{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--approx)}
+  .tutor-head button{background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer;padding:0 2px;line-height:1}
+  .tutor-head button:hover{color:var(--ink)}
+  .tutor-log{max-height:340px;overflow-y:auto;padding:13px 14px;display:flex;flex-direction:column;gap:9px}
+  .tb{max-width:88%;padding:9px 13px;border-radius:12px;font-size:13.5px;line-height:1.55}
+  .tb.tutor{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);align-self:flex-start;border-bottom-left-radius:4px}
+  .tb.student{background:rgba(240,180,41,.13);border:1px solid rgba(240,180,41,.3);color:var(--ink);align-self:flex-end;border-bottom-right-radius:4px}
+  .tb .katex{font-size:1.02em}
+  .tb.thinking{color:var(--muted);font-family:var(--mono);font-size:12px}
+  .tb.thinking span{display:inline-block;animation:tdot 1.2s infinite}
+  .tb.thinking span:nth-child(2){animation-delay:.2s} .tb.thinking span:nth-child(3){animation-delay:.4s}
+  @keyframes tdot{0%,60%,100%{opacity:.25}30%{opacity:1}}
+  .tutor-err{color:var(--div);font-size:12.5px;font-family:var(--mono);padding:0 14px 10px}
+  .tutor-inrow{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
+  .tutor-inrow input{flex:1;background:var(--panel);border:1px solid var(--line-2);border-radius:9px;color:var(--ink);font-family:var(--body);font-size:13.5px;padding:9px 12px}
+  .tutor-inrow input:focus{outline:none;border-color:var(--approx)}
+  .tutor-send{font-family:var(--mono);font-size:12.5px;background:var(--approx);color:#241a02;border:none;border-radius:9px;padding:9px 16px;cursor:pointer;font-weight:600}
+  .tutor-send:disabled{opacity:.45;cursor:default}
   /* FRQ */
   .frq-given{background:var(--panel-2);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:12px 0}
   .frq-given .katex{font-size:1.05em} .frq-given .gl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
@@ -337,7 +362,7 @@ function renderMC(){
   if(q.math){mm.style.display='';mm.innerHTML=tex(q.math,q.math,true);}else{mm.style.display='none';}
   const opts=document.getElementById('mcOpts'); opts.innerHTML="";
   const list=shuffle(q.opts.map((o)=>({...o})));
-  list.forEach(o=>{const b=document.createElement('button');b.innerHTML=renderOpt(o.t);b.dataset.correct=!!o.correct;b.onclick=()=>pickMC(b,q);opts.appendChild(b);});
+  list.forEach(o=>{const b=document.createElement('button');b.innerHTML=renderOpt(o.t);b.dataset.correct=!!o.correct;b.dataset.src=o.t;b.onclick=()=>pickMC(b,q);opts.appendChild(b);});
   const fb=document.getElementById('mcFb');fb.className="fb";fb.innerHTML="";
   document.getElementById('mcNext').className="next";
 }
@@ -349,8 +374,10 @@ function pickMC(btn,q){
   if(!correct)btn.classList.add('wrong');
   const fb=document.getElementById('mcFb');
   fb.className="fb show";
+  LAST_MC={q:q,pickedT:btn.dataset.src||btn.textContent,correct:correct};
   fb.innerHTML='<span class="ftag '+(correct?'ok':'bad')+'">'+(correct?'Correct. ':'Not quite. ')+'</span>'+mathify(q.explain)+
-    '<br><a class="review-link" href="'+TOPICS[q.topic][1]+'">Review: '+TOPICS[q.topic][0]+' →</a>';
+    '<br><a class="review-link" href="'+TOPICS[q.topic][1]+'">Review: '+TOPICS[q.topic][0]+' →</a>'+
+    (TUTOR_ENDPOINT?'<div class="tutor-row"><button class="tutor-btn" onclick="openMcTutor()">🎓 Still stuck? Walk me through it</button></div><div class="tutor-dock" id="mcTutorDock"></div>':'');
   document.getElementById('mcScore').textContent="Score: "+mcScore;
   const nx=document.getElementById('mcNext'); nx.className="next show";
   nx.textContent = mcIdx<mcBatch.length-1 ? "Next question →" : "See batch results →";
@@ -521,6 +548,7 @@ function renderFRQ(){
       '<div class="part-q">'+mathify(p.q)+'</div>'+fieldsHtml+
       '<button class="frq-check" onclick="checkFrqPart('+pi+')">Check answer</button>'+
       '<button class="reveal-sol" onclick="document.getElementById(\'sol'+pi+'\').classList.add(\'show\');this.style.display=\'none\'">show worked solution</button>'+
+      (TUTOR_ENDPOINT?'<div class="tutor-row"><button class="tutor-btn" onclick="openFrqTutor('+pi+')">🎓 Walk me through it</button></div><div class="tutor-dock" id="frqTutorDock'+pi+'"></div>':'')+
       '<div class="frq-sol" id="sol'+pi+'">'+mathify(p.sol)+rubricHtml+'</div>';
     wrap.appendChild(div);
   });
@@ -544,6 +572,108 @@ function updFrqScore(){
 window.checkFrqPart=checkFrqPart;window.updFrqScore=updFrqScore;
 
 // ===================== BOOT =====================
+/* ============================================================
+   AI TUTOR — "Walk me through it"
+   Talks to a Cloudflare Worker (tutor-worker.js) that holds the
+   Gemini key. Leave TUTOR_ENDPOINT empty to hide the tutor
+   entirely (page works exactly as before).
+   ============================================================ */
+var TUTOR_ENDPOINT="https://calc-tutor.christiangrosso360.workers.dev";
+try{ TUTOR_ENDPOINT=localStorage.getItem('tutor:endpoint')||TUTOR_ENDPOINT; }catch(e){}
+
+var LAST_MC=null, TUTOR={dock:null,msgs:[],busy:false,ctx:null};
+
+function tutorStrip(s){ return String(s||'')
+  .replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'')
+  .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ')
+  .replace(/&mdash;/g,'—').replace(/&rarr;/g,'→').replace(/&rsquo;/g,'’').replace(/&ldquo;|&rdquo;/g,'"'); }
+function tutorEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function tutorRender(s){
+  let t=tutorEsc(s);
+  t=t.replace(/\$([^$\n]+)\$/g,'\\($1\\)');                  // tolerate $…$ from the model
+  t=t.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>');
+  t=t.replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s.,;:!?)]|$)/g,'$1<i>$2</i>');
+  t=t.replace(/\n/g,'<br>');
+  return mathify(t);
+}
+
+function tutorSystem(ctx){
+  return 'You are the tutor on "Visual AP Calculus BC", helping a high-school student one-on-one with the specific exam problem below.\n'
+  +'PERSONALITY: warm, encouraging, Socratic — you guide, you never lecture.\n'
+  +'STYLE: keep every reply SHORT (2–5 sentences). Ask exactly ONE question at a time, then wait. Write ALL math as inline LaTeX inside \\( ... \\) delimiters — never $…$, never bare ^ or _ outside math. No headers, no lists; plain sentences (occasional **bold** is fine).\n'
+  +'METHOD: (1) First find where THEY are stuck — ask what they tried or which step lost them. (2) Guide with hints and small questions toward the authoritative solution; never dump it all at once. (3) If they ask for the answer outright, give only the next step. (4) When they get it, close with a one-sentence statement of the principle.\n'
+  +'If their gap is an earlier concept (e.g. what a critical point is), briefly re-teach that first.\n'
+  +'The context below is AUTHORITATIVE — its correct answer and reasoning are ground truth; never contradict it.\n\n'
+  +'==== PROBLEM CONTEXT ====\n'+ctx.body;
+}
+
+function buildMCContext(){
+  const q=LAST_MC.q, picked=LAST_MC.pickedT;
+  const opts=q.opts.map(o=>'- '+tutorStrip(o.t)+(o.correct?'   [CORRECT ANSWER]':'')+(o.t===picked?'   [STUDENT PICKED THIS]':'')).join('\n');
+  return { body:'MULTIPLE-CHOICE (topic: '+TOPICS[q.topic][0]+')\n\nQUESTION:\n'+tutorStrip(q.prompt)
+    +(q.math?'\nGIVEN: \\('+q.math+'\\)':'')
+    +'\n\nOPTIONS:\n'+opts
+    +'\n\nSTUDENT RESULT: '+(LAST_MC.correct?'answered CORRECTLY (they may want to understand it more deeply).':'picked the option marked [STUDENT PICKED THIS] — wrong.')
+    +'\n\nAUTHORITATIVE EXPLANATION:\n'+tutorStrip(q.explain) };
+}
+function buildFrqContext(pi){
+  const f=FRQS[frqActive], p=f.parts[pi];
+  let given='GIVEN: \\('+f.given+'\\)\n'+tutorStrip(f.givenNote||'');
+  if(f.table){ given+='\nTABLE: '+f.table.head.join(' | ')+'\n'+f.table.rows.map(r=>r.join(' | ')).join('\n'); }
+  return { body:'FREE-RESPONSE — '+tutorStrip(f.label)+', '+p.pl+' ('+p.pts+' points, topic: '+TOPICS[p.topic][0]+')\n\n'+given
+    +'\n\nTHE PART THE STUDENT IS WORKING ON:\n'+tutorStrip(p.q)
+    +'\n\nAUTHORITATIVE WORKED SOLUTION:\n'+tutorStrip(p.sol)
+    +'\n\nRUBRIC (what earns the points):\n'+p.rubric.map(r=>'- '+tutorStrip(r)).join('\n') };
+}
+
+function openMcTutor(){ const d=document.getElementById('mcTutorDock'); if(d) openTutor(d,buildMCContext()); }
+function openFrqTutor(pi){ const d=document.getElementById('frqTutorDock'+pi); if(d) openTutor(d,buildFrqContext(pi)); }
+
+function openTutor(dock,ctx){
+  if(TUTOR.dock&&TUTOR.dock!==dock) TUTOR.dock.innerHTML='';           // one session at a time
+  if(dock.querySelector('.tutor-panel')){ dock.innerHTML=''; TUTOR.dock=null; return; }  // toggle closed
+  TUTOR={dock:dock,msgs:[],busy:false,ctx:ctx};
+  dock.innerHTML='<div class="tutor-panel">'
+    +'<div class="tutor-head"><span>🎓 tutor</span><button title="close" onclick="closeTutor()">×</button></div>'
+    +'<div class="tutor-log" id="tutorLog"></div>'
+    +'<div class="tutor-err" id="tutorErr" style="display:none"></div>'
+    +'<div class="tutor-inrow"><input id="tutorIn" placeholder="type your answer or question…" autocomplete="off">'
+    +'<button class="tutor-send" id="tutorSend" onclick="tutorSendMsg()">Send</button></div></div>';
+  document.getElementById('tutorIn').addEventListener('keydown',e=>{ if(e.key==='Enter') tutorSendMsg(); });
+  // opener: hidden primer turn so the tutor greets + diagnoses (not rendered in the log)
+  TUTOR.msgs.push({role:'user',text:'(I just clicked "Walk me through it" on this problem. Greet me in one short friendly line and ask one opening question based on my result.)',hidden:true});
+  tutorCall();
+}
+function closeTutor(){ if(TUTOR.dock){TUTOR.dock.innerHTML='';TUTOR.dock=null;} }
+
+function tutorLogRender(){
+  const log=document.getElementById('tutorLog'); if(!log) return;
+  log.innerHTML=TUTOR.msgs.filter(m=>!m.hidden).map(m=>'<div class="tb '+(m.role==='tutor'?'tutor':'student')+'">'+tutorRender(m.text)+'</div>').join('')
+    +(TUTOR.busy?'<div class="tb tutor thinking">thinking<span>.</span><span>.</span><span>.</span></div>':'');
+  log.scrollTop=log.scrollHeight;
+}
+function tutorSendMsg(){
+  if(TUTOR.busy) return;
+  const inp=document.getElementById('tutorIn'); const v=(inp.value||'').trim(); if(!v) return;
+  inp.value=''; TUTOR.msgs.push({role:'user',text:v}); tutorCall();
+}
+function tutorCall(){
+  TUTOR.busy=true; tutorLogRender();
+  const sendBtn=document.getElementById('tutorSend'); if(sendBtn) sendBtn.disabled=true;
+  const errEl=document.getElementById('tutorErr'); if(errEl){errEl.style.display='none';}
+  const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),30000);
+  fetch(TUTOR_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},signal:ctrl.signal,
+    body:JSON.stringify({system:tutorSystem(TUTOR.ctx),messages:TUTOR.msgs.map(m=>({role:m.role==='tutor'?'tutor':'user',text:m.text}))})})
+  .then(r=>r.json().then(d=>({ok:r.ok,d:d})))
+  .then(({ok,d})=>{
+    clearTimeout(to); TUTOR.busy=false; if(sendBtn) sendBtn.disabled=false;
+    if(ok&&d.text){ TUTOR.msgs.push({role:'tutor',text:d.text}); tutorLogRender(); }
+    else { tutorLogRender(); if(errEl){ errEl.textContent='⚠ '+(d.detail||d.error||'The tutor is unreachable right now — the written explanation above has the full story.'); errEl.style.display='block'; } }
+  })
+  .catch(e=>{ clearTimeout(to); TUTOR.busy=false; if(sendBtn) sendBtn.disabled=false; tutorLogRender();
+    if(errEl){ errEl.textContent='⚠ Couldn’t reach the tutor ('+(e.name==='AbortError'?'timed out':'network')+') — the written explanation above has the full story.'; errEl.style.display='block'; } });
+}
+
 function boot(){newBatch();buildFrqTabs();renderFRQ();}
 boot();
 if(window.addEventListener)window.addEventListener('load',()=>{if(window.katex){newBatch();renderFRQ();}});
