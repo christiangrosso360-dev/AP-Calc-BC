@@ -292,9 +292,10 @@ function renderSheet(){
   put('f_cap', R`L=\dfrac{a}{b},\qquad \text{fastest growth at }P=\dfrac{L}{2}`, "L = a/b,   fastest growth at P = L/2");
 }
 function mathifyInline(){
-  document.querySelectorAll('.mini,.branch .res,.branch .cond,.traps li,.gcard .geq,.gcard .gnote,.sub,.closer-line p,.blurb').forEach(node=>{
+  if(!window.katex) return;
+  document.querySelectorAll('.blurb,.mini,.branch .res,.branch .cond,.traps li,.gcard .geq,.gcard .gnote,.steps li,.bcell .bsign,.bcell .bwhy,.sub,.closer-line p,.test-row .td').forEach(node=>{
     if(node.dataset.done)return;
-    node.innerHTML=node.innerHTML.replace(/\\\((.+?)\\\)/g,(m,t)=>{try{return window.katex?katex.renderToString(t,{throwOnError:false}):m;}catch(e){return m;}});
+    node.innerHTML=node.innerHTML.replace(/\\\((.+?)\\\)/g,(m,t)=>{try{return window.katex?katex.renderToString(t.replace(/&lt;/g,String.fromCharCode(92)+"lt ").replace(/&gt;/g,String.fromCharCode(92)+"gt "),{throwOnError:false}):m;}catch(e){return m;}});
     node.dataset.done="1";
   });
 }

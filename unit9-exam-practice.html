@@ -287,7 +287,7 @@ let mcBatch=[], mcIdx=0, mcScore=0, mcAnswered=false;
 const stats={};
 Object.keys(TOPICS).forEach(k=>stats[k]={right:0,total:0});
 
-function mathify(h){return (h||"").replace(/\\\((.+?)\\\)/g,(m,t)=>{try{return window.katex?katex.renderToString(t,{throwOnError:false}):'<span class="tex-fallback">'+t+'</span>';}catch(e){return m;}});}
+function mathify(h){return (h||"").replace(/\\\[([\s\S]+?)\\\]/g,(m,t)=>{try{return window.katex?katex.renderToString(t,{throwOnError:false,displayMode:true}):'<span class="tex-fallback">'+t+'</span>';}catch(e){return m;}}).replace(/\\\((.+?)\\\)/g,(m,t)=>{try{return window.katex?katex.renderToString(t,{throwOnError:false}):'<span class="tex-fallback">'+t+'</span>';}catch(e){return m;}});}
 // Decide how to render an MC option: embedded inline-math or prose -> mathify as-is; pure math -> wrap in \( \).
 function renderOpt(t){
   if(t.indexOf("\\(")>=0) return mathify(t);                 // already has inline math (text+math mix)

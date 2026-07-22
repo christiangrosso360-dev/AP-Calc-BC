@@ -400,7 +400,7 @@ const reduceMotion=()=> window.matchMedia && window.matchMedia('(prefers-reduced
 function mathify(html){ if(!window.katex) return html;
   return html.replace(/\\\((.+?)\\\)/g,(m,t)=>{ try{ return katex.renderToString(t,{throwOnError:false}); }catch(e){ return m; } }); }
 function mathifyStatic(){ if(!window.katex) return;
-  document.querySelectorAll('.sub,.lead,.big-idea,.looking,.note,.maprow .ph,.mistake p,.tipbox li,.concept p,.whatsnext,.callout,.stat .k,.notadesc,.card > p').forEach(n=>{
+  document.querySelectorAll('.sub,.lead,.big-idea,.looking,.reader,.note,.maprow .ph,.mistake p,.mistake h4,.tipbox li,.concept p,.whatsnext,.callout,.stat .k,.stat .v,.notadesc,.card > p,label').forEach(n=>{
     if(n.dataset.mz) return;
     if(n.innerHTML.indexOf('\\(')<0){ n.dataset.mz="1"; return; }
     n.innerHTML=mathify(n.innerHTML); n.dataset.mz="1"; }); }

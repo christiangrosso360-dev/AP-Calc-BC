@@ -497,7 +497,7 @@ function renderWk(){
   const line=document.getElementById("wkLine"), read=document.getElementById("wkRead"), panel=document.getElementById("wkWork");
   if(!line) return;
   line.innerHTML=tex(wkN===0?"x^2+y^2=25":WK[Math.min(wkN,WK.length)-1].m,null,true);
-  if(wkN===0){ panel.innerHTML='<div class="why-t" style="color:var(--muted)">Differentiate both sides, let \\(y^2\\) pick up its \\(\\frac{dy}{dx}\\), then solve.</div>'; read.textContent="press step"; }
+  if(wkN===0){ panel.innerHTML=mathify('<div class="why-t" style="color:var(--muted)">Differentiate both sides, let \\(y^2\\) pick up its \\(\\frac{dy}{dx}\\), then solve.</div>'); read.textContent="press step"; }
   else { panel.innerHTML=mathify(WK.slice(0,wkN).map((st,j)=>'<div class="why-step"><div class="why-n">'+(j+1)+'</div><div><div class="why-t">'+st.t+'</div><div class="why-m">'+T(st.m)+'</div></div></div>').join(""));
     read.textContent = wkN>=WK.length ? "done \u2713" : "step "+wkN+" of "+WK.length; }
 }

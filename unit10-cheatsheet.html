@@ -291,9 +291,10 @@ function renderSheet(){
   put('f_ln', R`\ln(1+x)=\sum_{n=1}^{\infty}\frac{(-1)^{n+1}x^n}{n}`, "ln(1+x) = Σ (−1)ⁿ⁺¹xⁿ/n");
 }
 function mathifyInline(){
-  document.querySelectorAll('.mini,.branch .res,.branch .cond,.traps li,.test-row .td').forEach(node=>{
+  if(!window.katex) return;
+  document.querySelectorAll('.blurb,.mini,.branch .res,.branch .cond,.traps li,.test-row .td').forEach(node=>{
     if(node.dataset.done)return;
-    node.innerHTML=node.innerHTML.replace(/\\\((.+?)\\\)/g,(m,t)=>{try{return window.katex?katex.renderToString(t,{throwOnError:false}):m;}catch(e){return m;}});
+    node.innerHTML=node.innerHTML.replace(/\\\((.+?)\\\)/g,(m,t)=>{try{return window.katex?katex.renderToString(t.replace(/&lt;/g,String.fromCharCode(92)+"lt ").replace(/&gt;/g,String.fromCharCode(92)+"gt "),{throwOnError:false}):m;}catch(e){return m;}});
     node.dataset.done="1";
   });
 }

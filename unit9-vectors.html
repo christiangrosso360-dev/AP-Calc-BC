@@ -407,8 +407,8 @@ function renderEqs(){
   const R=String.raw;
   const put=(id,t,fb,display)=>{const e=document.getElementById(id);if(e)e.innerHTML=tex(t,fb||t,display!==false);};
   put('eqDef', R`\vec r(t)=\langle\, x(t),\ y(t)\,\rangle`, "r(t) = ⟨x(t), y(t)⟩");
-  put('eqVel', R`\vec v(t)=\vec r\,'(t)=\big\langle\, x'(t),\ y'(t)\,\big\rangle`, "v(t) = r'(t) = ⟨x'(t), y'(t)⟩");
-  put('eqAcc', R`\vec a(t)=\vec v\,'(t)=\vec r\,''(t)=\big\langle\, x''(t),\ y''(t)\,\big\rangle`, "a(t) = v'(t) = r''(t) = ⟨x''(t), y''(t)⟩");
+  put('eqVel', R`\vec v(t)=\vec r\,{}'(t)=\big\langle\, x'(t),\ y'(t)\,\big\rangle`, "v(t) = r'(t) = ⟨x'(t), y'(t)⟩");
+  put('eqAcc', R`\vec a(t)=\vec v\,{}'(t)=\vec r\,{}''(t)=\big\langle\, x''(t),\ y''(t)\,\big\rangle`, "a(t) = v'(t) = r''(t) = ⟨x''(t), y''(t)⟩");
   put('eqInt', R`\vec r(t)=\int \vec v(t)\,dt=\Big\langle \textstyle\int x'(t)\,dt,\ \int y'(t)\,dt\Big\rangle+\vec C`, "r(t) = ∫v dt = ⟨∫x' dt, ∫y' dt⟩ + C");
   put('eqSpeed', R`\text{speed}=|\vec v(t)|=\sqrt{\big(x'(t)\big)^2+\big(y'(t)\big)^2}`, "speed = |v| = √(x'² + y'²)");
   put('eqDist', R`\text{distance}=\int_a^b |\vec v(t)|\,dt=\int_a^b\sqrt{\big(x'(t)\big)^2+\big(y'(t)\big)^2}\;dt`, "distance = ∫|v| dt = ∫√(x'²+y'²) dt");

@@ -273,9 +273,10 @@ function renderSheet(){
   put('f_area2', R`A=\dfrac12\int_{\alpha}^{\beta}\big(r_{\text{out}}^2-r_{\text{in}}^2\big)\,d\theta`, "A = ½ ∫ (r_out² − r_in²) dθ");
 }
 function mathifyInline(){
-  document.querySelectorAll('.mini,.branch .res,.branch .cond,.traps li,.gcard .geq,.gcard .gnote,.sub,.closer-line p').forEach(node=>{
+  if(!window.katex) return;
+  document.querySelectorAll('.blurb,.mini,.branch .res,.branch .cond,.traps li,.gcard .geq,.gcard .gnote,.steps li,.bcell .bsign,.bcell .bwhy,.sub,.closer-line p,.test-row .td').forEach(node=>{
     if(node.dataset.done)return;
-    node.innerHTML=node.innerHTML.replace(/\\\((.+?)\\\)/g,(m,t)=>{try{return window.katex?katex.renderToString(t,{throwOnError:false}):m;}catch(e){return m;}});
+    node.innerHTML=node.innerHTML.replace(/\\\((.+?)\\\)/g,(m,t)=>{try{return window.katex?katex.renderToString(t.replace(/&lt;/g,String.fromCharCode(92)+"lt ").replace(/&gt;/g,String.fromCharCode(92)+"gt "),{throwOnError:false}):m;}catch(e){return m;}});
     node.dataset.done="1";
   });
 }

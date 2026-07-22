@@ -443,6 +443,7 @@ function renderEqs(){
   }
   [...tabs.children].forEach(t=>t.addEventListener('click',()=>{beat=parseInt(t.dataset.beat);draw();}));
   draw();
+  if(!window.katex){var _dk=0;var _di=setInterval(function(){if(window.katex){clearInterval(_di);draw();}else if(++_dk>80)clearInterval(_di);},100);}
 })();
 
 /* ===== DY VISUAL: interactive sweeping horizontal strip ===== */

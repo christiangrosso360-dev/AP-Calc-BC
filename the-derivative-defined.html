@@ -432,7 +432,7 @@ const reduceMotion=()=> window.matchMedia && window.matchMedia('(prefers-reduced
 function mathify(html){ if(!window.katex) return html;
   return html.replace(/\\\((.+?)\\\)/g,(m,t)=>{ try{ return katex.renderToString(t,{throwOnError:false}); }catch(e){ return m; } }); }
 function mathifyStatic(){ if(!window.katex) return;
-  document.querySelectorAll('.sub,.lead,.big-idea,.looking,.note,.maprow .ph,.mistake p,.tipbox li,.concept p,.whatsnext,.callout,.stat .k,.notadesc,.card > p').forEach(n=>{
+  document.querySelectorAll('.sub,.lead,.big-idea,.looking,.reader,.note,.maprow .ph,.mistake p,.mistake h4,.tipbox li,.concept p,.whatsnext,.callout,.stat .k,.stat .v,.notadesc,.card > p,label').forEach(n=>{
     if(n.dataset.mz) return;
     if(n.innerHTML.indexOf('\\(')<0){ n.dataset.mz="1"; return; }
     n.innerHTML=mathify(n.innerHTML); n.dataset.mz="1"; }); }
@@ -516,7 +516,7 @@ const WK=[
 let wkN=0;
 function renderWk(){
   const panel=document.getElementById("wkWork"), read=document.getElementById("wkRead"), line=document.getElementById("wkLine");
-  if(wkN===0) panel.innerHTML='<div class="why-t" style="padding:8px 0;color:var(--muted)">Expand, cancel the \\(x^2\\), factor and cancel \\(h\\), then take the limit.</div>';
+  if(wkN===0) panel.innerHTML=mathify('<div class="why-t" style="padding:8px 0;color:var(--muted)">Expand, cancel the \\(x^2\\), factor and cancel \\(h\\), then take the limit.</div>');
   else panel.innerHTML=mathify(WK.slice(0,wkN).map((st,j)=>'<div class="why-step"><div class="why-n">'+(j+1)+'</div><div><div class="why-t">'+st.t+'</div><div class="why-m">'+T(st.m)+'</div></div></div>').join(""));
   read.textContent = wkN===0?"press step":(wkN<WK.length?"step "+wkN+" of "+WK.length:"done — f'(x)=2x");
   const tx = wkN>=WK.length ? "f'(x)=2x" : "f'(x)=\\lim_{h\\to0}\\frac{(x+h)^2-x^2}{h}";

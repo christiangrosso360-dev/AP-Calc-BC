@@ -408,8 +408,9 @@ function buildFrqTabs(){
 function renderFRQ(){
   const f=FRQS[frqActive];
   document.getElementById('frqDesc').innerHTML=mathify(f.desc);
-  document.getElementById('frqGiven').innerHTML=tex(f.given,f.givenFall,true);
-  document.getElementById('frqGivenNote').textContent=f.givenNote;
+  const gWrap=document.querySelector('.frq-given');
+  if(f.given){ if(gWrap)gWrap.style.display=''; document.getElementById('frqGiven').innerHTML=tex(f.given,f.givenFall,true); document.getElementById('frqGivenNote').textContent=f.givenNote||''; }
+  else { if(gWrap)gWrap.style.display='none'; document.getElementById('frqGiven').innerHTML=''; document.getElementById('frqGivenNote').textContent=''; }
   document.getElementById('frqScore').style.display='none';
   const wrap=document.getElementById('frqParts');wrap.innerHTML="";
   f.parts.forEach((p,pi)=>{

@@ -442,7 +442,7 @@ function shuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Ma
 function mathify(html){ if(!window.katex) return html;
   return html.replace(/\\\((.+?)\\\)/g,(m,t)=>{ try{ return katex.renderToString(t,{throwOnError:false}); }catch(e){ return m; } }); }
 function mathifyStatic(){ if(!window.katex) return;
-  document.querySelectorAll('.sub,.lead,.big-idea,.looking,.reader,.maprow .ph,.mistake p,.tipbox li,.concept p,.whatsnext,.callout,.stat .k,.card > p').forEach(n=>{
+  document.querySelectorAll('.sub,.lead,.big-idea,.looking,.reader,.note,.maprow .ph,.mistake p,.mistake h4,.tipbox li,.concept p,.whatsnext,.callout,.stat .k,.stat .v,.notadesc,.card > p,label').forEach(n=>{
     if(n.dataset.mz) return;
     if(n.innerHTML.indexOf('\\(')<0){ n.dataset.mz="1"; return; }
     n.innerHTML=mathify(n.innerHTML); n.dataset.mz="1"; }); }
@@ -516,8 +516,8 @@ function raceFn(x){ /* leading-coeff 1 each, +lower terms for shape */
   return top/bot;
 }
 function raceHA(){ /* returns {type, y} */
-  if(topDeg<botDeg) return {type:"bottom wins", y:0, txt:"\\\\(y=0\\\\)"};
-  if(topDeg===botDeg){ const r=2/1; return {type:"tie", y:r, txt:"\\\\(y="+r+"\\\\) (lead ratio 2/1)"}; }
+  if(topDeg<botDeg) return {type:"bottom wins", y:0, txt:"\\(y=0\\)"};
+  if(topDeg===botDeg){ const r=2/1; return {type:"tie", y:r, txt:"\\(y="+r+"\\) (lead ratio 2/1)"}; }
   return {type:"top wins", y:null, txt:"no HA — grows without bound"};
 }
 function renderRace(){

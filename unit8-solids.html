@@ -656,6 +656,7 @@ window.updateCompanion=drawCompanion;
   document.getElementById('dvPrev').addEventListener('click',()=>{if(beat>0){beat--;show();}});
   [...tabs.children].forEach(t=>t.addEventListener('click',()=>{beat=parseInt(t.dataset.b);show();}));
   show();
+  if(!window.katex){var _dk=0;var _di=setInterval(function(){if(window.katex){clearInterval(_di);show();}else if(++_dk>80)clearInterval(_di);},100);}
 })();
 
 /* quiz */

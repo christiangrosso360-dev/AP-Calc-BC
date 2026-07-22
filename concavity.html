@@ -521,7 +521,7 @@ let qi=0,qScore=0,qDone=false;
 function T2(h){ return (h||'').replace(/\\\((.+?)\\\)/g,(m,x)=>{try{return window.katex?katex.renderToString(x,{throwOnError:false}):m;}catch(e){return m;}}); }
 function mathifyInline(sel){ if(!window.katex) return;
   document.querySelectorAll(sel).forEach(n=>{ if(n.dataset.mdone) return;
-    if(n.innerHTML.indexOf('\\(')>=0){ n.innerHTML=n.innerHTML.replace(/\\\((.+?)\\\)/g,(m,x)=>{try{return katex.renderToString(x,{throwOnError:false});}catch(e){return m;}}); }
+    if(n.innerHTML.indexOf('\\(')>=0){ n.innerHTML=n.innerHTML.replace(/\\\((.+?)\\\)/g,(m,x)=>{try{return katex.renderToString(x.replace(/&lt;/g,'\\lt ').replace(/&gt;/g,'\\gt '),{throwOnError:false});}catch(e){return m;}}); }
     n.dataset.mdone='1'; }); }
 function renderQuiz(){ qDone=false; const q=QUIZ[qi];
   document.getElementById('qProg').textContent='Question '+(qi+1)+' of '+QUIZ.length;
