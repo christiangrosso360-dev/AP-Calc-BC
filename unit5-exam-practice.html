@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Exam Practice — Mixed Review &amp; FRQ · Unit 5</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%231a1305%22/%3E%3Ctext%20x%3D%2216%22%20y%3D%2223%22%20font-size%3D%2222%22%20text-anchor%3D%22middle%22%20font-family%3D%22Georgia%2Cserif%22%20font-weight%3D%22700%22%20fill%3D%22%23f0b429%22%3E%26%23931%3B%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="styles.css">
+<script src="helpers.js"></script>
+<style>
+  :root{ --approx:#f0b429; --emerald:#f0b429; --cyan:#f0b429; --true:#3fd0b0; --glow:rgba(240,180,41,.08); --wrap-max:820px; }
+  .sub{color:var(--muted);font-size:15px;margin-top:8px;max-width:680px}
+  h2{font-family:var(--display);font-weight:600;font-size:21px;margin:40px 0 8px;letter-spacing:-0.01em}
+  p.lead{font-size:15.5px;max-width:720px;margin:8px 0}
+  .big-idea{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-top:18px} .big-idea b{color:var(--approx)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -26px rgba(0,0,0,.7);margin-top:14px}
+  .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .score{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  button{font-family:var(--body);cursor:pointer;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);padding:10px 13px;font-size:14px;text-align:left;transition:transform .14s,border-color .14s,background .14s}
+  button:hover{border-color:var(--emerald);transform:translateY(-1px)} button:active{transform:translateY(0) scale(.99)} button:disabled{cursor:default}
+  .qtag{display:inline-flex;gap:8px;align-items:center;font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:3px 10px;margin-bottom:10px;background:var(--panel-2)}
+  .qtag .calc{font-size:10px;letter-spacing:.03em;padding-left:8px;border-left:1px solid var(--line-2);color:var(--muted)}
+  .qtag .calc.no{color:#c98a8a} .qtag .calc.yes{color:#7fb0d8}
+  .qprompt{font-size:15.5px;font-weight:500;margin:6px 0 4px;line-height:1.5}
+  .qmath{font-family:var(--mono);font-size:16px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:14px;text-align:center;margin:12px 0;overflow-x:auto} .qmath .katex{font-size:1.06em}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+  @media(max-width:560px){.opts{grid-template-columns:1fr}}
+  .opts button{text-align:center;font-size:14.5px;padding:11px}
+  .opts button.correct{background:rgba(63,208,176,.16);border-color:var(--conv);color:var(--conv);font-weight:600}
+  .opts button.wrong{background:rgba(224,100,79,.16);border-color:var(--div);color:var(--div)}
+  .fb{font-size:13.5px;line-height:1.55;margin-top:12px;background:var(--bg);border-radius:9px;padding:11px 13px;display:none} .fb.show{display:block} .fb .ftag{font-weight:600}
+  .fb .ftag.ok{color:var(--conv)} .fb .ftag.bad{color:var(--div)}
+  .next{background:var(--approx);color:#241a02;border-color:var(--approx);font-weight:600;text-align:center;width:100%;box-shadow:0 8px 18px -10px var(--approx);margin-top:16px;display:none} .next.show{display:block}
+  .review-link{display:inline-block;margin-top:8px;font-size:12.5px;font-family:var(--mono);color:var(--emerald);text-decoration:none} .review-link:hover{text-decoration:underline}
+  /* FRQ */
+  .frq-given{background:var(--panel-2);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:12px 0}
+  .frq-given .katex{font-size:1.05em} .frq-given .gl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .frq-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .frq-tabs button{font-size:13px;padding:9px 13px;text-align:center;border-radius:9px}
+  .frq-tabs button.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+  .frq-desc{font-size:13px;color:var(--muted);background:var(--bg);border-radius:9px;padding:9px 13px;margin-bottom:6px} .frq-desc b{color:var(--approx)}
+  .frq-table{width:100%;border-collapse:collapse;margin:6px 0 2px;font-family:var(--mono);font-size:13.5px}
+  .frq-table th,.frq-table td{border:1px solid var(--line);padding:7px 10px;text-align:center;color:var(--ink)} .frq-table th{color:var(--muted);font-weight:500}
+  .part{border-top:1px solid var(--line);padding:16px 0 4px} .part:first-child{border-top:none}
+  .part-h{display:flex;justify-content:space-between;align-items:center;gap:10px} .part-l{font-weight:600;font-size:14.5px;color:var(--ink)} .part-pts{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .part-q{font-size:14.5px;line-height:1.55;margin:8px 0 4px}
+  .frq-fields{display:flex;flex-direction:column;gap:10px;margin:4px 0 12px}
+  .frq-field{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .frq-flabel{font-size:14px;min-width:54px;color:var(--ink)} .frq-flabel .katex{font-size:1em}
+  .frq-input{font-family:var(--mono);font-size:14px;padding:8px 11px;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);color:var(--ink);min-width:140px}
+  .frq-input:focus{outline:none;border-color:var(--emerald)} .frq-input.ok{border-color:var(--conv);background:rgba(63,208,176,.16)} .frq-input.no{border-color:var(--div);background:rgba(224,100,79,.16)}
+  .frq-check{background:var(--ink);color:var(--panel);border-color:var(--ink);font-size:13px;padding:8px 14px} .frq-check:hover{background:#d8d2c6} .frq-check:disabled{opacity:.5}
+  .frq-sol{display:none;margin-top:10px;font-size:13.5px;line-height:1.6;background:var(--bg);border-left:2px solid var(--emerald);border-radius:0 9px 9px 0;padding:11px 14px} .frq-sol.show{display:block}
+  .frq-sol .stepm{font-family:var(--mono);background:var(--panel-2);border:1px solid var(--line);border-radius:7px;padding:7px 10px;margin:7px 0;overflow-x:auto;font-size:13px}
+  .rubric{margin-top:10px} .rubric-h{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .rubric label{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--ink);padding:5px 0;cursor:pointer} .rubric input{margin-top:3px;accent-color:var(--emerald)}
+  .reveal-sol{font-family:var(--mono);font-size:12.5px;color:var(--emerald);background:none;border:1px dashed var(--line-2);width:100%;text-align:center;margin-top:8px}
+  .scoreline{font-family:var(--mono);font-size:14px;color:var(--ink);background:var(--panel-2);border-radius:9px;padding:12px 14px;margin-top:14px;text-align:center} .scoreline b{color:var(--emerald)}
+  .weakrow{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13.5px}
+  .weakbar{flex:1;height:8px;background:var(--panel-2);border-radius:5px;overflow:hidden} .weakbar i{display:block;height:100%;background:var(--emerald);border-radius:5px}
+  .weaklabel{min-width:170px;color:var(--ink)} .weakpct{font-family:var(--mono);font-size:12px;color:var(--muted);min-width:48px;text-align:right}
+  @keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .reveal{opacity:0;animation:riseIn .6s cubic-bezier(.2,.7,.2,1) forwards}
+  @media (prefers-reduced-motion:reduce){.reveal{animation:none;opacity:1}*{transition:none!important}}
+  footer{color:var(--muted);font-size:12px;margin-top:50px;border-top:1px solid var(--line);padding-top:14px}
+  .tex-fallback{font-family:var(--mono);font-size:13px;color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="unit5.html">← Unit 5</a>
+  <header class="reveal">
+    <h1>Exam <span class="em">Practice</span></h1>
+    <div class="sub">Mixed multiple choice across all of Unit 5 — the Mean Value &amp; Extreme Value Theorems, the first- and
+      second-derivative tests, connecting a function to its derivatives, and optimization — plus a free-response trainer built
+      on real AP question shapes. Every answer is worked and verified, and every wrong option is a mistake worth knowing.</div>
+  </header>
+
+  <div class="big-idea reveal">
+    <b>How to use this.</b> The multiple choice pulls a fresh batch of 12 from a bank of 50, mixing every topic and both
+    exam sections — each question is tagged <b>calculator</b> or <b>no calculator</b>, the way the real test splits them.
+    Answer, read the worked explanation, and your weak spots surface at the bottom. Then train the free-response
+    format — one scenario, several chained parts, with the justifications AP readers demand.
+  </div>
+
+  <h2 class="reveal">Mixed multiple choice</h2>
+  <div class="card reveal" id="mcCard">
+    <div class="row">
+      <span class="score" id="mcProgress">Question 1 of 12</span>
+      <span class="score" id="mcScore">Score: 0</span>
+    </div>
+    <div class="qtag" id="mcTag"></div>
+    <div class="qprompt" id="mcPrompt"></div>
+    <div class="qmath" id="mcMath"></div>
+    <div class="opts" id="mcOpts"></div>
+    <div class="fb" id="mcFb"></div>
+    <button class="next" id="mcNext">Next question →</button>
+    <div id="mcDone" style="display:none"></div>
+  </div>
+
+  <h2 class="reveal">Free-response trainer <span style="font-family:var(--mono);font-size:13px;color:var(--approx);font-weight:400">· Section II style</span></h2>
+  <p class="lead reveal">One scenario, several chained parts — exactly how the real FRQ works. Pick a problem below; type
+    what you can, then check the worked solution and score your reasoning against the rubric. Unit 5 lives and dies on
+    <b>justification</b>, so every rubric rewards the <em>why</em>, not just the number.</p>
+  <div class="frq-tabs reveal" id="frqTabs"></div>
+  <div class="card reveal" id="frqCard">
+    <div class="frq-desc" id="frqDesc"></div>
+    <div class="frq-given">
+      <div class="gl">Given</div>
+      <div id="frqGiven"></div>
+      <div id="frqGivenNote" style="font-size:12.5px;color:var(--muted);margin-top:8px"></div>
+      <div id="frqGivenExtra"></div>
+    </div>
+    <div id="frqParts"></div>
+    <div class="scoreline" id="frqScore" style="display:none"></div>
+  </div>
+
+  <h2 class="reveal">Where you stand</h2>
+  <div class="card reveal" id="weakCard">
+    <div id="weakBody" style="font-size:14px;color:var(--muted)">Finish some multiple-choice questions and your topic breakdown shows up here.</div>
+  </div>
+
+  <footer class="reveal">Exam Practice · Unit 5 · part of the Visual AP Calculus guide · open in any browser, no install needed.</footer>
+</div>
+
+<script>
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+const TOPICS={
+  mvt:["MVT &amp; the Existence Theorems","mean-value-theorem.html"],
+  fdt:["Increasing, Decreasing &amp; Extrema","first-derivative-test.html"],
+  concavity:["Concavity &amp; the 2nd-Derivative Test","concavity.html"],
+  connect:["Connecting f, f&#8242; &amp; f&#8243;","connecting-derivatives.html"],
+  optim:["Optimization","optimization.html"]
+};
+
+// ===================== MC BANK (50, all verified) =====================
+const MC=[
+ // ============ MVT & EXISTENCE THEOREMS (10) ============
+ {topic:"mvt",calc:false,prompt:"Let \\(f(x)=x^2\\) on \\([1,5]\\). The Mean Value Theorem guarantees a number \\(c\\) in \\((1,5)\\) with \\(f'(c)\\) equal to the average rate of change. Find \\(c\\).",
+  opts:[{t:"c=3",correct:true},{t:"c=6"},{t:"c=2"},{t:"c=\\sqrt{13}"}],
+  explain:`<b>MVT sets the instantaneous rate equal to the average rate.</b> Average rate \\(=\\dfrac{f(5)-f(1)}{5-1}=\\dfrac{25-1}{4}=6\\). Set \\(f'(c)=2c=6\\Rightarrow c=3\\), which lies in \\((1,5)\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>6</b> is the average rate of change itself — the <i>value</i> of \\(f'(c)\\), not the location \\(c\\).<br>• <b>2</b> is \\(f'(1)\\), the slope at the left endpoint.<br>• <b>\\(\\sqrt{13}\\)</b> comes from setting \\(c^2=\\) (avg rate), confusing \\(f\\) with \\(f'\\).<br><br><b>The principle:</b> solve \\(f'(c)=\\dfrac{f(b)-f(a)}{b-a}\\) for \\(c\\). For a parabola the \\(c\\) is always the midpoint of the interval.`},
+ {topic:"mvt",calc:false,prompt:"Which hypotheses must hold for the Mean Value Theorem to apply to \\(f\\) on \\([a,b]\\)?",
+  opts:[{t:"Continuous on \\([a,b]\\) and differentiable on \\((a,b)\\)",correct:true},{t:"Continuous on \\((a,b)\\) only"},{t:"Differentiable on \\([a,b]\\), endpoints included"},{t:"\\(f(a)=f(b)\\)"}],
+  explain:`<b>MVT requires continuity on the closed interval and differentiability on the open one.</b> That exact split — closed \\([a,b]\\) for continuity, open \\((a,b)\\) for differentiability — is what lets the proof work.<br><br><b>Why each distractor is a specific mistake:</b><br>• "Continuous on \\((a,b)\\) only" drops the endpoints and drops differentiability entirely.<br>• "Differentiable on \\([a,b]\\)" is too strong — the theorem never needs a derivative <i>at</i> the endpoints.<br>• \\(f(a)=f(b)\\) is the extra condition for <b>Rolle's</b> theorem, a special case of MVT.<br><br><b>The principle:</b> continuous on the closed interval, differentiable on the open interval — no more, no less.`},
+ {topic:"mvt",calc:false,prompt:"Does the Mean Value Theorem apply to \\(f(x)=|x-2|\\) on the interval \\([0,5]\\)?",
+  opts:[{t:"No — \\(f\\) is not differentiable at \\(x=2\\)",correct:true},{t:"Yes — \\(f\\) is continuous, so MVT applies"},{t:"No — \\(f\\) is not continuous on \\([0,5]\\)"},{t:"Yes — and the guaranteed \\(c\\) is \\(x=2\\)"}],
+  explain:`<b>MVT needs differentiability on the whole open interval.</b> \\(f(x)=|x-2|\\) has a corner at \\(x=2\\), where the derivative does not exist — so a hypothesis fails and MVT is not guaranteed.<br><br><b>Why each distractor is a specific mistake:</b><br>• "continuous, so MVT applies" forgets that continuity alone is not enough — differentiability is also required.<br>• "not continuous" is false: absolute value <i>is</i> continuous everywhere; it's the derivative that breaks.<br>• "\\(c=2\\)" is exactly where \\(f'\\) fails to exist, so it can't be the guaranteed point.<br><br><b>The principle:</b> a single corner or cusp in \\((a,b)\\) voids MVT — check differentiability, not just continuity.`},
+ {topic:"mvt",calc:false,prompt:"For \\(f(x)=x^2-4x+3\\) on \\([1,3]\\), note \\(f(1)=f(3)=0\\). Rolle's Theorem guarantees a \\(c\\) in \\((1,3)\\) with \\(f'(c)=0\\). Find \\(c\\).",
+  opts:[{t:"c=2",correct:true},{t:"c=0"},{t:"c=1"},{t:"c=4"}],
+  explain:`<b>Rolle's Theorem is MVT when the endpoints are level:</b> equal endpoint values force a horizontal tangent somewhere inside. \\(f'(x)=2x-4=0\\Rightarrow x=2\\), and \\(2\\in(1,3)\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>0</b> and <b>4</b> are the <i>roots</i> of \\(f\\) shifted — \\(f(x)=0\\) at \\(x=1,3\\), not where \\(f'=0\\).<br>• <b>1</b> is an endpoint; Rolle's \\(c\\) must be strictly interior.<br><br><b>The principle:</b> Rolle gives \\(f'(c)=0\\) — solve the <i>derivative</i>, and the answer must lie strictly between the endpoints.`},
+ {topic:"mvt",calc:false,prompt:"A car travels 150 miles in 3 hours along a straight highway. Which conclusion is guaranteed?",
+  opts:[{t:"At some instant the speedometer read exactly 50 mph",correct:true},{t:"The car's speed was always 50 mph"},{t:"The car's maximum speed was 50 mph"},{t:"The car never exceeded 50 mph"}],
+  explain:`<b>Average speed \\(=\\dfrac{150}{3}=50\\) mph; MVT guarantees the instantaneous speed equalled the average at least once.</b> Position is continuous and differentiable in time, so some instant \\(c\\) has \\(x'(c)=50\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• "always 50" would require constant speed — MVT guarantees one instant, not all of them.<br>• "maximum was 50" / "never exceeded 50" are false — to average 50 with any variation, the car must go both above and below 50.<br><br><b>The principle:</b> MVT promises <i>at least one</i> instant matching the average — nothing about the max, min, or the rest of the trip.`},
+ {topic:"mvt",calc:false,prompt:"If \\(f\\) is continuous on the closed interval \\([a,b]\\), the Extreme Value Theorem guarantees that \\(f\\):",
+  opts:[{t:"attains an absolute maximum and an absolute minimum on \\([a,b]\\)",correct:true},{t:"is differentiable on \\((a,b)\\)"},{t:"has a critical point in \\((a,b)\\)"},{t:"is increasing somewhere on \\([a,b]\\)"}],
+  explain:`<b>EVT: a continuous function on a <i>closed</i> interval attains both an absolute max and an absolute min.</b> That existence is what makes "find the absolute maximum" a fair question.<br><br><b>Why each distractor is a specific mistake:</b><br>• "differentiable" — EVT says nothing about derivatives; continuity is all it needs (and a corner can still have extrema).<br>• "has a critical point" is false — the extrema might occur at the <b>endpoints</b>, which aren't critical points.<br>• "increasing somewhere" — a constant function is continuous with no increase.<br><br><b>The principle:</b> closed interval + continuous ⇒ absolute max and min <i>exist</i> (possibly at endpoints).`},
+ {topic:"mvt",calc:false,prompt:"How many critical points does \\(f(x)=x^{2/3}\\) have, and where?",
+  opts:[{t:"One, at \\(x=0\\) (where \\(f'\\) does not exist)",correct:true},{t:"None — \\(f'\\) is never zero"},{t:"One, at \\(x=0\\) (where \\(f'=0\\))"},{t:"Infinitely many"}],
+  explain:`<b>A critical point is where \\(f'=0\\) <i>or</i> \\(f'\\) does not exist</b> (and \\(x\\) is in the domain). Here \\(f'(x)=\\tfrac23 x^{-1/3}=\\dfrac{2}{3\\sqrt[3]{x}}\\) is never zero, but is <b>undefined at \\(x=0\\)</b> — a cusp — which <i>is</i> in the domain. So there is one critical point, \\(x=0\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• "None" ignores the second half of the definition — \\(f'\\) not existing also counts.<br>• "\\(f'=0\\) at \\(x=0\\)" is wrong: \\(f'\\) is undefined there, not zero.<br><br><b>The principle:</b> hunt for <i>both</i> \\(f'=0\\) and \\(f'\\) DNE when listing critical points — cusps and corners are easy to miss.`},
+ {topic:"mvt",calc:false,prompt:"Find the absolute maximum value of \\(f(x)=x^3-3x\\) on the closed interval \\([0,2]\\).",
+  opts:[{t:"2",correct:true},{t:"-2"},{t:"0"},{t:"1"}],
+  explain:`<b>Candidates test: check critical points and endpoints.</b> \\(f'(x)=3x^2-3=0\\Rightarrow x=\\pm1\\); only \\(x=1\\) is in \\([0,2]\\). Evaluate: \\(f(0)=0,\\ f(1)=-2,\\ f(2)=8-6=2\\). The largest is \\(f(2)=2\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>-2</b> is \\(f(1)\\), the absolute <i>minimum</i>, not the maximum.<br>• <b>0</b> is \\(f(0)\\), an endpoint value that isn't the largest.<br>• <b>1</b> is the location \\(x=1\\), not a value of \\(f\\).<br><br><b>The principle:</b> the absolute max often sits at an <b>endpoint</b> — always evaluate \\(f\\) at every critical point <i>and</i> both endpoints, then pick the biggest output.`},
+ {topic:"mvt",calc:false,prompt:"The differentiable function \\(f\\) has the values shown. Which is guaranteed on \\((0,8)\\)?",
+  math:"\\begin{array}{c|cccc} x & 0 & 2 & 5 & 8 \\\\ \\hline f(x) & 4 & 4 & 10 & 4 \\end{array}",
+  opts:[{t:"There is a \\(c\\) with \\(f'(c)=0\\)",correct:true},{t:"\\(f'(x)>0\\) on all of \\((0,8)\\)"},{t:"\\(f\\) has an absolute max of \\(10\\)"},{t:"\\(f'(c)=\\tfrac34\\) for some \\(c\\)"}],
+  explain:`<b>Equal values force a horizontal tangent (Rolle).</b> Since \\(f(0)=f(2)=4\\), Rolle's Theorem on \\([0,2]\\) guarantees some \\(c\\) with \\(f'(c)=0\\) (and \\(f(2)=f(8)\\) gives another).<br><br><b>Why each distractor is a specific mistake:</b><br>• "\\(f'>0\\) throughout" is impossible: \\(f\\) returns to \\(4\\), so it must decrease somewhere.<br>• "absolute max of 10" — the table only shows selected values; between them \\(f\\) could go higher, so \\(10\\) isn't guaranteed to be the max.<br>• "\\(f'(c)=\\tfrac34\\)" is the average rate on \\([0,8]\\): \\(\\frac{4-4}{8}=0\\), not \\(\\tfrac34\\).<br><br><b>The principle:</b> repeated \\(y\\)-values ⇒ a guaranteed \\(f'(c)=0\\) by Rolle; a table never guarantees a global extreme <i>between</i> its points.`},
+ {topic:"mvt",calc:false,prompt:"\\(f\\) is continuous on \\([2,6]\\) and differentiable on \\((2,6)\\), with \\(f(2)=3\\) and \\(f(6)=11\\). What value of \\(f'(c)\\) does MVT guarantee for some \\(c\\) in \\((2,6)\\)?",
+  opts:[{t:"2",correct:true},{t:"8"},{t:"14"},{t:"4"}],
+  explain:`<b>MVT guarantees \\(f'(c)=\\dfrac{f(6)-f(2)}{6-2}=\\dfrac{11-3}{4}=\\dfrac{8}{4}=2\\).</b><br><br><b>Why each distractor is a specific mistake:</b><br>• <b>8</b> is \\(f(6)-f(2)\\), the change in output without dividing by the change in input.<br>• <b>14</b> adds the outputs \\(3+11\\).<br>• <b>4</b> is the interval width \\(6-2\\), the denominator alone.<br><br><b>The principle:</b> the guaranteed slope is the secant slope — rise over run — \\(\\frac{\\Delta f}{\\Delta x}\\).`},
+
+ // ============ INCREASING/DECREASING & 1ST-DERIVATIVE TEST (10) ============
+ {topic:"fdt",calc:false,prompt:"On which interval(s) is \\(f(x)=x^3-3x^2+2\\) increasing?",
+  opts:[{t:"\\((-\\infty,0)\\cup(2,\\infty)\\)",correct:true},{t:"\\((0,2)\\)",correct:false},{t:"\\((-\\infty,2)\\)"},{t:"\\((0,\\infty)\\)"}],
+  explain:`<b>\\(f\\) increases where \\(f'>0\\).</b> \\(f'(x)=3x^2-6x=3x(x-2)\\). This is positive when \\(x<0\\) or \\(x>2\\) (both factors same sign), so \\(f\\) increases on \\((-\\infty,0)\\cup(2,\\infty)\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• \\((0,2)\\) is where \\(f'<0\\) — that's the <b>decreasing</b> interval.<br>• \\((-\\infty,2)\\) and \\((0,\\infty)\\) each keep half of a sign change, forgetting that \\(f'\\) flips sign at <i>both</i> \\(x=0\\) and \\(x=2\\).<br><br><b>The principle:</b> factor \\(f'\\), find its zeros, and test the sign on each interval — increasing exactly where \\(f'>0\\).`},
+ {topic:"fdt",calc:false,prompt:"At what \\(x\\) does \\(f(x)=x^3-3x^2+2\\) have a local minimum?",
+  opts:[{t:"x=2",correct:true},{t:"x=0"},{t:"x=1"},{t:"x=-2"}],
+  explain:`<b>First-derivative test:</b> \\(f'(x)=3x(x-2)\\) changes from negative to positive at \\(x=2\\) (\\(f'<0\\) on \\((0,2)\\), \\(f'>0\\) after) — a local <b>minimum</b>.<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>0</b> is where \\(f'\\) goes \\(+\\to-\\) — that's the local <i>maximum</i>.<br>• <b>1</b> is where \\(f''=0\\) (the inflection point), not an extremum.<br>• <b>-2</b> isn't a critical point at all.<br><br><b>The principle:</b> \\(-\\to+\\) is a min, \\(+\\to-\\) is a max — read the direction of the sign change, don't just find the zeros.`},
+ {topic:"fdt",calc:false,prompt:"Given \\(f'(x)=x^2(x-4)\\), classify the critical point at \\(x=0\\).",
+  opts:[{t:"Neither — \\(f'\\) does not change sign at \\(x=0\\)",correct:true},{t:"Local maximum"},{t:"Local minimum"},{t:"Inflection point of \\(f'\\)"}],
+  explain:`<b>An extremum needs a sign change in \\(f'\\).</b> Near \\(x=0\\), the factor \\(x^2\\ge0\\) and \\((x-4)<0\\), so \\(f'\\le0\\) on <i>both</i> sides — no sign change. So \\(x=0\\) is a critical point but <b>not</b> an extremum (it's a shelf).<br><br><b>Why each distractor is a specific mistake:</b><br>• "max"/"min" assume every \\(f'=0\\) is an extremum — the \\(x^2\\) factor (a double root) keeps the sign the same.<br>• "inflection point of \\(f'\\)" confuses the question — we're classifying \\(f\\), and inflections come from \\(f''\\).<br><br><b>The principle:</b> a squared (even-power) factor in \\(f'\\) gives a critical point with <i>no</i> sign change — critical, but not an extremum.`},
+ {topic:"fdt",calc:false,prompt:"The derivative of \\(f\\) is \\(f'(x)=e^{x}(x-2)\\). Where does \\(f\\) have a local minimum?",
+  opts:[{t:"x=2",correct:true},{t:"x=0"},{t:"x=-2"},{t:"Nowhere — \\(f'\\) is never zero"}],
+  explain:`<b>\\(e^x>0\\) always, so the sign of \\(f'\\) is the sign of \\((x-2)\\).</b> That is negative for \\(x<2\\), positive for \\(x>2\\) — a \\(-\\to+\\) change at \\(x=2\\): a local minimum.<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>0</b> is where \\(e^x=1\\), which has nothing to do with where \\(f'=0\\).<br>• <b>-2</b> misreads the factor \\((x-2)\\).<br>• "never zero" forgets that \\(f'=0\\) when the \\((x-2)\\) factor is zero.<br><br><b>The principle:</b> an always-positive factor (like \\(e^{x}\\)) never changes the sign — the critical points come entirely from the other factor.`},
+ {topic:"fdt",calc:false,prompt:"What kind of extremum, if any, does \\(f(x)=x^{2/3}\\) have at \\(x=0\\)?",
+  opts:[{t:"A local (and absolute) minimum",correct:true},{t:"A local maximum"},{t:"No extremum — \\(f'\\) is undefined there"},{t:"An inflection point"}],
+  explain:`<b>An extremum can occur where \\(f'\\) is undefined, as long as \\(f'\\) changes sign.</b> \\(f'(x)=\\dfrac{2}{3\\sqrt[3]{x}}\\) is negative for \\(x<0\\) and positive for \\(x>0\\) — a \\(-\\to+\\) change — so the cusp at \\(x=0\\) is a local <b>minimum</b> (and \\(f\\ge0\\) makes it absolute).<br><br><b>Why each distractor is a specific mistake:</b><br>• "No extremum because \\(f'\\) is undefined" — undefined derivatives are exactly the cusp/corner extrema you must still check.<br>• "maximum" reverses the sign change.<br>• "inflection" is a concavity idea; \\(x^{2/3}\\) is concave down on both sides, not an inflection.<br><br><b>The principle:</b> the first-derivative test works even where \\(f'\\) doesn't exist — a sign change of \\(f'\\) still means an extremum.`},
+ {topic:"fdt",calc:false,prompt:"On which interval is \\(f\\) decreasing if \\(f'(x)=(x+2)(x-1)\\)?",
+  opts:[{t:"\\((-2,1)\\)",correct:true},{t:"\\((-\\infty,-2)\\)"},{t:"\\((1,\\infty)\\)"},{t:"\\((-1,2)\\)"}],
+  explain:`<b>\\(f\\) decreases where \\(f'<0\\).</b> \\((x+2)(x-1)\\) is negative between its roots, i.e. on \\((-2,1)\\) (one factor positive, one negative).<br><br><b>Why each distractor is a specific mistake:</b><br>• \\((-\\infty,-2)\\) and \\((1,\\infty)\\) are where <i>both</i> factors share a sign, so \\(f'>0\\): increasing.<br>• \\((-1,2)\\) uses the wrong roots — the zeros are \\(-2\\) and \\(1\\), not \\(-1\\) and \\(2\\).<br><br><b>The principle:</b> a product of two linear factors is negative <i>between</i> its roots — that's the decreasing interval.`},
+ {topic:"fdt",calc:false,prompt:"The graph of \\(f'\\) is negative on \\((0,3)\\) and positive on \\((3,5)\\), with \\(f'(3)=0\\). At \\(x=3\\), the function \\(f\\) has a:",
+  opts:[{t:"local minimum",correct:true},{t:"local maximum"},{t:"inflection point"},{t:"vertical tangent"}],
+  explain:`<b>Read the sign change of \\(f'\\):</b> \\(f'\\) goes from negative to positive at \\(x=3\\), so \\(f\\) stops falling and starts rising — a local <b>minimum</b>.<br><br><b>Why each distractor is a specific mistake:</b><br>• "maximum" would need \\(f'\\) to change \\(+\\to-\\).<br>• "inflection" is about \\(f''\\) changing sign, not \\(f'\\).<br>• "vertical tangent" would need \\(f'\\) undefined (unbounded), but here \\(f'(3)=0\\).<br><br><b>The principle:</b> to classify \\(f\\), read the <i>sign change</i> of \\(f'\\) across the point — \\(-\\to+\\) is a valley.`},
+ {topic:"fdt",calc:false,prompt:"How many relative extrema does \\(f(x)=x^4-2x^2\\) have?",
+  opts:[{t:"3",correct:true},{t:"2"},{t:"1"},{t:"4"}],
+  explain:`<b>Count the sign changes of \\(f'\\).</b> \\(f'(x)=4x^3-4x=4x(x-1)(x+1)\\) has three simple roots \\(x=-1,0,1\\), and \\(f'\\) changes sign at each — so <b>3</b> relative extrema (min, max, min).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>2</b> counts only the two minima and forgets the local max at \\(x=0\\).<br>• <b>1</b> sees just the "middle" feature.<br>• <b>4</b> may count the degree, or an extra root that isn't there.<br><br><b>The principle:</b> each <i>simple</i> (odd-multiplicity) root of \\(f'\\) is a sign change and hence an extremum; count them.`},
+ {topic:"fdt",calc:true,prompt:"For \\(x>0\\), find the absolute minimum value of \\(f(x)=x+\\dfrac{4}{x}\\).",
+  opts:[{t:"4",correct:true},{t:"2"},{t:"8"},{t:"0"}],
+  explain:`<b>Minimize with the first-derivative test.</b> \\(f'(x)=1-\\dfrac{4}{x^2}=0\\Rightarrow x^2=4\\Rightarrow x=2\\) (take \\(x>0\\)). Since \\(f'\\) goes \\(-\\to+\\) there, it's a minimum: \\(f(2)=2+\\dfrac42=4\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>2</b> is the location \\(x=2\\), not the value \\(f(2)\\).<br>• <b>8</b> may come from evaluating at a wrong \\(x\\) or adding incorrectly.<br>• <b>0</b> ignores that \\(f\\to\\infty\\) at both ends — the minimum is strictly positive.<br><br><b>The principle:</b> after finding the critical \\(x\\), plug it back into \\(f\\) — the question asks for the <i>value</i>, not the location.`},
+ {topic:"fdt",calc:false,prompt:"If \\(f\\) is continuous on \\([a,b]\\) and \\(f'(x)>0\\) for all \\(x\\) in \\((a,b)\\), which is the absolute maximum of \\(f\\)?",
+  opts:[{t:"\\(f(b)\\)",correct:true},{t:"\\(f(a)\\)"},{t:"a critical point inside \\((a,b)\\)"},{t:"cannot be determined"}],
+  explain:`<b>\\(f'>0\\) throughout means \\(f\\) is strictly increasing on \\([a,b]\\)</b>, so the largest value is at the right endpoint: \\(f(b)\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• \\(f(a)\\) is the <i>minimum</i> of an increasing function.<br>• "a critical point inside" — there are no critical points, since \\(f'\\) is never zero.<br>• "cannot be determined" ignores that monotonicity pins the max at the endpoint.<br><br><b>The principle:</b> a strictly increasing function on a closed interval takes its max at the right end, its min at the left end.`},
+
+ // ============ CONCAVITY & 2ND-DERIVATIVE TEST (10) ============
+ {topic:"concavity",calc:false,prompt:"On which interval is \\(f(x)=x^3-3x^2\\) concave up?",
+  opts:[{t:"\\((1,\\infty)\\)",correct:true},{t:"\\((-\\infty,1)\\)"},{t:"\\((0,2)\\)"},{t:"\\((-\\infty,0)\\cup(2,\\infty)\\)"}],
+  explain:`<b>Concave up where \\(f''>0\\).</b> \\(f'(x)=3x^2-6x\\Rightarrow f''(x)=6x-6=6(x-1)>0\\) exactly when \\(x>1\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• \\((-\\infty,1)\\) is where \\(f''<0\\) — concave <b>down</b>.<br>• \\((0,2)\\) is the <i>decreasing</i> interval (that's \\(f'\\), not \\(f''\\)).<br>• \\((-\\infty,0)\\cup(2,\\infty)\\) is where \\(f\\) is <i>increasing</i> — again \\(f'\\), not \\(f''\\).<br><br><b>The principle:</b> concavity is decided by \\(f''\\); don't confuse it with the increasing/decreasing behavior read off \\(f'\\).`},
+ {topic:"concavity",calc:false,prompt:"Find the \\(x\\)-coordinate of the inflection point of \\(f(x)=x^3-6x^2+5\\).",
+  opts:[{t:"x=2",correct:true},{t:"x=4"},{t:"x=0"},{t:"x=-2"}],
+  explain:`<b>Inflection: \\(f''\\) changes sign.</b> \\(f''(x)=6x-12=0\\Rightarrow x=2\\), and \\(f''\\) goes \\(-\\to+\\) there, so \\(x=2\\) is a genuine inflection point.<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>4</b> is a critical point of \\(f\\): \\(f'(x)=3x^2-12x=3x(x-4)=0\\Rightarrow x=0,4\\) — those are extrema locations, not the inflection.<br>• <b>0</b> is the other critical point of \\(f\\).<br>• <b>-2</b> isn't a zero of \\(f''\\).<br><br><b>The principle:</b> inflection points come from \\(f''=0\\) <i>with a sign change</i> — a different computation from the \\(f'=0\\) that locates extrema.`},
+ {topic:"concavity",calc:false,prompt:"A function has \\(f'(3)=0\\) and \\(f''(3)=-5\\). By the second-derivative test, \\(x=3\\) is a:",
+  opts:[{t:"local maximum",correct:true},{t:"local minimum"},{t:"inflection point"},{t:"point where the test fails"}],
+  explain:`<b>Second-derivative test: at a critical point, the sign of \\(f''\\) classifies it.</b> \\(f'(3)=0\\) (critical) and \\(f''(3)<0\\) (concave down) ⇒ local <b>maximum</b> — the top of a dome.<br><br><b>Why each distractor is a specific mistake:</b><br>• "minimum" needs \\(f''(3)>0\\).<br>• "inflection" needs \\(f''\\) to <i>change sign</i>, not just be negative.<br>• "test fails" only happens when \\(f''(c)=0\\); here it's a clear \\(-5\\).<br><br><b>The principle:</b> \\(f'(c)=0\\) with \\(f''(c)<0\\) ⇒ max; with \\(f''(c)>0\\) ⇒ min; with \\(f''(c)=0\\) ⇒ inconclusive.`},
+ {topic:"concavity",calc:false,prompt:"Is \\(x=0\\) an inflection point of \\(f(x)=x^4\\)?",
+  opts:[{t:"No — \\(f''\\) does not change sign there",correct:true},{t:"Yes, because \\(f''(0)=0\\)"},{t:"Yes, because \\(f'(0)=0\\)"},{t:"No, because \\(f'(0)\\ne0\\)"}],
+  explain:`<b>\\(f''=0\\) is only a <i>candidate</i> for an inflection — it must change sign.</b> \\(f''(x)=12x^2\\ge0\\) for all \\(x\\), so the curve is concave up on both sides of \\(0\\). No sign change ⇒ <b>not</b> an inflection point (in fact \\(x=0\\) is a minimum).<br><br><b>Why each distractor is a specific mistake:</b><br>• "Yes, because \\(f''(0)=0\\)" is the classic trap — a zero of \\(f''\\) is necessary but not sufficient.<br>• "\\(f'(0)=0\\)" is irrelevant to concavity.<br>• "\\(f'(0)\\ne0\\)" is false: \\(f'(0)=0\\).<br><br><b>The principle:</b> an inflection needs \\(f''\\) to <i>switch signs</i>; \\(x^4\\) at \\(0\\) is the counterexample to memorize.`},
+ {topic:"concavity",calc:false,prompt:"At a critical point \\(c\\), a student finds \\(f'(c)=0\\) and \\(f''(c)=0\\). What is the correct conclusion?",
+  opts:[{t:"The second-derivative test is inconclusive",correct:true},{t:"\\(c\\) is a local maximum"},{t:"\\(c\\) is a local minimum"},{t:"\\(c\\) is an inflection point"}],
+  explain:`<b>When \\(f''(c)=0\\), the second-derivative test gives no information.</b> \\(c\\) could be a max, a min, or neither — you must fall back to the <b>first-derivative test</b> (sign of \\(f'\\) around \\(c\\)).<br><br><b>Why each distractor is a specific mistake:</b><br>• "max" and "min" overstate — e.g. \\(x^4\\) (min) and \\(x^3\\) (neither) both have \\(f'=f''=0\\) at \\(0\\).<br>• "inflection" isn't guaranteed either; \\(x^4\\) has \\(f''(0)=0\\) but no inflection.<br><br><b>The principle:</b> \\(f''(c)=0\\) ⇒ inconclusive; check the sign change of \\(f'\\) instead.`},
+ {topic:"concavity",calc:false,prompt:"On which interval is \\(f(x)=x^3\\) concave down?",
+  opts:[{t:"\\((-\\infty,0)\\)",correct:true},{t:"\\((0,\\infty)\\)"},{t:"nowhere"},{t:"everywhere"}],
+  explain:`<b>Concave down where \\(f''<0\\).</b> \\(f''(x)=6x<0\\) exactly when \\(x<0\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• \\((0,\\infty)\\) is where \\(f''>0\\) — concave <b>up</b>.<br>• "nowhere"/"everywhere" ignore that \\(f''=6x\\) changes sign at \\(0\\) (with an inflection there).<br><br><b>The principle:</b> \\(f(x)=x^3\\) is the model inflection — concave down left of \\(0\\), concave up right of \\(0\\).`},
+ {topic:"concavity",calc:false,prompt:"How many inflection points does \\(f(x)=x^4-6x^2\\) have?",
+  opts:[{t:"2",correct:true},{t:"1"},{t:"3"},{t:"0"}],
+  explain:`<b>Find sign changes of \\(f''\\).</b> \\(f''(x)=12x^2-12=12(x^2-1)=12(x-1)(x+1)\\). It changes sign at both \\(x=-1\\) and \\(x=1\\) — so <b>2</b> inflection points.<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>1</b> counts only one of the two zeros.<br>• <b>3</b> may miscount by including \\(x=0\\) (where \\(f'=0\\), an extremum — not an inflection).<br>• <b>0</b> forgets \\(f''\\) has real roots.<br><br><b>The principle:</b> each simple root of \\(f''\\) is an inflection point; the extrema of \\(f\\) (from \\(f'\\)) are a separate set of points.`},
+ {topic:"concavity",calc:false,prompt:"Given \\(f''(x)=x(x-2)^2\\), how many inflection points does \\(f\\) have?",
+  opts:[{t:"1 (at \\(x=0\\) only)",correct:true},{t:"2 (at \\(x=0\\) and \\(x=2\\))"},{t:"3"},{t:"0"}],
+  explain:`<b>An inflection needs \\(f''\\) to change sign.</b> \\(f''=x(x-2)^2\\): the factor \\((x-2)^2\\ge0\\) never changes sign, so at \\(x=2\\) there's <i>no</i> concavity change. Only \\(x=0\\) (a simple root) gives a sign change: <b>1</b> inflection point.<br><br><b>Why each distractor is a specific mistake:</b><br>• "2, at \\(0\\) and \\(2\\)" falls for the trap — \\(x=2\\) is a <i>double</i> root, so \\(f''\\) touches zero without crossing.<br>• "3"/"0" miscount the roots or ignore \\(x=0\\).<br><br><b>The principle:</b> just like extrema from \\(f'\\), only <i>odd-multiplicity</i> roots of \\(f''\\) produce inflection points.`},
+ {topic:"concavity",calc:false,prompt:"If \\(f'\\) is increasing on an interval, then on that interval \\(f\\) is:",
+  opts:[{t:"concave up",correct:true},{t:"concave down"},{t:"increasing"},{t:"decreasing"}],
+  explain:`<b>\\(f''=(f')'\\), so \\(f'\\) increasing means \\(f''>0\\) — concave up.</b><br><br><b>Why each distractor is a specific mistake:</b><br>• "concave down" would need \\(f'\\) <i>decreasing</i>.<br>• "increasing"/"decreasing" describe \\(f\\)'s direction (the sign of \\(f'\\)), not whether \\(f'\\) itself is rising.<br><br><b>The principle:</b> "\\(f'\\) increasing" and "\\(f\\) concave up" are the same statement — the slope of the slope is positive.`},
+ {topic:"concavity",calc:false,prompt:"A cup of coffee is cooling: its temperature \\(T(t)\\) is decreasing, but the rate of cooling is slowing down. Which pair of signs is correct?",
+  opts:[{t:"\\(T'<0\\) and \\(T''>0\\)",correct:true},{t:"\\(T'<0\\) and \\(T''<0\\)"},{t:"\\(T'>0\\) and \\(T''<0\\)"},{t:"\\(T'>0\\) and \\(T''>0\\)"}],
+  explain:`<b>Direction is \\(T'\\); "slowing" is about \\(T''\\).</b> Cooling ⇒ \\(T'<0\\). "Slowing down" means the (negative) rate is heading toward \\(0\\) — i.e. \\(T'\\) is <i>increasing</i> — so \\(T''>0\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• \\(T''<0\\) would mean the cooling is <i>speeding up</i>.<br>• \\(T'>0\\) contradicts "cooling."<br><br><b>The principle:</b> a negative rate that's "slowing" is rising toward zero — decreasing quantity with \\(T''>0\\) (concave up).`},
+
+ // ============ CONNECTING f, f', f'' (10) ============
+ {topic:"connect",calc:false,prompt:"The graph of \\(f'\\) is positive on \\((-\\infty,2)\\), zero at \\(x=2\\), and negative on \\((2,\\infty)\\). At \\(x=2\\), the graph of \\(f\\) has a:",
+  opts:[{t:"local maximum",correct:true},{t:"local minimum"},{t:"inflection point"},{t:"zero"}],
+  explain:`<b>Where \\(f'\\) changes \\(+\\to-\\), \\(f\\) tops out.</b> Positive slope then negative slope means \\(f\\) rises then falls — a local <b>maximum</b> at \\(x=2\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• "minimum" needs \\(f'\\) to change \\(-\\to+\\).<br>• "inflection" needs \\(f''\\) (the slope of \\(f'\\)) to change sign, not \\(f'\\) itself.<br>• "zero" confuses \\(f'=0\\) (flat tangent) with \\(f=0\\) (a root of \\(f\\)).<br><br><b>The principle:</b> read \\(f\\)'s extrema from where the graph of \\(f'\\) <i>crosses</i> the axis, and the direction of the crossing.`},
+ {topic:"connect",calc:false,prompt:"The graph of \\(f'\\) has a local maximum at \\(x=5\\). What does the graph of \\(f\\) have at \\(x=5\\)?",
+  opts:[{t:"an inflection point",correct:true},{t:"a local maximum"},{t:"a local minimum"},{t:"a corner"}],
+  explain:`<b>A local max of \\(f'\\) is where \\(f''=0\\) (with a sign change) — an inflection of \\(f\\).</b> At a peak of \\(f'\\), the slope \\(f''\\) switches from positive to negative, so \\(f\\) switches concavity.<br><br><b>Why each distractor is a specific mistake:</b><br>• "local max of \\(f\\)" happens where \\(f'=0\\) (crosses the axis), not where \\(f'\\) peaks.<br>• "local min" — same confusion, wrong feature of \\(f'\\).<br>• "corner" would need \\(f'\\) undefined, but a peak is a smooth point.<br><br><b>The principle:</b> extrema of \\(f'\\) ⇔ inflection points of \\(f\\); zeros of \\(f'\\) ⇔ extrema of \\(f\\).`},
+ {topic:"connect",calc:false,prompt:"On an interval, \\(f'(x)>0\\) and \\(f''(x)<0\\). Which best describes the graph of \\(f\\) there?",
+  opts:[{t:"increasing and concave down",correct:true},{t:"increasing and concave up"},{t:"decreasing and concave down"},{t:"decreasing and concave up"}],
+  explain:`<b>\\(f'>0\\) ⇒ increasing; \\(f''<0\\) ⇒ concave down.</b> The graph rises but bends downward — climbing at a decreasing rate.<br><br><b>Why each distractor is a specific mistake:</b><br>• "concave up" contradicts \\(f''<0\\).<br>• the two "decreasing" options contradict \\(f'>0\\).<br><br><b>The principle:</b> \\(f'\\) gives direction, \\(f''\\) gives bend — read them independently and combine.`},
+ {topic:"connect",calc:false,prompt:"The graph of \\(f'\\) lies <i>below</i> the \\(x\\)-axis but is <i>increasing</i> on \\((0,2)\\). On \\((0,2)\\), the graph of \\(f\\) is:",
+  opts:[{t:"decreasing and concave up",correct:true},{t:"increasing and concave up"},{t:"decreasing and concave down"},{t:"increasing and concave down"}],
+  explain:`<b>Two facts, read separately.</b> \\(f'<0\\) (below the axis) ⇒ \\(f\\) is <b>decreasing</b>. \\(f'\\) increasing ⇒ \\(f''>0\\) ⇒ \\(f\\) is <b>concave up</b>. So \\(f\\) falls, but the fall is slowing.<br><br><b>Why each distractor is a specific mistake:</b><br>• the "increasing" options misread "\\(f'\\) below the axis" (that's the value of \\(f'\\), which is negative).<br>• "concave down" misreads "\\(f'\\) increasing" (rising \\(f'\\) is \\(f''>0\\)).<br><br><b>The principle:</b> the <i>position</i> of the \\(f'\\) graph (above/below axis) gives direction; its <i>slope</i> (rising/falling) gives concavity.`},
+ {topic:"connect",calc:false,prompt:"The signs of \\(f'\\) and \\(f''\\) on four intervals are given. On which interval is the graph of \\(f\\) falling and bending upward?",
+  math:"\\begin{array}{c|cccc} \\text{interval} & \\text{I} & \\text{II} & \\text{III} & \\text{IV}\\\\ \\hline f' & + & + & - & - \\\\ f'' & + & - & + & - \\end{array}",
+  opts:[{t:"III",correct:true},{t:"I"},{t:"II"},{t:"IV"}],
+  explain:`<b>Falling ⇒ \\(f'<0\\); bending upward ⇒ \\(f''>0\\).</b> That's the column with \\(f'=-\\) and \\(f''=+\\): interval <b>III</b>.<br><br><b>Why each distractor is a specific mistake:</b><br>• I has \\(f'+,f''+\\): rising and concave up.<br>• II has \\(f'+,f''-\\): rising and concave down.<br>• IV has \\(f'-,f''-\\): falling and concave down (bending the wrong way).<br><br><b>The principle:</b> match each requested behavior to a sign — direction to \\(f'\\), concavity to \\(f''\\) — then find the matching column.`},
+ {topic:"connect",calc:false,prompt:"If \\(f''\\) changes sign at exactly two values \\(x=1\\) and \\(x=4\\), how many inflection points does \\(f\\) have?",
+  opts:[{t:"2",correct:true},{t:"0"},{t:"1"},{t:"4"}],
+  explain:`<b>An inflection point is exactly a place where \\(f''\\) changes sign.</b> Two sign changes ⇒ <b>2</b> inflection points, at \\(x=1\\) and \\(x=4\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>0</b> would require \\(f''\\) to never switch sign.<br>• <b>1</b> undercounts.<br>• <b>4</b> perhaps counts zeros of both \\(f'\\) and \\(f''\\), but the question is only about concavity changes.<br><br><b>The principle:</b> "\\(f''\\) changes sign" is the definition of an inflection point — count the changes directly.`},
+ {topic:"connect",calc:false,prompt:"The graph of \\(f'\\) is a line with positive slope that crosses the \\(x\\)-axis at \\(x=1\\). Which statement about \\(f\\) is correct?",
+  opts:[{t:"\\(f\\) has a local minimum at \\(x=1\\) and is concave up everywhere",correct:true},{t:"\\(f\\) has a local maximum at \\(x=1\\) and is concave up everywhere"},{t:"\\(f\\) has a local minimum at \\(x=1\\) and is concave down everywhere"},{t:"\\(f\\) has an inflection point at \\(x=1\\)"}],
+  explain:`<b>Read both features off the line.</b> \\(f'\\) crosses \\(-\\to+\\) at \\(x=1\\) ⇒ local <b>minimum</b> of \\(f\\). The line has positive slope everywhere ⇒ \\(f''>0\\) everywhere ⇒ \\(f\\) is <b>concave up</b> everywhere.<br><br><b>Why each distractor is a specific mistake:</b><br>• "local max" reverses the crossing direction.<br>• "concave down" contradicts the positive slope of \\(f'\\).<br>• "inflection at \\(x=1\\)" — that's where \\(f'=0\\) (an extremum), not where \\(f''\\) changes sign; \\(f''\\) is a positive constant, never changing sign.<br><br><b>The principle:</b> a straight-line \\(f'\\) means constant \\(f''\\) — one extremum where it crosses zero, and a single concavity throughout.`},
+ {topic:"connect",calc:false,prompt:"If the graph of \\(f\\) is increasing and concave down, which pair of signs must hold?",
+  opts:[{t:"\\(f'>0\\) and \\(f''<0\\)",correct:true},{t:"\\(f'>0\\) and \\(f''>0\\)"},{t:"\\(f'<0\\) and \\(f''<0\\)"},{t:"\\(f'<0\\) and \\(f''>0\\)"}],
+  explain:`<b>Increasing ⇒ \\(f'>0\\); concave down ⇒ \\(f''<0\\).</b><br><br><b>Why each distractor is a specific mistake:</b><br>• \\(f''>0\\) is concave <i>up</i>.<br>• \\(f'<0\\) is <i>decreasing</i>.<br><br><b>The principle:</b> translate each English word to a derivative sign — "increasing" → \\(f'>0\\), "concave down" → \\(f''<0\\).`},
+ {topic:"connect",calc:false,prompt:"For \\(f'(x)=(x-1)(x-3)\\), on what interval is the graph of \\(f\\) concave up?",
+  opts:[{t:"\\((2,\\infty)\\)",correct:true},{t:"\\((-\\infty,2)\\)"},{t:"\\((1,3)\\)"},{t:"\\((-\\infty,1)\\cup(3,\\infty)\\)"}],
+  explain:`<b>Concavity of \\(f\\) is the sign of \\(f''=(f')'\\).</b> \\(f'(x)=x^2-4x+3\\Rightarrow f''(x)=2x-4>0\\) when \\(x>2\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• \\((-\\infty,2)\\) is where \\(f''<0\\) — concave down.<br>• \\((1,3)\\) is where \\(f'<0\\) — that's \\(f\\) <i>decreasing</i>, not its concavity.<br>• \\((-\\infty,1)\\cup(3,\\infty)\\) is where \\(f'>0\\) — \\(f\\) increasing.<br><br><b>The principle:</b> to get concavity from \\(f'\\), differentiate once more — don't read the sign of \\(f'\\) itself.`},
+ {topic:"connect",calc:false,prompt:"The velocity of a particle is \\(v(t)\\) with \\(v(t)>0\\) and \\(v'(t)<0\\) on an interval. What is true of the position \\(s(t)\\)?",
+  opts:[{t:"\\(s\\) is increasing and concave down",correct:true},{t:"\\(s\\) is decreasing and concave down"},{t:"\\(s\\) is increasing and concave up"},{t:"\\(s\\) has a local maximum"}],
+  explain:`<b>Here \\(v=s'\\) and \\(v'=s''\\).</b> \\(v>0\\Rightarrow s'>0\\): position increasing. \\(v'<0\\Rightarrow s''<0\\): position concave down. (The particle moves forward but is slowing.)<br><br><b>Why each distractor is a specific mistake:</b><br>• "decreasing" contradicts \\(v>0\\).<br>• "concave up" contradicts \\(v'<0\\).<br>• "local max" of \\(s\\) needs \\(s'=v=0\\), but \\(v>0\\).<br><br><b>The principle:</b> reading position from velocity is the same skill as reading \\(f\\) from \\(f'\\) — \\(v\\) is direction, \\(v'\\) is concavity.`},
+
+ // ============ OPTIMIZATION (10) ============
+ {topic:"optim",calc:false,prompt:"An open box is formed from a \\(10\\times10\\) sheet by cutting squares of side \\(x\\) from the corners and folding. What value of \\(x\\) maximizes the volume?",
+  opts:[{t:"x=\\tfrac53",correct:true},{t:"x=5"},{t:"x=\\tfrac{10}{3}"},{t:"x=2.5"}],
+  explain:`<b>\\(V(x)=x(10-2x)^2\\); differentiate and factor.</b> \\(V'(x)=(10-2x)^2+x\\cdot2(10-2x)(-2)=(10-2x)(10-6x)=0\\Rightarrow x=5\\text{ or }x=\\tfrac53\\). On \\(0<x<5\\), \\(x=5\\) gives a flat sheet (\\(V=0\\)), so the maximum is at \\(x=\\tfrac53\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>5</b> is the extraneous root — it's the <i>minimum</i> (zero volume), outside the useful range.<br>• <b>\\(\\tfrac{10}{3}\\)</b> and <b>2.5</b> come from mis-factoring \\(V'\\) or halving the wrong quantity.<br><br><b>The principle:</b> factor \\(V'\\), find both roots, and reject the one that gives a degenerate box (check the domain \\(0<x<5\\)).`},
+ {topic:"optim",calc:false,prompt:"A rectangular field borders a straight river and needs fencing on only the three non-river sides. With \\(200\\) m of fence, what is the maximum area?",
+  opts:[{t:"5000\\text{ m}^2",correct:true},{t:"2500\\text{ m}^2"},{t:"10000\\text{ m}^2"},{t:"50\\text{ m}"}],
+  explain:`<b>Let the two depths be \\(x\\) and the river-parallel side \\(L\\): \\(2x+L=200\\Rightarrow L=200-2x\\).</b> Area \\(A(x)=x(200-2x)\\), \\(A'(x)=200-4x=0\\Rightarrow x=50\\), \\(L=100\\), \\(A=50\\cdot100=5000\\) m².<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>2500</b> forgets the river side is free and fences all four sides (a \\(50\\times50\\) square).<br>• <b>10000</b> ignores the constraint entirely.<br>• <b>50 m</b> is the value of \\(x\\), a length — not the area.<br><br><b>The principle:</b> build the constraint from which sides are actually fenced, then answer the quantity asked (area, with units).`},
+ {topic:"optim",calc:false,prompt:"Two positive numbers have a sum of \\(30\\). What is their maximum possible product?",
+  opts:[{t:"225",correct:true},{t:"900"},{t:"30"},{t:"15"}],
+  explain:`<b>\\(P=x(30-x)=30x-x^2\\), \\(P'(x)=30-2x=0\\Rightarrow x=15\\), so both numbers are \\(15\\).</b> Product \\(=15\\cdot15=225\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>900</b> is \\(30^2\\) — squaring the sum, not the optimal product.<br>• <b>30</b> is the sum itself.<br>• <b>15</b> is one of the numbers, not the product.<br><br><b>The principle:</b> the product of two numbers with a fixed sum is largest when they're <b>equal</b> — a pattern worth memorizing.`},
+ {topic:"optim",calc:true,prompt:"Two positive numbers have a product of \\(100\\). What is the minimum possible sum?",
+  opts:[{t:"20",correct:true},{t:"10"},{t:"100"},{t:"200"}],
+  explain:`<b>\\(S=x+\\dfrac{100}{x}\\), \\(S'(x)=1-\\dfrac{100}{x^2}=0\\Rightarrow x^2=100\\Rightarrow x=10\\).</b> Then the other number is \\(\\tfrac{100}{10}=10\\), and \\(S=10+10=20\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>10</b> is one of the numbers (\\(x\\)), not the sum.<br>• <b>100</b> is the product.<br>• <b>200</b> uses a non-optimal split like \\(1\\times100\\).<br><br><b>The principle:</b> the sum of two numbers with a fixed product is smallest when they're <b>equal</b> (\\(x=\\sqrt{100}\\)) — the mirror image of the fixed-sum problem.`},
+ {topic:"optim",calc:false,prompt:"An open box is cut from a \\(12\\times12\\) sheet by removing corner squares of side \\(x\\). What is the domain of \\(x\\) for a valid box?",
+  opts:[{t:"\\(0<x<6\\)",correct:true},{t:"\\(0<x<12\\)"},{t:"\\(0<x<3\\)"},{t:"\\(x>0\\)"}],
+  explain:`<b>Each side of the base is \\(12-2x\\), which must stay positive:</b> \\(12-2x>0\\Rightarrow x<6\\), and \\(x>0\\) for a real cut. So \\(0<x<6\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• \\(0<x<12\\) forgets that <i>two</i> cuts come off each side (\\(-2x\\), not \\(-x\\)).<br>• \\(0<x<3\\) over-restricts (perhaps using \\(12-4x>0\\)).<br>• \\(x>0\\) omits the upper bound entirely.<br><br><b>The principle:</b> set every physical length \\(>0\\) to build the domain — here the base side \\(12-2x\\) caps \\(x\\) at \\(6\\).`},
+ {topic:"optim",calc:false,prompt:"You have \\(60\\) m of fence to enclose a rectangular pen on all four sides. What is the maximum area?",
+  opts:[{t:"225\\text{ m}^2",correct:true},{t:"900\\text{ m}^2"},{t:"3600\\text{ m}^2"},{t:"15\\text{ m}"}],
+  explain:`<b>Perimeter \\(2x+2y=60\\Rightarrow y=30-x\\).</b> Area \\(A=x(30-x)\\), maximized at \\(x=15\\) (so \\(y=15\\), a square). \\(A=15\\cdot15=225\\) m².<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>900</b> squares half the perimeter incorrectly or uses \\(30^2\\).<br>• <b>3600</b> is \\(60^2\\) — the whole perimeter squared.<br>• <b>15 m</b> is a side length, not the area.<br><br><b>The principle:</b> for a fixed perimeter, the rectangle of maximum area is a <b>square</b> — and always report the area, with units.`},
+ {topic:"optim",calc:false,prompt:"To maximize \\(A=xy\\) subject to the constraint \\(x+2y=20\\), write \\(A\\) as a function of \\(y\\) alone.",
+  opts:[{t:"A(y)=20y-2y^2",correct:true},{t:"A(y)=20y-y^2"},{t:"A(y)=(20-y)y"},{t:"A(y)=20-2y"}],
+  explain:`<b>Solve the constraint for \\(x\\) and substitute:</b> \\(x=20-2y\\), so \\(A=xy=(20-2y)y=20y-2y^2\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• \\(20y-y^2\\) uses \\(x=20-y\\), dropping the coefficient \\(2\\) on \\(y\\).<br>• \\((20-y)y\\) has the same error before expanding.<br>• \\(20-2y\\) is just \\(x\\), not the product \\(xy\\).<br><br><b>The principle:</b> the constraint is substitution fuel — solve it exactly (keep the \\(2\\)) and plug into the objective before differentiating.`},
+ {topic:"optim",calc:false,prompt:"Solving the fence problem \\(A(x)=x(100-2x)\\) gives \\(x=25\\) for the maximum. The question asks for the <i>maximum area</i>. What is the answer?",
+  opts:[{t:"1250\\text{ m}^2",correct:true},{t:"25\\text{ m}"},{t:"50\\text{ m}"},{t:"2500\\text{ m}^2"}],
+  explain:`<b>\\(x=25\\) is where the max occurs; plug it back in.</b> \\(A(25)=25(100-50)=25\\cdot50=1250\\) m².<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>25 m</b> is the location, not the area — the classic "answered the wrong question" error.<br>• <b>50 m</b> is the other side length \\(L=100-2x\\).<br>• <b>2500</b> squares \\(x\\) instead of computing \\(x\\cdot L\\).<br><br><b>The principle:</b> after finding the optimal \\(x\\), reread the prompt and report the <i>requested</i> quantity — with units.`},
+ {topic:"optim",calc:false,prompt:"A rectangle has its base on the \\(x\\)-axis and its top two corners on the parabola \\(y=12-x^2\\). Its area as a function of the half-width \\(x\\) is \\(A(x)=2x(12-x^2)\\). What \\(x\\) maximizes the area?",
+  opts:[{t:"x=2",correct:true},{t:"x=\\sqrt{12}"},{t:"x=\\sqrt{6}"},{t:"x=\\tfrac{12}{3}"}],
+  explain:`<b>Differentiate the expanded area.</b> \\(A(x)=24x-2x^3\\), \\(A'(x)=24-6x^2=0\\Rightarrow x^2=4\\Rightarrow x=2\\) (take \\(x>0\\)). Then the height is \\(12-4=8\\) and \\(A=2\\cdot2\\cdot8=32\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• \\(\\sqrt{12}\\) is where the parabola meets the axis (\\(y=0\\)) — a degenerate rectangle of zero area.<br>• \\(\\sqrt{6}\\) comes from \\(24-... \\) mis-solved (e.g. \\(24=... x^2\\) with a wrong coefficient).<br>• \\(\\tfrac{12}{3}=4\\) forgets to take the square root.<br><br><b>The principle:</b> expand before differentiating, solve \\(A'=0\\), and keep the root inside the domain \\(0<x<\\sqrt{12}\\).`},
+ {topic:"optim",calc:false,prompt:"At a single critical point \\(c\\) in the domain, \\(f'(c)=0\\) and \\(f''(c)<0\\), and \\(c\\) is the only critical point. What can you conclude about \\(f(c)\\)?",
+  opts:[{t:"It is the absolute maximum on the domain",correct:true},{t:"It is a local maximum but not necessarily absolute"},{t:"It is the absolute minimum"},{t:"Nothing without checking endpoints"}],
+  explain:`<b>Sole critical point + \\(f''(c)<0\\) ⇒ absolute maximum.</b> \\(f''(c)<0\\) makes \\(c\\) a local max; since it's the <i>only</i> critical point, \\(f\\) can't turn anywhere else, so no other point beats it — the local max is global.<br><br><b>Why each distractor is a specific mistake:</b><br>• "local but not absolute" is the correct default <i>only</i> when there are multiple critical points — the "only critical point" clause upgrades it to absolute.<br>• "absolute minimum" flips the concavity.<br>• "nothing without endpoints" — on an open/unbounded domain there are no endpoints to check, and the sole-critical-point argument settles it.<br><br><b>The principle:</b> "the only critical point, and it's a max" is the cleanest absolute-extremum justification an AP reader can ask for.`},
+];
+
+// ===================== MC ENGINE (batches of 12) =====================
+let mcBatch=[], mcIdx=0, mcScore=0, mcAnswered=false;
+const stats={};
+Object.keys(TOPICS).forEach(k=>stats[k]={right:0,total:0});
+
+function mathify(h){return (h||"").replace(/\\\((.+?)\\\)/g,(m,t)=>{try{return window.katex?katex.renderToString(t,{throwOnError:false}):'<span class="tex-fallback">'+t+'</span>';}catch(e){return m;}});}
+function renderOpt(t){
+  if(t.indexOf("\\(")>=0) return mathify(t);
+  if(/[\\^_{}]/.test(t)){
+    try{return window.katex?katex.renderToString(t,{throwOnError:false}):'<span class="tex-fallback">'+t+'</span>';}catch(e){return t;}
+  }
+  if(/[A-Za-z]{2,}/.test(t)) return mathify(t);
+  try{return window.katex?katex.renderToString(t,{throwOnError:false}):'<span class="tex-fallback">'+t+'</span>';}catch(e){return t;}
+}
+function calcBadge(q){
+  return q.calc ? '<span class="calc yes">▲ calculator</span>' : '<span class="calc no">✕ no calculator</span>';
+}
+function newBatch(){
+  mcBatch=shuffle(MC).slice(0,12); mcIdx=0; mcScore=0;
+  document.getElementById('mcDone').style.display='none';
+  document.getElementById('mcTag').style.display='';
+  document.getElementById('mcPrompt').style.display='';
+  document.getElementById('mcOpts').style.display='';
+  renderMC();
+}
+function renderMC(){
+  mcAnswered=false;
+  const q=mcBatch[mcIdx];
+  document.getElementById('mcProgress').textContent="Question "+(mcIdx+1)+" of "+mcBatch.length;
+  document.getElementById('mcScore').textContent="Score: "+mcScore;
+  document.getElementById('mcTag').innerHTML='<span>'+TOPICS[q.topic][0]+'</span>'+calcBadge(q);
+  document.getElementById('mcPrompt').innerHTML=mathify(q.prompt);
+  const mm=document.getElementById('mcMath');
+  if(q.math){mm.style.display='';mm.innerHTML=tex(q.math,q.math,true);}else{mm.style.display='none';}
+  const opts=document.getElementById('mcOpts'); opts.innerHTML="";
+  const list=shuffle(q.opts.map((o)=>({...o})));
+  list.forEach(o=>{const b=document.createElement('button');b.innerHTML=renderOpt(o.t);b.dataset.correct=!!o.correct;b.onclick=()=>pickMC(b,q);opts.appendChild(b);});
+  const fb=document.getElementById('mcFb');fb.className="fb";fb.innerHTML="";
+  document.getElementById('mcNext').className="next";
+}
+function pickMC(btn,q){
+  if(mcAnswered)return; mcAnswered=true;
+  const correct=btn.dataset.correct==="true";
+  stats[q.topic].total++; if(correct){stats[q.topic].right++;mcScore++;}
+  [...document.getElementById('mcOpts').children].forEach(b=>{b.disabled=true;if(b.dataset.correct==="true")b.classList.add('correct');});
+  if(!correct)btn.classList.add('wrong');
+  const fb=document.getElementById('mcFb');
+  fb.className="fb show";
+  fb.innerHTML='<span class="ftag '+(correct?'ok':'bad')+'">'+(correct?'Correct. ':'Not quite. ')+'</span>'+mathify(q.explain)+
+    '<br><a class="review-link" href="'+TOPICS[q.topic][1]+'">Review: '+TOPICS[q.topic][0]+' →</a>';
+  document.getElementById('mcScore').textContent="Score: "+mcScore;
+  const nx=document.getElementById('mcNext'); nx.className="next show";
+  nx.textContent = mcIdx<mcBatch.length-1 ? "Next question →" : "See batch results →";
+  renderWeak();
+}
+document.getElementById('mcNext').onclick=()=>{
+  if(mcIdx<mcBatch.length-1){mcIdx++;renderMC();}
+  else{
+    document.getElementById('mcTag').style.display='none';
+    document.getElementById('mcPrompt').style.display='none';
+    document.getElementById('mcMath').style.display='none';
+    document.getElementById('mcOpts').style.display='none';
+    document.getElementById('mcFb').className="fb";
+    document.getElementById('mcNext').className="next";
+    const pct=Math.round(100*mcScore/mcBatch.length);
+    const msg=pct>=85?"Exam-ready across the board.":pct>=65?"Solid — clean up the misses below.":"Keep drilling; your weak topics are flagged below.";
+    const d=document.getElementById('mcDone');
+    d.style.display='block';
+    d.innerHTML='<div style="text-align:center;padding:10px"><div style="font-family:var(--display);font-size:34px;font-weight:600;color:var(--emerald)">'+mcScore+' / '+mcBatch.length+'</div><p style="color:var(--muted);margin:8px auto 16px;max-width:420px;font-size:14px">'+msg+'</p></div>';
+    const r=document.createElement('button');r.className="next show";r.style.maxWidth="240px";r.style.margin="4px auto 0";r.textContent="↺ Get a new batch of 12";r.onclick=newBatch;d.appendChild(r);
+    document.getElementById('mcProgress').textContent="Batch complete";
+  }
+};
+
+// ===================== WEAK-SPOTS =====================
+function renderWeak(){
+  const rows=Object.keys(TOPICS).filter(k=>stats[k].total>0);
+  const body=document.getElementById('weakBody');
+  if(!rows.length){return;}
+  rows.sort((a,b)=>(stats[a].right/stats[a].total)-(stats[b].right/stats[b].total));
+  body.innerHTML=rows.map(k=>{
+    const s=stats[k],pct=Math.round(100*s.right/s.total);
+    return '<div class="weakrow"><span class="weaklabel">'+TOPICS[k][0]+'</span><span class="weakbar"><i style="width:'+pct+'%"></i></span><span class="weakpct">'+s.right+'/'+s.total+'</span></div>';
+  }).join('')+'<p style="font-size:12.5px;color:var(--muted);margin-top:12px">Lowest topics first. Tap a topic in the question feedback to jump to its lesson.</p>';
+}
+
+// ===================== FRQ TRAINER =====================
+function frqNorm(s){return (s||"").toLowerCase().replace(/\s+/g,"").replace(/−/g,"-").replace(/·/g,"*").replace(/\{|\}/g,"");}
+const FRQS=[
+ { label:"Analyze f from a formula",
+   desc:"<b>Increasing/decreasing with justification → local extrema → concavity &amp; inflection → absolute extrema on a closed interval.</b> The bread-and-butter Unit 5 analysis problem, no calculator, worth 9 points. Every value here is exact.",
+   given:"f(x)=x^{3}-3x^{2}",
+   givenNote:"Let f(x) = x³ − 3x², defined for all real x. Answer parts A–C for all x; part D restricts to the closed interval [−1, 3]. No calculator.",
+   givenFall:"f(x) = x³ − 3x² (no calculator).",
+  parts:[
+   {pl:"Part A",pts:3,topic:"fdt",q:"Find \\(f'(x)\\), the open intervals on which \\(f\\) is increasing and decreasing, and justify.",
+    fields:[{label:"f'(x)=",hint:"e.g. 3x^2-6x",match:s=>{const n=frqNorm(s);return ["3x^2-6x","3x(x-2)","f'(x)=3x^2-6x","3x^{2}-6x"].includes(n);}},{label:"\\text{increasing on}",hint:"e.g. (-inf,0) and (2,inf)",match:s=>{const n=frqNorm(s);return n.includes("0")&&n.includes("2")&&(n.includes("inf")||n.includes("infty")||n.includes("∞"));}}],
+    sol:`<b>Differentiate and factor:</b> \\(f'(x)=3x^2-6x=3x(x-2)\\), with zeros \\(x=0,2\\).<br><b>Sign of \\(f'\\):</b> \\(f'>0\\) on \\((-\\infty,0)\\) and \\((2,\\infty)\\); \\(f'<0\\) on \\((0,2)\\).<br>So \\(f\\) is <b>increasing on \\((-\\infty,0)\\) and \\((2,\\infty)\\)</b>, <b>decreasing on \\((0,2)\\)</b>.<br><br><b>Scoring:</b> 1 pt for \\(f'=3x(x-2)\\); 1 pt for the increasing intervals; 1 pt for the decreasing interval <i>with</i> a sign analysis of \\(f'\\) as justification (a sign chart or the words "\\(f'>0\\) there").`,
+    rubric:["\\(f'(x)=3x(x-2)\\) with zeros \\(x=0,2\\)","Increasing on \\((-\\infty,0)\\cup(2,\\infty)\\); decreasing on \\((0,2)\\)","Justified by the sign of \\(f'\\) on each interval"]},
+   {pl:"Part B",pts:2,topic:"fdt",q:"Identify each local maximum and local minimum of \\(f\\) (as points), and state the test you used.",
+    fields:[{label:"\\text{local max at }x=",hint:"a number",match:s=>["0","x=0"].includes(frqNorm(s))},{label:"\\text{local min at }x=",hint:"a number",match:s=>["2","x=2"].includes(frqNorm(s))}],
+    sol:`<b>First-derivative test on the sign changes of \\(f'=3x(x-2)\\):</b><br>• At \\(x=0\\): \\(f'\\) goes \\(+\\to-\\) ⇒ <b>local maximum</b>, \\(f(0)=0\\) → point \\((0,0)\\).<br>• At \\(x=2\\): \\(f'\\) goes \\(-\\to+\\) ⇒ <b>local minimum</b>, \\(f(2)=8-12=-4\\) → point \\((2,-4)\\).<br><br><b>Scoring:</b> 1 pt for the local max at \\((0,0)\\), 1 pt for the local min at \\((2,-4)\\) — each requires the correct classification tied to the sign change (or a second-derivative check: \\(f''(0)=-6<0\\), \\(f''(2)=6>0\\)).`,
+    rubric:["Local max \\((0,0)\\) — \\(f'\\) changes \\(+\\to-\\) (or \\(f''(0)<0\\))","Local min \\((2,-4)\\) — \\(f'\\) changes \\(-\\to+\\) (or \\(f''(2)>0\\))"]},
+   {pl:"Part C",pts:2,topic:"concavity",q:"Find the intervals of concavity and the coordinates of any inflection point(s).",
+    fields:[{label:"\\text{inflection at }x=",hint:"a number",match:s=>["1","x=1"].includes(frqNorm(s))},{label:"\\text{concave up on}",hint:"e.g. (1,inf)",match:s=>{const n=frqNorm(s);return n.includes("1")&&(n.includes("inf")||n.includes("infty")||n.includes("∞"));}}],
+    sol:`<b>Second derivative:</b> \\(f''(x)=6x-6=6(x-1)\\), zero at \\(x=1\\).<br>\\(f''<0\\) on \\((-\\infty,1)\\) (concave down) and \\(f''>0\\) on \\((1,\\infty)\\) (concave up). Sign changes ⇒ inflection at \\(x=1\\), \\(f(1)=1-3=-2\\): point \\((1,-2)\\).<br><br><b>Scoring:</b> 1 pt for concave down \\((-\\infty,1)\\) and up \\((1,\\infty)\\); 1 pt for the inflection point \\((1,-2)\\) established by a sign change of \\(f''\\).`,
+    rubric:["\\(f''(x)=6(x-1)\\); concave down on \\((-\\infty,1)\\), up on \\((1,\\infty)\\)","Inflection point \\((1,-2)\\) (sign change of \\(f''\\))"]},
+   {pl:"Part D",pts:2,topic:"mvt",q:"Find the absolute maximum and absolute minimum values of \\(f\\) on the closed interval \\([-1,3]\\).",
+    fields:[{label:"\\text{abs max}=",hint:"a number",match:s=>["0","abs max=0"].includes(frqNorm(s))},{label:"\\text{abs min}=",hint:"a number",match:s=>{const n=frqNorm(s);return ["-4","absmin=-4"].includes(n);}}],
+    sol:`<b>Candidates test — critical points and endpoints.</b> Critical \\(x=0,2\\); endpoints \\(x=-1,3\\).<br>\\(f(-1)=-1-3=-4,\\quad f(0)=0,\\quad f(2)=-4,\\quad f(3)=27-27=0.\\)<br><b>Absolute max \\(=0\\)</b> (attained at \\(x=0\\) and \\(x=3\\)); <b>absolute min \\(=-4\\)</b> (attained at \\(x=-1\\) and \\(x=2\\)).<br><br><b>Scoring:</b> 1 pt for evaluating \\(f\\) at all four candidates, 1 pt for the correct max \\(0\\) and min \\(-4\\). Forgetting an endpoint is the usual error — here the endpoints tie the interior points.`,
+    rubric:["Evaluated \\(f\\) at \\(x=-1,0,2,3\\) (critical points + endpoints)","Absolute max \\(=0\\), absolute min \\(=-4\\)"]}
+  ]},
+
+ { label:"Read f from the graph of f′",
+   desc:"<b>The flagship Unit 5 FRQ: everything about \\(f\\) is deduced from the graph of its derivative.</b> Here the graph of \\(f'\\) is the parabola \\(f'(x)=(x+1)(x-2)\\) on \\([-3,4]\\) — think of that as the picture you're handed. No calculator, 9 points, all qualitative + justified.",
+   given:"\\text{The graph of }f'\\text{ is } f'(x)=(x+1)(x-2)\\text{ on }[-3,4].",
+   givenNote:"The graph shown is of f′ (the derivative of f), not f. It is an upward parabola crossing the x-axis at x = −1 and x = 2, with its lowest point (vertex) at x = 1/2. Use it to reason about f.",
+   givenFall:"Graph of f′(x) = (x+1)(x−2): zeros at x = −1, 2; vertex (minimum) at x = 1/2.",
+  parts:[
+   {pl:"Part A",pts:3,topic:"connect",q:"Find the \\(x\\)-coordinates of all local maxima and minima of \\(f\\) on \\((-3,4)\\), with justification from the graph of \\(f'\\).",
+    fields:[{label:"\\text{local max at }x=",hint:"a number",match:s=>["-1","x=-1"].includes(frqNorm(s))},{label:"\\text{local min at }x=",hint:"a number",match:s=>["2","x=2"].includes(frqNorm(s))}],
+    sol:`<b>Extrema of \\(f\\) occur where \\(f'\\) changes sign (crosses the axis).</b><br>• At \\(x=-1\\): \\(f'\\) goes \\(+\\to-\\) (above the axis to below) ⇒ <b>local maximum</b>.<br>• At \\(x=2\\): \\(f'\\) goes \\(-\\to+\\) ⇒ <b>local minimum</b>.<br><br><b>Scoring:</b> 1 pt for the local max at \\(x=-1\\), 1 pt for the local min at \\(x=2\\), and 1 pt for justifying <i>both</i> by the sign change of \\(f'\\) as it crosses the axis (the AP reader demands the justification, not just the locations). Listing \\(x=\\tfrac12\\) (the vertex of \\(f'\\)) as an extremum of \\(f\\) is the classic misread — that's an inflection.`,
+    rubric:["Local maximum at \\(x=-1\\)","Local minimum at \\(x=2\\)","Both justified by the sign change of \\(f'\\) (crossing the axis \\(+\\to-\\) and \\(-\\to+\\))"]},
+   {pl:"Part B",pts:2,topic:"connect",q:"On what interval(s) is \\(f\\) increasing? Justify.",
+    fields:[{label:"\\text{increasing on}",hint:"e.g. (-3,-1) and (2,4)",match:s=>{const n=frqNorm(s);return n.includes("-1")&&n.includes("2");}}],
+    sol:`<b>\\(f\\) increases where \\(f'>0\\) — where the graph of \\(f'\\) is <i>above</i> the \\(x\\)-axis.</b> That's outside the roots: on \\((-3,-1)\\) and \\((2,4)\\).<br><br><b>Scoring:</b> 1 pt for both intervals \\((-3,-1)\\) and \\((2,4)\\), 1 pt for the justification "\\(f'>0\\) (graph above the axis) there." Reporting where \\(f'\\) is increasing instead of positive is the trap.`,
+    rubric:["Increasing on \\((-3,-1)\\) and \\((2,4)\\)","Because \\(f'>0\\) (graph of \\(f'\\) above the axis) there"]},
+   {pl:"Part C",pts:2,topic:"connect",q:"At what \\(x\\) does \\(f\\) have a point of inflection? Justify using the graph of \\(f'\\).",
+    fields:[{label:"\\text{inflection at }x=",hint:"a number",match:s=>{const n=frqNorm(s);return ["1/2","0.5","x=1/2","x=0.5"].includes(n);}}],
+    sol:`<b>Inflection points of \\(f\\) occur where \\(f''\\) changes sign — i.e. where \\(f'\\) changes from decreasing to increasing (a local extremum of \\(f'\\)).</b> The graph of \\(f'\\) has its minimum (vertex) at \\(x=\\tfrac12\\), where \\(f'\\) stops decreasing and starts increasing ⇒ \\(f''\\) changes \\(-\\to+\\) ⇒ inflection at \\(x=\\tfrac12\\).<br><br><b>Scoring:</b> 1 pt for \\(x=\\tfrac12\\), 1 pt for the reason "\\(f'\\) changes from decreasing to increasing (its minimum) ⇒ \\(f''\\) changes sign." Choosing a zero of \\(f'\\) (\\(x=-1\\) or \\(2\\)) is the wrong feature.`,
+    rubric:["Inflection at \\(x=\\tfrac12\\)","Because \\(f'\\) has a minimum there (changes from decreasing to increasing), so \\(f''\\) changes sign"]},
+   {pl:"Part D",pts:2,topic:"connect",q:"On what interval(s) is the graph of \\(f\\) concave down? Justify.",
+    fields:[{label:"\\text{concave down on}",hint:"e.g. (-3,1/2)",match:s=>{const n=frqNorm(s);return (n.includes("1/2")||n.includes("0.5"))&&(n.includes("-3")||n.startsWith("(-3")||n.includes("-inf"));}}],
+    sol:`<b>Concave down where \\(f''<0\\), i.e. where \\(f'\\) is <i>decreasing</i>.</b> The parabola \\(f'\\) decreases to the left of its vertex, so on \\((-3,\\tfrac12)\\).<br><br><b>Scoring:</b> 1 pt for \\((-3,\\tfrac12)\\), 1 pt for the justification "\\(f'\\) is decreasing there, so \\(f''<0\\)." Using where \\(f'<0\\) (below the axis) instead of where \\(f'\\) is decreasing is the classic wire-crossing.`,
+    rubric:["Concave down on \\((-3,\\tfrac12)\\)","Because \\(f'\\) is decreasing there ⇒ \\(f''<0\\)"]}
+  ]},
+
+ { label:"Optimization (inscribed rectangle)",
+   desc:"<b>Set up the objective → domain → \\(f'=0\\) → justify the maximum → answer the area.</b> A full optimization free-response, no calculator, worth 9 points. The constraint is the parabola the corners must lie on.",
+   given:"y=12-x^{2},\\qquad A(x)=2x(12-x^{2})",
+   givenNote:"A rectangle has its base on the x-axis and its two upper vertices on the curve y = 12 − x² (x ≥ 0). Let x be the half-width, so the rectangle has width 2x and height 12 − x². No calculator.",
+   givenFall:"Rectangle under y = 12 − x²; area A(x) = 2x(12 − x²).",
+  parts:[
+   {pl:"Part A",pts:2,topic:"optim",q:"Write \\(A(x)\\) in expanded form and state the domain of \\(x\\).",
+    fields:[{label:"A(x)=",hint:"e.g. 24x-2x^3",match:s=>{const n=frqNorm(s);return ["24x-2x^3","24x-2x^{3}","a(x)=24x-2x^3"].includes(n);}},{label:"\\text{domain}",hint:"e.g. 0<x<sqrt(12)",match:s=>{const n=frqNorm(s);return (n.includes("0")&&(n.includes("sqrt(12)")||n.includes("2sqrt3")||n.includes("2sqrt(3)")||n.includes("3.46")||n.includes("√12")||n.includes("2√3")));}}],
+    sol:`<b>Expand the area:</b> \\(A(x)=2x(12-x^2)=24x-2x^3\\).<br><b>Domain:</b> the height \\(12-x^2>0\\Rightarrow x<\\sqrt{12}=2\\sqrt3\\), and \\(x>0\\) for a real rectangle: \\(0<x<2\\sqrt3\\).<br><br><b>Scoring:</b> 1 pt for \\(A(x)=24x-2x^3\\); 1 pt for the domain \\(0<x<2\\sqrt3\\) (both a positive width and a positive height).`,
+    rubric:["\\(A(x)=24x-2x^3\\)","Domain \\(0<x<2\\sqrt3\\) (height and width both positive)"]},
+   {pl:"Part B",pts:2,topic:"optim",q:"Find the \\(x\\) that maximizes \\(A\\) by solving \\(A'(x)=0\\).",
+    fields:[{label:"A'(x)=",hint:"e.g. 24-6x^2",match:s=>{const n=frqNorm(s);return ["24-6x^2","24-6x^{2}"].includes(n);}},{label:"x=",hint:"a number",match:s=>["2","x=2"].includes(frqNorm(s))}],
+    sol:`<b>Differentiate and solve:</b> \\(A'(x)=24-6x^2=0\\Rightarrow x^2=4\\Rightarrow x=2\\) (reject \\(x=-2\\), outside the domain).<br><br><b>Scoring:</b> 1 pt for \\(A'(x)=24-6x^2\\), 1 pt for \\(x=2\\) with the negative root rejected.`,
+    rubric:["\\(A'(x)=24-6x^2\\)","\\(x=2\\) (rejecting \\(x=-2\\))"]},
+   {pl:"Part C",pts:2,topic:"optim",q:"Justify that your \\(x\\) gives an absolute maximum (not a minimum).",
+    fields:[{label:"\\text{justification}",hint:"e.g. A''<0 or first-deriv test",match:s=>{const n=frqNorm(s);return n.includes("a''")||n.includes("a\"")||n.includes("<0")||n.includes("concavedown")||n.includes("+to-")||n.includes("firstderiv")||n.includes("onlycritical");}}],
+    sol:`<b>Second-derivative test:</b> \\(A''(x)=-12x\\), so \\(A''(2)=-24<0\\) — concave down, hence a maximum. And \\(x=2\\) is the <i>only</i> critical point in \\((0,2\\sqrt3)\\), so it's the <b>absolute</b> maximum. (Equivalently: \\(A'\\) changes \\(+\\to-\\) at \\(x=2\\).)<br><br><b>Scoring:</b> 1 pt for a valid test (\\(A''(2)<0\\) or a first-derivative sign change), 1 pt for arguing it is <i>absolute</i> — the sole critical point on the domain, with \\(A\\to0\\) at both ends.`,
+    rubric:["\\(A''(2)=-24<0\\) (or \\(A'\\) changes \\(+\\to-\\)) ⇒ local max","Only critical point on the domain (\\(A=0\\) at both ends) ⇒ absolute max"]},
+   {pl:"Part D",pts:3,topic:"optim",q:"State the dimensions of the largest rectangle and its maximum area.",
+    fields:[{label:"\\text{width}=",hint:"a number",match:s=>["4","width=4"].includes(frqNorm(s))},{label:"\\text{height}=",hint:"a number",match:s=>["8","height=8"].includes(frqNorm(s))},{label:"\\text{max area}=",hint:"a number",match:s=>["32","area=32","maxarea=32"].includes(frqNorm(s))}],
+    sol:`<b>Plug \\(x=2\\) back into the geometry.</b> Width \\(=2x=4\\); height \\(=12-x^2=12-4=8\\); area \\(=A(2)=24(2)-2(8)=48-16=32\\) (or \\(4\\cdot8=32\\)).<br><br><b>Scoring:</b> 1 pt width \\(4\\), 1 pt height \\(8\\), 1 pt area \\(32\\). Reporting \\(x=2\\) as "the answer" without the requested dimensions/area is the last-10% error this problem is built to catch.`,
+    rubric:["Width \\(=2x=4\\)","Height \\(=12-x^2=8\\)","Maximum area \\(=32\\)"]}
+  ]},
+
+ { label:"Analyze f(x)=x·e^(−x)",
+   desc:"<b>Second-derivative test → concavity &amp; inflection → absolute max on \\([0,\\infty)\\) → end behavior.</b> A BC-flavored analysis on a product/exponential, worth 9 points. Exact values throughout; a calculator only confirms them.",
+   given:"f(x)=x\\,e^{-x},\\qquad x\\ge 0",
+   givenNote:"Let f(x) = x·e^{−x} for x ≥ 0. Give exact values (a calculator may be used to check).",
+   givenFall:"f(x) = x e^(−x) for x ≥ 0.",
+  parts:[
+   {pl:"Part A",pts:3,topic:"fdt",q:"Find \\(f'(x)\\), locate the critical point, and classify it using the second-derivative test.",
+    fields:[{label:"f'(x)=",hint:"e.g. e^{-x}(1-x)",match:s=>{const n=frqNorm(s);return ["e^{-x}(1-x)","e^-x(1-x)","(1-x)e^{-x}","(1-x)e^-x","e^{-x}-xe^{-x}"].includes(n);}},{label:"\\text{critical }x=",hint:"a number",match:s=>["1","x=1"].includes(frqNorm(s))}],
+    sol:`<b>Product rule:</b> \\(f'(x)=e^{-x}+x(-e^{-x})=e^{-x}(1-x)\\). Since \\(e^{-x}>0\\), \\(f'=0\\) only at \\(x=1\\).<br><b>Second-derivative test:</b> \\(f''(x)=e^{-x}(x-2)\\), so \\(f''(1)=e^{-1}(1-2)=-e^{-1}<0\\) ⇒ concave down ⇒ <b>local maximum</b> at \\(x=1\\), \\(f(1)=e^{-1}=\\tfrac1e\\).<br><br><b>Scoring:</b> 1 pt for \\(f'=e^{-x}(1-x)\\), 1 pt for the critical point \\(x=1\\), 1 pt for classifying it a max via \\(f''(1)<0\\) (or a first-derivative sign change).`,
+    rubric:["\\(f'(x)=e^{-x}(1-x)\\)","Critical point \\(x=1\\) (since \\(e^{-x}>0\\))","\\(f''(1)=-e^{-1}<0\\) ⇒ local max at \\((1,\\tfrac1e)\\)"]},
+   {pl:"Part B",pts:2,topic:"concavity",q:"Find the interval(s) of concavity and the \\(x\\)-coordinate of any inflection point.",
+    fields:[{label:"\\text{inflection }x=",hint:"a number",match:s=>["2","x=2"].includes(frqNorm(s))},{label:"\\text{concave up on}",hint:"e.g. (2,inf)",match:s=>{const n=frqNorm(s);return n.includes("2")&&(n.includes("inf")||n.includes("infty")||n.includes("∞"));}}],
+    sol:`<b>\\(f''(x)=e^{-x}(x-2)\\)</b>, and \\(e^{-x}>0\\), so the sign of \\(f''\\) is the sign of \\((x-2)\\): \\(f''<0\\) on \\([0,2)\\) (concave down), \\(f''>0\\) on \\((2,\\infty)\\) (concave up). Sign change ⇒ inflection at \\(x=2\\), \\(f(2)=2e^{-2}\\).<br><br><b>Scoring:</b> 1 pt for concave down on \\([0,2)\\), up on \\((2,\\infty)\\); 1 pt for the inflection point at \\(x=2\\) via a sign change of \\(f''\\).`,
+    rubric:["\\(f''(x)=e^{-x}(x-2)\\); concave down on \\([0,2)\\), up on \\((2,\\infty)\\)","Inflection at \\(x=2\\) (\\(f(2)=2e^{-2}\\))"]},
+   {pl:"Part C",pts:2,topic:"optim",q:"Find the absolute maximum value of \\(f\\) on \\([0,\\infty)\\), and justify.",
+    fields:[{label:"\\text{abs max}=",hint:"exact value",match:s=>{const n=frqNorm(s);return ["1/e","e^{-1}","e^-1","absmax=1/e"].includes(n);}}],
+    sol:`<b>Only one critical point, and it's a max.</b> \\(f(0)=0\\), \\(f(1)=\\tfrac1e\\), and \\(f'(x)=e^{-x}(1-x)>0\\) on \\([0,1)\\), \\(<0\\) on \\((1,\\infty)\\): \\(f\\) rises to \\(x=1\\) then falls forever. So the <b>absolute maximum is \\(f(1)=\\dfrac1e\\)</b> at \\(x=1\\).<br><br><b>Scoring:</b> 1 pt for the value \\(\\tfrac1e\\), 1 pt for the justification (sole critical point that is a max, with \\(f\\) decreasing thereafter and \\(f(0)=0\\)). Note the interval is unbounded — the "endpoint at infinity" is handled by the limit in Part D.`,
+    rubric:["Absolute max value \\(=\\tfrac1e\\) at \\(x=1\\)","Justified: only critical point, \\(f'\\) changes \\(+\\to-\\); \\(f(0)=0\\) and \\(f\\) decreasing for \\(x>1\\)"]},
+   {pl:"Part D",pts:2,topic:"connect",q:"Evaluate \\(\\displaystyle\\lim_{x\\to\\infty} x e^{-x}\\), and explain what it says about the graph of \\(f\\).",
+    fields:[{label:"\\text{limit}=",hint:"a number",match:s=>["0","limit=0"].includes(frqNorm(s))}],
+    sol:`<b>\\(\\displaystyle\\lim_{x\\to\\infty}\\frac{x}{e^{x}}\\stackrel{\\text{L'H}}{=}\\lim_{x\\to\\infty}\\frac{1}{e^{x}}=0.\\)</b> (Exponential growth beats linear growth.) So the graph has a <b>horizontal asymptote \\(y=0\\)</b>: after the peak at \\(x=1\\), \\(f\\) decreases toward \\(0\\) but never reaches it.<br><br><b>Scoring:</b> 1 pt for the limit \\(=0\\) (a form \\(\\tfrac{\\infty}{\\infty}\\), L'Hôpital or the known growth ranking), 1 pt for interpreting it as the end behavior / horizontal asymptote \\(y=0\\).`,
+    rubric:["\\(\\lim_{x\\to\\infty}xe^{-x}=0\\) (\\(\\tfrac{\\infty}{\\infty}\\), L'Hôpital)","Graph approaches the horizontal asymptote \\(y=0\\) from above"]}
+  ]}
+];
+
+let frqActive=0;
+function buildFrqTabs(){
+  const t=document.getElementById('frqTabs');t.innerHTML="";
+  FRQS.forEach((f,i)=>{const b=document.createElement('button');b.textContent=f.label;if(i===frqActive)b.classList.add('on');b.onclick=()=>{frqActive=i;buildFrqTabs();renderFRQ();};t.appendChild(b);});
+}
+function renderFRQ(){
+  const f=FRQS[frqActive];
+  document.getElementById('frqDesc').innerHTML=mathify(f.desc);
+  document.getElementById('frqGiven').innerHTML=tex(f.given,f.givenFall,true);
+  document.getElementById('frqGivenNote').textContent=f.givenNote;
+  const extra=document.getElementById('frqGivenExtra');
+  if(f.table){
+    let html='<table class="frq-table"><thead><tr>'+f.table.head.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>';
+    f.table.rows.forEach(r=>{html+='<tr>'+r.map((c,ci)=>ci===0?'<th>'+c+'</th>':'<td>'+c+'</td>').join('')+'</tr>';});
+    html+='</tbody></table>';
+    extra.innerHTML=html;
+  } else { extra.innerHTML=""; }
+  document.getElementById('frqScore').style.display='none';
+  const wrap=document.getElementById('frqParts');wrap.innerHTML="";
+  f.parts.forEach((p,pi)=>{
+    const div=document.createElement('div');div.className="part";
+    let fieldsHtml='<div class="frq-fields">';
+    p.fields.forEach((fl,fi)=>{
+      fieldsHtml+='<div class="frq-field"><span class="frq-flabel">'+tex(fl.label,fl.label,false)+'</span>'+
+        '<input class="frq-input" id="f'+pi+'_'+fi+'" placeholder="'+(fl.hint||'')+'" autocomplete="off"></div>';
+    });
+    fieldsHtml+='</div>';
+    let rubricHtml='<div class="rubric"><div class="rubric-h">Score your reasoning ('+p.pts+' pt'+(p.pts>1?'s':'')+')</div>';
+    p.rubric.forEach((r,ri)=>{rubricHtml+='<label><input type="checkbox" id="r'+pi+'_'+ri+'" onchange="updFrqScore()"> <span>'+mathify(r)+'</span></label>';});
+    rubricHtml+='</div>';
+    div.innerHTML='<div class="part-h"><span class="part-l">'+p.pl+'</span><span class="part-pts">'+p.pts+' pt'+(p.pts>1?'s':'')+'</span></div>'+
+      '<div class="part-q">'+mathify(p.q)+'</div>'+fieldsHtml+
+      '<button class="frq-check" onclick="checkFrqPart('+pi+')">Check answer</button>'+
+      '<button class="reveal-sol" onclick="document.getElementById(\'sol'+pi+'\').classList.add(\'show\');this.style.display=\'none\'">show worked solution</button>'+
+      '<div class="frq-sol" id="sol'+pi+'">'+mathify(p.sol)+rubricHtml+'</div>';
+    wrap.appendChild(div);
+  });
+}
+function checkFrqPart(pi){
+  const p=FRQS[frqActive].parts[pi];
+  p.fields.forEach((fl,fi)=>{
+    const inp=document.getElementById('f'+pi+'_'+fi);
+    if(!inp.value.trim()){inp.classList.remove('ok','no');return;}
+    const ok=fl.match(inp.value);
+    inp.classList.toggle('ok',ok);inp.classList.toggle('no',!ok);
+  });
+  document.getElementById('sol'+pi).classList.add('show');
+}
+function updFrqScore(){
+  const f=FRQS[frqActive];let got=0,tot=0;
+  f.parts.forEach((p,pi)=>{tot+=p.pts;let checked=0;p.rubric.forEach((r,ri)=>{const c=document.getElementById('r'+pi+'_'+ri);if(c&&c.checked)checked++;});got+=Math.round(p.pts*checked/p.rubric.length);});
+  const sl=document.getElementById('frqScore');sl.style.display='block';
+  sl.innerHTML='Self-scored: <b>'+got+' / '+tot+'</b> points'+(got===tot?' — full marks. ':' ')+'<span style="color:var(--muted);font-size:12.5px">(check rubric boxes for each part you earned)</span>';
+}
+window.checkFrqPart=checkFrqPart;window.updFrqScore=updFrqScore;
+
+// ===================== BOOT =====================
+function boot(){newBatch();buildFrqTabs();renderFRQ();}
+boot();
+if(window.addEventListener)window.addEventListener('load',()=>{if(window.katex){newBatch();renderFRQ();}});
+if(!window.katex){let t=0;const iv=setInterval(()=>{if(window.katex){clearInterval(iv);newBatch();renderFRQ();}else if(++t>60)clearInterval(iv);},100);}
+</script>
+</body>
+</html>

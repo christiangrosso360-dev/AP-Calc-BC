@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Concavity &amp; the Second Derivative — the g-force is f″ · Unit 5 Guide</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%231a1305%27%2F%3E%3Cpath%20d%3D%27M5%2010%20C%2013%2010%2C%2013%2022%2C%2016%2022%20C%2019%2022%2C%2019%2010%2C%2027%2010%27%20fill%3D%27none%27%20stroke%3D%27%23f0b429%27%20stroke-width%3D%272.4%27%20stroke-linecap%3D%27round%27%2F%3E%3Ccircle%20cx%3D%2716%27%20cy%3D%2722%27%20r%3D%272.4%27%20fill%3D%27%23a892f0%27%2F%3E%3C%2Fsvg%3E" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="styles.css">
+<script src="helpers.js"></script>
+<style>
+  :root{ --approx:#f0b429; --gold:#f0b429; --true:#ffd66b; --teal:#3fd0b0; --violet:#a892f0;
+         --glow:rgba(240,180,41,.09); --wrap-max:1060px; }
+  .sub{color:var(--muted);font-size:15px;margin-top:8px;max-width:680px}
+  h2{font-family:var(--display);font-weight:600;font-size:21px;margin:40px 0 8px;letter-spacing:-0.01em}
+  p.lead{font-size:15.5px;max-width:740px;margin:8px 0}
+  .big-idea{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:18px;max-width:820px}
+  .big-idea b{color:var(--approx)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -26px rgba(0,0,0,.7)}
+  svg{width:100%;display:block;border-radius:10px;touch-action:none}
+  .exviz canvas{width:100%;display:block;border-radius:12px;border:1px solid var(--line);background:linear-gradient(165deg,#14100a,#0c0a05);aspect-ratio:47/34;touch-action:none;cursor:crosshair}
+  button{font-family:var(--body);cursor:pointer;border-radius:9px;border:1px solid var(--line);
+    background:var(--panel-2);color:var(--ink);padding:10px 13px;font-size:13.5px;text-align:left;
+    transition:transform .14s,border-color .14s,background .14s}
+  button:hover{border-color:var(--gold);transform:translateY(-1px)}
+  button:active{transform:translateY(0) scale(.99)}
+  button.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+  .legend{display:flex;gap:15px;font-size:12px;color:var(--muted);margin-top:12px;flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend b{display:inline-block;width:15px;height:3px;border-radius:2px}
+  .exbody{display:flex;gap:24px;align-items:flex-start}
+  .exviz{flex:1 1 55%;min-width:0}
+  .exctrl{flex:1 1 41%;min-width:0}
+  @media(max-width:840px){ .exbody{flex-direction:column;gap:18px} .exviz{flex:none;width:100%} }
+  .scen-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .scen-btns button{flex:1;text-align:center;padding:9px 6px;font-size:12px;font-weight:600}
+  .slider-row{margin-top:10px}
+  .slider-row label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px}
+  .slider-row input[type=range]{width:100%;accent-color:var(--gold);cursor:pointer}
+  .read{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:12px}
+  .rrow{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;padding:7px 0;border-bottom:1px solid var(--line)}
+  .rrow:last-child{border-bottom:none}
+  .rrow .k{color:var(--muted)} .rrow .v{font-family:var(--mono);font-size:13.5px}
+  .verdict{margin-top:12px;background:linear-gradient(120deg,rgba(240,180,41,.1),var(--panel-2));border:1px solid rgba(240,180,41,.3);border-radius:12px;padding:14px 16px;font-size:13.5px;line-height:1.6}
+  .verdict b{color:var(--approx)}
+  /* why-steps derivation */
+  .why-step{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .why-step:last-child{border-bottom:none}
+  .why-n{flex:none;width:24px;height:24px;border-radius:50%;background:rgba(240,180,41,.13);border:1px solid rgba(240,180,41,.4);color:var(--true);font-family:var(--mono);font-size:12px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .why-t{font-size:13.5px;line-height:1.6} .why-t b{color:var(--ink)}
+  .why-m{margin-top:8px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 11px;overflow-x:auto;text-align:center}
+  /* concepts */
+  .concepts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+  @media(max-width:680px){.concepts{grid-template-columns:1fr}}
+  .concept{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;transition:transform .2s,box-shadow .2s}
+  .concept:hover{transform:translateY(-3px);box-shadow:0 16px 30px -20px rgba(0,0,0,.6)}
+  .concept h3{font-family:var(--display);font-size:16px;margin:0 0 6px} .concept h3 .tag{font-family:var(--mono);font-size:11px;color:var(--approx);margin-left:6px}
+  .concept p{font-size:13.5px;margin:6px 0;color:var(--ink);line-height:1.55}
+  .concept .m{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-top:9px;text-align:center;overflow-x:auto}
+  .key{color:var(--approx);font-weight:600}
+  /* subtlety fail cards */
+  .fails{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+  @media(max-width:680px){.fails{grid-template-columns:1fr}}
+  .fail{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--div);border-radius:12px;padding:14px 16px}
+  .fail.good{border-left-color:var(--teal)}
+  .fail h4{margin:0 0 6px;font-size:14.5px;font-family:var(--display)}
+  .fail p{margin:6px 0 0;font-size:13px;color:var(--muted);line-height:1.55}
+  .fail svg{margin-bottom:8px;background:var(--bg);border:1px solid var(--line)}
+  /* practice */
+  .prob{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:14px}
+  .prob-tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--approx);font-weight:600}
+  .prob-q{font-size:14.5px;line-height:1.65;margin:6px 0 12px}
+  .soltoggle{font-size:13px;padding:7px 14px}
+  .sol{display:none;margin-top:12px;border-top:1px solid var(--line);padding-top:6px}
+  .sol.show{display:block}
+  .sol .why-t{font-size:13px}
+  /* mistakes + tips */
+  .mistakes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  @media(max-width:680px){.mistakes{grid-template-columns:1fr}}
+  .mistake{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--div);border-radius:10px;padding:13px 16px}
+  .mistake h4{margin:0 0 4px;font-size:14px;font-family:var(--display)}
+  .mistake p{margin:0;font-size:13px;color:var(--muted);line-height:1.55}
+  .tipbox{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:14px 18px;max-width:840px}
+  .tipbox h4{margin:0 0 8px;font-size:14px;font-family:var(--display);color:var(--approx)}
+  .tipbox ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:var(--ink)}
+  .tipbox li{margin:5px 0}
+  /* quiz */
+  .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .qtag{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .qtext{font-size:15px;font-weight:600;margin-bottom:12px;line-height:1.5}
+  .quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:520px){.quiz-opts{grid-template-columns:1fr}}
+  .quiz-opts button{font-size:14px;padding:11px 14px;text-align:left}
+  .quiz-opts button.correct{background:rgba(63,208,176,.16);border-color:var(--conv);color:var(--conv)}
+  .quiz-opts button.wrong{background:rgba(224,100,79,.16);border-color:var(--div);color:var(--div)}
+  .quiz-opts button:disabled{cursor:default;opacity:.92}
+  .quiz-opts button:disabled:hover{transform:none}
+  .feedback{margin-top:14px;font-size:14px;min-height:24px;line-height:1.5}
+  .score{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .next{background:var(--approx);color:#241a02;border-color:var(--approx);font-weight:600;text-align:center;box-shadow:0 8px 18px -10px var(--approx)}
+  .next:hover{filter:brightness(1.06);border-color:var(--approx)}
+  .navwrap{display:flex;justify-content:space-between;gap:12px;margin-top:22px;flex-wrap:wrap}
+  .navlink{display:inline-flex;align-items:center;gap:9px;text-decoration:none;border:1px solid var(--line);border-radius:12px;padding:13px 18px;background:var(--panel);color:var(--ink);font-size:14px;transition:border-color .2s,transform .2s}
+  .navlink:hover{border-color:var(--approx);transform:translateY(-2px)}
+  .navlink.fwd{background:linear-gradient(110deg,rgba(240,180,41,.14),var(--panel));border-color:rgba(240,180,41,.34)}
+  .navlink .l{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+  .navlink .t{font-family:var(--display);font-size:15px}
+  footer{color:var(--muted);font-size:12.5px;margin:44px 0 40px;border-top:1px solid var(--line);padding-top:16px}
+  .tex-fallback{font-family:var(--mono);font-size:.95em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="unit5.html">← Unit 5</a>
+  <header>
+    <h1>Concavity &amp; the <span class="em">Second Derivative</span></h1>
+    <div class="sub">5.6 · 5.7 &nbsp;—&nbsp; which way a curve <b>bends</b>, where the bend flips (the <b>inflection point</b>),
+      and how <b>f&#8243;</b> sorts a peak from a valley in a single step.</div>
+  </header>
+
+  <div class="big-idea">
+    The first derivative tells you which way a graph is <b>heading</b>. The <b>second derivative</b> tells you how that heading is
+    <b>changing</b> &mdash; whether the curve is <b>bending up</b> like a cup (<b>f&#8243;&gt;0</b>, concave up) or <b>bending down</b>
+    like a dome (<b>f&#8243;&lt;0</b>, concave down). Where the bend flips sits an <b>inflection point</b>. And at a flat spot, the bend
+    alone tells a minimum from a maximum &mdash; no sign chart required.
+  </div>
+
+  <!-- ===================== SIGNATURE: AIRTIME ===================== -->
+  <h2>Ride it from the seat: the g-force <em>is</em> f&#8243;</h2>
+  <p class="lead">Buckle in &mdash; you&rsquo;re in the <b>front seat</b>. As the track bends <b>up</b> beneath you (concave up, f&#8243;&gt;0)
+    it slams you <b>down into the seat</b>; as it crests <b>over</b> (concave down, f&#8243;&lt;0) your stomach drops and you <b>lift out
+    of it</b> &mdash; airtime; and for one instant at an <b>inflection point</b> you&rsquo;re weightless-normal, exactly <b>1&nbsp;g</b>. The
+    force you feel <em>is</em> f&#8243;. Press <b>Ride</b> &mdash; or drag along the track to look around.</p>
+
+  <div class="card">
+    <div class="scen-btns" id="trackScen"></div>
+    <div class="exbody">
+      <div class="exviz">
+        <canvas id="coasterCv"></canvas>
+        <div class="legend">
+          <span><b style="background:var(--teal)"></b> concave up · pressed down (heavy)</span>
+          <span><b style="background:var(--violet)"></b> concave down · floating (airtime)</span>
+          <span style="color:var(--gold)">◆ inflection · 1.0 g</span>
+        </div>
+      </div>
+      <div class="exctrl">
+        <button class="next" id="rideBtn" style="width:100%">▶ Ride</button>
+        <div class="slider-row">
+          <label><span>coaster speed</span><span id="spdVal" style="font-family:var(--mono)">1.0×</span></label>
+          <input type="range" id="spd" min="0.6" max="1.5" step="0.05" value="1.0">
+        </div>
+        <div class="read">
+          <div class="rrow"><span class="k">g-force felt</span><span class="v" id="cG">—</span></div>
+          <div class="rrow"><span class="k">f&#8243;(x)</span><span class="v" id="cFpp">—</span></div>
+          <div class="rrow"><span class="k">bending</span><span class="v" id="cBend">—</span></div>
+        </div>
+        <div class="verdict" id="coasterVerdict"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== WHY f'' IS THE BEND ===================== -->
+  <h2>Why f&#8243; is the bend</h2>
+  <p class="lead">The second derivative is nothing exotic &mdash; it&rsquo;s just the derivative of the derivative. Watching what that
+    means turns &ldquo;concavity&rdquo; from a vocabulary word into something you can read at a glance.</p>
+  <div class="card" id="derive"></div>
+
+  <!-- ===================== THE TEST ===================== -->
+  <h2>Reading the second derivative</h2>
+  <div class="concepts">
+    <div class="concept">
+      <h3>Concave up vs. down <span class="tag">the sign of f&#8243;</span></h3>
+      <p><b>f&#8243;&gt;0</b>: the slope is <em>increasing</em>, so the curve <span class="key">bends up</span> like a cup &mdash; it holds water. <b>f&#8243;&lt;0</b>: the slope is <em>decreasing</em>, the curve <span class="key">bends down</span> like a dome &mdash; it sheds water.</p>
+      <div class="m" id="cUpDown"></div>
+    </div>
+    <div class="concept">
+      <h3>The Second-Derivative Test <span class="tag">min or max, in one step</span></h3>
+      <p>At a critical point where <b>f&#8242;(c)=0</b>: if <b>f&#8243;(c)&gt;0</b> it&rsquo;s the bottom of a cup &rarr; <span class="key">min</span>; if <b>f&#8243;(c)&lt;0</b> it&rsquo;s the top of a dome &rarr; <span class="key">max</span>.</p>
+      <div class="m" id="cTest"></div>
+      <p style="color:var(--muted);font-size:12.5px">If f&#8243;(c)=0 the test is <b>silent</b> &mdash; fall back to the first-derivative test.</p>
+    </div>
+  </div>
+
+  <!-- ===================== INFLECTION ===================== -->
+  <h2>The inflection point</h2>
+  <p class="lead">The star of this lesson: the exact spot where the bend <b>flips</b> &mdash; concave up on one side, concave down on the
+    other. On the coaster it&rsquo;s the single instant you feel normal gravity.</p>
+  <div class="big-idea" style="border-color:rgba(168,146,240,.32)">
+    An <b>inflection point</b> is where <b>concavity changes sign</b>. To find the candidates, look where <span id="inflcand"></span>.
+    But a candidate only counts if <b>f&#8243; actually changes sign</b> there &mdash; a zero that doesn&rsquo;t flip is not an inflection.
+  </div>
+  <p class="lead" style="margin-top:20px">Two traps live right here. A place where f&#8243;=0 but the bend never flips, and a critical point where
+    the second-derivative test simply gives up:</p>
+  <div class="fails">
+    <div class="fail">
+      <svg id="failQuartic" viewBox="0 0 220 130" aria-label="Quartic where f'' is zero but concavity does not change"></svg>
+      <h4>f&#8243;=0, but no flip</h4>
+      <p>For <span class="key" style="color:var(--div)">f(x)=x&#8308;</span>, f&#8243;(x)=12x&#178; is zero at x=0 &mdash; but it&rsquo;s <b>positive on both sides</b>. The curve stays concave up (a cup the whole way). No sign change, so x=0 is <b>not</b> an inflection point.</p>
+    </div>
+    <div class="fail good">
+      <svg id="failSilent" viewBox="0 0 220 130" aria-label="Second derivative test inconclusive"></svg>
+      <h4>When the test goes silent</h4>
+      <p>For <span class="key" style="color:var(--teal)">f(x)=x&#8308;</span> at x=0, both <b>f&#8242;(0)=0</b> and <b>f&#8243;(0)=0</b>. The 2nd-derivative test is <b>inconclusive</b>. Fall back to the first-derivative test: f&#8242; goes <b>&minus;&rarr;+</b>, so it&rsquo;s a genuine <b>minimum</b>.</p>
+    </div>
+  </div>
+
+  <!-- ===================== CONCEPTS ===================== -->
+  <h2>Four cards to keep</h2>
+  <div class="concepts">
+    <div class="concept">
+      <h3>f&#8243; is the slope of the slope <span class="tag">definition</span></h3>
+      <p>Differentiate twice. <b>f&#8243;&gt;0</b> means f&#8242; is climbing (slopes getting steeper upward); <b>f&#8243;&lt;0</b> means f&#8242; is falling. The bend is just the trend of the slope.</p>
+      <div class="m" id="cSlopeOfSlope"></div>
+    </div>
+    <div class="concept">
+      <h3>Inflection = concavity flips <span class="tag">where f&#8243; changes sign</span></h3>
+      <p>Candidates are where <b>f&#8243;=0</b> or <b>f&#8243; DNE</b>. It&rsquo;s only an inflection if the sign of f&#8243; <em>actually changes</em> across it.</p>
+      <div class="m" id="cInfl"></div>
+    </div>
+    <div class="concept">
+      <h3>Concavity &ne; increasing <span class="tag">don&rsquo;t confuse</span></h3>
+      <p>A curve can <b>rise while concave down</b> (going up, but slowing) or fall while concave up. <span class="key">f&#8242;</span> is direction; <span class="key">f&#8243;</span> is bend &mdash; they&rsquo;re independent.</p>
+    </div>
+    <div class="concept">
+      <h3>The test can be silent <span class="tag">f&#8243;(c)=0</span></h3>
+      <p>If <b>f&#8243;(c)=0</b> at a critical point, the second-derivative test tells you <span class="key">nothing</span> &mdash; the point could be a max, a min, or neither. Use the first-derivative test instead.</p>
+    </div>
+  </div>
+
+  <!-- ===================== PRACTICE ===================== -->
+  <h2>Practice</h2>
+  <div id="practice"></div>
+
+  <!-- ===================== QUIZ ===================== -->
+  <h2>Quick check</h2>
+  <div class="card">
+    <div class="row"><span class="qtag" id="qProg"></span><span class="score" id="qScore"></span></div>
+    <div id="qBody" style="margin-top:12px"></div>
+    <div class="feedback" id="qFb"></div>
+    <button class="next" id="qNext" style="display:none;width:100%;margin-top:14px">Next →</button>
+  </div>
+
+  <!-- ===================== MISTAKES + TIPS ===================== -->
+  <h2>Where it goes wrong</h2>
+  <div class="mistakes">
+    <div class="mistake"><h4>Confusing bend with direction</h4><p>Concave up/down is the sign of <b>f&#8243;</b>, not f&#8242;. A graph can be increasing and concave down at the same time.</p></div>
+    <div class="mistake"><h4>&ldquo;f&#8243;=0 means inflection&rdquo;</h4><p>Only if the sign <b>changes</b>. \(f(x)=x^4\) has \(f''(0)=0\) yet stays concave up &mdash; no inflection.</p></div>
+    <div class="mistake"><h4>Trusting a silent test</h4><p>If \(f''(c)=0\) the second-derivative test is inconclusive. Don&rsquo;t call it a max or min &mdash; switch to the first-derivative test.</p></div>
+    <div class="mistake"><h4>Flipping the cup and dome</h4><p>\(f''&gt;0\) is concave <b>up</b> (holds water) &rarr; a <b>min</b> at a flat spot. \(f''&lt;0\) is concave <b>down</b> &rarr; a <b>max</b>.</p></div>
+  </div>
+  <div class="tipbox">
+    <h4>Carry these forward</h4>
+    <ul>
+      <li><b>f&#8243; is the slope of the slope:</b> its sign is the bend &mdash; up (cup, holds water) or down (dome, sheds it).</li>
+      <li><b>Inflection = f&#8243; changes sign</b> (a zero alone isn&rsquo;t enough).</li>
+      <li><b>Second-derivative test:</b> at f&#8242;(c)=0, f&#8243;(c)&gt;0 &rarr; min, f&#8243;(c)&lt;0 &rarr; max, f&#8243;(c)=0 &rarr; inconclusive.</li>
+      <li><b>The felt g-force is f&#8243;:</b> heavy in the cups, airtime over the domes, normal weight at the inflection.</li>
+    </ul>
+  </div>
+
+  <div class="navwrap">
+    <a class="navlink" href="first-derivative-test.html"><span><span class="l">← previous</span><br><span class="t">Increasing, Decreasing &amp; Extrema</span></span></a>
+    <a class="navlink fwd" href="connecting-derivatives.html"><span style="text-align:right"><span class="l">next lesson →</span><br><span class="t">Connecting f, f&#8242; &amp; f&#8243;</span></span></a>
+  </div>
+
+  <footer>Concavity &amp; the Second Derivative &middot; the 2nd-Derivative Test &middot; Unit 5 &middot; Analytical Applications of Differentiation &middot; part of the Visual AP Calculus guide.</footer>
+</div>
+
+<script>
+const SVGNS="http://www.w3.org/2000/svg";
+const el=(t,a={},txt)=>{const e=document.createElementNS(SVGNS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;};
+const T=(s)=>tex(s,s,false);
+const GOLD="#f0b429",GLOW="#ffd66b",TEAL="#3fd0b0",VIO="#a892f0",MUT="#a99e86",AXIS="#4a3c22",INK="#f4efe2",DIV="#e0644f";
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+
+/* ============ SIGNATURE: AIRTIME (the g-force is f'') ============ */
+const TRACK=[
+ { name:"The First Drop",
+   f:x=>0.5+0.35*Math.cos(Math.PI*x),
+   fp:x=>-0.35*Math.PI*Math.sin(Math.PI*x),
+   fpp:x=>-0.35*Math.PI*Math.PI*Math.cos(Math.PI*x),
+   infl:[0.5] },
+ { name:"Camelback",
+   f:x=>0.5+0.24*Math.cos(4*Math.PI*x),
+   fp:x=>-0.24*4*Math.PI*Math.sin(4*Math.PI*x),
+   fpp:x=>-0.24*16*Math.PI*Math.PI*Math.cos(4*Math.PI*x),
+   infl:[0.125,0.375,0.625,0.875] },
+ { name:"The S-bend",
+   f:x=>0.5+1.6*Math.pow(x-0.5,3)+0.16*(x-0.5),
+   fp:x=>4.8*Math.pow(x-0.5,2)+0.16,
+   fpp:x=>9.6*(x-0.5),
+   infl:[0.5] },
+];
+const DUR=5.2, NP=260;
+const RMC = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let tk=0, carX=0, riding=false, cRAF=null, cLast=0, cPaused=false, cPauseUntil=0, hitInfl=[], prevCX=0, speed=1.0;
+let fLo=0, fHi=1, fppMax=1, fpMaxSlope=1, inflFlash=0, cDrag=false;
+let PL=36, PW=380, PTop=30, PBot=334;   // set in draw(); used by pointer mapping
+const cc2=document.getElementById('coasterCv'), cg=cc2.getContext('2d');
+let CW=520,CH=376,DPR=1;
+function TK(){return TRACK[tk];}
+function cResize(){ DPR=Math.min(window.devicePixelRatio||1,2); CW=cc2.clientWidth||520; CH=cc2.clientHeight||376; cc2.width=CW*DPR; cc2.height=CH*DPR; cg.setTransform(DPR,0,0,DPR,0,0); }
+function precomputeTrack(){ const t=TK(); fLo=1e9; fHi=-1e9; fppMax=1e-6; fpMaxSlope=1e-6;
+  for(let i=0;i<=NP;i++){ const x=i/NP, v=t.f(x), a=Math.abs(t.fpp(x)), s=Math.abs(t.fp(x)); if(v<fLo)fLo=v; if(v>fHi)fHi=v; if(a>fppMax)fppMax=a; if(s>fpMaxSlope)fpMaxSlope=s; }
+  carX=0; prevCX=0; hitInfl=[]; inflFlash=0; }
+const gForce=x=>1 + (speed*speed)*(TK().fpp(x)/fppMax);   // = 1 + v^2 * (f''/|f''|max)
+function rrp(x,y,w,h,r){ cg.beginPath(); cg.moveTo(x+r,y); cg.arcTo(x+w,y,x+w,y+h,r); cg.arcTo(x+w,y+h,x,y+h,r); cg.arcTo(x,y+h,x,y,r); cg.arcTo(x,y,x+w,y,r); cg.closePath(); }
+
+function drawCoaster(){
+  const t=TK(); cg.clearRect(0,0,CW,CH);
+  const g=gForce(carX), air=g<0.2, heavy=g>1.55, fpp=t.fpp(carX), fp=t.fp(carX), eps=fppMax*0.06;
+  const midX=CW*0.5, rim=g<0.85?VIO:g>1.15?GOLD:GLOW;
+  // horizon pitched by the slope you're on (nose-down on a drop => horizon rides high)
+  const pitch=clamp(fp/(fpMaxSlope||1),-1,1), horizonY=clamp(CH*0.40+pitch*CH*0.15, CH*0.18, CH*0.64);
+  // ---- sky ----
+  let sky=cg.createLinearGradient(0,0,0,horizonY); sky.addColorStop(0,'#0b0a06'); sky.addColorStop(1, air?'#191233':heavy?'#07110e':'#141019');
+  cg.fillStyle=sky; cg.fillRect(0,0,CW,horizonY);
+  // ---- ground ----
+  let gr=cg.createLinearGradient(0,horizonY,0,CH); gr.addColorStop(0,'#100c06'); gr.addColorStop(1,'#050402');
+  cg.fillStyle=gr; cg.fillRect(0,horizonY,CW,CH-horizonY);
+  cg.strokeStyle='rgba(169,158,134,0.22)'; cg.lineWidth=1; cg.beginPath(); cg.moveTo(0,horizonY); cg.lineTo(CW,horizonY); cg.stroke();
+  // ---- track receding ahead ----
+  const nearY=CH+34, W0=CW*0.33, NPT=44, LOOK=0.22, Lr=[],Rr=[],wxa=[];
+  for(let i=0;i<=NPT;i++){ const p=i/NPT, wx=Math.min(1,carX+p*LOOK);
+    const yg=horizonY+(nearY-horizonY)*Math.pow(1-p,1.85), shift=(t.f(wx)-t.f(carX))*(CH*0.52)*(1-p*0.55), y=yg-shift, hw=W0*Math.pow(1-p,0.82);
+    Lr.push([midX-hw,y]); Rr.push([midX+hw,y]); wxa.push(wx); }
+  cg.beginPath(); cg.moveTo(Lr[0][0],Lr[0][1]); for(let i=1;i<=NPT;i++)cg.lineTo(Lr[i][0],Lr[i][1]);
+  for(let i=NPT;i>=0;i--)cg.lineTo(Rr[i][0],Rr[i][1]); cg.closePath(); cg.fillStyle='rgba(255,255,255,0.022)'; cg.fill();
+  // sleepers scrolling toward you
+  const phase=(carX*30)%1; cg.strokeStyle='rgba(169,158,134,0.15)'; cg.lineWidth=1;
+  for(let i=1;i<NPT;i++){ if(((i/NPT)*9+phase*3)%1>0.5) continue; cg.beginPath(); cg.moveTo(Lr[i][0],Lr[i][1]); cg.lineTo(Rr[i][0],Rr[i][1]); cg.stroke(); }
+  // rails, coloured by concavity, fading with distance
+  cg.lineWidth=3.2; cg.lineJoin='round'; cg.lineCap='round';
+  for(let i=0;i<NPT;i++){ const a=t.fpp(wxa[i]); cg.strokeStyle=a>eps?TEAL:a<-eps?VIO:GOLD; cg.globalAlpha=0.32+0.68*(1-i/NPT);
+    cg.beginPath(); cg.moveTo(Lr[i][0],Lr[i][1]); cg.lineTo(Lr[i+1][0],Lr[i+1][1]); cg.stroke();
+    cg.beginPath(); cg.moveTo(Rr[i][0],Rr[i][1]); cg.lineTo(Rr[i+1][0],Rr[i+1][1]); cg.stroke(); }
+  cg.globalAlpha=1;
+  // inflection gates on the track ahead (so you see them coming)
+  t.infl.forEach(ix=>{ if(ix<carX-0.004 || ix>carX+LOOK) return; const p=(ix-carX)/LOOK;
+    const yg=horizonY+(nearY-horizonY)*Math.pow(1-p,1.85), shift=(t.f(ix)-t.f(carX))*(CH*0.52)*(1-p*0.55), y=yg-shift, hw=W0*Math.pow(1-p,0.82);
+    cg.globalAlpha=clamp(1-p*0.45,0.35,1); cg.strokeStyle=GOLD; cg.lineWidth=2; cg.beginPath(); cg.moveTo(midX-hw,y); cg.lineTo(midX+hw,y); cg.stroke();
+    cg.fillStyle=GOLD; cg.save(); cg.translate(midX,y); cg.rotate(Math.PI/4); cg.fillRect(-4,-4,8,8); cg.restore();
+    cg.fillStyle=GOLD; cg.font='bold 10px ui-monospace,monospace'; cg.textAlign='center'; cg.fillText('◆ inflection', midX, y-9); cg.globalAlpha=1; });
+  // ---- foreground: you, in the seat ----
+  const fgLift=air?-16:heavy?7:0, ry=CH-2+fgLift, barY=CH-30;
+  cg.fillStyle='#0a0806'; cg.strokeStyle=rim; cg.lineWidth=2;
+  cg.beginPath(); cg.moveTo(midX-58,CH+8); cg.quadraticCurveTo(midX-48,ry-26,midX,ry-26); cg.quadraticCurveTo(midX+48,ry-26,midX+58,CH+8); cg.closePath(); cg.fill(); cg.stroke();
+  cg.beginPath(); cg.arc(midX,ry-40,16,0,7); cg.fill(); cg.stroke();
+  // lap bar in front of you
+  cg.strokeStyle='rgba(12,10,6,0.95)'; cg.lineWidth=12; cg.lineCap='round'; cg.beginPath(); cg.moveTo(midX-74,barY+8); cg.quadraticCurveTo(midX,barY-16,midX+74,barY+8); cg.stroke();
+  cg.strokeStyle=rim; cg.lineWidth=4.5; cg.beginPath(); cg.moveTo(midX-74,barY+8); cg.quadraticCurveTo(midX,barY-16,midX+74,barY+8); cg.stroke();
+  if(air){ cg.setLineDash([3,4]); cg.strokeStyle='rgba(168,146,240,0.85)'; cg.lineWidth=1.4; cg.beginPath(); cg.moveTo(midX-34,barY-6); cg.lineTo(midX-34,barY+8); cg.moveTo(midX+34,barY-6); cg.lineTo(midX+34,barY+8); cg.stroke(); cg.setLineDash([]); }
+  // ---- g-feel overlays ----
+  if(heavy){ let v=cg.createRadialGradient(midX,CH*0.46,CH*0.18,midX,CH*0.46,CH*0.85); v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,'rgba(0,0,0,'+clamp((g-1)*0.55,0,0.6)+')'); cg.fillStyle=v; cg.fillRect(0,0,CW,CH); }
+  if(air){ cg.fillStyle='rgba(168,146,240,0.10)'; cg.fillRect(0,0,CW,CH); }
+  // ---- HUD ----
+  cg.textAlign='left'; cg.font='bold 24px ui-monospace,monospace'; cg.fillStyle=air?VIO:heavy?GOLD:INK; cg.fillText(g.toFixed(1)+'g',16,36);
+  cg.font='10px ui-monospace,monospace'; cg.fillStyle=MUT; cg.fillText('g-force felt',16,50);
+  cg.textAlign='right'; cg.font='bold 12px ui-monospace,monospace';
+  if(Math.abs(fpp)<eps){ cg.fillStyle=GOLD; cg.fillText('LEVEL · f″≈0',CW-14,30); }
+  else if(fpp>0){ cg.fillStyle=TEAL; cg.fillText('CONCAVE UP ∪ · heavy',CW-14,30); }
+  else{ cg.fillStyle=VIO; cg.fillText('CONCAVE DOWN ∩ · airtime',CW-14,30); }
+  cg.textAlign='center';
+  if(air){ cg.fillStyle=VIO; cg.font='bold 27px Georgia,serif'; cg.fillText('AIRTIME', midX, horizonY-26); cg.fillStyle='rgba(168,146,240,0.9)'; cg.font='11px ui-monospace,monospace'; cg.fillText('stomach-drop · f″<0', midX, horizonY-10); }
+  else if(heavy){ cg.fillStyle=GOLD; cg.font='bold 20px Georgia,serif'; cg.fillText('HEAVY', midX, horizonY-14); }
+  if(inflFlash>0.04 && !air && !heavy && !cPaused){ cg.globalAlpha=Math.min(1,inflFlash); cg.fillStyle=GOLD; cg.font='bold 15px ui-monospace,monospace'; cg.textAlign='center'; cg.fillText('◆ inflection · 1.0 g', midX, horizonY-14); cg.globalAlpha=1; }
+  // ---- pause explanation at an inflection point ----
+  if(cPaused){ const before=t.fpp(carX-0.04), dir=before>0?'concave up ∪ → concave down ∩':'concave down ∩ → concave up ∪';
+    const bw=CW*0.76, bx=midX, by=CH*0.44, bh=76; cg.fillStyle='rgba(26,19,5,0.94)'; cg.strokeStyle='rgba(240,180,41,0.6)'; cg.lineWidth=1.5; rrp(bx-bw/2,by-bh/2,bw,bh,11); cg.fill(); cg.stroke();
+    cg.textAlign='center'; cg.fillStyle=GOLD; cg.font='bold 15px ui-monospace,monospace'; cg.fillText('◆ INFLECTION POINT · 1.0 g', bx, by-16);
+    cg.fillStyle=INK; cg.font='12px ui-monospace,monospace'; cg.fillText('the bend flips: '+dir, bx, by+5);
+    cg.fillStyle=MUT; cg.font='11px ui-monospace,monospace'; cg.fillText('straight for this instant — so you feel exactly normal weight', bx, by+24); }
+  // ---- mini-map: whole track profile with every inflection marked ----
+  const mmW=CW*0.44, mmH=26, mmX=midX-mmW/2, mmY=66;
+  cg.fillStyle='rgba(10,8,5,0.7)'; cg.strokeStyle='rgba(74,60,34,0.8)'; cg.lineWidth=1; rrp(mmX-8,mmY-15,mmW+16,mmH+34,7); cg.fill(); cg.stroke();
+  cg.fillStyle=MUT; cg.font='9px ui-monospace,monospace'; cg.textAlign='left'; cg.fillText('whole track', mmX-4, mmY-4);
+  cg.fillStyle=GOLD; cg.textAlign='right'; cg.fillText('◆ = inflection', mmX+mmW+4, mmY-4);
+  const mmPY=v=>mmY+mmH-(0.16+0.68*(v-fLo)/((fHi-fLo)||1))*mmH, MM=90;
+  cg.lineWidth=2.4; cg.lineJoin='round'; cg.lineCap='round';
+  for(let i=0;i<MM;i++){ const x=i/MM, a=(t.fpp(x)+t.fpp((i+1)/MM))/2; cg.strokeStyle=a>eps?TEAL:a<-eps?VIO:GOLD;
+    cg.beginPath(); cg.moveTo(mmX+x*mmW,mmPY(t.f(x))); cg.lineTo(mmX+((i+1)/MM)*mmW,mmPY(t.f((i+1)/MM))); cg.stroke(); }
+  t.infl.forEach(ix=>{ const dx=mmX+ix*mmW, dy=mmPY(t.f(ix)); cg.strokeStyle='rgba(240,180,41,0.4)'; cg.lineWidth=1; cg.setLineDash([2,2]); cg.beginPath(); cg.moveTo(dx,mmY-2); cg.lineTo(dx,mmY+mmH+2); cg.stroke(); cg.setLineDash([]);
+    cg.fillStyle=GOLD; cg.save(); cg.translate(dx,dy); cg.rotate(Math.PI/4); cg.fillRect(-3.2,-3.2,6.4,6.4); cg.restore(); });
+  const pdx=mmX+carX*mmW, pdy=mmPY(t.f(carX)); cg.fillStyle=INK; cg.beginPath(); cg.arc(pdx,pdy,3.4,0,7); cg.fill(); cg.strokeStyle=rim; cg.lineWidth=1.6; cg.stroke();
+  cg.fillStyle=MUT; cg.font='8px ui-monospace,monospace'; cg.textAlign='center'; cg.fillText('you', pdx, mmY+mmH+14);
+  // ---- readouts ----
+  document.getElementById('cG').textContent=g.toFixed(2)+' g';
+  document.getElementById('cFpp').textContent=(fpp>=0?'+':'')+fpp.toFixed(2);
+  const bd=document.getElementById('cBend');
+  if(Math.abs(fpp)<eps){ bd.innerHTML='<span style="color:var(--gold)">inflection · f″≈0</span>'; }
+  else if(fpp>0){ bd.innerHTML='<span style="color:var(--teal)">concave up ∪</span>'; }
+  else { bd.innerHTML='<span style="color:var(--violet)">concave down ∩</span>'; }
+  updateCoasterVerdict();
+}
+
+function updateCoasterVerdict(){
+  const t=TK(), vd=document.getElementById('coasterVerdict'), fpp=t.fpp(carX), eps=fppMax*0.06;
+  if(riding){
+    if(Math.abs(fpp)<eps){ vd.innerHTML='<b>Level &mdash; 1.0&nbsp;g.</b> For this instant the track isn&rsquo;t bending: you&rsquo;re passing an <b>inflection point</b>, feeling normal weight as the curve flips from cup to dome.'; return; }
+    if(fpp>0){ vd.innerHTML='<span style="color:var(--teal)"><b>Pressed into your seat.</b></span> The track is bending <b>up</b> (concave up, f&#8243;&gt;0) &mdash; that&rsquo;s the extra g you feel in the cups.'; return; }
+    vd.innerHTML='<span style="color:var(--violet)"><b>Airtime &mdash; you&rsquo;re floating!</b></span> The track crests <b>down</b> (concave down, f&#8243;&lt;0), so the g-force falls away and you lift out of the seat.'; return;
+  }
+  if(Math.abs(fpp)<eps){ vd.innerHTML='<b>Right at an inflection point</b> &mdash; the bend is flat, so you&rsquo;d feel about <b>1&nbsp;g</b>. Press <b>Ride</b> to feel the concavity flip on either side.'; return; }
+  const con = fpp>0 ? 'you&rsquo;re on a <b style="color:var(--teal)">concave-up</b> stretch (f&#8243;&gt;0) &mdash; the track will press you <b>down</b> (heavy).'
+                    : 'you&rsquo;re on a <b style="color:var(--violet)">concave-down</b> stretch (f&#8243;&lt;0) &mdash; you&rsquo;ll feel <b>light</b>, toward airtime.';
+  vd.innerHTML='Drag to move along the track, or press <b>Ride</b>. Here '+con+' The g-force you feel <em>is</em> f&#8243;.';
+}
+
+function cStep(now){
+  const dt=cLast?Math.min((now-cLast)/1000,0.05):0; cLast=now;
+  if(inflFlash>0) inflFlash*=Math.pow(0.5, dt/0.55);
+  if(cPaused){ if(now>=cPauseUntil) cPaused=false; }
+  else if(riding){
+    carX += dt/DUR;
+    for(const ix of TK().infl){ if(prevCX<ix && carX>=ix){ carX=ix; cPaused=true; cPauseUntil=now+1600; inflFlash=1; break; } }
+    prevCX=carX;
+    if(carX>=1){ carX=1; riding=false; document.getElementById('rideBtn').textContent='▶ Ride again'; }
+  }
+  drawCoaster();
+  if(riding||cPaused||inflFlash>0.04){ cRAF=requestAnimationFrame(cStep); } else { cRAF=null; cLast=0; }
+}
+function ride(){ carX=0; prevCX=0; inflFlash=0; cPaused=false; riding=true; cLast=0; document.getElementById('rideBtn').textContent='riding…'; if(cRAF)cancelAnimationFrame(cRAF); cRAF=requestAnimationFrame(cStep); }
+document.getElementById('rideBtn').onclick=ride;
+document.getElementById('spd').addEventListener('input',e=>{ speed=+e.target.value; document.getElementById('spdVal').textContent=speed.toFixed(1)+'×'; drawCoaster(); });
+function coasterPoint(e){ const r=cc2.getBoundingClientRect(); carX=clamp((e.clientX-r.left)/r.width,0,1);
+  if(riding||cPaused){ riding=false; cPaused=false; document.getElementById('rideBtn').textContent='▶ Ride'; }
+  if(cRAF){cancelAnimationFrame(cRAF);cRAF=null;} inflFlash=0; drawCoaster(); }
+cc2.addEventListener('pointerdown',e=>{ cDrag=true; if(cc2.setPointerCapture){try{cc2.setPointerCapture(e.pointerId);}catch(_){}} coasterPoint(e); });
+cc2.addEventListener('pointermove',e=>{ if(cDrag) coasterPoint(e); });
+window.addEventListener('pointerup',()=>{ cDrag=false; });
+function renderTrackScen(){ document.getElementById('trackScen').innerHTML=TRACK.map((s,i)=>'<button data-i="'+i+'" class="'+(i===tk?'on':'')+'">'+s.name+'</button>').join('');
+  document.querySelectorAll('#trackScen button').forEach(b=>b.onclick=()=>{ tk=+b.dataset.i; if(cRAF){cancelAnimationFrame(cRAF);cRAF=null;} riding=false; cPaused=false; cLast=0;
+    precomputeTrack(); renderTrackScen(); document.getElementById('rideBtn').textContent='▶ Ride'; if(RMC)carX=TK().infl[0]; drawCoaster(); }); }
+function cInit(){ cResize(); precomputeTrack(); renderTrackScen(); if(RMC)carX=TK().infl[0]; drawCoaster(); }
+window.addEventListener('resize',()=>{ cResize(); drawCoaster(); });
+
+/* ============ DERIVATION ============ */
+const DERIVE=[
+ {t:"f&#8243; is the slope of the slope.", p:"Differentiate once and you get f&#8242;, the slope. Differentiate <i>again</i> and you get f&#8243; &mdash; the rate the slope itself is changing. If <b>f&#8243;&gt;0</b>, the slope is <b>increasing</b>: the tangent keeps tilting more upward, so the curve curls <b>up</b>. If <b>f&#8243;&lt;0</b>, the slope falls away and the curve curls <b>down</b>.", m:"f''=\\frac{d}{dx}\\big(f'\\big) \\quad\\Rightarrow\\quad f''>0:\\ \\smile \\qquad f''<0:\\ \\frown"},
+ {t:"Concave up holds water; concave down sheds it.", p:"A concave-up arc is a <b>cup</b> (∪) &mdash; it curves like a bowl and would hold water; every tangent line sits <i>below</i> it. A concave-down arc is a <b>dome</b> (∩) &mdash; water runs off; the tangents sit <i>above</i>. That&rsquo;s a picture you can read instantly.", m:""},
+ {t:"Where the bend flips is an inflection point.", p:"March along the curve. As long as f&#8243; keeps its sign, the bend stays the same. The moment f&#8243; <b>changes sign</b> &mdash; passing through 0 (or a point where f&#8243; doesn&rsquo;t exist) &mdash; the curve switches from cup to dome. That switch is an <b>inflection point</b>.", m:"\\text{inflection at }c:\\quad f''\\text{ changes sign at }c"},
+ {t:"At a flat spot, the bend names the extremum.", p:"Here&rsquo;s the payoff. At a critical point where <b>f&#8242;(c)=0</b>, the tangent is horizontal. If the curve is a <b>cup</b> there (f&#8243;&gt;0) the flat point is the bottom &mdash; a <b>minimum</b>. If it&rsquo;s a <b>dome</b> (f&#8243;&lt;0), the flat point is the top &mdash; a <b>maximum</b>. That is the <b>Second-Derivative Test</b>.", m:"f'(c)=0,\\ f''(c)>0\\Rightarrow\\text{min}\\qquad f'(c)=0,\\ f''(c)<0\\Rightarrow\\text{max}"},
+];
+function renderDerive(){ const box=document.getElementById('derive');
+  box.innerHTML=DERIVE.map((s,i)=>'<div class="why-step"><div class="why-n">'+(i+1)+'</div><div class="why-t"><b>'+s.t+'</b><br>'+s.p+(s.m?'<div class="why-m">'+T(s.m)+'</div>':'')+'</div></div>').join(''); }
+
+/* ============ small static formulas ============ */
+function renderBits(){
+  document.getElementById('cUpDown').innerHTML=T("f''>0:\\ \\text{concave up }\\smile \\qquad f''<0:\\ \\text{concave down }\\frown");
+  document.getElementById('cTest').innerHTML=T("f'(c)=0:\\ \\ f''(c)>0\\Rightarrow\\text{min},\\ \\ f''(c)<0\\Rightarrow\\text{max}");
+  document.getElementById('cSlopeOfSlope').innerHTML=T("f''=(f')'");
+  document.getElementById('cInfl').innerHTML=T("f''=0\\ \\text{ or }\\ f''\\text{ DNE, and }f''\\text{ flips}");
+  document.getElementById('inflcand').innerHTML=T("f''=0\\text{ or }f''\\text{ DNE}");
+}
+/* subtlety mini-graphs */
+function renderFails(){
+  const q=document.getElementById('failQuartic');
+  q.appendChild(el('line',{x1:24,y1:104,x2:200,y2:104,stroke:AXIS,'stroke-width':1.4}));
+  q.appendChild(el('line',{x1:112,y1:118,x2:112,y2:16,stroke:AXIS,'stroke-width':1.4}));
+  q.appendChild(el('path',{d:'M44 24 C 92 118, 132 118, 180 24',fill:'none',stroke:DIV,'stroke-width':2.6,'stroke-linecap':'round'}));
+  q.appendChild(el('circle',{cx:112,cy:104,r:4,fill:'#1a1305',stroke:GOLD,'stroke-width':2}));
+  q.appendChild(el('text',{x:112,y:96,'font-size':10,fill:GOLD,'font-family':'ui-monospace,monospace','text-anchor':'middle'},"f''=0"));
+  q.appendChild(el('text',{x:150,y:70,'font-size':11,fill:TEAL,'font-family':'ui-monospace,monospace'},'∪'));
+  q.appendChild(el('text',{x:62,y:70,'font-size':11,fill:TEAL,'font-family':'ui-monospace,monospace'},'∪'));
+  const s=document.getElementById('failSilent');
+  s.appendChild(el('line',{x1:24,y1:104,x2:200,y2:104,stroke:AXIS,'stroke-width':1.4}));
+  s.appendChild(el('line',{x1:112,y1:118,x2:112,y2:16,stroke:AXIS,'stroke-width':1.4}));
+  s.appendChild(el('path',{d:'M44 24 C 92 118, 132 118, 180 24',fill:'none',stroke:TEAL,'stroke-width':2.6,'stroke-linecap':'round'}));
+  s.appendChild(el('circle',{cx:112,cy:104,r:4,fill:TEAL}));
+  s.appendChild(el('line',{x1:92,y1:104,x2:132,y2:104,stroke:GLOW,'stroke-width':1.4,'stroke-dasharray':'3 3',opacity:.8}));
+  s.appendChild(el('text',{x:112,y:120,'font-size':10,fill:TEAL,'font-family':'ui-monospace,monospace','text-anchor':'middle'},'min'));
+  s.appendChild(el('text',{x:70,y:58,'font-size':11,fill:DIV,'font-family':'ui-monospace,monospace'},'−'));
+  s.appendChild(el('text',{x:150,y:58,'font-size':11,fill:TEAL,'font-family':'ui-monospace,monospace'},'+'));
+}
+
+/* ============ PRACTICE ============ */
+const PROBS=[
+ {tag:"Concavity & inflection", q:"For \\(f(x)=x^3-3x^2\\), find the intervals of concavity and any inflection point.",
+  steps:[
+   {t:"Take the second derivative:", m:"f'(x)=3x^2-6x,\\qquad f''(x)=6x-6=6(x-1)"},
+   {t:"f&#8243; changes sign at \\(x=1\\). Test each side:", m:"f''(0)=-6<0\\ (\\text{down}),\\qquad f''(2)=6>0\\ (\\text{up})"},
+   {t:"The sign flips \\(-\\to+\\), so \\(x=1\\) is a genuine inflection point:", m:"\\text{concave down on }(-\\infty,1),\\ \\text{up on }(1,\\infty),\\ \\text{inflection at }(1,-2)"}
+  ]},
+ {tag:"Second-derivative test", q:"Use the second-derivative test to classify the critical points of \\(f(x)=x^3-3x\\).",
+  steps:[
+   {t:"Critical points where \\(f'=0\\):", m:"f'(x)=3x^2-3=0\\ \\Rightarrow\\ x=\\pm 1"},
+   {t:"Evaluate \\(f''(x)=6x\\) at each:", m:"f''(-1)=-6<0,\\qquad f''(1)=6>0"},
+   {t:"Negative ⇒ dome ⇒ max; positive ⇒ cup ⇒ min:", m:"\\text{max at }x=-1\\ (y=2),\\qquad \\text{min at }x=1\\ (y=-2)"}
+  ]},
+ {tag:"When the test is silent", q:"Classify the critical point of \\(f(x)=x^4\\), and say whether \\(x=0\\) is an inflection point.",
+  steps:[
+   {t:"Critical point:", m:"f'(x)=4x^3=0\\ \\Rightarrow\\ x=0"},
+   {t:"The second-derivative test is inconclusive here:", m:"f''(x)=12x^2\\ \\Rightarrow\\ f''(0)=0"},
+   {t:"Fall back to the first-derivative test. \\(f'<0\\) for \\(x<0\\) and \\(f'>0\\) for \\(x>0\\) — that&rsquo;s \\(-\\to+\\):", m:"\\text{minimum at }x=0"},
+   {t:"And is it an inflection? \\(f''=12x^2\\ge 0\\) on both sides — the sign never changes, so <b>no</b>. \\(f''=0\\) alone is not enough.", m:""}
+  ]},
+];
+function renderPractice(){ const box=document.getElementById('practice');
+  box.innerHTML=PROBS.map((p,i)=>'<div class="prob"><div class="prob-tag">'+p.tag+'</div><div class="prob-q">'+T2(p.q)+'</div>'+
+    '<button class="soltoggle" onclick="document.getElementById(\'sol'+i+'\').classList.toggle(\'show\');this.textContent=document.getElementById(\'sol'+i+'\').classList.contains(\'show\')?\'Hide solution\':\'Show worked solution\'">Show worked solution</button>'+
+    '<div class="sol" id="sol'+i+'">'+p.steps.map((s,j)=>'<div class="why-step"><div class="why-n">'+(j+1)+'</div><div class="why-t">'+T2(s.t)+(s.m?'<div class="why-m">'+T(s.m)+'</div>':'')+'</div></div>').join('')+'</div></div>').join(''); }
+
+/* ============ QUIZ ============ */
+const QUIZ=[
+ {q:"If \\(f''(x)>0\\) on an interval, then on that interval f is:",
+  opts:["concave down","concave up","increasing","decreasing"],correct:1,
+  fb:"\\(f''>0\\) means the slope is increasing — the curve bends <b>up</b> like a cup (concave up). Note it says nothing about increasing/decreasing."},
+ {q:"An inflection point is a point where:",
+  opts:["f''=0 (always)","the concavity changes sign","f'=0","f has a maximum"],correct:1,
+  fb:"An inflection point is where <b>concavity changes</b>. \\(f''=0\\) is only a candidate — it must actually flip sign."},
+ {q:"At a critical point c, \\(f'(c)=0\\) and \\(f''(c)<0\\). Then c is a:",
+  opts:["local minimum","local maximum","inflection point","shelf"],correct:1,
+  fb:"\\(f''(c)<0\\) means concave down — a dome. A flat spot at the top of a dome is a local <b>maximum</b>."},
+ {q:"If \\(f'(c)=0\\) and \\(f''(c)=0\\), the second-derivative test is:",
+  opts:["a guaranteed min","a guaranteed max","inconclusive","an inflection point"],correct:2,
+  fb:"When \\(f''(c)=0\\) the test says <b>nothing</b> — c could be a max, min, or neither. Use the first-derivative test instead."},
+];
+let qi=0,qScore=0,qDone=false;
+function T2(h){ return (h||'').replace(/\\\((.+?)\\\)/g,(m,x)=>{try{return window.katex?katex.renderToString(x,{throwOnError:false}):m;}catch(e){return m;}}); }
+function mathifyInline(sel){ if(!window.katex) return;
+  document.querySelectorAll(sel).forEach(n=>{ if(n.dataset.mdone) return;
+    if(n.innerHTML.indexOf('\\(')>=0){ n.innerHTML=n.innerHTML.replace(/\\\((.+?)\\\)/g,(m,x)=>{try{return katex.renderToString(x,{throwOnError:false});}catch(e){return m;}}); }
+    n.dataset.mdone='1'; }); }
+function renderQuiz(){ qDone=false; const q=QUIZ[qi];
+  document.getElementById('qProg').textContent='Question '+(qi+1)+' of '+QUIZ.length;
+  document.getElementById('qScore').textContent='Score: '+qScore;
+  document.getElementById('qBody').innerHTML='<div class="qtext">'+T2(q.q)+'</div><div class="quiz-opts">'+q.opts.map((o,i)=>'<button data-i="'+i+'">'+T2(o)+'</button>').join('')+'</div>';
+  document.getElementById('qFb').innerHTML=''; document.getElementById('qNext').style.display='none';
+  document.querySelectorAll('#qBody .quiz-opts button').forEach(b=>b.onclick=()=>pick(b,q)); }
+function pick(btn,q){ if(qDone)return; qDone=true; const i=+btn.dataset.i;
+  [...document.querySelectorAll('#qBody .quiz-opts button')].forEach(b=>{b.disabled=true; if(+b.dataset.i===q.correct)b.classList.add('correct');});
+  if(i===q.correct){qScore++;} else btn.classList.add('wrong');
+  document.getElementById('qScore').textContent='Score: '+qScore;
+  document.getElementById('qFb').innerHTML='<span style="color:'+(i===q.correct?'var(--conv)':'var(--div)')+';font-weight:600">'+(i===q.correct?'Correct. ':'Not quite. ')+'</span>'+T2(q.fb);
+  const nx=document.getElementById('qNext'); nx.style.display='block'; nx.textContent=qi<QUIZ.length-1?'Next →':'Restart quiz ↺';
+}
+document.getElementById('qNext').onclick=()=>{ if(qi<QUIZ.length-1){qi++;} else {qi=0;qScore=0;} renderQuiz(); };
+
+/* ============ BOOT ============ */
+function renderAll(){ renderDerive(); renderBits(); renderPractice(); renderQuiz(); mathifyInline('.mistake p, .tipbox li'); }
+function boot(){ cInit(); renderFails(); renderAll(); }
+boot();
+if(!window.katex){ let n=0; const iv=setInterval(()=>{ if(window.katex){clearInterval(iv); renderAll();} else if(++n>60)clearInterval(iv); },100); }
+</script>
+</body>
+</html>

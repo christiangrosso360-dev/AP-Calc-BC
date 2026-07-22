@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Existence Theorems — MVT &amp; EVT · Unit 5 Guide</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%231a1305%27%2F%3E%3Cpath%20d%3D%27M6%2024%20C%2014%2010%2C%2020%2010%2C%2026%2020%27%20fill%3D%27none%27%20stroke%3D%27%23f0b429%27%20stroke-width%3D%272.4%27%20stroke-linecap%3D%27round%27%2F%3E%3Cline%20x1%3D%277%27%20y1%3D%2723%27%20x2%3D%2725%27%20y2%3D%2712%27%20stroke%3D%27%233fd0b0%27%20stroke-width%3D%271.8%27%20stroke-dasharray%3D%272.5%202.5%27%2F%3E%3Ccircle%20cx%3D%2716%27%20cy%3D%2714.4%27%20r%3D%272.3%27%20fill%3D%27%23ffd66b%27%2F%3E%3C%2Fsvg%3E" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="styles.css">
+<script src="helpers.js"></script>
+<style>
+  :root{ --approx:#f0b429; --gold:#f0b429; --true:#ffd66b; --teal:#3fd0b0;
+         --glow:rgba(240,180,41,.09); --wrap-max:1060px; }
+  .sub{color:var(--muted);font-size:15px;margin-top:8px;max-width:680px}
+  h2{font-family:var(--display);font-weight:600;font-size:21px;margin:40px 0 8px;letter-spacing:-0.01em}
+  p.lead{font-size:15.5px;max-width:730px;margin:8px 0}
+  .big-idea{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:18px;max-width:800px}
+  .big-idea b{color:var(--approx)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -26px rgba(0,0,0,.7)}
+  svg{width:100%;display:block;border-radius:10px;touch-action:none}
+  .exviz canvas{width:100%;display:block;border-radius:12px;border:1px solid var(--line);background:linear-gradient(165deg,#14100a,#0c0a05);aspect-ratio:47/34;touch-action:none}
+  button{font-family:var(--body);cursor:pointer;border-radius:9px;border:1px solid var(--line);
+    background:var(--panel-2);color:var(--ink);padding:10px 13px;font-size:13.5px;text-align:left;
+    transition:transform .14s,border-color .14s,background .14s}
+  button:hover{border-color:var(--gold);transform:translateY(-1px)}
+  button:active{transform:translateY(0) scale(.99)}
+  button.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-top:12px;flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend b{display:inline-block;width:15px;height:3px;border-radius:2px}
+  .exbody{display:flex;gap:24px;align-items:flex-start}
+  .exviz{flex:1 1 55%;min-width:0}
+  .exctrl{flex:1 1 41%;min-width:0}
+  @media(max-width:840px){ .exbody{flex-direction:column;gap:18px} .exviz{flex:none;width:100%} }
+  .scen-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .scen-btns button{flex:1;text-align:center;padding:9px 6px;font-size:12px;font-weight:600}
+  .hint{font-size:12.5px;color:var(--muted);margin:2px 0 14px;font-family:var(--mono)}
+  .read{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .rrow{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;padding:7px 0;border-bottom:1px solid var(--line)}
+  .rrow:last-child{border-bottom:none}
+  .rrow .k{color:var(--muted)} .rrow .v{font-family:var(--mono);font-size:14px}
+  .rrow .v.avg{color:var(--teal)} .rrow .v.inst{color:var(--true)}
+  .verdict{margin-top:14px;background:linear-gradient(120deg,rgba(240,180,41,.1),var(--panel-2));border:1px solid rgba(240,180,41,.3);border-radius:12px;padding:14px 16px;font-size:13.5px;line-height:1.6}
+  .verdict b{color:var(--approx)}
+  /* why-steps derivation */
+  .why-step{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .why-step:last-child{border-bottom:none}
+  .why-n{flex:none;width:24px;height:24px;border-radius:50%;background:rgba(240,180,41,.13);border:1px solid rgba(240,180,41,.4);color:var(--true);font-family:var(--mono);font-size:12px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .why-t{font-size:13.5px;line-height:1.6} .why-t b{color:var(--ink)}
+  .why-m{margin-top:8px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 11px;overflow-x:auto;text-align:center}
+  /* concepts */
+  .concepts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+  @media(max-width:680px){.concepts{grid-template-columns:1fr}}
+  .concept{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;transition:transform .2s,box-shadow .2s}
+  .concept:hover{transform:translateY(-3px);box-shadow:0 16px 30px -20px rgba(0,0,0,.6)}
+  .concept h3{font-family:var(--display);font-size:16px;margin:0 0 6px} .concept h3 .tag{font-family:var(--mono);font-size:11px;color:var(--approx);margin-left:6px}
+  .concept p{font-size:13.5px;margin:6px 0;color:var(--ink);line-height:1.55}
+  .concept .m{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-top:9px;text-align:center;overflow-x:auto}
+  .key{color:var(--approx);font-weight:600}
+  /* EVT fail cards */
+  .fails{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+  @media(max-width:680px){.fails{grid-template-columns:1fr}}
+  .fail{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--div);border-radius:12px;padding:14px 16px}
+  .fail h4{margin:0 0 6px;font-size:14.5px;font-family:var(--display)}
+  .fail p{margin:6px 0 0;font-size:13px;color:var(--muted);line-height:1.55}
+  .fail svg{margin-bottom:8px;background:var(--bg);border:1px solid var(--line)}
+  /* practice */
+  .prob{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:14px}
+  .prob-tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--approx);font-weight:600}
+  .prob-q{font-size:14.5px;line-height:1.65;margin:6px 0 12px}
+  .soltoggle{font-size:13px;padding:7px 14px}
+  .sol{display:none;margin-top:12px;border-top:1px solid var(--line);padding-top:6px}
+  .sol.show{display:block}
+  .sol .why-t{font-size:13px}
+  /* mistakes + tips */
+  .mistakes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  @media(max-width:680px){.mistakes{grid-template-columns:1fr}}
+  .mistake{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--div);border-radius:10px;padding:13px 16px}
+  .mistake h4{margin:0 0 4px;font-size:14px;font-family:var(--display)}
+  .mistake p{margin:0;font-size:13px;color:var(--muted);line-height:1.55}
+  .tipbox{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:14px 18px;max-width:840px}
+  .tipbox h4{margin:0 0 8px;font-size:14px;font-family:var(--display);color:var(--approx)}
+  .tipbox ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:var(--ink)}
+  .tipbox li{margin:5px 0}
+  /* quiz */
+  .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .qtag{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .qtext{font-size:15px;font-weight:600;margin-bottom:12px;line-height:1.5}
+  .quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:520px){.quiz-opts{grid-template-columns:1fr}}
+  .quiz-opts button{font-size:14px;padding:11px 14px;text-align:left}
+  .quiz-opts button.correct{background:rgba(63,208,176,.16);border-color:var(--conv);color:var(--conv)}
+  .quiz-opts button.wrong{background:rgba(224,100,79,.16);border-color:var(--div);color:var(--div)}
+  .quiz-opts button:disabled{cursor:default;opacity:.92}
+  .quiz-opts button:disabled:hover{transform:none}
+  .feedback{margin-top:14px;font-size:14px;min-height:24px;line-height:1.5}
+  .score{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .next{background:var(--approx);color:#241a02;border-color:var(--approx);font-weight:600;text-align:center;box-shadow:0 8px 18px -10px var(--approx)}
+  .next:hover{filter:brightness(1.06);border-color:var(--approx)}
+  .navwrap{display:flex;justify-content:space-between;gap:12px;margin-top:22px;flex-wrap:wrap}
+  .navlink{display:inline-flex;align-items:center;gap:9px;text-decoration:none;border:1px solid var(--line);border-radius:12px;padding:13px 18px;background:var(--panel);color:var(--ink);font-size:14px;transition:border-color .2s,transform .2s}
+  .navlink:hover{border-color:var(--approx);transform:translateY(-2px)}
+  .navlink.fwd{background:linear-gradient(110deg,rgba(240,180,41,.14),var(--panel));border-color:rgba(240,180,41,.34)}
+  .navlink .l{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+  .navlink .t{font-family:var(--display);font-size:15px}
+  footer{color:var(--muted);font-size:12.5px;margin:44px 0 40px;border-top:1px solid var(--line);padding-top:16px}
+  .tex-fallback{font-family:var(--mono);font-size:.95em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="unit5.html">← Unit 5</a>
+  <header>
+    <h1>The Existence <span class="em">Theorems</span></h1>
+    <div class="sub">5.1 · 5.2 &nbsp;—&nbsp; the Mean Value Theorem and the Extreme Value Theorem. Two quiet guarantees that
+      the things you&rsquo;re about to hunt for &mdash; a max, a min, a tangent with a given slope &mdash; are actually there to be found.</div>
+  </header>
+
+  <div class="big-idea">
+    Most of Unit 5 is a hunt: for peaks, for valleys, for the best possible answer. Before the hunt, two theorems promise the
+    quarry <b>exists</b>. The <b>Extreme Value Theorem</b> says a continuous function on a closed interval always reaches a highest
+    and a lowest point. The <b>Mean Value Theorem</b> says that somewhere your <b>instantaneous</b> rate must equal your
+    <b>average</b> rate &mdash; a tangent line running parallel to the secant. Nail these and the rest of the unit is just carrying it out.
+  </div>
+
+  <!-- ===================== SIGNATURE: THE FILLING FLASK ===================== -->
+  <h2>Fill it yourself: the level catches the average</h2>
+  <p class="lead">Water trickles in at a perfectly <b>steady</b> pour &mdash; but the vase is narrow here and wide there, so the
+    level <b>races</b> up through the narrows and <b>crawls</b> through the belly. Over the whole fill there&rsquo;s one
+    <span style="color:var(--teal)">average</span> rise-rate, and MVT swears the level hit exactly that rate at some instant.
+    Pour it, and watch the needle land on the line.</p>
+
+  <div class="card">
+    <div class="scen-btns" id="flaskScen"></div>
+    <div class="exbody">
+      <div class="exviz"><canvas id="flaskCv"></canvas></div>
+      <div class="exctrl">
+        <button class="next" id="flaskBtn" style="width:100%">▶ Pour</button>
+        <div class="read" style="margin-top:14px">
+          <div class="rrow"><span class="k"><span style="color:var(--teal)">average</span> rise rate</span><span class="v avg" id="flaskAvg"></span></div>
+          <div class="rrow"><span class="k">rising <span style="color:var(--true)">right now</span></span><span class="v inst" id="flaskNow"></span></div>
+          <div class="rrow"><span class="k">rate = average at height</span><span class="v" id="flaskC"></span></div>
+        </div>
+        <div class="verdict" id="flaskVerdict"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== WHERE MVT COMES FROM ===================== -->
+  <h2>Why there&rsquo;s <em>always</em> a parallel tangent</h2>
+  <p class="lead">It feels like it could fail &mdash; surely you could dodge that exact average? You can&rsquo;t, and the reason is
+    beautifully simple. It&rsquo;s Rolle&rsquo;s Theorem wearing a tilt.</p>
+  <div class="card" id="derive"></div>
+
+  <!-- ===================== MVT STATEMENT ===================== -->
+  <h2>The Mean Value Theorem, precisely</h2>
+  <p class="lead">Two hypotheses, one guarantee. Both hypotheses matter &mdash; drop either and the promise can break.</p>
+  <div class="concepts">
+    <div class="concept">
+      <h3>The hypotheses <span class="tag">the price of admission</span></h3>
+      <p><span class="key">Continuous</span> on the closed interval <span class="key">[a, b]</span> &mdash; no breaks, jumps, or holes.</p>
+      <p><span class="key">Differentiable</span> on the open interval <span class="key">(a, b)</span> &mdash; a smooth tangent at every interior point (no corners or cusps).</p>
+      <div class="m" id="mvtHyp"></div>
+    </div>
+    <div class="concept">
+      <h3>The conclusion <span class="tag">the guarantee</span></h3>
+      <p>There is <span class="key">at least one</span> point <span class="key">c</span> in <span class="key">(a, b)</span> where the instantaneous rate equals the average rate:</p>
+      <div class="m" id="mvtConc"></div>
+      <p style="color:var(--muted);font-size:12.5px">It promises such a c <em>exists</em> &mdash; not where, and not how many. There can be several.</p>
+    </div>
+  </div>
+
+  <!-- ===================== EVT ===================== -->
+  <h2>The Extreme Value Theorem</h2>
+  <p class="lead">The other guarantee. It&rsquo;s the reason &ldquo;find the absolute maximum&rdquo; is even a fair question &mdash;
+    something has to be the biggest.</p>
+  <div class="big-idea" style="border-color:rgba(63,208,176,.28)">
+    If <b>f</b> is <b>continuous</b> on a <b>closed</b> interval <b>[a, b]</b>, then <b>f</b> attains an
+    <b>absolute maximum</b> and an <b>absolute minimum</b> somewhere on <b>[a, b]</b>. Each of them lands either at a
+    <b>critical point</b> (where <span id="evtcp"></span>) or at an <b>endpoint</b> &mdash; which is exactly the short list you&rsquo;ll test to find them.
+  </div>
+  <p class="lead" style="margin-top:20px">Both words in &ldquo;<b>continuous</b> on a <b>closed</b> interval&rdquo; are load-bearing. Remove either and the max can slip through your fingers:</p>
+  <div class="fails">
+    <div class="fail">
+      <svg id="failOpen" viewBox="0 0 220 130" aria-label="Open interval with no maximum"></svg>
+      <h4>Drop &ldquo;closed&rdquo;</h4>
+      <p>On the <em>open</em> interval (0, 1), <span class="key" style="color:var(--div)">f(x) = x</span> gets closer and closer to 1 but never arrives. There is no single highest value &mdash; the max escaped through the open end.</p>
+    </div>
+    <div class="fail">
+      <svg id="failJump" viewBox="0 0 220 130" aria-label="Discontinuous function with no maximum"></svg>
+      <h4>Drop &ldquo;continuous&rdquo;</h4>
+      <p>Punch a jump into the graph and the peak can vanish into the gap &mdash; the function approaches a value it never actually takes. No continuity, no guarantee.</p>
+    </div>
+  </div>
+
+  <!-- ===================== CONCEPTS ===================== -->
+  <h2>Four cards to keep</h2>
+  <div class="concepts">
+    <div class="concept">
+      <h3>Rolle&rsquo;s Theorem <span class="tag">MVT, level</span></h3>
+      <p>The special case where the endpoints sit at the <span class="key">same height</span>. If f is continuous on [a,b], differentiable on (a,b), and <b>f(a) = f(b)</b>, then somewhere the tangent is flat:</p>
+      <div class="m" id="cRolle"></div>
+    </div>
+    <div class="concept">
+      <h3>Critical points <span class="tag">candidates</span></h3>
+      <p>Interior points where <b>f&#8242;(x) = 0</b> <span class="key">or</span> <b>f&#8242;(x) does not exist</b>. Every local extremum hides at one &mdash; but not every critical point is an extremum.</p>
+      <div class="m" id="cCrit"></div>
+    </div>
+    <div class="concept">
+      <h3>Local vs. absolute <span class="tag">don&rsquo;t confuse</span></h3>
+      <p>A <span class="key">local</span> (relative) extremum is the biggest/smallest <em>nearby</em>. An <span class="key">absolute</span> (global) extremum is the biggest/smallest on the <em>whole</em> interval. EVT is about the absolute ones.</p>
+    </div>
+    <div class="concept">
+      <h3>The candidates test <span class="tag">how to actually find them</span></h3>
+      <p>EVT guarantees the absolute max/min exist. To locate them: list every <span class="key">critical point</span> and both <span class="key">endpoints</span>, evaluate f at each, and pick the largest and smallest values.</p>
+    </div>
+  </div>
+
+  <!-- ===================== PRACTICE ===================== -->
+  <h2>Practice</h2>
+  <div id="practice"></div>
+
+  <!-- ===================== QUIZ ===================== -->
+  <h2>Quick check</h2>
+  <div class="card">
+    <div class="row"><span class="qtag" id="qProg"></span><span class="score" id="qScore"></span></div>
+    <div id="qBody" style="margin-top:12px"></div>
+    <div class="feedback" id="qFb"></div>
+    <button class="next" id="qNext" style="display:none;width:100%;margin-top:14px">Next →</button>
+  </div>
+
+  <!-- ===================== MISTAKES + TIPS ===================== -->
+  <h2>Where it goes wrong</h2>
+  <div class="mistakes">
+    <div class="mistake"><h4>Skipping the hypotheses</h4><p>MVT and Rolle need continuity on <b>[a,b]</b> <em>and</em> differentiability on <b>(a,b)</b>. On \(|x|\) over \([-1,1]\) the corner at 0 kills differentiability &mdash; no guaranteed c.</p></div>
+    <div class="mistake"><h4>Looking for c at the endpoints</h4><p>The guaranteed point c lives in the <b>open</b> interval \((a,b)\) &mdash; strictly between the ends, never at a or b.</p></div>
+    <div class="mistake"><h4>Forgetting the endpoints for absolute extrema</h4><p>The candidates test checks critical points <b>and both endpoints</b>. An absolute max often sits at an endpoint, where \(f'\ne 0\).</p></div>
+    <div class="mistake"><h4>&ldquo;f&#8242; = 0&rdquo; only</h4><p>A critical point is where \(f'=0\) <b>or</b> \(f'\) is undefined. Cusps and corners are critical points too &mdash; don&rsquo;t miss them.</p></div>
+  </div>
+  <div class="tipbox">
+    <h4>Carry these into the unit</h4>
+    <ul>
+      <li><b>MVT in one line:</b> over any interval, some instantaneous rate equals the average rate &mdash; a tangent parallel to the secant.</li>
+      <li><b>Rolle = MVT with a level secant:</b> if the ends are equal, the parallel tangent is horizontal (\(f'(c)=0\)).</li>
+      <li><b>To find absolute extrema:</b> EVT says they exist; the <em>candidates test</em> (critical points + endpoints) finds them.</li>
+      <li><b>Existence ≠ location:</b> both theorems promise something is there. The rest of Unit 5 is the machinery for pinning down exactly where.</li>
+    </ul>
+  </div>
+
+  <div class="navwrap">
+    <a class="navlink" href="unit5.html"><span><span class="l">back to</span><br><span class="t">Unit 5 overview</span></span></a>
+    <a class="navlink fwd" href="first-derivative-test.html"><span style="text-align:right"><span class="l">next lesson →</span><br><span class="t">Increasing, Decreasing &amp; Extrema</span></span></a>
+  </div>
+
+  <footer>The Existence Theorems (MVT &amp; EVT) · Unit 5 · Analytical Applications of Differentiation · part of the Visual AP Calculus guide.</footer>
+</div>
+
+<script>
+const SVGNS="http://www.w3.org/2000/svg";
+const el=(t,a={},txt)=>{const e=document.createElementNS(SVGNS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;};
+const T=(s)=>tex(s,s,false);
+const GOLD="#f0b429",GLOW="#ffd66b",TEAL="#3fd0b0",MUT="#a99e86",AXIS="#4a3c22",INK="#f4efe2",GRID="#2a2212",DIV="#e0644f";
+
+/* ============ SIGNATURE: THE FILLING FLASK ============ */
+const FSCEN=[
+ {name:"Vase",   w:h=>0.30+0.62*Math.sin(Math.PI*h)},
+ {name:"Funnel", w:h=>0.92-0.60*h},
+ {name:"Carafe", w:h=>0.56+0.30*Math.sin(2.3*Math.PI*h+0.7)},
+];
+const HCM=10, TFILL=6.5;
+let fsi=0, fillP=0, fillT=0, filling=false, fRAF=null, lastNow=0, paused=false, pauseUntil=0, hitMatches=[], prevH=0;
+const cv=document.getElementById('flaskCv'), fx=cv.getContext('2d');
+let CW=520,CH=376,DPR=1, cum=[], Vmax=0, avgW=0, minW=1, matched=[];
+function FS(){return FSCEN[fsi];}
+function fResize(){ DPR=Math.min(window.devicePixelRatio||1,2); CW=cv.clientWidth||520; CH=cv.clientHeight||376; cv.width=CW*DPR; cv.height=CH*DPR; fx.setTransform(DPR,0,0,DPR,0,0); }
+function precompute(){ const s=FS(),N=400; cum=[0]; let acc=0; minW=Math.min(s.w(0),1e9);
+  for(let i=1;i<=N;i++){ const h0=(i-1)/N,h1=i/N,w1=s.w(h1); if(w1<minW)minW=w1; acc+=(s.w(h0)+w1)/2/N; cum.push(acc); }
+  Vmax=acc; avgW=Vmax; matched=[]; let prev=s.w(0)-avgW;
+  for(let i=1;i<=N;i++){ const h=i/N,cur=s.w(h)-avgW; if(prev*cur<0){ let lo=(i-1)/N,hi=h; for(let k=0;k<30;k++){const m=(lo+hi)/2; if((s.w(lo)-avgW)*(s.w(m)-avgW)<=0)hi=m;else lo=m;} matched.push((lo+hi)/2);} prev=cur; } }
+function hFromV(V){ const N=cum.length-1; for(let i=1;i<=N;i++){ if(cum[i]>=V){ const f=(V-cum[i-1])/((cum[i]-cum[i-1])||1e-9); return (i-1+f)/N; } } return 1; }
+function drawFlask(){
+  const s=FS(); fx.clearRect(0,0,CW,CH);
+  const fcx=CW*0.33, fWs=CW*0.18, yTop=CH*0.13, yBase=CH*0.90, fh=yBase-yTop;
+  const Y=h=>yBase-h*fh, HW=h=>Math.max(0.02,s.w(h))*fWs;
+  const hcur=fillP>=1?1:hFromV(fillP*Vmax), Q=Vmax/TFILL;
+  const rateNow=HCM*Q/Math.max(0.05,s.w(Math.min(hcur,0.999))), avgRate=HCM/TFILL;
+  const outline=()=>{ fx.beginPath(); const N=64;
+    for(let i=0;i<=N;i++){const h=i/N,x=fcx-HW(h),y=Y(h); i===0?fx.moveTo(x,y):fx.lineTo(x,y);}
+    for(let i=N;i>=0;i--){const h=i/N; fx.lineTo(fcx+HW(h),Y(h));} fx.closePath(); };
+  outline(); fx.fillStyle='rgba(255,255,255,0.018)'; fx.fill();
+  // water (clipped to the vase)
+  const wy=Y(hcur);
+  fx.save(); outline(); fx.clip();
+  let wg=fx.createLinearGradient(0,yBase,0,yTop); wg.addColorStop(0,'rgba(46,182,150,0.92)'); wg.addColorStop(1,'rgba(90,224,196,0.55)');
+  fx.fillStyle=wg; fx.fillRect(fcx-fWs*1.5,wy,fWs*3,yBase-wy+2);
+  fx.strokeStyle='rgba(174,244,226,0.95)'; fx.lineWidth=2; fx.beginPath(); fx.moveTo(fcx-fWs*1.5,wy); fx.lineTo(fcx+fWs*1.5,wy); fx.stroke();
+  fx.restore();
+  // matched band(s)
+  let nearMatch=false;
+  matched.forEach(mh=>{ const my=Y(mh),near=Math.abs(hcur-mh)<0.022; if(near&&filling)nearMatch=true;
+    fx.setLineDash([4,4]); fx.strokeStyle=near?'rgba(255,214,107,0.95)':'rgba(240,180,41,0.3)'; fx.lineWidth=near?2.2:1.3;
+    fx.beginPath(); fx.moveTo(fcx-HW(mh)-8,my); fx.lineTo(fcx+HW(mh)+8,my); fx.stroke(); fx.setLineDash([]); });
+  // outline + base
+  outline(); fx.strokeStyle='rgba(255,214,107,0.9)'; fx.lineWidth=2.4; fx.stroke();
+  fx.strokeStyle='rgba(255,214,107,0.5)'; fx.lineWidth=2.4; fx.beginPath(); fx.moveTo(fcx-HW(0)-7,yBase); fx.lineTo(fcx+HW(0)+7,yBase); fx.stroke();
+  // pour stream
+  if(filling&&fillP<1){ fx.strokeStyle='rgba(174,244,226,0.6)'; fx.lineWidth=3; fx.lineCap='round'; fx.beginPath(); fx.moveTo(fcx,yTop-CH*0.09); fx.lineTo(fcx,wy-2); fx.stroke(); }
+  // gauge
+  const gx=CW*0.74, gTop=yTop+4, gBot=yBase-4, gh=gBot-gTop, maxRate=HCM*Q/minW*1.06, rY=r=>gBot-(Math.min(r,maxRate)/maxRate)*gh;
+  fx.strokeStyle='rgba(74,60,34,1)'; fx.lineWidth=2; fx.beginPath(); fx.moveTo(gx,gTop); fx.lineTo(gx,gBot); fx.stroke();
+  for(let i=0;i<=4;i++){const ty=gTop+gh*i/4; fx.strokeStyle='rgba(74,60,34,0.9)'; fx.beginPath(); fx.moveTo(gx-4,ty); fx.lineTo(gx,ty); fx.stroke();}
+  const ayL=rY(avgRate); fx.setLineDash([5,3]); fx.strokeStyle='#3fd0b0'; fx.lineWidth=1.6; fx.beginPath(); fx.moveTo(gx-6,ayL); fx.lineTo(gx+50,ayL); fx.stroke(); fx.setLineDash([]);
+  fx.fillStyle='#3fd0b0'; fx.font='10px ui-monospace,monospace'; fx.textAlign='left'; fx.fillText('average', gx+8, ayL-5);
+  const ny=rY(rateNow), matchNow=Math.abs(rateNow-avgRate)/avgRate<0.03, col=matchNow?'#ffd66b':'#f0b429';
+  if(matchNow&&filling){ fx.fillStyle='rgba(255,214,107,0.22)'; fx.beginPath(); fx.arc(gx+24,ny,17,0,7); fx.fill(); }
+  fx.fillStyle=col; fx.beginPath(); fx.moveTo(gx-1,ny); fx.lineTo(gx-15,ny-6.5); fx.lineTo(gx-15,ny+6.5); fx.closePath(); fx.fill();
+  fx.fillRect(gx-1,ny-1.6,50,3.2);
+  fx.fillStyle='#a99e86'; fx.textAlign='center'; fx.fillText('rise rate', gx+22, gBot+18);
+  // readouts + verdict
+  document.getElementById('flaskAvg').textContent=avgRate.toFixed(2)+' cm/s';
+  document.getElementById('flaskNow').textContent=rateNow.toFixed(2)+' cm/s';
+  document.getElementById('flaskC').textContent=matched.map(m=>(m*HCM).toFixed(1)+' cm').join(',  ');
+  const vd=document.getElementById('flaskVerdict');
+  if(!filling&&fillP===0){ vd.innerHTML='Press <b>Pour</b>. The needle swings as the level speeds up and slows down &mdash; watch for the moment it lands on the <span style="color:var(--teal)">average</span> line.'; }
+  else if(nearMatch){ vd.innerHTML='<b>There!</b> Right now the level is rising at <b>exactly</b> the average rate &mdash; the needle sits on the line. This is the height where the vase is its own <b>average width</b>.'; }
+  else if(filling){ vd.innerHTML='Pouring at a steady rate&hellip; <b>narrow ⇒ shoots up, wide ⇒ crawls</b>. The needle is hunting for the <span style="color:var(--teal)">average</span>.'; }
+  else { vd.innerHTML='<b>Full.</b> On the way up, the level rose at exactly the average rate at <b>'+matched.map(m=>(m*HCM).toFixed(1)+' cm').join(', ')+'</b> &mdash; right where the vase is its own average width. It <em>had</em> to. That&rsquo;s the Mean Value Theorem.'; }
+}
+function VfromH(h){ const N=cum.length-1,idx=h*N,i=Math.floor(idx),f=idx-i; return cum[Math.min(i,N)]*(1-f)+cum[Math.min(i+1,N)]*f; }
+function fStep(now){ if(!filling)return;
+  const dt=lastNow?Math.min(now-lastNow,60):0; lastNow=now;
+  if(paused){ if(now>=pauseUntil){paused=false;} }
+  else { fillT=Math.min(TFILL, fillT+dt/1000); }
+  fillP=fillT/TFILL;
+  let hcur=fillP>=1?1:hFromV(fillP*Vmax);
+  if(!paused){ for(const mh of matched){ if(hitMatches.indexOf(mh)<0 && prevH<=mh+1e-9 && hcur>=mh){ hitMatches.push(mh); fillT=(VfromH(mh)/Vmax)*TFILL; fillP=fillT/TFILL; hcur=mh; paused=true; pauseUntil=now+1900; break; } } }
+  prevH=hcur;
+  drawFlask();
+  if(fillP<1||paused){ fRAF=requestAnimationFrame(fStep); }
+  else { filling=false; document.getElementById('flaskBtn').textContent='↺ Pour again'; drawFlask(); } }
+function pour(){ if(filling)return; fillT=0; fillP=0; lastNow=0; paused=false; hitMatches=[]; prevH=0; filling=true; document.getElementById('flaskBtn').textContent='pouring…'; if(fRAF)cancelAnimationFrame(fRAF); fRAF=requestAnimationFrame(fStep); }
+document.getElementById('flaskBtn').onclick=pour;
+function renderFScen(){ document.getElementById('flaskScen').innerHTML=FSCEN.map((s,i)=>'<button data-i="'+i+'" class="'+(i===fsi?'on':'')+'">'+s.name+'</button>').join('');
+  document.querySelectorAll('#flaskScen button').forEach(b=>b.onclick=()=>{ fsi=+b.dataset.i; if(fRAF)cancelAnimationFrame(fRAF); filling=false; paused=false; fillP=0; fillT=0; hitMatches=[]; prevH=0; lastNow=0; document.getElementById('flaskBtn').textContent='▶ Pour'; precompute(); renderFScen(); drawFlask(); }); }
+function fInit(){ fResize(); precompute(); renderFScen(); drawFlask(); }
+window.addEventListener('resize',()=>{ fResize(); drawFlask(); });
+
+/* ============ DERIVATION (Rolle -> MVT) ============ */
+const DERIVE=[
+ {t:"Start level: Rolle&rsquo;s Theorem.", p:"Suppose the two ends sit at the <b>same height</b>, f(a)=f(b). The graph leaves a, wanders, and comes back to the same level. To do that it must turn around &mdash; and at a smooth high or low point, the tangent is <b>flat</b>. So some interior c has:", m:"f'(c)=0"},
+ {t:"That&rsquo;s guaranteed, not lucky.", p:"By EVT the continuous f has an absolute max and min on [a,b]. If both are at the endpoints, f is constant (f'=0 everywhere). Otherwise an extreme value sits <i>inside</i> &mdash; and an interior extremum of a differentiable function has a horizontal tangent. Either way, some c has f'(c)=0."},
+ {t:"Now tilt the picture.", p:"For a general interval the ends aren&rsquo;t level. So subtract off the secant line &mdash; define a new function that measures how far f sits <i>above</i> the secant:", m:"g(x)=f(x)-\\big[\\,f(a)+\\tfrac{f(b)-f(a)}{b-a}(x-a)\\,\\big]"},
+ {t:"g has level ends &mdash; so Rolle applies.", p:"At both ends g is zero (f meets its own secant there), so g(a)=g(b)=0. Rolle hands us a c where g'(c)=0. But g&rsquo;s slope is f&rsquo;s slope minus the secant&rsquo;s slope:", m:"g'(x)=f'(x)-\\tfrac{f(b)-f(a)}{b-a}"},
+ {t:"Set it to zero and MVT falls out.", p:"g'(c)=0 means f'(c) equals the secant slope exactly. The instantaneous rate matches the average rate &mdash; a tangent parallel to the secant. That&rsquo;s the Mean Value Theorem:", m:"f'(c)=\\frac{f(b)-f(a)}{b-a}"},
+];
+function renderDerive(){ const box=document.getElementById('derive');
+  box.innerHTML=DERIVE.map((s,i)=>'<div class="why-step"><div class="why-n">'+(i+1)+'</div><div class="why-t"><b>'+s.t+'</b><br>'+s.p+(s.m?'<div class="why-m">'+T(s.m)+'</div>':'')+'</div></div>').join(''); }
+
+/* ============ small static formulas ============ */
+function renderBits(){
+  document.getElementById('mvtHyp').innerHTML=T("f\\text{ cont. on }[a,b],\\ \\ f\\text{ diff. on }(a,b)");
+  document.getElementById('mvtConc').innerHTML=T("f'(c)=\\dfrac{f(b)-f(a)}{b-a}");
+  document.getElementById('evtcp').innerHTML=T("f'=0\\text{ or }f'\\text{ DNE}");
+  document.getElementById('cRolle').innerHTML=T("f(a)=f(b)\\ \\Rightarrow\\ f'(c)=0");
+  document.getElementById('cCrit').innerHTML=T("f'(c)=0\\ \\text{ or }\\ f'(c)\\text{ DNE}");
+}
+/* EVT failure mini-graphs */
+function renderFails(){
+  const o=document.getElementById('failOpen');
+  o.appendChild(el('line',{x1:24,y1:104,x2:200,y2:104,stroke:AXIS,'stroke-width':1.4}));
+  o.appendChild(el('line',{x1:30,y1:110,x2:30,y2:18,stroke:AXIS,'stroke-width':1.4}));
+  o.appendChild(el('line',{x1:36,y1:100,x2:186,y2:30,stroke:DIV,'stroke-width':2.6,'stroke-linecap':'round'}));
+  o.appendChild(el('circle',{cx:36,cy:100,r:3.5,fill:'#1a1305',stroke:DIV,'stroke-width':1.8})); /* open? actually included at a */
+  o.appendChild(el('circle',{cx:186,cy:30,r:4,fill:'#1a1305',stroke:DIV,'stroke-width':2})); /* open end - no max */
+  o.appendChild(el('text',{x:190,y:24,'font-size':10,fill:DIV,'font-family':'ui-monospace,monospace'},'?'));
+  o.appendChild(el('line',{x1:180,y1:24,x2:192,y2:24,stroke:DIV,'stroke-width':1,'stroke-dasharray':'2 2',opacity:.7}));
+  const j=document.getElementById('failJump');
+  j.appendChild(el('line',{x1:24,y1:104,x2:200,y2:104,stroke:AXIS,'stroke-width':1.4}));
+  j.appendChild(el('line',{x1:30,y1:110,x2:30,y2:18,stroke:AXIS,'stroke-width':1.4}));
+  j.appendChild(el('path',{d:'M36 96 C 70 96, 90 40, 112 40',fill:'none',stroke:DIV,'stroke-width':2.6,'stroke-linecap':'round'}));
+  j.appendChild(el('circle',{cx:112,cy:40,r:4,fill:'#1a1305',stroke:DIV,'stroke-width':2})); /* open - value not attained */
+  j.appendChild(el('circle',{cx:112,cy:66,r:4,fill:DIV})); /* jumps down */
+  j.appendChild(el('path',{d:'M112 66 C 140 62, 165 58, 188 54',fill:'none',stroke:DIV,'stroke-width':2.6,'stroke-linecap':'round'}));
+  j.appendChild(el('text',{x:118,y:36,'font-size':10,fill:DIV,'font-family':'ui-monospace,monospace'},'gap'));
+}
+
+/* ============ PRACTICE ============ */
+const PROBS=[
+ {tag:"Apply MVT", q:"Let \\(f(x)=x^2\\) on \\([1,3]\\). MVT guarantees a c in \\((1,3)\\) with \\(f'(c)=\\) the average rate. Find c.",
+  steps:[
+   {t:"Average rate over [1,3]:", m:"\\dfrac{f(3)-f(1)}{3-1}=\\dfrac{9-1}{2}=4"},
+   {t:"Set the instantaneous rate equal to it. \\(f'(x)=2x\\), so:", m:"2c=4\\ \\Rightarrow\\ c=2"},
+   {t:"And 2 lies in (1,3) ✓. (For a parabola the parallel tangent is always at the midpoint of the interval.)", m:""}
+  ]},
+ {tag:"Candidates test · EVT", q:"Find the absolute max and min of \\(f(x)=x^3-3x\\) on \\([0,2]\\).",
+  steps:[
+   {t:"Critical points: \\(f'(x)=3x^2-3=0\\Rightarrow x=\\pm1\\). Only \\(x=1\\) is in \\([0,2]\\).", m:""},
+   {t:"Evaluate f at the critical point and both endpoints:", m:"f(0)=0,\\quad f(1)=-2,\\quad f(2)=2"},
+   {t:"Pick the largest and smallest:", m:"\\text{abs max }=2\\ (x=2),\\quad \\text{abs min }=-2\\ (x=1)"},
+   {t:"Note the max sits at an <b>endpoint</b> — that’s why you must always test the ends.", m:""}
+  ]},
+ {tag:"Reason with the theorems", q:"A car travels 120 miles in 2 hours along a road. Must there have been an instant when its speedometer read exactly 60 mph? Why?",
+  steps:[
+   {t:"Its average speed is the total distance over the total time:", m:"\\dfrac{120}{2}=60\\text{ mph}"},
+   {t:"Position is continuous and differentiable in time, so MVT applies on the 2-hour interval.", m:""},
+   {t:"MVT guarantees some instant c where the instantaneous speed \\(f'(c)\\) equals the average — exactly 60 mph. So <b>yes</b>, it must have happened at least once.", m:""}
+  ]},
+];
+function renderPractice(){ const box=document.getElementById('practice');
+  box.innerHTML=PROBS.map((p,i)=>'<div class="prob"><div class="prob-tag">'+p.tag+'</div><div class="prob-q">'+T2(p.q)+'</div>'+
+    '<button class="soltoggle" onclick="document.getElementById(\'sol'+i+'\').classList.toggle(\'show\');this.textContent=document.getElementById(\'sol'+i+'\').classList.contains(\'show\')?\'Hide solution\':\'Show worked solution\'">Show worked solution</button>'+
+    '<div class="sol" id="sol'+i+'">'+p.steps.map((s,j)=>'<div class="why-step"><div class="why-n">'+(j+1)+'</div><div class="why-t">'+T2(s.t)+(s.m?'<div class="why-m">'+T(s.m)+'</div>':'')+'</div></div>').join('')+'</div></div>').join(''); }
+
+/* ============ QUIZ ============ */
+const QUIZ=[
+ {q:"Which pair of hypotheses does the Mean Value Theorem require?",
+  opts:["Continuous on (a,b) only","Continuous on [a,b] and differentiable on (a,b)","Differentiable on [a,b] including the endpoints","Just that f(a)=f(b)"],correct:1,
+  fb:"MVT needs continuity on the <b>closed</b> [a,b] and differentiability on the <b>open</b> (a,b). (f(a)=f(b) is the extra condition for Rolle’s.)"},
+ {q:"For \\(f(x)=x^2\\) on \\([2,4]\\), the MVT value c satisfies \\(2c=6\\). What is c?",
+  opts:["c = 2","c = 4","c = 3","c = 6"],correct:2,
+  fb:"Average rate \\(=\\frac{16-4}{2}=6\\); set \\(2c=6\\Rightarrow c=3\\), which lies in (2,4). ✓"},
+ {q:"Why can \\(f(x)=x\\) on the open interval (0,1) fail to have an absolute maximum?",
+  opts:["It isn’t continuous","The interval isn’t closed, so the top value is never attained","It isn’t differentiable","It has a critical point"],correct:1,
+  fb:"EVT needs a <b>closed</b> interval. On (0,1), \\(f\\) approaches 1 but never reaches it — no highest value exists."},
+ {q:"Which is a complete definition of a critical point of f?",
+  opts:["Only where f'(x)=0","Where f'(x)=0 or f'(x) does not exist","Any endpoint of the interval","Where f(x)=0"],correct:1,
+  fb:"Critical points are interior points where \\(f'=0\\) <b>or</b> \\(f'\\) is undefined (corners, cusps, vertical tangents)."},
+];
+let qi=0,qScore=0,qDone=false;
+function T2(h){ return (h||'').replace(/\\\((.+?)\\\)/g,(m,x)=>{try{return window.katex?katex.renderToString(x,{throwOnError:false}):m;}catch(e){return m;}}); }
+function renderQuiz(){ qDone=false; const q=QUIZ[qi];
+  document.getElementById('qProg').textContent='Question '+(qi+1)+' of '+QUIZ.length;
+  document.getElementById('qScore').textContent='Score: '+qScore;
+  document.getElementById('qBody').innerHTML='<div class="qtext">'+T2(q.q)+'</div><div class="quiz-opts">'+q.opts.map((o,i)=>'<button data-i="'+i+'">'+T2(o)+'</button>').join('')+'</div>';
+  document.getElementById('qFb').innerHTML=''; document.getElementById('qNext').style.display='none';
+  document.querySelectorAll('#qBody .quiz-opts button').forEach(b=>b.onclick=()=>pick(b,q)); }
+function pick(btn,q){ if(qDone)return; qDone=true; const i=+btn.dataset.i;
+  [...document.querySelectorAll('#qBody .quiz-opts button')].forEach(b=>{b.disabled=true; if(+b.dataset.i===q.correct)b.classList.add('correct');});
+  if(i===q.correct){qScore++;} else btn.classList.add('wrong');
+  document.getElementById('qScore').textContent='Score: '+qScore;
+  document.getElementById('qFb').innerHTML='<span style="color:'+(i===q.correct?'var(--conv)':'var(--div)')+';font-weight:600">'+(i===q.correct?'Correct. ':'Not quite. ')+'</span>'+T2(q.fb);
+  const nx=document.getElementById('qNext'); if(qi<QUIZ.length-1){nx.style.display='block';nx.textContent='Next →';}
+  else{nx.style.display='block';nx.textContent='Restart quiz ↺';}
+}
+document.getElementById('qNext').onclick=()=>{ if(qi<QUIZ.length-1){qi++;} else {qi=0;qScore=0;} renderQuiz(); };
+
+/* ============ BOOT ============ */
+function boot(){ fInit(); renderDerive(); renderBits(); renderFails(); renderPractice(); renderQuiz(); }
+boot();
+if(!window.katex){ let n=0; const iv=setInterval(()=>{ if(window.katex){clearInterval(iv); renderDerive(); renderBits(); renderPractice(); renderQuiz();} else if(++n>60)clearInterval(iv); },100); }
+</script>
+</body>
+</html>

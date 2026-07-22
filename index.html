@@ -36,6 +36,7 @@
     --u10:#a98cf0; --u10b:#c4adff;
     --u3:#f0843c; --u3b:#f7a468;
     --u4:#bf34c9; --u4b:#e884ea;
+    --u5:#f0b429; --u5b:#ffd66b;
     --crimson:#e0644f;
     --display:'Fraunces',Georgia,serif; --body:'Spline Sans',system-ui,sans-serif;
     --mono:'Spline Sans Mono',ui-monospace,Menlo,monospace;
@@ -228,6 +229,8 @@
   @keyframes newPulse{0%,100%{box-shadow:0 4px 14px -5px rgba(240,132,60,.5)}50%{box-shadow:0 5px 22px -3px rgba(240,132,60,.95)}}
   .u4 .newtag{color:#fff;background:linear-gradient(100deg,var(--u4b),var(--u4));box-shadow:0 4px 15px -4px rgba(191,52,201,.7);animation:newPulseM 2.6s ease-in-out infinite}
   @keyframes newPulseM{0%,100%{box-shadow:0 4px 14px -5px rgba(191,52,201,.5)}50%{box-shadow:0 5px 22px -3px rgba(191,52,201,.95)}}
+  .u5 .newtag{color:#241a02;background:linear-gradient(100deg,var(--u5b),var(--u5));box-shadow:0 4px 15px -4px rgba(240,180,41,.7);animation:newPulseG 2.6s ease-in-out infinite}
+  @keyframes newPulseG{0%,100%{box-shadow:0 4px 14px -5px rgba(240,180,41,.5)}50%{box-shadow:0 5px 22px -3px rgba(240,180,41,.95)}}
   @media (prefers-reduced-motion:reduce){.card .newtag{animation:none}}
 
   /* ---------- roadmap ---------- */
@@ -235,7 +238,7 @@
   .progress-track{flex:1;height:5px;border-radius:30px;background:var(--line);overflow:hidden;max-width:320px}
   .progress-fill{height:100%;width:0;border-radius:30px;transition:width 1.2s cubic-bezier(.2,.7,.2,1);
     background:linear-gradient(90deg,var(--u8),var(--u9) 55%,var(--u10))}
-  .group-fade.shown .progress-fill{width:90%}
+  .group-fade.shown .progress-fill{width:100%}
   .sec-head .t .sn{color:var(--gold-glow);font-weight:600;margin-right:1px}
   .rrow{--d:0s}
   @keyframes rowSweep{0%{background:transparent}38%{background:rgba(255,255,255,.05)}100%{background:transparent}}
@@ -562,7 +565,6 @@
       </a>
       <!-- Unit 4 -->
       <a class="card u4" href="unit4.html">
-        <span class="newtag">New</span>
         <div class="card-art" aria-hidden="true">
           <svg viewBox="0 0 150 118" width="150" height="118" fill="none">
             <path d="M28 95 A 47 47 0 0 1 122 95" stroke="currentColor" stroke-width="2" opacity=".22" stroke-linecap="round"/>
@@ -577,6 +579,26 @@
           <h3 class="uname">Contextual Applications of Differentiation</h3>
           <p class="udesc">Interpreting derivatives as rates in context, straight&#8209;line motion, related rates, linear approximation, and L&rsquo;H&ocirc;pital&rsquo;s rule &mdash; the derivative put to work as a rate of change.</p>
           <div class="chips"><span class="chip">Rates</span><span class="chip">Motion</span><span class="chip">Related rates</span><span class="chip">Linear approx</span><span class="chip">L&rsquo;H&ocirc;pital</span></div>
+          <span class="go">Open unit <span class="arr">&#8594;</span></span>
+        </div>
+      </a>
+      <a class="card u5" href="unit5.html">
+        <span class="newtag">New</span>
+        <div class="card-art" aria-hidden="true">
+          <svg viewBox="0 0 150 118" width="150" height="118" fill="none">
+            <path d="M18 101 L 134 101" stroke="currentColor" stroke-width="1.4" opacity=".16" stroke-linecap="round"/>
+            <path d="M42 45 L 74 45 M84 90 L 116 90" stroke="currentColor" stroke-width="1.5" opacity=".4" stroke-linecap="round" stroke-dasharray="3 3"/>
+            <path class="cdraw" pathLength="1" d="M20 86 C 34 52, 48 45, 58 45 C 72 45, 82 90, 99 90 C 116 90, 122 60, 132 46" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+            <rect x="75.5" y="64.5" width="7" height="7" fill="currentColor" opacity=".5" transform="rotate(45 79 68)"/>
+            <circle cx="58" cy="45" r="4.2" fill="var(--bg)" stroke="currentColor" stroke-width="2.2"/>
+            <circle cx="99" cy="90" r="3" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="unum">Unit 05</div>
+          <h3 class="uname">Analytical Applications of Differentiation</h3>
+          <p class="udesc">The Mean Value &amp; Extreme Value Theorems, the first- and second-derivative tests, connecting f to f&#8242; and f&#8243;, and optimization &mdash; reading a curve from its slope and bend, and pinning down the exact best.</p>
+          <div class="chips"><span class="chip">MVT &amp; EVT</span><span class="chip">Extrema</span><span class="chip">Concavity</span><span class="chip">f, f&#8242;, f&#8243;</span><span class="chip">Optimization</span></div>
           <span class="go">Open unit <span class="arr">&#8594;</span></span>
         </div>
       </a>
@@ -700,7 +722,7 @@
     <div class="sec-head">
       <div class="t"><span class="sn">02</span>The whole course</div>
       <h2>The full BC roadmap</h2>
-      <p class="sub">All ten College&nbsp;Board units, in order. Nine are live; the last is on the way &mdash; each will get the same visual, manipulable treatment.</p>
+      <p class="sub">All ten College&nbsp;Board units, in order &mdash; now <b>all ten are live</b>, every one built with the same visual, manipulable treatment.</p>
     </div>
     <div class="search" id="search">
       <span class="sic" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
@@ -709,14 +731,14 @@
     </div>
     <div class="progress-wrap">
       <div class="progress-track"><div class="progress-fill"></div></div>
-      <div class="progress-label"><b>9</b> of 10 units ready</div>
+      <div class="progress-label"><b>10</b> of 10 units ready</div>
     </div>
     <div class="road">
       <a class="rrow live" href="unit1.html" style="--rc:var(--u1)"><span class="rnum">01</span><span class="rdot"></span><span class="rtitle">Limits &amp; Continuity<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
       <a class="rrow live" href="unit2.html" style="--rc:var(--u2)"><span class="rnum">02</span><span class="rdot"></span><span class="rtitle">Differentiation: Definition &amp; Basic Rules<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
       <a class="rrow live" href="unit3.html" style="--rc:var(--u3)"><span class="rnum">03</span><span class="rdot"></span><span class="rtitle">Differentiation: Composite, Implicit &amp; Inverse<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
       <a class="rrow live" href="unit4.html" style="--rc:var(--u4)"><span class="rnum">04</span><span class="rdot"></span><span class="rtitle">Contextual Applications of Differentiation<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
-      <div class="rrow soon"><span class="rnum">05</span><span class="rdot"></span><span class="rtitle">Analytical Applications of Differentiation<span class="rwhat">The Mean Value Theorem, curve sketching, optimization, and concavity.</span></span><span class="pill">Soon</span><span class="rarr">&#8594;</span></div>
+      <a class="rrow live" href="unit5.html" style="--rc:var(--u5)"><span class="rnum">05</span><span class="rdot"></span><span class="rtitle">Analytical Applications of Differentiation<span class="rsub">5 lessons &middot; exam &middot; cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
       <a class="rrow live" href="unit6.html" style="--rc:var(--u6)"><span class="rnum">06</span><span class="rdot"></span><span class="rtitle">Integration &amp; Accumulation of Change<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
       <a class="rrow live" href="unit7.html" style="--rc:var(--u7)"><span class="rnum">07</span><span class="rdot"></span><span class="rtitle">Differential Equations<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
       <a class="rrow live" href="unit8.html" style="--rc:var(--u8)"><span class="rnum">08</span><span class="rdot"></span><span class="rtitle">Applications of Integration<span class="rsub">5 lessons · exam · cheat sheet</span></span><span class="pill ready">Ready</span><span class="rarr">&#8594;</span></a>
@@ -964,6 +986,13 @@
    {u:4,k:'lesson',t:"L'H\u00f4pital's Rule",f:'lhopitals-rule.html',kw:'lhopital hopital indeterminate form 0/0 infinity limit ratio derivatives quotient'},
    {u:4,k:'exam',t:'Unit 4 \u2014 Exam Practice',f:'unit4-exam-practice.html',kw:'exam practice mcq frq test rates motion related rates linear approximation lhopital'},
    {u:4,k:'sheet',t:'Unit 4 \u2014 Cheat Sheet',f:'unit4-cheatsheet.html',kw:'cheat sheet formulas review rates motion related rates linear approximation lhopital'},
+   {u:5,k:'lesson',t:'The Existence Theorems',f:'mean-value-theorem.html',kw:'mean value theorem MVT rolle extreme value theorem EVT critical point continuous differentiable candidates test absolute extrema average rate secant tangent existence'},
+   {u:5,k:'lesson',t:'Increasing, Decreasing & Extrema',f:'first-derivative-test.html',kw:'increasing decreasing first derivative test critical point local maximum minimum sign chart relative extrema shelf cusp'},
+   {u:5,k:'lesson',t:'Concavity & the 2nd-Derivative Test',f:'concavity.html',kw:'concavity concave up down inflection point second derivative test f double prime cup dome bend'},
+   {u:5,k:'lesson',t:'Connecting f, f\u2032 & f\u2033',f:'connecting-derivatives.html',kw:'connecting f f prime f double prime graph reading slope bend curve sketching derivative relationship one curve three views'},
+   {u:5,k:'lesson',t:'Optimization',f:'optimization.html',kw:'optimization maximize minimize objective constraint box fence can area volume surface applied extrema exact best'},
+   {u:5,k:'exam',t:'Unit 5 \u2014 Exam Practice',f:'unit5-exam-practice.html',kw:'exam practice mcq frq test mvt evt extrema concavity connecting optimization curve analysis'},
+   {u:5,k:'sheet',t:'Unit 5 \u2014 Cheat Sheet',f:'unit5-cheatsheet.html',kw:'cheat sheet formulas review mvt evt first second derivative test concavity connecting optimization justify'},
    {u:6,k:'lesson',t:'Riemann Sums & the Definite Integral',f:'riemann-sums.html',kw:'riemann sum left right midpoint trapezoid rectangle approximation table overestimate underestimate definite integral accumulation'},
    {u:6,k:'lesson',t:'The Fundamental Theorem',f:'fundamental-theorem.html',kw:'fundamental theorem ftc accumulation function g(x) chain rule bound graph analysis area'},
    {u:6,k:'lesson',t:'Antiderivatives & u-Substitution',f:'antiderivatives.html',kw:'antiderivative deck u-substitution u sub reverse chain rule completing square arctan long division'},
@@ -1000,7 +1029,7 @@
    {u:10,k:'sheet',t:'Unit 10 \u2014 Cheat Sheet',f:'unit10-cheatsheet.html',kw:'cheat sheet formulas review'}
   ];
   var byF={}; CAT.forEach(function(c){byF[c.f]=c;});
-  var UNAME={1:'Unit 1',2:'Unit 2',3:'Unit 3',4:'Unit 4',6:'Unit 6',7:'Unit 7',8:'Unit 8',9:'Unit 9',10:'Unit 10'};
+  var UNAME={1:'Unit 1',2:'Unit 2',3:'Unit 3',4:'Unit 4',5:'Unit 5',6:'Unit 6',7:'Unit 7',8:'Unit 8',9:'Unit 9',10:'Unit 10'};
   var lpu={7:0,8:0,9:0,10:0}; CAT.forEach(function(c){if(c.k==='lesson')lpu[c.u]++;});
 
   var visited={}, last=null;
@@ -1016,7 +1045,7 @@
       var c=byF[lf], kl=c.k==='lesson'?'Lesson':(c.k==='exam'?'Exam practice':'Cheat sheet');
       document.getElementById('continueName').innerHTML=c.t+' <em>'+UNAME[c.u]+' \u00b7 '+kl+'</em>';
       document.getElementById('continueGo').setAttribute('href',c.f);
-      document.getElementById('continueOverall').innerHTML='<b>'+lessonsDone+'</b> of 44 lessons explored';
+      document.getElementById('continueOverall').innerHTML='<b>'+lessonsDone+'</b> of 49 lessons explored';
       bar.classList.add('show');
     }
   }
