@@ -430,6 +430,11 @@ const QUIZ=[
 ];
 let qi=0,qScore=0,qDone=false;
 function T2(h){ return (h||'').replace(/\\\((.+?)\\\)/g,(m,x)=>{try{return window.katex?katex.renderToString(x,{throwOnError:false}):m;}catch(e){return m;}}); }
+function mathifyInline(sel){ if(!window.katex) return;
+  document.querySelectorAll(sel).forEach(n=>{
+    if(n.innerHTML.indexOf('\\(')>=0){ n.innerHTML=n.innerHTML.replace(/\\\((.+?)\\\)/g,(m,x)=>{try{return katex.renderToString(x,{throwOnError:false});}catch(e){return m;}}); }
+  });
+}
 function renderQuiz(){ qDone=false; const q=QUIZ[qi];
   document.getElementById('qProg').textContent='Question '+(qi+1)+' of '+QUIZ.length;
   document.getElementById('qScore').textContent='Score: '+qScore;
@@ -447,9 +452,9 @@ function pick(btn,q){ if(qDone)return; qDone=true; const i=+btn.dataset.i;
 document.getElementById('qNext').onclick=()=>{ if(qi<QUIZ.length-1){qi++;} else {qi=0;qScore=0;} renderQuiz(); };
 
 /* ============ BOOT ============ */
-function boot(){ fInit(); renderDerive(); renderBits(); renderFails(); renderPractice(); renderQuiz(); }
+function boot(){ fInit(); renderDerive(); renderBits(); renderFails(); renderPractice(); renderQuiz(); mathifyInline('.mistake p, .tipbox li'); }
 boot();
-if(!window.katex){ let n=0; const iv=setInterval(()=>{ if(window.katex){clearInterval(iv); renderDerive(); renderBits(); renderPractice(); renderQuiz();} else if(++n>60)clearInterval(iv); },100); }
+if(!window.katex){ let n=0; const iv=setInterval(()=>{ if(window.katex){clearInterval(iv); renderDerive(); renderBits(); renderPractice(); renderQuiz(); mathifyInline('.mistake p, .tipbox li');} else if(++n>60)clearInterval(iv); },100); }
 </script>
 </body>
 </html>
