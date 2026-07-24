@@ -165,6 +165,11 @@ function looksLikeExpr(e){
   if(/[a-z]{2,}/i.test(stripped)) return false;         // leftover word = it's prose, not math
   return true;
 }
+// does the input carry ANY real math signal? guards the grapher against junk ("how do i cook pasta")
+function looksMathy(s){
+  return /[0-9=^]/.test(s) ||
+    /\bx\b|x\^|x\d|\dx|sqrt|sin|cos|tan|sec|csc|cot|\bln\b|log|exp|∫|√|π|\bpi\b|deriv|integral|tangent|slope|concav|inflect|riemann|\barea\b|volume|\blimit\b|function|f\(x\)|f'/i.test(s);
+}
 function extractCurves(src){
   const out=[]; let m;
   FN_RE.lastIndex=0;
@@ -235,13 +240,15 @@ function recognize(raw){
     if(/balloon|sphere|spherical|rising|rocket/.test(s)) scene='balloon';
     return {arch:'rates', scene, given:extractGivenRate(raw)};
   }
-  if(curves.length>=1) return {arch:'solid', curves, iv, ax:{mode:'x'}, unsure:true};
-  return null;
+  return null;   // not a signature archetype → run() sends it to the universal grapher
+}
+function hasSignatureHint(s){
+  return /revolv|rotat|spun|spin|about\s+the\s+(?:line\s+)?[xy]|area\s+(?:between|of\s+the\s+region|enclosed)|region\s+(?:between|bounded|enclosed)|bounded\s+by|tangent|lineariz|linear\s+approx|ladder|how\s+fast|rate\s+of|shadow|lamppost|streetlight|ripple|conical|balloon/i.test(s);
 }
 
 /* ---------- AI fallback: same Groq worker as the tutor ---------- */
 const AI_ENDPOINT=(()=>{ try{ return localStorage.getItem('tutor:endpoint')||'https://calc-tutor.christiangrosso360.workers.dev'; }catch(e){ return 'https://calc-tutor.christiangrosso360.workers.dev'; } })();
-const AI_SYS='You classify AP Calculus problems for a visualizer. Read the problem and output ONLY a compact JSON object — no prose, no markdown fences. Keys: archetype (one of: solid, area, tangent, rates), f (first function as a plain expression in x, or null), g (second function or null), a (lower x bound or null), b (upper x bound or null), axis (for solids only: "x" for the x-axis, "y" for the y-axis, "y=NUM" for a horizontal line, "x=NUM" for a vertical line; else null), at (for tangent: the x-value as a number, or null), scene (for rates: one of ladder, ripple, cone, shadow, balloon; else null). Use plain math notation like sqrt(x), x^2, e^(-x). If the problem names two curves (e.g. "between A and B", "bounded by A and B"), you MUST return BOTH f and g. If the region is bounded by two curves and you can find where they cross, fill a and b with those x-values.';
+const AI_SYS='You classify AP Calculus problems for a visualizer. Read the problem and output ONLY a compact JSON object — no prose, no markdown fences. Keys: archetype (one of: solid, area, tangent, rates), f (first function as a plain expression in x, or null), g (second function or null), a (lower x bound or null), b (upper x bound or null), axis (for solids only: "x" for the x-axis, "y" for the y-axis, "y=NUM" for a horizontal line, "x=NUM" for a vertical line; else null), at (for tangent: the x-value as a number, or null), scene (for rates: one of ladder, ripple, cone, shadow, balloon; else null). Use plain math notation like sqrt(x), x^2, e^(-x). If the problem names two curves (e.g. "between A and B", "bounded by A and B"), you MUST return BOTH f and g. If the region is bounded by two curves and you can find where they cross, fill a and b with those x-values. Only use archetype "solid" when the problem explicitly revolves or rotates a region about an axis or line — a "cross-section" volume (square, semicircular, or triangular cross sections) is NOT a solid of revolution. If the problem fits none of the four archetypes, set archetype to null.';
 
 async function askAI(raw){
   const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),20000);
@@ -277,6 +284,48 @@ function aiToResult(j){
     }
   }
   return {arch, curves, iv, ax, fromAI:true};
+}
+
+/* ---------- UNIVERSAL GRAPHER: AI as scene DIRECTOR (long-tail problems) ---------- */
+const SCENE_SYS='You are a calculus visualization director. Read the problem and output ONLY a JSON object (no prose, no markdown fences) describing what to draw on a 2D graph. A deterministic renderer draws exactly what you specify — you choose WHAT to show, never how.\n'
++'SCHEMA (include only keys you need): {"functions":[{"expr":"<in x>","color":"gold|teal|mag|coral","label":"<short>"}], "domain":[xmin,xmax], "shade":{"between":[i,j],"interval":[a,b]} OR {"under":i,"interval":[a,b]}, "riemann":{"of":<i>,"a":<x>,"b":<x>,"n":<count>,"rule":"left|right|mid"}, "animate":{"kind":"slidePoint","on":<i>,"from":<x1>,"to":<x2>} OR {"kind":"riemannN","of":<i>,"a":<x1>,"b":<x2>,"from":<n1>,"to":<n2>,"rule":"mid"}, "points":[{"x":<num>,"on":<i>,"label":"<short>"}], "lines":[{"type":"tangent","to":<i>,"at":<x>}|{"type":"secant","to":<i>,"from":<x1>,"at":<x2>}|{"type":"vertical","at":<x>}|{"type":"horizontal","at":<y>}], "caption":"<one short phrase>"}\n'
++'RULES: expr = plain math in x (^,*,sqrt(),sin(),cos(),tan(),ln(),exp() or e^(...),pi); no "y=". Main curve gold, second teal. Pick a domain that shows the key features. on/to/shade/riemann indices are 0-based into functions. DERIVATIVE problem: plot BOTH the function AND its derivative (you compute the derivative expression). TANGENT/linearization: plot the function, add a tangent line at the point, mark the point (do NOT add the linearization as a separate function). AREA UNDER a curve / definite INTEGRAL of a single function: shade {"under":0,"interval":[a,b]}, AND if the problem is about a Riemann sum or approximating the integral with rectangles, add "riemann" with a sensible n (e.g. 6-10). AREA BETWEEN two curves: plot both, shade {"between":[0,1]}. Add "animate" ONLY when motion truly illuminates: use slidePoint (a point rides the curve, its tangent slope shown live) when the problem is about how a rate/slope CHANGES across an interval; use riemannN (rectangles refine as n grows) when it is about a Riemann sum CONVERGING to the integral. Most problems need no animate. ALL numeric fields (domain, interval, at, x, from, y, a, b, n) MUST be plain decimal numbers — never symbols (pi=3.14159, e=2.71828). Keep it minimal.\n'
++'EXAMPLES:\n"find the derivative of x^3" -> {"functions":[{"expr":"x^3","color":"gold","label":"f = x^3"},{"expr":"3*x^2","color":"teal","label":"f\' = 3x^2"}],"domain":[-2.5,2.5],"caption":"a function and its derivative"}\n'
++'"area under y=x^2 from 0 to 2" -> {"functions":[{"expr":"x^2","color":"gold","label":"y = x^2"}],"domain":[-0.5,2.5],"shade":{"under":0,"interval":[0,2]},"caption":"the area under the curve"}\n'
++'If the input is NOT a graphable calculus problem — it names no function and no mathematical relationship (e.g. small talk, a non-math question) — output exactly {"functions":[]} and nothing else. Never invent a function that was not asked for.\nNow output ONLY the JSON scene-spec for the problem.';
+function jsonRepair(str){
+  let out='',q=false,e=false;
+  for(const c of str){ if(q){out+=c; if(e)e=false; else if(c==='\\')e=true; else if(c==='"')q=false; continue;} if(c==='"'){q=true;out+=c;continue;} out+=c; }
+  return out.replace(/(^|[^A-Za-z0-9_"])pi\b/g,(m,p)=>p+'3.14159265').replace(/(^|[^A-Za-z0-9_".])e\b(?!\^)/g,(m,p)=>p+'2.71828183');
+}
+// instant + free: pure "graph this function" inputs need no AI — the local parser builds the scene
+function localScene(raw){
+  if(/deriv|differentiat|d\/dx|f'|sketch|concav|inflect|increas|decreas|\barea\b|integral|riemann|tangent|lineariz|\blimit\b|maximum|minimum|extrem|optimi|between|bounded|revolv/i.test(raw)) return null;
+  const s=raw.replace(/^\s*(graph|plot|draw|show|sketch)\s+/i,'').trim();
+  const curves=extractCurves(s);
+  if(!curves.length) return null;
+  const cols=['gold','teal','mag'];
+  return { functions:curves.slice(0,3).map((c,i)=>({expr:c,color:cols[i],label:c})), caption:'your function'+(curves.length>1?'s':'') };
+}
+async function getSceneOnce(raw){
+  const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),20000);
+  try{
+    const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},signal:ctrl.signal,
+      body:JSON.stringify({system:SCENE_SYS,messages:[{role:'user',text:raw}]})});
+    clearTimeout(to); const d=await res.json();
+    if(!res.ok||!d.text) return null;
+    const m=d.text.match(/\{[\s\S]*\}/); if(!m) return null;
+    let obj; try{ obj=JSON.parse(m[0]); }catch(e){ try{ obj=JSON.parse(jsonRepair(m[0])); }catch(e2){ return null; } }
+    if(!obj||!Array.isArray(obj.functions)||!obj.functions.length) return null;
+    return obj;
+  }catch(e){ clearTimeout(to); return null; }
+}
+// the free tier occasionally times out / returns malformed JSON — one retry turns a false "can't visualize" into a hit
+async function getScene(raw){
+  const first=await getSceneOnce(raw);
+  if(first) return first;
+  await new Promise(r=>setTimeout(r,400));
+  return getSceneOnce(raw);
 }
 
 /* ---------- routing + result card ---------- */
@@ -344,6 +393,28 @@ function show(r){
   R.style.display='block';
   R.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
+/* universal-grapher render path — for anything that isn't one of the 4 signature archetypes */
+function showGraph(scene, raw){
+  const R=document.getElementById('result');
+  LAST_R={arch:'graph', raw, scene}; resetTutor();
+  document.getElementById('rOpen').style.visibility='';
+  document.getElementById('rWrong').style.visibility='';
+  document.getElementById('rTag').textContent='graphed';
+  document.getElementById('rTitle').textContent=scene.caption||'Your problem, visualized';
+  document.getElementById('rRead').textContent='Here it is, graphed — the function(s) and whatever the problem is really about. Hit "walk me through it" to go step by step.';
+  const P=document.getElementById('rParams'); P.innerHTML='';
+  (scene.functions||[]).slice(0,3).forEach((f,i)=>addParam(P, i===0?'f(x)':(i===1?'g(x)':'h(x)'), f.expr));
+  const b64=btoa(unescape(encodeURIComponent(JSON.stringify(scene))));
+  const url='grapher.html?s='+encodeURIComponent(b64);
+  document.getElementById('rOpen').href=url;
+  document.getElementById('rNote').textContent='graphed from your problem';
+  const prev=document.getElementById('rPreview'), frame=document.getElementById('rFrame');
+  frame.style.height='500px';           // grapher is 100vh → fills the iframe; no postMessage needed
+  frame.src=url;
+  prev.style.display='block';
+  R.style.display='block';
+  R.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
 function addParam(P,label,val){
   const d=document.createElement('div'); d.className='r-param';
   const b=document.createElement('b'); b.textContent=label; d.appendChild(b);
@@ -373,6 +444,8 @@ function groundText(r){
   if(r.arch==='area') return 'AREA BETWEEN CURVES. The region between '+f+(g?(' and '+g):'')+' on '+iv+'. METHOD: Area = integral of (top curve minus bottom curve) dx. First find where the curves intersect to fix the bounds, then integrate top minus bottom.';
   if(r.arch==='tangent') return 'TANGENT LINE / LINEAR APPROXIMATION. f(x)='+f+', point a='+(r.at!=null?r.at:'the given x')+'. METHOD: the linearization is L(x) = f(a) + f\'(a)(x - a). Find f(a); find f\'(x) then f\'(a); write L(x); use it to estimate f near a. Exact at a, drifts as you move away.';
   if(r.arch==='rates') return 'RELATED RATES'+(r.scene?(' ('+r.scene+')'):'')+'. Given rate: '+(r.given!=null?r.given:'the stated rate')+'. METHOD (4 steps): (1) name the changing quantities, mark which rate is GIVEN and which is WANTED; (2) find the equation relating them; (3) differentiate both sides with respect to t (chain rule — every variable earns a rate, constants vanish); (4) substitute the instant\'s numbers LAST, then solve.';
+  if(r.arch==='graph'){ const fs=(r.scene&&r.scene.functions||[]).map(f=>f.expr).join(', ');
+    return 'The graph shows: '+(fs||'the relevant function(s)')+'. Work out what the student\'s problem is actually asking (a derivative, where the function increases/decreases, concavity/inflection, an area or definite integral, a limit, or just reading the graph) and walk them through THAT step by step, using the graph and their numbers.'; }
   return '';
 }
 function tutorSystem(r,raw){
@@ -439,6 +512,17 @@ function showLoading(){
   R.style.display='block';
   R.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
+// improvement flywheel: every real miss is logged as a GoatCounter event so the owner can READ what failed.
+// two buckets — 'unrendered' = real math the engine couldn't draw (GOLD: each becomes a new rule/corpus case);
+// 'nonmath' = junk with no math signal (ignorable). No backend; the typed problem rides in the event path.
+function logMiss(raw, stage){
+  try{
+    const q=raw.replace(/\s+/g,' ').trim().slice(0,120);
+    if(window.goatcounter && typeof window.goatcounter.count==='function'){
+      window.goatcounter.count({ path:'viz-miss/'+stage+'/'+q, title:'Visualizer miss ('+stage+'): '+q, event:true });
+    }
+  }catch(e){}
+}
 function showFail(){
   const R=document.getElementById('result');
   hidePreview(); resetTutor();
@@ -458,19 +542,31 @@ async function run(){
   if(!raw) return;
   const token=++_runToken;
   const local=recognize(raw);
-  if(local && !local.unsure && !looksLikeProse(raw)){ show(local); return; }  // terse + confident → instant
-  showLoading();                                       // local missed/unsure → ask the AI
-  const ai=await askAI(raw);
-  if(token!==_runToken) return;                         // a newer run superseded this one
-  if(ai){
-    // belt-and-suspenders: if the AI dropped a curve the regex can still see, backfill it
-    if((ai.arch==='solid'||ai.arch==='area') && ai.curves){
-      for(const c of extractCurves(raw)){ if(ai.curves.length<2 && ai.curves.indexOf(c)<0) ai.curves.push(c); }
+  if(local && !looksLikeProse(raw)){ show(local); return; }   // confident local signature archetype → instant
+  const bare = !hasSignatureHint(raw) ? localScene(raw) : null;   // pure "graph f(x)" → instant, free, no AI
+  if(bare){ showGraph(bare, raw); return; }
+  showLoading();
+  // cross-section volumes have no axis of rotation — never a solid of revolution; let the grapher draw the base region
+  const crossSection=/cross[\s-]*section/i.test(raw);
+  // signature-archetype prose (revolve / area / tangent / rates) → classify into a dedicated visual
+  if(hasSignatureHint(raw) && !crossSection){
+    const ai=await askAI(raw);
+    if(token!==_runToken) return;
+    if(ai){
+      if((ai.arch==='solid'||ai.arch==='area') && ai.curves){
+        for(const c of extractCurves(raw)){ if(ai.curves.length<2 && ai.curves.indexOf(c)<0) ai.curves.push(c); }
+      }
+      if(ai.arch==='rates' && ai.given==null) ai.given=extractGivenRate(raw);
+      show(ai); return;
     }
-    if(ai.arch==='rates' && ai.given==null) ai.given=extractGivenRate(raw);  // regex catches the rate the JSON omits
-    show(ai); return;
   }
-  if(local){ show(local); return; }                     // AI down → use the local guess
+  // everything else → the universal grapher (AI directs a scene-spec, deterministic renderer draws it)
+  const mathy=looksMathy(raw);
+  const scene=mathy ? await getScene(raw) : null;   // no math signal at all → don't waste a call / hallucinate
+  if(token!==_runToken) return;
+  if(scene){ showGraph(scene, raw); return; }
+  if(local){ show(local); return; }                     // last resort: the local signature guess
+  logMiss(raw, mathy ? 'unrendered' : 'nonmath');       // real math we couldn't draw = the next rule to write
   showFail();
 }
 document.getElementById('go').onclick=run;
