@@ -95,6 +95,10 @@
   body.embed{padding:4px 2px}
   body.embed .backlink,body.embed header,body.embed footer{display:none}
   body.embed .console{margin-top:0}
+  /* ?embed=viz — inline preview inside the Visualizer: show only the visual + the result card */
+  body.embed-viz .backlink,body.embed-viz header,body.embed-viz footer,body.embed-viz .console{display:none}
+  body.embed-viz{padding:0}
+  body.embed-viz .stage{margin-top:0}
 </style>
   <script data-goatcounter="https://visualcalculus.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -683,6 +687,7 @@ function applyParams(){
 function boot(){
   applyTheme(); applyParams();
   if(/[?&]embed/.test(location.search)) document.body.classList.add('embed');
+  if(qp.get('embed')==='viz') document.body.classList.add('embed-viz');
   THREEOK=init3D(); run();
   if(window.parent!==window){ postHeight(); try{ new ResizeObserver(postHeight).observe(document.body); }catch(e){} window.addEventListener('resize',postHeight); setTimeout(postHeight,400); }
   if(!window.katex){ let n=0; const iv=setInterval(()=>{ if(window.katex){clearInterval(iv); run(); postHeight();} else if(++n>60)clearInterval(iv); },100); } }

@@ -38,7 +38,25 @@
   .r-params{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 4px}
   .r-param{background:#0e0b04;border:1px solid var(--line);border-radius:10px;padding:9px 14px;font-family:var(--mono);font-size:13.5px}
   .r-param b{color:var(--approx);font-weight:600;margin-right:7px}
+  .r-preview{margin-top:18px}
+  .r-pvlab{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:9px}
+  #rFrame{width:100%;height:520px;border:1px solid var(--line);border-radius:14px;background:#0a0710;display:block;transition:height .25s ease}
   .r-actions{display:flex;gap:12px;align-items:center;margin-top:16px;flex-wrap:wrap}
+  /* ---- inline Socratic tutor ---- */
+  .r-tutorwrap{margin-top:16px;border-top:1px solid var(--line);padding-top:16px}
+  .tutor-start{background:none;border:1px solid rgba(240,180,41,.5);color:var(--approx);border-radius:10px;font-family:var(--mono);font-weight:600;font-size:13.5px;padding:12px 22px;cursor:pointer;transition:background .15s,transform .15s}
+  .tutor-start:hover{background:rgba(240,180,41,.09);transform:translateY(-1px)}
+  .tutor-log{display:flex;flex-direction:column;gap:10px;max-height:360px;overflow-y:auto;padding:4px 2px 6px}
+  .tmsg{max-width:82%;padding:11px 15px;border-radius:14px;font-size:14.5px;line-height:1.55}
+  .ttutor{align-self:flex-start;background:#141006;border:1px solid rgba(240,180,41,.28);border-bottom-left-radius:4px}
+  .tuser{align-self:flex-end;background:#12100a;border:1px solid var(--line);border-bottom-right-radius:4px;color:var(--muted)}
+  .tthinking{opacity:.6;font-style:italic}
+  .tutor-in{display:flex;gap:9px;margin-top:12px}
+  .tutor-in input{flex:1;background:#0e0b04;border:1px solid var(--line);border-radius:10px;color:var(--ink);font-size:14.5px;padding:12px 14px;outline:none;min-width:0}
+  .tutor-in input:focus{border-color:rgba(240,180,41,.5)}
+  .tutor-in button{background:var(--approx);color:#241a02;border:none;border-radius:10px;font-family:var(--mono);font-weight:700;font-size:13px;padding:12px 18px;cursor:pointer}
+  .tutor-in button:disabled{opacity:.5;cursor:default}
+  .tutor-foot{font-family:var(--mono);font-size:11px;color:var(--faint,#6b6047);margin-top:9px}
   .r-open{display:inline-block;text-decoration:none;background:var(--approx);color:#241a02;border-radius:10px;
     font-family:var(--mono);font-weight:700;font-size:14px;padding:13px 24px;box-shadow:0 10px 22px -12px var(--approx);transition:transform .15s}
   .r-open:hover{transform:translateY(-1px)}
@@ -84,10 +102,25 @@
     <div class="r-title" id="rTitle"></div>
     <div class="r-read" id="rRead"></div>
     <div class="r-params" id="rParams"></div>
+    <div class="r-preview" id="rPreview" style="display:none">
+      <div class="r-pvlab" id="rPvLab">your problem, live &darr;</div>
+      <iframe id="rFrame" title="live preview of your problem" scrolling="no"></iframe>
+    </div>
     <div class="r-actions">
-      <a class="r-open" id="rOpen" href="#">Open it →</a>
+      <a class="r-open" id="rOpen" href="#" target="_blank" rel="noopener">⤢ Open fullscreen</a>
       <span class="r-note" id="rNote"></span>
       <button class="r-wrong" id="rWrong">not what you meant? pick manually ↓</button>
+    </div>
+    <div class="r-tutorwrap">
+      <button class="tutor-start" id="tutorStart">Walk me through it &rarr;</button>
+      <div class="r-tutor" id="rTutor" style="display:none">
+        <div class="tutor-log" id="tutorLog"></div>
+        <div class="tutor-in">
+          <input id="tutorInput" placeholder="type your thinking, or ask a question&hellip;" autocomplete="off" spellcheck="false">
+          <button id="tutorSend">Send</button>
+        </div>
+        <div class="tutor-foot">a Socratic tutor for <i>this</i> problem &middot; it guides, it won't just hand you the answer</div>
+      </div>
     </div>
   </div>
 
@@ -249,13 +282,13 @@ function aiToResult(j){
 /* ---------- routing + result card ---------- */
 const ARCH_META={
   solid:{tag:'solid of revolution', title:'Your region, swept into a solid',
-    read:'I\'ll load these curves into Revolve — watch the region sweep around the axis into the 3D solid, with the disc/washer setup in your numbers.', note:'opens Revolve with your curves'},
+    read:'Your region sweeps around the axis into a 3D solid you can spin — with the disc/washer setup and volume in your own numbers.', note:'drag to spin · scroll to zoom'},
   area:{tag:'area between curves', title:'The region between your curves',
-    read:'I\'ll shade the region between your curves and set up the area integral ∫(top − bottom) with your numbers, computed.', note:'opens the region + area integral'},
+    read:'The region between your curves, shaded, with the area integral ∫(top − bottom) set up and computed.', note:'your area, computed'},
   tangent:{tag:'tangent · linearization', title:'Ride the tangent at your point',
-    read:'I\'ll drop your function into the tangent-rider — slide the point and zoom until the curve merges into its own tangent line.', note:'opens Ride the Tangent with your f(x)'},
+    read:'Your function with its tangent line — slide the point and zoom in until the curve merges into the line (local linearity).', note:'slide the point · zoom in'},
   rates:{tag:'related rates', title:'A classic scene, animated',
-    read:'This is one of the classic related-rates setups — the lab plays the animated scene with your given rate dialed in and the 4-step method beside it. (The scene uses clean textbook dimensions — the method is what carries over.)', note:'opens the related-rates lab on the matching scene'}
+    read:'Your given rate drives the matching scene while the linked rate is computed live — with the 4-step setup built out beside it. (Clean textbook dimensions; the method is what carries over.)', note:'press play · build the 4 steps'}
 };
 function buildUrl(r){
   if(r.arch==='solid'||r.arch==='area'){
@@ -285,6 +318,7 @@ function buildUrl(r){
 }
 function show(r){
   const meta=ARCH_META[r.arch], R=document.getElementById('result');
+  LAST_R=r; resetTutor();
   document.getElementById('rOpen').style.visibility='';
   document.getElementById('rWrong').style.visibility='';
   document.getElementById('rTag').textContent=meta.tag;
@@ -298,8 +332,15 @@ function show(r){
   if(r.at) addParam(P,'at','x = '+r.at);
   if(r.scene) addParam(P,'scene',r.scene);
   if(r.given!=null) addParam(P,'given rate',r.given);
-  document.getElementById('rOpen').href=buildUrl(r);
+  const url=buildUrl(r);
+  document.getElementById('rOpen').href=url;
   document.getElementById('rNote').textContent=meta.note;
+  // inline live visual — every archetype renders right here, no page-jump
+  const prev=document.getElementById('rPreview'), frame=document.getElementById('rFrame');
+  const embed=(r.arch==='solid'||r.arch==='area')?'viz':'tool';  // Revolve uses viz; lesson tools use tool
+  frame.style.height='520px';
+  frame.src=url+(url.indexOf('?')>=0?'&':'?')+'embed='+embed;
+  prev.style.display='block';
   R.style.display='block';
   R.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
@@ -313,8 +354,81 @@ function addParam(P,label,val){
 }
 
 /* ---------- wiring ---------- */
+/* keep the inline preview iframe sized to Revolve's reported height */
+window.addEventListener('message',e=>{
+  const h=e.data&&(e.data.revolveH||e.data.vizH);
+  if(h){ const f=document.getElementById('rFrame'); if(f) f.style.height=Math.max(420,Math.min(820,h))+'px'; }
+});
+function hidePreview(){ const p=document.getElementById('rPreview'); if(p) p.style.display='none'; }
+
+/* ============ inline SOCRATIC TUTOR (same Groq worker as the site tutor) ============ */
+let LAST_R=null;
+const TUTOR={msgs:[],busy:false,sys:''};
+function axisText(ax){ if(!ax||ax.mode==='x') return 'the x-axis'; if(ax.mode==='y') return 'the y-axis';
+  if(ax.mode==='hk') return 'the line y='+ax.k; if(ax.mode==='vh') return 'the line x='+ax.k; return 'the x-axis'; }
+function groundText(r){
+  const c=r.curves||[], f=c[0]||'the given curve', g=c[1];
+  const iv=r.iv?('the interval ['+r.iv[0]+', '+r.iv[1]+']'):'the interval where they bound a region';
+  if(r.arch==='solid') return 'SOLID OF REVOLUTION. The region '+(g?('between f(x)='+f+' and g(x)='+g):('under y='+f))+' on '+iv+' is revolved about '+axisText(r.ax)+'. METHOD (disc/washer): each slice perpendicular to the axis is a washer with outer radius R = distance from the axis to the FAR curve, inner radius r = distance to the NEAR curve. Volume = pi times the integral of (R^2 - r^2) dx over the bounds. If the region touches the axis, r=0 and the slice is a full disc.';
+  if(r.arch==='area') return 'AREA BETWEEN CURVES. The region between '+f+(g?(' and '+g):'')+' on '+iv+'. METHOD: Area = integral of (top curve minus bottom curve) dx. First find where the curves intersect to fix the bounds, then integrate top minus bottom.';
+  if(r.arch==='tangent') return 'TANGENT LINE / LINEAR APPROXIMATION. f(x)='+f+', point a='+(r.at!=null?r.at:'the given x')+'. METHOD: the linearization is L(x) = f(a) + f\'(a)(x - a). Find f(a); find f\'(x) then f\'(a); write L(x); use it to estimate f near a. Exact at a, drifts as you move away.';
+  if(r.arch==='rates') return 'RELATED RATES'+(r.scene?(' ('+r.scene+')'):'')+'. Given rate: '+(r.given!=null?r.given:'the stated rate')+'. METHOD (4 steps): (1) name the changing quantities, mark which rate is GIVEN and which is WANTED; (2) find the equation relating them; (3) differentiate both sides with respect to t (chain rule — every variable earns a rate, constants vanish); (4) substitute the instant\'s numbers LAST, then solve.';
+  return '';
+}
+function tutorSystem(r,raw){
+  return 'You are Larry, a warm, encouraging AP Calculus tutor. Walk the student through THEIR OWN problem using the Socratic method. RULES: ask ONE guiding question at a time and wait; NEVER dump the full solution; keep every reply short (2-4 sentences); use the student\'s exact numbers; if they are stuck give a small hint, not the answer; when they get a step right, affirm briefly and move on; be human, not robotic. Write math as simple LaTeX inside \\( \\) delimiters, e.g. \\(x^2\\). '+
+    'THE STUDENT PASTED: "'+raw+'". GROUND TRUTH (do not deviate): '+groundText(r)+' '+
+    'Begin now: in one short message, name what kind of problem this is, then ask what they think the very first step should be.';
+}
+function tutorHTML(text){
+  const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  let out='',i=0; const re=/\\\(([\s\S]*?)\\\)/g; let m;
+  while((m=re.exec(text))){ out+=esc(text.slice(i,m.index));
+    try{ out+= window.katex?katex.renderToString(m[1],{throwOnError:false}):esc(m[1]); }catch(e){ out+=esc(m[1]); }
+    i=m.index+m[0].length; }
+  out+=esc(text.slice(i)); return out.replace(/\n/g,'<br>');
+}
+function renderTutorLog(){
+  const log=document.getElementById('tutorLog');
+  log.innerHTML=TUTOR.msgs.map(m=>'<div class="tmsg '+(m.role==='tutor'?'ttutor':'tuser')+'">'+tutorHTML(m.text)+'</div>').join('')
+    +(TUTOR.busy?'<div class="tmsg ttutor tthinking">Larry is thinking…</div>':'');
+  log.scrollTop=log.scrollHeight;
+}
+function resetTutor(){
+  TUTOR.msgs=[]; TUTOR.busy=false; TUTOR.sys='';
+  const t=document.getElementById('rTutor'), s=document.getElementById('tutorStart');
+  if(t) t.style.display='none'; if(s) s.style.display='inline-block';
+  const log=document.getElementById('tutorLog'); if(log) log.innerHTML='';
+}
+async function tutorTurn(isKick){
+  TUTOR.busy=true; renderTutorLog();
+  const sendBtn=document.getElementById('tutorSend'); if(sendBtn) sendBtn.disabled=true;
+  const messages=isKick?[{role:'user',text:'Please start.'}]:TUTOR.msgs.map(m=>({role:m.role==='tutor'?'tutor':'user',text:m.text}));
+  const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),30000);
+  try{
+    const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},signal:ctrl.signal,
+      body:JSON.stringify({system:TUTOR.sys,messages})});
+    clearTimeout(to); const d=await res.json(); TUTOR.busy=false; if(sendBtn) sendBtn.disabled=false;
+    TUTOR.msgs.push({role:'tutor',text:(res.ok&&d.text)?d.text:'⚠ I couldn\'t reach my brain just now — try sending again.'});
+    renderTutorLog();
+  }catch(e){ clearTimeout(to); TUTOR.busy=false; if(sendBtn) sendBtn.disabled=false;
+    TUTOR.msgs.push({role:'tutor',text:'⚠ '+(e.name==='AbortError'?'that took too long — try again.':'connection hiccup — try again.')}); renderTutorLog(); }
+}
+function startTutor(){
+  if(!LAST_R) return;
+  TUTOR.msgs=[]; TUTOR.sys=tutorSystem(LAST_R, document.getElementById('q').value.trim());
+  document.getElementById('tutorStart').style.display='none';
+  document.getElementById('rTutor').style.display='block';
+  tutorTurn(true);
+}
+function tutorSendUser(){
+  const inp=document.getElementById('tutorInput'), text=inp.value.trim();
+  if(!text||TUTOR.busy) return; inp.value='';
+  TUTOR.msgs.push({role:'user',text}); renderTutorLog(); tutorTurn(false);
+}
 function showLoading(){
   const R=document.getElementById('result');
+  hidePreview(); resetTutor();
   document.getElementById('rTag').textContent='reading…';
   document.getElementById('rTitle').textContent='figuring out your problem…';
   document.getElementById('rRead').textContent='Checking the AI reader for phrasing my quick rules didn\'t catch.';
@@ -327,6 +441,7 @@ function showLoading(){
 }
 function showFail(){
   const R=document.getElementById('result');
+  hidePreview(); resetTutor();
   document.getElementById('rOpen').style.visibility='';
   document.getElementById('rWrong').style.visibility='hidden';
   document.getElementById('rTag').textContent='hmm';
@@ -365,6 +480,9 @@ document.getElementById('chips').addEventListener('click',e=>{
   document.getElementById('q').value=b.dataset.q; run();
 });
 document.getElementById('rWrong').onclick=()=>document.getElementById('picker').scrollIntoView({behavior:'smooth'});
+document.getElementById('tutorStart').onclick=startTutor;
+document.getElementById('tutorSend').onclick=tutorSendUser;
+document.getElementById('tutorInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); tutorSendUser(); } });
 document.getElementById('picker').addEventListener('click',e=>{
   const c=e.target.closest('.p-card'); if(!c) return;
   const arch=c.dataset.arch, raw=document.getElementById('q').value.trim();

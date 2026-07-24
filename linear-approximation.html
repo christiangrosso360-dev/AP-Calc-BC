@@ -145,7 +145,7 @@
     <span style="color:var(--approx)">f(x)</span>. The gap between them is the error — and its direction is set
     by which way the curve bends.</p>
 
-  <div class="card reveal">
+  <div class="card reveal" id="laTool">
     <div class="scen-btns" id="laScen"></div>
     <div class="exbody">
       <div class="exviz">
@@ -495,7 +495,19 @@ function renderQuiz(){ qAnswered=false; const item=QUIZ[qi];
 qNext.onclick=()=>{ if(qi<QUIZ.length-1){ qi++; } else { qi=0; qScore=0; qDone=0; } renderQuiz(); };
 
 /* ============ init ============ */
-function boot(){ applyLAParams(); renderScen(); wireA(); renderLA(); renderDerive(); renderBits(); renderPractice(); renderQuiz(); }
+/* ---- inline-embed mode for the Visualizer: ?embed=tool shows ONLY the tool card ---- */
+function applyLAEmbed(){
+  if(new URLSearchParams(location.search).get('embed')!=='tool') return;
+  document.body.classList.add('la-embed');
+  const st=document.createElement('style');
+  st.textContent='body.la-embed{background:transparent;padding:0}.la-embed .wrap>*:not(#laTool){display:none!important}.la-embed .wrap{margin:0;padding:0;max-width:none}.la-embed #laTool{margin:0}';
+  document.head.appendChild(st);
+  const post=()=>{ if(window.parent===window) return; const el=document.getElementById('laTool');
+    const h=el?el.getBoundingClientRect().bottom:document.body.scrollHeight; try{ parent.postMessage({vizH:Math.ceil(h)+14},'*'); }catch(e){} };
+  try{ new ResizeObserver(post).observe(document.body); }catch(e){}
+  [300,700,1300].forEach(t=>setTimeout(post,t));
+}
+function boot(){ applyLAEmbed(); applyLAParams(); renderScen(); wireA(); renderLA(); renderDerive(); renderBits(); renderPractice(); renderQuiz(); }
 boot();
 if(!window.katex){ let tries=0; const t=setInterval(()=>{ if(window.katex){ clearInterval(t); renderDerive(); renderBits(); renderPractice(); renderQuiz(); updateLA(); }
   else if(++tries>40) clearInterval(t); },150); }

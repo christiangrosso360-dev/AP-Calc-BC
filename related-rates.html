@@ -205,7 +205,7 @@
     and the linked rate is <b>computed live</b> from the equation, so you watch them lock. The four setup steps
     fill in beside it. Then <b>build the setup yourself</b> in the challenge below.</p>
 
-  <div class="card reveal">
+  <div class="card reveal" id="rlTool">
     <div class="scen-btns" id="rlScen"></div>
     <div class="exbody">
       <div class="exviz">
@@ -685,7 +685,19 @@ function bossBoot(){
 }
 
 /* ============ init ============ */
-function boot(){ applyRLParams(); renderScenBtns(); wireRate(); applyGiven(); renderBuilder(); renderScene(); renderPractice(); renderQreps(); bossBoot(); renderTips(); }
+/* ---- inline-embed mode for the Visualizer: ?embed=tool shows ONLY the scene+builder card ---- */
+function applyRLEmbed(){
+  if(new URLSearchParams(location.search).get('embed')!=='tool') return;
+  document.body.classList.add('rl-embed');
+  const st=document.createElement('style');
+  st.textContent='body.rl-embed{background:transparent;padding:0}.rl-embed .wrap>*:not(#rlTool){display:none!important}.rl-embed .wrap{margin:0;padding:0;max-width:none}.rl-embed #rlTool{margin:0}';
+  document.head.appendChild(st);
+  const post=()=>{ if(window.parent===window) return; const el=document.getElementById('rlTool');
+    const h=el?el.getBoundingClientRect().bottom:document.body.scrollHeight; try{ parent.postMessage({vizH:Math.ceil(h)+14},'*'); }catch(e){} };
+  try{ new ResizeObserver(post).observe(document.body); }catch(e){}
+  [300,700,1300].forEach(t=>setTimeout(post,t));
+}
+function boot(){ applyRLEmbed(); applyRLParams(); renderScenBtns(); wireRate(); applyGiven(); renderBuilder(); renderScene(); renderPractice(); renderQreps(); bossBoot(); renderTips(); }
 boot();
 if(!window.katex){ let tries=0; const t=setInterval(()=>{ if(window.katex){ clearInterval(t); renderBuilder(); renderScene(); renderPractice(); renderQreps(); renderTips(); }
   else if(++tries>40) clearInterval(t); },150); }
