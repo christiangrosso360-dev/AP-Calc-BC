@@ -579,10 +579,30 @@ function renderAnalysis(reg,topIsF,A){
     '<div class="val"><span class="vk">Interval</span><span class="vv" style="font-size:18px">['+nk(A.a)+', '+nk(A.b)+']</span></div>';
 }
 
+/* ---- AREA between curves: the region IS the answer (no revolving) ---- */
+function renderAreaAnalysis(reg,topIsF){
+  document.getElementById('analysis').style.display='';
+  const fT=toTex(FAST), gT=GAST?toTex(GAST):'0';
+  const topTex=topIsF?fT:gT, botTex=topIsF?gT:fT;
+  const nk=v=>fmtNum(v);
+  const area=Math.abs(simpson(x=>{const v=safe(reg.f,x)-safe(reg.g,x); return isFinite(v)?v:0;}, reg.a, reg.b, 2000));
+  document.getElementById('mTag').textContent='Area between curves';
+  document.getElementById('mTitle').textContent='The area of your region';
+  const whyEl=document.getElementById('mWhy'); whyEl.className='why';
+  whyEl.innerHTML='Across the interval, the <b>top curve minus the bottom curve</b> gives the height of each thin strip — integrate that height and you get the enclosed area.';
+  const tx='A=\\int_{'+nk(reg.a)+'}^{'+nk(reg.b)+'}\\Big['+topTex+'-\\left('+botTex+'\\right)\\Big]\\,dx';
+  const setup=document.getElementById('mSetup');
+  try{ setup.innerHTML=window.katex?katex.renderToString(tx,{throwOnError:false,displayMode:true}):'<span class="tex-fallback">'+tx+'</span>'; }
+  catch(e){ setup.innerHTML='<span class="tex-fallback">'+tx+'</span>'; }
+  document.getElementById('mVals').innerHTML=
+    '<div class="val"><span class="vk">Area</span><span class="vv">'+(+area.toFixed(4))+' <small>units²</small></span></div>'+
+    '<div class="val"><span class="vk">Top − bottom</span><span class="vv" style="font-size:16px">on ['+nk(reg.a)+', '+nk(reg.b)+']</span></div>';
+}
+
 /* ============================================================
    7 · DRIVER
    ============================================================ */
-var FAST=null,GAST=null,AXIS_MODE='x';
+var FAST=null,GAST=null,AXIS_MODE='x',AREA_MODE=false;
 function currentAxis(){
   if(AXIS_MODE==='x') return {type:'h',k:0};
   if(AXIS_MODE==='y') return {type:'v',k:0};
@@ -601,6 +621,12 @@ function run(){
     if(!(reg.b>reg.a)) throw new Error('the interval is empty — check a and b');
     const axis=currentAxis();
     const mid=(reg.a+reg.b)/2, topIsF=safe(reg.f,mid)>=safe(reg.g,mid);
+    if(AREA_MODE){
+      draw2D(reg,topIsF,axis);
+      renderAreaAnalysis(reg,topIsF);
+      CUR={reg};
+      return;
+    }
     const A=analyze(reg,axis);
     draw2D(reg,topIsF,axis);
     if(THREEOK) buildSolid(A,reg);
@@ -627,8 +653,35 @@ document.getElementById('chips').addEventListener('click',e=>{ const c=e.target.
   run(); });
 
 function postHeight(){ if(window.parent!==window){ try{ const w=document.querySelector('.wrap'); const h=w?w.getBoundingClientRect().bottom:document.body.scrollHeight; parent.postMessage({revolveH:Math.ceil(h)+8},'*'); }catch(e){} } }
+/* ---- The Visualizer hands problems here via URL params: ?f=&g=&a=&b=&axis=x|y|hk|vh&k=&mode=area ---- */
+function applyParams(){
+  const f=qp.get('f'), g=qp.get('g'), a=qp.get('a'), b=qp.get('b'), ax=qp.get('axis'), k=qp.get('k');
+  if(f) document.getElementById('fIn').value=f;
+  if(g!==null) document.getElementById('gIn').value=g;
+  if(a) document.getElementById('aIn').value=a;
+  if(b) document.getElementById('bIn').value=b;
+  if(ax && ['x','y','hk','vh'].indexOf(ax)>=0){
+    if(ax==='hk'&&k!=null) document.getElementById('hkIn').value=k;
+    if(ax==='vh'&&k!=null) document.getElementById('vhIn').value=k;
+    AXIS_MODE=ax;
+    [...document.querySelectorAll('.aseg')].forEach(el=>el.classList.toggle('on',el.dataset.axis===ax));
+  }
+  if(qp.get('mode')==='area'){
+    /* area-between-curves view: hide the 3D solid + the revolve-axis control;
+       run() renders the AREA integral card instead of the volume one (see AREA_MODE) */
+    AREA_MODE=true;
+    document.body.classList.add('area-mode');
+    const st=document.createElement('style');
+    st.textContent='.area-mode .stage .panel:nth-child(2){display:none}.area-mode .stage{grid-template-columns:1fr}.area-mode .field:has(#axisSeg){display:none}';
+    document.head.appendChild(st);
+    const lbl=document.querySelector('.stage .panel .plabel span');
+    if(lbl) lbl.textContent='The region — your area';
+    const hint=document.querySelector('.stage .panel .plabel .hint');
+    if(hint) hint.textContent='the area between your curves';
+  }
+}
 function boot(){
-  applyTheme();
+  applyTheme(); applyParams();
   if(/[?&]embed/.test(location.search)) document.body.classList.add('embed');
   THREEOK=init3D(); run();
   if(window.parent!==window){ postHeight(); try{ new ResizeObserver(postHeight).observe(document.body); }catch(e){} window.addEventListener('resize',postHeight); setTimeout(postHeight,400); }

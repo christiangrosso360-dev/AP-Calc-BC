@@ -271,8 +271,65 @@ const SCEN=[
  { key:"wave", name:"2 + sin x", disp:"2+\\sin x", f:x=>2+Math.sin(x), d1:x=>Math.cos(x), d2:x=>-Math.sin(x),
    aMin:0.4, aMax:6, a0:1, wMin:0.1, wMax:2 },
 ];
+/* ---- expression parser (ported from Revolve) so the Visualizer can hand us any f(x) via ?f=&at= ---- */
+const FN_ALIAS={arcsin:'asin',arccos:'acos',arctan:'atan'};
+function tokenize(s){ s=s.replace(/\s+/g,''); if(!s) throw new Error('empty'); const T=[]; let i=0;
+  const dig=c=>c>='0'&&c<='9', alp=c=>(c>='a'&&c<='z')||(c>='A'&&c<='Z');
+  while(i<s.length){ const c=s[i];
+    if(dig(c)||c==='.'){ let j=i+1; while(j<s.length&&(dig(s[j])||s[j]==='.'))j++; T.push({t:'num',v:parseFloat(s.slice(i,j))}); i=j; }
+    else if(alp(c)){ let j=i+1; while(j<s.length&&(alp(s[j])||dig(s[j])))j++; T.push({t:'id',v:s.slice(i,j).toLowerCase()}); i=j; }
+    else if('+-*/^()'.includes(c)){ T.push({t:c}); i++; } else throw new Error('unexpected "'+c+'"'); } return T; }
+function parse(str){ const T=tokenize(str); let p=0; const peek=()=>T[p], adv=()=>T[p++];
+  function expr(){ let a=term(); while(peek()&&(peek().t==='+'||peek().t==='-')){ const o=adv().t; a={t:o==='+'?'add':'sub',a,b:term()}; } return a; }
+  function term(){ let a=unary(); while(peek()){ const k=peek().t; if(k==='*'||k==='/'){ adv(); a={t:k==='*'?'mul':'div',a,b:unary()}; } else if(k==='num'||k==='id'||k==='('){ a={t:'mul',a,b:unary()}; } else break; } return a; }
+  function unary(){ if(peek()&&peek().t==='-'){ adv(); return {t:'neg',a:unary()}; } if(peek()&&peek().t==='+'){ adv(); return unary(); } return pw(); }
+  function pw(){ const a=atom(); if(peek()&&peek().t==='^'){ adv(); return {t:'pow',a,b:unary()}; } return a; }
+  function atom(){ const k=peek(); if(!k) throw new Error('unexpected end');
+    if(k.t==='num'){ adv(); return {t:'num',v:k.v}; }
+    if(k.t==='('){ adv(); const e=expr(); expect(')'); return e; }
+    if(k.t==='id'){ adv(); const nm=k.v; if(nm==='x') return {t:'var'};
+      if(nm==='pi') return {t:'const',v:Math.PI,name:'pi'}; if(nm==='tau') return {t:'const',v:2*Math.PI,name:'tau'};
+      if(peek()&&peek().t==='('){ adv(); const arg=expr(); expect(')'); return {t:'call',name:FN_ALIAS[nm]||nm,arg}; }
+      if(nm==='e') return {t:'const',v:Math.E,name:'e'}; throw new Error('unknown name "'+nm+'"'); }
+    throw new Error('unexpected token'); }
+  function expect(t){ if(!peek()||peek().t!==t) throw new Error('expected "'+t+'"'); adv(); }
+  const ast=expr(); if(p<T.length) throw new Error('trailing input'); return ast; }
+const FNS={ sin:Math.sin,cos:Math.cos,tan:Math.tan,asin:Math.asin,acos:Math.acos,atan:Math.atan,sinh:Math.sinh,cosh:Math.cosh,tanh:Math.tanh,sec:x=>1/Math.cos(x),csc:x=>1/Math.sin(x),cot:x=>1/Math.tan(x),ln:Math.log,log:x=>Math.log10(x),log2:x=>Math.log2(x),exp:Math.exp,sqrt:Math.sqrt,cbrt:Math.cbrt,abs:Math.abs };
+function ev(n,x){ switch(n.t){ case 'num':return n.v; case 'var':return x; case 'const':return n.v; case 'neg':return -ev(n.a,x);
+  case 'add':return ev(n.a,x)+ev(n.b,x); case 'sub':return ev(n.a,x)-ev(n.b,x); case 'mul':return ev(n.a,x)*ev(n.b,x); case 'div':return ev(n.a,x)/ev(n.b,x);
+  case 'pow':return Math.pow(ev(n.a,x),ev(n.b,x)); case 'call':{ const f=FNS[n.name]; if(!f) throw new Error('unknown fn'); return f(ev(n.arg,x)); } } }
+function fmtNum(v){ if(!isFinite(v)) return String(v); if(Math.abs(v-Math.round(v))<1e-9) return String(Math.round(v)); return (+v.toFixed(4)).toString(); }
+function texEmit(n,parent){ let s,prec; switch(n.t){
+    case 'num':s=fmtNum(n.v);prec=5;break; case 'var':s='x';prec=5;break;
+    case 'const':s=(n.name==='pi'?'\\pi':n.name==='tau'?'\\tau':n.name==='e'?'e':fmtNum(n.v));prec=5;break;
+    case 'neg':s='-'+texEmit(n.a,3);prec=2;break; case 'add':s=texEmit(n.a,1)+'+'+texEmit(n.b,1);prec=1;break;
+    case 'sub':s=texEmit(n.a,1)+'-'+texEmit(n.b,2);prec=1;break;
+    case 'mul':{ const l=texEmit(n.a,2),r=texEmit(n.b,2); s=(n.a.t==='num'&&n.b.t!=='num')?l+r:l+'\\cdot '+r; prec=2; break; }
+    case 'div':s='\\dfrac{'+texEmit(n.a,0)+'}{'+texEmit(n.b,0)+'}';prec=5;break;
+    case 'pow':s=texEmit(n.a,5)+'^{'+texEmit(n.b,0)+'}';prec=4;break; case 'call':s=texCall(n);prec=5;break; }
+  if(prec<parent) return '\\left('+s+'\\right)'; return s; }
+function texCall(n){ const a=texEmit(n.arg,0), nm=n.name;
+  if(nm==='sqrt') return '\\sqrt{'+a+'}'; if(nm==='cbrt') return '\\sqrt[3]{'+a+'}'; if(nm==='abs') return '\\left|'+a+'\\right|';
+  if(nm==='exp') return 'e^{'+a+'}'; if(nm==='ln') return '\\ln\\!\\left('+a+'\\right)'; if(nm==='log') return '\\log\\!\\left('+a+'\\right)';
+  if(nm==='asin') return '\\arcsin\\!\\left('+a+'\\right)'; if(nm==='acos') return '\\arccos\\!\\left('+a+'\\right)'; if(nm==='atan') return '\\arctan\\!\\left('+a+'\\right)';
+  return '\\'+nm+'\\!\\left('+a+'\\right)'; }
+function toTex(ast){ return texEmit(ast,0); }
+
 const LW=520, LH=400, LP=44;
 let si=0, la=SCEN[0].a0, lz=0.3;
+
+/* ---- Visualizer handoff: ?f=<expr>&at=<x> builds a custom scenario with numerical derivatives ---- */
+function applyLAParams(){
+  const qp=new URLSearchParams(location.search); const fp=qp.get('f'); if(!fp) return;
+  try{
+    const ast=parse(fp); const f=x=>ev(ast,x);
+    if(!isFinite(f(1))&&!isFinite(f(2))&&!isFinite(f(0.5))) return;  // needs at least some real values
+    const h=1e-4, d1=x=>(f(x+h)-f(x-h))/(2*h), d2=x=>(f(x+h)-2*f(x)+f(x-h))/(h*h);
+    let a0=parseFloat(qp.get('at')); if(!isFinite(a0)) a0=1;
+    SCEN.unshift({ key:'custom', name:'your f(x)', disp:toTex(ast), f, d1, d2, aMin:a0-5, aMax:a0+5, a0, wMin:0.1, wMax:4 });
+    si=0; la=a0; lz=0.3;
+  }catch(e){ /* unparseable → keep the built-in scenarios */ }
+}
 const laPlot=document.getElementById("laPlot");
 function S(){ return SCEN[si]; }
 function halfW(){ const s=S(); return s.wMax*Math.pow(s.wMin/s.wMax, lz); }   /* log zoom: lz 0→wide, 1→tight */
@@ -438,7 +495,7 @@ function renderQuiz(){ qAnswered=false; const item=QUIZ[qi];
 qNext.onclick=()=>{ if(qi<QUIZ.length-1){ qi++; } else { qi=0; qScore=0; qDone=0; } renderQuiz(); };
 
 /* ============ init ============ */
-function boot(){ renderScen(); wireA(); renderLA(); renderDerive(); renderBits(); renderPractice(); renderQuiz(); }
+function boot(){ applyLAParams(); renderScen(); wireA(); renderLA(); renderDerive(); renderBits(); renderPractice(); renderQuiz(); }
 boot();
 if(!window.katex){ let tries=0; const t=setInterval(()=>{ if(window.katex){ clearInterval(t); renderDerive(); renderBits(); renderPractice(); renderQuiz(); updateLA(); }
   else if(++tries>40) clearInterval(t); },150); }

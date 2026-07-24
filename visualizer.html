@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Visualizer · paste your homework, watch it come alive</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%231a1305%27%2F%3E%3Cpath%20d%3D%27M6%2024%20C%2014%2010%2C%2020%2010%2C%2026%2020%27%20fill%3D%27none%27%20stroke%3D%27%23f0b429%27%20stroke-width%3D%272.4%27%20stroke-linecap%3D%27round%27%2F%3E%3Cline%20x1%3D%277%27%20y1%3D%2723%27%20x2%3D%2725%27%20y2%3D%2712%27%20stroke%3D%27%233fd0b0%27%20stroke-width%3D%271.8%27%20stroke-dasharray%3D%272.5%202.5%27%2F%3E%3Ccircle%20cx%3D%2716%27%20cy%3D%2714.4%27%20r%3D%272.3%27%20fill%3D%27%23ffd66b%27%2F%3E%3C%2Fsvg%3E" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="styles.css">
+<script src="helpers.js"></script>
+  <script data-goatcounter="https://visualcalculus.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<style>
+  :root{ --approx:#f0b429; --gold:#f0b429; --true:#ffd66b; --teal:#3fd0b0;
+         --glow:rgba(240,180,41,.09); --wrap-max:940px; }
+  .hero-lede{color:var(--muted);font-size:16px;margin-top:10px;max-width:640px;line-height:1.6}
+  .vz-box{margin-top:30px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 20px 50px -30px rgba(0,0,0,.8)}
+  .vz-box:focus-within{border-color:rgba(240,180,41,.55)}
+  textarea#q{width:100%;background:#0e0b04;border:1px solid var(--line);border-radius:12px;color:var(--ink);
+    font-family:var(--mono);font-size:15.5px;line-height:1.55;padding:16px;min-height:96px;resize:vertical;outline:none}
+  textarea#q:focus{border-color:rgba(240,180,41,.5)}
+  .vz-row{display:flex;gap:12px;align-items:center;margin-top:14px;flex-wrap:wrap}
+  .vz-go{background:var(--approx);color:#241a02;border:none;border-radius:10px;font-family:var(--mono);
+    font-weight:700;font-size:14px;padding:13px 26px;cursor:pointer;letter-spacing:.04em;box-shadow:0 10px 22px -12px var(--approx);transition:transform .15s,filter .15s}
+  .vz-go:hover{transform:translateY(-1px);filter:brightness(1.07)}
+  .vz-hint{font-family:var(--mono);font-size:11.5px;color:var(--faint,#6b6047)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+  .chips button{font-family:var(--mono);font-size:11.5px;color:var(--muted);background:#151006;border:1px solid var(--line);
+    border-radius:20px;padding:8px 14px;cursor:pointer;transition:border-color .15s,color .15s}
+  .chips button:hover{border-color:var(--approx);color:var(--ink)}
+  /* result card */
+  #result{display:none;margin-top:22px;background:var(--panel);border:1px solid rgba(240,180,41,.35);border-radius:18px;padding:22px;animation:vzIn .35s ease}
+  @keyframes vzIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .r-tag{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:#241a02;background:var(--approx);border-radius:20px;padding:4px 12px;font-weight:700}
+  .r-title{font-family:var(--display);font-size:22px;margin:12px 0 4px}
+  .r-read{color:var(--muted);font-size:14.5px;line-height:1.6}
+  .r-params{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 4px}
+  .r-param{background:#0e0b04;border:1px solid var(--line);border-radius:10px;padding:9px 14px;font-family:var(--mono);font-size:13.5px}
+  .r-param b{color:var(--approx);font-weight:600;margin-right:7px}
+  .r-actions{display:flex;gap:12px;align-items:center;margin-top:16px;flex-wrap:wrap}
+  .r-open{display:inline-block;text-decoration:none;background:var(--approx);color:#241a02;border-radius:10px;
+    font-family:var(--mono);font-weight:700;font-size:14px;padding:13px 24px;box-shadow:0 10px 22px -12px var(--approx);transition:transform .15s}
+  .r-open:hover{transform:translateY(-1px)}
+  .r-note{font-size:12.5px;color:var(--faint,#6b6047);font-family:var(--mono)}
+  .r-wrong{background:none;border:none;color:var(--muted);font-size:12.5px;font-family:var(--mono);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+  /* archetype picker */
+  #picker{margin-top:26px}
+  .p-head{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint,#6b6047);margin-bottom:12px}
+  .p-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+  .p-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;cursor:pointer;transition:border-color .15s,transform .15s;text-align:left}
+  .p-card:hover{border-color:var(--approx);transform:translateY(-2px)}
+  .p-card h4{font-family:var(--display);font-size:16px;margin:0 0 5px}
+  .p-card p{font-size:12.5px;color:var(--muted);margin:0;line-height:1.5}
+  .p-card .live{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:#241a02;background:var(--teal);border-radius:12px;padding:2px 8px;font-weight:700;margin-top:9px}
+  .p-card .soon{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--muted);background:#151006;border:1px solid var(--line);border-radius:12px;padding:2px 8px;margin-top:9px}
+  .backlink{display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:var(--muted);font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:20px;padding:7px 14px;transition:border-color .15s}
+  .backlink:hover{border-color:var(--approx);color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap" style="max-width:var(--wrap-max)">
+  <a class="backlink" href="index.html">← Visual Calculus</a>
+  <h1 style="font-family:var(--display);font-size:44px;margin:26px 0 0;letter-spacing:-0.02em">The Visualizer<span style="color:var(--approx)">.</span></h1>
+  <p class="hero-lede">Paste a problem from <i>your</i> homework — a function, a pair of curves, a word problem.
+    The Visualizer figures out what it is and shows it to you <b style="color:var(--ink)">with your numbers</b>, not the textbook's.</p>
+
+  <div class="vz-box">
+    <textarea id="q" placeholder="try:  revolve the region between y = sqrt(x) and y = x^2 about the x-axis" spellcheck="false" autocomplete="off"></textarea>
+    <div class="vz-row">
+      <button class="vz-go" id="go">Visualize →</button>
+      <span class="vz-hint">it reads plain english · beta</span>
+    </div>
+    <div class="chips" id="chips">
+      <button data-q="revolve the region between y=sqrt(x) and y=x^2 about the x-axis">revolve √x &amp; x² → a solid</button>
+      <button data-q="area of the region enclosed by y=4-x^2 and y=x+2">area between two curves</button>
+      <button data-q="tangent line to f(x)=x^3-3x at x=2">tangent line at a point</button>
+      <button data-q="a 10 ft ladder slides down a wall at 2 ft/s — how fast is the base moving?">the sliding ladder</button>
+    </div>
+  </div>
+
+  <div id="result">
+    <span class="r-tag" id="rTag">solid of revolution</span>
+    <div class="r-title" id="rTitle"></div>
+    <div class="r-read" id="rRead"></div>
+    <div class="r-params" id="rParams"></div>
+    <div class="r-actions">
+      <a class="r-open" id="rOpen" href="#">Open it →</a>
+      <span class="r-note" id="rNote"></span>
+      <button class="r-wrong" id="rWrong">not what you meant? pick manually ↓</button>
+    </div>
+  </div>
+
+  <div id="picker">
+    <div class="p-head">or pick what kind of problem you have</div>
+    <div class="p-grid">
+      <button class="p-card" data-arch="solid"><h4>Solid of revolution</h4><p>Two curves spin around an axis — see the 3D solid, sliced and computed.</p><span class="live">live · your numbers</span></button>
+      <button class="p-card" data-arch="area"><h4>Area between curves</h4><p>The region between your curves, shaded, with the setup integral.</p><span class="live">live · your numbers</span></button>
+      <button class="p-card" data-arch="tangent"><h4>Tangent / linearization</h4><p>Ride the tangent line at your point and watch the curve merge into it.</p><span class="soon">lesson opens · custom soon</span></button>
+      <button class="p-card" data-arch="rates"><h4>Related rates</h4><p>Ladder, ripple, cone, shadow — the classic scenes, animated.</p><span class="soon">lesson opens · custom soon</span></button>
+    </div>
+  </div>
+
+  <p style="margin-top:44px;font-size:12.5px;color:var(--faint,#6b6047);font-family:var(--mono)">
+    The Visualizer · part of <a href="index.html" style="color:var(--muted)">Visual AP Calculus</a> — 4 problem types now, more coming. Powered by the same visuals as the lessons.</p>
+</div>
+
+<script>
+/* ---------- tiny latex-ifier for display ---------- */
+function toLatex(s){
+  let t=s.trim();
+  t=t.replace(/\bsqrt\s*\(([^()]*)\)/g,'\\sqrt{$1}');
+  t=t.replace(/\bpi\b/g,'\\pi').replace(/π/g,'\\pi');
+  t=t.replace(/\^\(([^()]*)\)/g,'^{$1}');
+  t=t.replace(/\^([0-9a-zA-Z.]+)/g,'^{$1}');
+  t=t.replace(/\*/g,'\\,');
+  return t;
+}
+function texInto(el, latex, plain){
+  if(window.katex){ try{ katex.render(latex, el, {throwOnError:false}); return; }catch(e){} }
+  el.textContent = plain;
+}
+
+/* ---------- expression + number extraction ---------- */
+const FN_RE = /(?:y|f\s*\(\s*x\s*\)|g\s*\(\s*x\s*\))\s*=\s*([^,;\n]+?)(?=(?:\s+(?:and|about|around|over|from|on|between|at|for|where|rotate\w*|revolv\w*|spun|spin\w*|generate\w*))|[,;\n]|$)/gi;
+const KNOWN_FN=/(sqrt|sinh|cosh|tanh|sin|cos|tan|sec|csc|cot|ln|log|exp|abs|pi)/gi;
+function looksLikeExpr(e){
+  if(!e || e.length>28) return false;
+  if(!/[0-9x]/i.test(e)) return false;                 // must involve x or a number
+  if(!/^[0-9a-zπ^*/+\-.()\s]+$/i.test(e)) return false; // math chars only
+  const stripped=e.replace(KNOWN_FN,'');
+  if(/[a-z]{2,}/i.test(stripped)) return false;         // leftover word = it's prose, not math
+  return true;
+}
+function extractCurves(src){
+  const out=[]; let m;
+  FN_RE.lastIndex=0;
+  while((m=FN_RE.exec(src))!==null){ const e=clean(m[1]); if(looksLikeExpr(e)) out.push(e); }
+  if(out.length===0){
+    const parts=src.split(/\band\b|,|&|;/i);
+    for(const p of parts){
+      const t=p.trim().replace(/^(the|region|between|curves?|by|of)\s+/gi,'');
+      const cand=t.match(/[-+0-9a-zπ^*/().\s]+/i);
+      if(cand){ const e=clean(cand[0]); if(looksLikeExpr(e)) out.push(e); }
+    }
+  }
+  return out.slice(0,2);
+}
+function clean(e){ return e.trim().replace(/\s+/g,'').replace(/π/g,'pi'); }
+/* prose sentences go to the AI reader; terse "f, g, axis" inputs stay local + instant */
+function looksLikeProse(s){
+  return s.split(/\s+/).length>10 ||
+    /\b(let\s+r|find|region bounded|bounded by|how fast|the volume|the area of|generated when|graphs of|enclosed by)\b/i.test(s);
+}
+function extractInterval(src){
+  let m=src.match(/from\s*(?:x\s*=\s*)?(-?[\d.]+|pi|π)\s*to\s*(?:x\s*=\s*)?(-?[\d.]+|pi|π)/i);
+  if(!m) m=src.match(/on\s*\[\s*(-?[\d.]+|pi|π)\s*,\s*(-?[\d.]+|pi|π)\s*\]/i);
+  if(!m) m=src.match(/between\s*x\s*=\s*(-?[\d.]+)\s*and\s*x\s*=\s*(-?[\d.]+)/i);
+  return m?[m[1].replace(/π/,'pi'),m[2].replace(/π/,'pi')]:null;
+}
+const RATES_SCENES=['ladder','ripple','cone','shadow'];  // the 4 switchable scenes (balloon is a separate capstone)
+function extractGivenRate(s){
+  // "<num> <unit>[^2|^3] / s"  — the (?<!\^) guard + unit-exponent swallow stop "m^3/s" reading as rate 3
+  let m=s.match(/(?<![\^\d])(-?\d[\d.]*)\s*(?:ft|feet|foot|m|meters?|metres?|cm|mm|km|in|inches?|units?)?(?:\s*\^?\s*[23])?\s*(?:\/|\s+per\s+)\s*(?:s|sec|second|min|minute|hr|hour)/i);
+  if(m) return m[1];
+  m=s.match(/(?:at|of|rate of|grows?\s+at|growing at|increas\w*\s+at|rising at|moving at|pumped\w*\s+at)\s*(-?\d[\d.]*)/i);
+  return m?m[1]:null;
+}
+function extractAxis(src){
+  let m=src.match(/(?:about|around|over)\s*(?:the\s*)?(x|y)[\s-]*axis/i);
+  if(m) return {mode:m[1].toLowerCase(), matched:m[0]};
+  m=src.match(/(?:about|around)\s*(?:the\s*line\s*)?y\s*=\s*(-?[\d.]+)/i);
+  if(m) return {mode:'hk',k:m[1], matched:m[0]};
+  m=src.match(/(?:about|around)\s*(?:the\s*line\s*)?x\s*=\s*(-?[\d.]+)/i);
+  if(m) return {mode:'vh',k:m[1], matched:m[0]};
+  return {mode:'x'};
+}
+
+/* ---------- archetype recognition ---------- */
+function recognize(raw){
+  const s=raw.toLowerCase();
+  const curves=extractCurves(raw), iv=extractInterval(raw);
+
+  if(/revolv|rotat|spun|spin/.test(s)){
+    const ax=extractAxis(raw);
+    /* strip the axis phrase before extracting curves, so "the line y=3" doesn't become g(x)=3 */
+    const src=ax.matched ? raw.replace(ax.matched,' ') : raw;
+    return {arch:'solid', curves:extractCurves(src), iv:extractInterval(src), ax};
+  }
+  if(/(area|region).{0,40}(between|enclosed|bounded)|((between|enclosed|bounded).{0,30}(curve|region))/.test(s) || (curves.length===2 && /area/.test(s))){
+    return {arch:'area', curves, iv};
+  }
+  if(/tangent|lineariz|linear approx|approximate.{0,30}using/.test(s)){
+    const at=raw.match(/at\s*(?:x\s*=\s*|the point.{0,12}?)(-?[\d.]+)/i);
+    return {arch:'tangent', curves, at:at?at[1]:null};
+  }
+  if(/ladder|ripple|circle grows|radius.{0,30}increas|cone|tank|funnel|shadow|lamppost|balloon|how fast|rate of/.test(s)){
+    let scene='ladder';
+    if(/ripple|circle|radius|pond|pool|spill|slick/.test(s)) scene='ripple';
+    if(/cone|tank|funnel|water|fill|trough/.test(s)) scene='cone';
+    if(/shadow|lamppost|walks|streetlight|walking/.test(s)) scene='shadow';
+    if(/balloon|sphere|spherical|rising|rocket/.test(s)) scene='balloon';
+    return {arch:'rates', scene, given:extractGivenRate(raw)};
+  }
+  if(curves.length>=1) return {arch:'solid', curves, iv, ax:{mode:'x'}, unsure:true};
+  return null;
+}
+
+/* ---------- AI fallback: same Groq worker as the tutor ---------- */
+const AI_ENDPOINT=(()=>{ try{ return localStorage.getItem('tutor:endpoint')||'https://calc-tutor.christiangrosso360.workers.dev'; }catch(e){ return 'https://calc-tutor.christiangrosso360.workers.dev'; } })();
+const AI_SYS='You classify AP Calculus problems for a visualizer. Read the problem and output ONLY a compact JSON object — no prose, no markdown fences. Keys: archetype (one of: solid, area, tangent, rates), f (first function as a plain expression in x, or null), g (second function or null), a (lower x bound or null), b (upper x bound or null), axis (for solids only: "x" for the x-axis, "y" for the y-axis, "y=NUM" for a horizontal line, "x=NUM" for a vertical line; else null), at (for tangent: the x-value as a number, or null), scene (for rates: one of ladder, ripple, cone, shadow, balloon; else null). Use plain math notation like sqrt(x), x^2, e^(-x). If the problem names two curves (e.g. "between A and B", "bounded by A and B"), you MUST return BOTH f and g. If the region is bounded by two curves and you can find where they cross, fill a and b with those x-values.';
+
+async function askAI(raw){
+  const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),20000);
+  try{
+    const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},signal:ctrl.signal,
+      body:JSON.stringify({system:AI_SYS,messages:[{role:'user',text:raw}]})});
+    clearTimeout(to);
+    const d=await res.json();
+    if(!res.ok||!d.text) return null;
+    const m=d.text.match(/\{[\s\S]*\}/); if(!m) return null;
+    return aiToResult(JSON.parse(m[0]));
+  }catch(e){ clearTimeout(to); return null; }
+}
+function notNull(v){ return v!=null && v!=='null' && (''+v).trim()!==''; }
+function aiToResult(j){
+  if(!j||!j.archetype) return null;
+  const arch=j.archetype;
+  if(arch==='rates') return {arch:'rates', scene:(j.scene||'ladder')};
+  const curves=[j.f,j.g].filter(notNull).map(v=>clean(''+v));
+  const iv=(notNull(j.a)&&notNull(j.b))?[clean(''+j.a),clean(''+j.b)]:null;
+  if(arch==='tangent') return {arch:'tangent', curves, at:notNull(j.at)?(''+j.at):null};
+  let ax;
+  if(arch==='solid'){
+    const a=(''+(j.axis||'x')).toLowerCase().replace(/[\s]/g,'').replace(/-axis|axis/g,'');
+    if(a==='x'||a==='y') ax={mode:a};
+    else{
+      const mm=a.match(/(x|y)=(-?[\d.]+)/);
+      if(mm){
+        const k=parseFloat(mm[2]);
+        if(k===0) ax={mode: mm[1]==='y' ? 'x' : 'y'};        // y=0 IS the x-axis; x=0 IS the y-axis
+        else ax={mode: mm[1]==='y' ? 'hk' : 'vh', k:mm[2]};
+      } else ax={mode:'x'};
+    }
+  }
+  return {arch, curves, iv, ax, fromAI:true};
+}
+
+/* ---------- routing + result card ---------- */
+const ARCH_META={
+  solid:{tag:'solid of revolution', title:'Your region, swept into a solid',
+    read:'I\'ll load these curves into Revolve — watch the region sweep around the axis into the 3D solid, with the disc/washer setup in your numbers.', note:'opens Revolve with your curves'},
+  area:{tag:'area between curves', title:'The region between your curves',
+    read:'I\'ll shade the region between your curves and set up the area integral ∫(top − bottom) with your numbers, computed.', note:'opens the region + area integral'},
+  tangent:{tag:'tangent · linearization', title:'Ride the tangent at your point',
+    read:'I\'ll drop your function into the tangent-rider — slide the point and zoom until the curve merges into its own tangent line.', note:'opens Ride the Tangent with your f(x)'},
+  rates:{tag:'related rates', title:'A classic scene, animated',
+    read:'This is one of the classic related-rates setups — the lab plays the animated scene with your given rate dialed in and the 4-step method beside it. (The scene uses clean textbook dimensions — the method is what carries over.)', note:'opens the related-rates lab on the matching scene'}
+};
+function buildUrl(r){
+  if(r.arch==='solid'||r.arch==='area'){
+    const p=new URLSearchParams();
+    if(r.curves[0]) p.set('f',r.curves[0]);
+    if(r.curves[1]) p.set('g',r.curves[1]);
+    if(r.iv){ p.set('a',r.iv[0]); p.set('b',r.iv[1]); }
+    if(r.arch==='solid'&&r.ax){ p.set('axis',r.ax.mode); if(r.ax.k!=null) p.set('k',r.ax.k); }
+    if(r.arch==='area') p.set('mode','area');
+    return 'revolve.html?'+p.toString();
+  }
+  if(r.arch==='tangent'){
+    const p=new URLSearchParams();
+    if(r.curves&&r.curves[0]) p.set('f',r.curves[0]);
+    if(r.at!=null) p.set('at',r.at);
+    const qs=p.toString();
+    return 'linear-approximation.html'+(qs?'?'+qs:'');
+  }
+  if(r.arch==='rates'){
+    const p=new URLSearchParams();
+    if(r.scene && RATES_SCENES.indexOf(r.scene)>=0) p.set('scene',r.scene);  // balloon has no switchable scene
+    if(r.given!=null) p.set('given',r.given);
+    const qs=p.toString();
+    return 'related-rates.html'+(qs?'?'+qs:'');
+  }
+  return 'index.html';
+}
+function show(r){
+  const meta=ARCH_META[r.arch], R=document.getElementById('result');
+  document.getElementById('rOpen').style.visibility='';
+  document.getElementById('rWrong').style.visibility='';
+  document.getElementById('rTag').textContent=meta.tag;
+  document.getElementById('rTitle').textContent=meta.title;
+  document.getElementById('rRead').textContent=meta.read+(r.unsure?' (I guessed the problem type — if that\'s wrong, pick below.)':'');
+  const P=document.getElementById('rParams'); P.innerHTML='';
+  if(r.curves&&r.curves[0]) addParam(P,'f(x)',r.curves[0]);
+  if(r.curves&&r.curves[1]) addParam(P,'g(x)',r.curves[1]);
+  if(r.iv) addParam(P,'interval','['+r.iv[0]+', '+r.iv[1]+']');
+  if(r.ax){ addParam(P,'axis',r.ax.mode==='x'?'x-axis':r.ax.mode==='y'?'y-axis':(r.ax.mode==='hk'?'y = '+r.ax.k:'x = '+r.ax.k)); }
+  if(r.at) addParam(P,'at','x = '+r.at);
+  if(r.scene) addParam(P,'scene',r.scene);
+  if(r.given!=null) addParam(P,'given rate',r.given);
+  document.getElementById('rOpen').href=buildUrl(r);
+  document.getElementById('rNote').textContent=meta.note;
+  R.style.display='block';
+  R.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function addParam(P,label,val){
+  const d=document.createElement('div'); d.className='r-param';
+  const b=document.createElement('b'); b.textContent=label; d.appendChild(b);
+  const span=document.createElement('span');
+  if(/[a-z^]/i.test(val) && label!=='axis' && label!=='scene' && label!=='interval'){ texInto(span, toLatex(val), val); }
+  else span.textContent=val;
+  d.appendChild(span); P.appendChild(d);
+}
+
+/* ---------- wiring ---------- */
+function showLoading(){
+  const R=document.getElementById('result');
+  document.getElementById('rTag').textContent='reading…';
+  document.getElementById('rTitle').textContent='figuring out your problem…';
+  document.getElementById('rRead').textContent='Checking the AI reader for phrasing my quick rules didn\'t catch.';
+  document.getElementById('rParams').innerHTML='';
+  document.getElementById('rOpen').style.visibility='hidden';
+  document.getElementById('rWrong').style.visibility='hidden';
+  document.getElementById('rNote').textContent='';
+  R.style.display='block';
+  R.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function showFail(){
+  const R=document.getElementById('result');
+  document.getElementById('rOpen').style.visibility='';
+  document.getElementById('rWrong').style.visibility='hidden';
+  document.getElementById('rTag').textContent='hmm';
+  document.getElementById('rTitle').textContent='I couldn\'t read that one yet';
+  document.getElementById('rRead').textContent='I handle revolution, area-between-curves, tangent lines, and classic related-rates problems. Try one of the examples above, or pick the problem type below.';
+  document.getElementById('rParams').innerHTML='';
+  document.getElementById('rOpen').href='#picker';
+  document.getElementById('rNote').textContent='';
+  R.style.display='block';
+}
+let _runToken=0;
+async function run(){
+  const raw=document.getElementById('q').value.trim();
+  if(!raw) return;
+  const token=++_runToken;
+  const local=recognize(raw);
+  if(local && !local.unsure && !looksLikeProse(raw)){ show(local); return; }  // terse + confident → instant
+  showLoading();                                       // local missed/unsure → ask the AI
+  const ai=await askAI(raw);
+  if(token!==_runToken) return;                         // a newer run superseded this one
+  if(ai){
+    // belt-and-suspenders: if the AI dropped a curve the regex can still see, backfill it
+    if((ai.arch==='solid'||ai.arch==='area') && ai.curves){
+      for(const c of extractCurves(raw)){ if(ai.curves.length<2 && ai.curves.indexOf(c)<0) ai.curves.push(c); }
+    }
+    if(ai.arch==='rates' && ai.given==null) ai.given=extractGivenRate(raw);  // regex catches the rate the JSON omits
+    show(ai); return;
+  }
+  if(local){ show(local); return; }                     // AI down → use the local guess
+  showFail();
+}
+document.getElementById('go').onclick=run;
+document.getElementById('q').addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); run(); } });
+document.getElementById('chips').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  document.getElementById('q').value=b.dataset.q; run();
+});
+document.getElementById('rWrong').onclick=()=>document.getElementById('picker').scrollIntoView({behavior:'smooth'});
+document.getElementById('picker').addEventListener('click',e=>{
+  const c=e.target.closest('.p-card'); if(!c) return;
+  const arch=c.dataset.arch, raw=document.getElementById('q').value.trim();
+  const curves=extractCurves(raw), iv=extractInterval(raw);
+  const r={arch, curves, iv, ax:arch==='solid'?extractAxis(raw):undefined};
+  show(r);
+});
+/* homepage handoff: ?q= */
+(function(){
+  const q=new URLSearchParams(location.search).get('q');
+  if(q){ document.getElementById('q').value=q; run(); }
+})();
+</script>
+</body>
+</html>

@@ -464,6 +464,23 @@ const SCEN=[
 
 /* ============ LAB STATE ============ */
 let si=0, q=0.28, gRate=SCEN[0].rVal, playing=false, raf=null, last=0;
+
+/* ---- Visualizer handoff: ?scene=ladder|ripple|cone|shadow&given=<rate> ---- */
+let RL_GIVEN=null;
+function applyRLParams(){
+  const qp=new URLSearchParams(location.search);
+  const sc=qp.get('scene'); const gv=parseFloat(qp.get('given'));
+  if(sc){ const i=SCEN.findIndex(s=>s.key===sc); if(i>=0) si=i; }
+  if(isFinite(gv)) RL_GIVEN=gv;
+}
+function applyGiven(){
+  if(RL_GIVEN==null) return;
+  const s=S(), inp=document.getElementById('rlRate'); let v=RL_GIVEN;
+  if(v<parseFloat(inp.min)) inp.min=v;          // widen the slider if the student's rate is outside it
+  if(v>parseFloat(inp.max)) inp.max=v;
+  inp.value=v; gRate=v;
+  document.getElementById('rlRateVal').textContent=gRate.toFixed(1)+' '+s.rUnit;
+}
 const layer=()=>document.getElementById("rlLayer");
 function S(){ return SCEN[si]; }
 function qAbs(){ const s=S(); return s.qMin+q*(s.qMax-s.qMin); }
@@ -668,7 +685,7 @@ function bossBoot(){
 }
 
 /* ============ init ============ */
-function boot(){ renderScenBtns(); wireRate(); renderBuilder(); renderScene(); renderPractice(); renderQreps(); bossBoot(); renderTips(); }
+function boot(){ applyRLParams(); renderScenBtns(); wireRate(); applyGiven(); renderBuilder(); renderScene(); renderPractice(); renderQreps(); bossBoot(); renderTips(); }
 boot();
 if(!window.katex){ let tries=0; const t=setInterval(()=>{ if(window.katex){ clearInterval(t); renderBuilder(); renderScene(); renderPractice(); renderQreps(); renderTips(); }
   else if(++tries>40) clearInterval(t); },150); }
