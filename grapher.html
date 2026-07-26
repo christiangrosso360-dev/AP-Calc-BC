@@ -51,7 +51,7 @@ function parse(str){ const T=tokenize(str); let p=0; const peek=()=>T[p], adv=()
   function atom(){ const k=peek(); if(!k) throw new Error('end');
     if(k.t==='num'){ adv(); return {t:'num',v:k.v}; }
     if(k.t==='('){ adv(); const e=expr(); ex(')'); return e; }
-    if(k.t==='id'){ adv(); const nm=k.v; if(nm==='x') return {t:'var'};
+    if(k.t==='id'){ adv(); const nm=k.v; if(nm==='x') return {t:'var'}; if(nm==='y') return {t:'vary'};
       if(nm==='pi') return {t:'num',v:Math.PI}; if(nm==='e'&&!(peek()&&peek().t==='(')) return {t:'num',v:Math.E};
       if(peek()&&peek().t==='('){ adv(); const arg=expr(); ex(')'); return {t:'call',name:FN_ALIAS[nm]||nm,arg}; }
       throw new Error('unknown '+nm); } throw new Error('token'); }
@@ -60,10 +60,12 @@ function parse(str){ const T=tokenize(str); let p=0; const peek=()=>T[p], adv=()
 const FNS={ sin:Math.sin,cos:Math.cos,tan:Math.tan,asin:Math.asin,acos:Math.acos,atan:Math.atan,sinh:Math.sinh,cosh:Math.cosh,tanh:Math.tanh,
   sec:x=>1/Math.cos(x),csc:x=>1/Math.sin(x),cot:x=>1/Math.tan(x),ln:Math.log,log:x=>Math.log10(x),log2:Math.log2,exp:Math.exp,sqrt:Math.sqrt,cbrt:Math.cbrt,abs:Math.abs,
   fact:x=>{ x=Math.round(x); if(x<0||x>170) return NaN; let r=1; for(let i=2;i<=x;i++) r*=i; return r; } };
-function ev(n,x){ switch(n.t){ case 'num':return n.v; case 'var':return x; case 'neg':return -ev(n.a,x);
-  case 'add':return ev(n.a,x)+ev(n.b,x); case 'sub':return ev(n.a,x)-ev(n.b,x); case 'mul':return ev(n.a,x)*ev(n.b,x); case 'div':return ev(n.a,x)/ev(n.b,x);
-  case 'pow':return Math.pow(ev(n.a,x),ev(n.b,x)); case 'call':{ const f=FNS[n.name]; if(!f) throw new Error('fn '+n.name); return f(ev(n.arg,x)); } } }
-function compile(expr){ const ast=parse(expr); return x=>{ try{ const y=ev(ast,x); return isFinite(y)?y:NaN; }catch(e){ return NaN; } }; }
+function ev(n,x,y){ switch(n.t){ case 'num':return n.v; case 'var':return x; case 'vary':return y; case 'neg':return -ev(n.a,x,y);
+  case 'add':return ev(n.a,x,y)+ev(n.b,x,y); case 'sub':return ev(n.a,x,y)-ev(n.b,x,y); case 'mul':return ev(n.a,x,y)*ev(n.b,x,y); case 'div':return ev(n.a,x,y)/ev(n.b,x,y);
+  case 'pow':return Math.pow(ev(n.a,x,y),ev(n.b,x,y)); case 'call':{ const f=FNS[n.name]; if(!f) throw new Error('fn '+n.name); return f(ev(n.arg,x,y)); } } }
+function compile(expr){ const ast=parse(expr); return x=>{ try{ const v=ev(ast,x); return isFinite(v)?v:NaN; }catch(e){ return NaN; } }; }
+// two-variable form for slope fields: dy/dx = f(x, y)
+function compile2(expr){ const ast=parse(expr); return (x,y)=>{ try{ const v=ev(ast,x,y); return isFinite(v)?v:NaN; }catch(e){ return NaN; } }; }
 
 /* ================= COLORS ================= */
 const COL={ gold:'#f0b429', glow:'#ffd66b', teal:'#3fd0b0', mag:'#e884ea', coral:'#e0644f', ink:'#f4efe2' };
@@ -93,6 +95,9 @@ function sanitizeScene(s){
   if(s.riemann){ s.riemann.a=num(s.riemann.a); s.riemann.b=num(s.riemann.b); if(s.riemann.n!=null)s.riemann.n=num(s.riemann.n,10); }
   if(s.animate){ if(s.animate.from!=null)s.animate.from=num(s.animate.from); if(s.animate.to!=null)s.animate.to=num(s.animate.to); if(s.animate.a!=null)s.animate.a=num(s.animate.a); if(s.animate.b!=null)s.animate.b=num(s.animate.b); }
   if(s.psum){ s.psum.from=Math.round(num(s.psum.from,1)); s.psum.N=Math.round(num(s.psum.N,28)); if(s.psum.limit!=null)s.psum.limit=num(s.psum.limit); }
+  [].concat(s.param||[],s.polar||[]).forEach(c=>{ if(Array.isArray(c.t)) c.t=[num(c.t[0],0),num(c.t[1],6.28318531)]; });
+  if(s.field) [].concat(s.field.solutions||[]).forEach(sol=>{ sol.x0=num(sol.x0,0); sol.y0=num(sol.y0,0);
+    if(sol.euler){ sol.euler.h=num(sol.euler.h,0.5); sol.euler.steps=Math.round(num(sol.euler.steps,6)); } });
   return s;
 }
 // pre-parse: turn bare symbols in numeric slots (e.g. [-pi,pi]) into numbers WITHOUT touching quoted exprs
@@ -115,7 +120,7 @@ function loadScene(){
 
 /* ================= RENDERER ================= */
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
-let W=0,H=0,DPR=1, SCENE=null, FNS_C=[], PSUM=null, DOM=[-5,5], YR=[-5,5], M=null, T0=0, RAF=null, FINAL=false, SAFETY=null, ANIM_STATIC=null;
+let W=0,H=0,DPR=1, SCENE=null, FNS_C=[], PSUM=null, PARAM=null, FIELD=null, DOM=[-5,5], YR=[-5,5], M=null, T0=0, RAF=null, FINAL=false, SAFETY=null, ANIM_STATIC=null;
 
 function niceStep(range,target){ const raw=range/target, mag=Math.pow(10,Math.floor(Math.log10(raw))), n=raw/mag;
   const s=n<1.5?1:n<3?2:n<7?5:10; return s*mag; }
@@ -124,6 +129,24 @@ function resize(){ DPR=Math.min(2,window.devicePixelRatio||1); const r=cv.getBou
   W=r.width; H=r.height; cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); computeView(); }
 
 function computeView(){
+  const padL0=54,padR0=26,padT0=26,padB0=40;
+  // parametric / polar: bounds come from the sampled xy points, and the aspect is LOCKED
+  // (a circle must look like a circle — otherwise every polar rose is a lie)
+  if(PARAM){
+    let x0=Infinity,x1=-Infinity,y0p=Infinity,y1p=-Infinity;
+    for(const c of PARAM) for(const p of c.pts){
+      if(p[0]<x0)x0=p[0]; if(p[0]>x1)x1=p[0]; if(p[1]<y0p)y0p=p[1]; if(p[1]>y1p)y1p=p[1]; }
+    if(!isFinite(x0)||!isFinite(y0p)){ x0=-1;x1=1;y0p=-1;y1p=1; }
+    const px=(x1-x0||2)*0.12, py=(y1p-y0p||2)*0.12;
+    x0-=px; x1+=px; y0p-=py; y1p+=py;
+    const pxW=Math.max(1,W-padL0-padR0), pxH=Math.max(1,H-padT0-padB0);
+    const s=Math.max((x1-x0)/pxW,(y1p-y0p)/pxH);          // one world-unit-per-pixel for BOTH axes
+    const cx=(x0+x1)/2, cy=(y0p+y1p)/2, hw=s*pxW/2, hh=s*pxH/2;
+    DOM=[cx-hw,cx+hw]; YR=[cy-hh,cy+hh];
+    M={ sx:x=>padL0+((x-DOM[0])/(DOM[1]-DOM[0]))*pxW, sy:y=>H-padB0-((y-YR[0])/(YR[1]-YR[0]))*pxH,
+        ux:p=>DOM[0]+((p-padL0)/pxW)*(DOM[1]-DOM[0]) };
+    return;
+  }
   const [a,b]=DOM; const N=400; let ys=[];
   for(const f of FNS_C){ for(let i=0;i<=N;i++){ const y=f(a+(b-a)*i/N); if(isFinite(y)) ys.push(y); } }
   if(PSUM){ for(const p of PSUM.pts) ys.push(p[1]); if(PSUM.limit!=null) ys.push(PSUM.limit); ys.push(0); }
@@ -194,6 +217,7 @@ function drawRiemann(rm,prog){
   ctx.restore();
 }
 function drawAnimate(an,p){
+  if(an.kind==='traceParam'){ if(PARAM) drawTrace(an,p); return; }
   if(an.kind==='slidePoint'){
     const f=FNS_C[an.on!=null?an.on:0]; if(!f) return;
     const x=num(an.from,DOM[0])+(num(an.to,DOM[1])-num(an.from,DOM[0]))*p, y=f(x); if(!isFinite(y)) return;
@@ -262,6 +286,107 @@ function drawPsum(prog){
   ctx.fillText('S'+subDigits(last[0])+' ≈ '+(+last[1].toFixed(4)), px+(rt?-10:10), py-9); ctx.restore();
 }
 
+/* Unit 7 — slope field: a little tangent segment at each lattice point, drawn at the slope
+   it VISUALLY has on screen (x and y pixel scales differ, so the world slope must be converted) */
+function drawField(prog){
+  const [a,b]=DOM,[y0,y1]=YR, nx=19, ny=12, L=10.5;
+  const ppx=M.sx(1)-M.sx(0), ppy=M.sy(1)-M.sy(0);      // pixels per world unit (ppy is negative)
+  ctx.save(); ctx.lineCap='round';
+  for(let i=0;i<=nx;i++) for(let j=0;j<=ny;j++){
+    const x=a+(b-a)*i/nx, y=y0+(y1-y0)*j/ny, m=FIELD.f(x,y);
+    if(!isFinite(m)) continue;
+    let sx=ppx, sy=m*ppy; const len=Math.hypot(sx,sy); if(!len) continue;
+    sx=sx/len*L; sy=sy/len*L;
+    const px=M.sx(x), py=M.sy(y);
+    // steeper segments read warmer, shallow ones cooler — the field's shape at a glance
+    const steep=Math.min(1,Math.abs(m)/3);
+    ctx.strokeStyle='rgba('+Math.round(120+120*steep)+','+Math.round(190-40*steep)+','+Math.round(200-90*steep)+','+(0.30+0.30*prog).toFixed(2)+')';
+    ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(px-sx,py-sy); ctx.lineTo(px+sx,py+sy); ctx.stroke();
+  }
+  ctx.restore();
+}
+// RK4 from (x0,y0) in one direction — the TRUE particular solution the field is hinting at
+function solveRK4(f,x0,y0,dir,h,maxSteps){
+  const pts=[[x0,y0]]; let x=x0,y=y0; const [ylo,yhi]=YR, pad=(yhi-ylo);
+  // a solution curve ENDS at a vertical tangent (e.g. dy/dx = -x/y where y→0) — past that
+  // it isn't a function of x any more, and blind stepping produces garbage zigzags
+  const maxSlope=15*(yhi-ylo)/(DOM[1]-DOM[0]||1);
+  const bad=k=>!isFinite(k)||Math.abs(k)>maxSlope;   // every RK4 stage must stay non-vertical
+  for(let i=0;i<maxSteps;i++){
+    const k1=f(x,y); if(bad(k1)) break;
+    const k2=f(x+dir*h/2,y+dir*h/2*k1), k3=f(x+dir*h/2,y+dir*h/2*k2), k4=f(x+dir*h,y+dir*h*k3);
+    if(bad(k2)||bad(k3)||bad(k4)) break;
+    const dy=dir*h*(k1+2*k2+2*k3+k4)/6;
+    if(!isFinite(dy)||Math.abs(dy)>0.3*pad) break;           // no single step may leap across the view
+    y+=dy; x+=dir*h;
+    if(!isFinite(y)||y<ylo-pad||y>yhi+pad||x<DOM[0]-0.01||x>DOM[1]+0.01) break;
+    pts.push([x,y]);
+  }
+  return pts;
+}
+function drawSolutions(prog){
+  FIELD.sols.forEach(sol=>{
+    const col=cget(sol.color||'gold');
+    const back=solveRK4(FIELD.f,sol.x0,sol.y0,-1,(DOM[1]-DOM[0])/400,400).reverse();
+    const fwd =solveRK4(FIELD.f,sol.x0,sol.y0, 1,(DOM[1]-DOM[0])/400,400);
+    const pts=back.concat(fwd.slice(1));
+    const n=Math.max(2,Math.floor(pts.length*prog));
+    ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.lineCap='round';
+    ctx.shadowColor=col; ctx.shadowBlur=12; ctx.beginPath();
+    for(let i=0;i<n;i++){ const px=M.sx(pts[i][0]), py=M.sy(pts[i][1]); i?ctx.lineTo(px,py):ctx.moveTo(px,py); }
+    ctx.stroke(); ctx.restore();
+    // Euler's method: the jagged approximation next to the smooth truth — the whole point of the lesson
+    if(sol.euler&&prog>0.55){
+      const h=sol.euler.h, steps=sol.euler.steps; let x=sol.x0,y=sol.y0; const ep=[[x,y]];
+      for(let i=0;i<steps;i++){ const m=FIELD.f(x,y); if(!isFinite(m)) break; y+=h*m; x+=h; ep.push([x,y]); }
+      // +1e-9: (1-0.55)/0.45 is 0.999999… in floating point, which would silently drop the LAST
+      // Euler step and report the wrong y — the readout is an answer, so it has to be exact
+      const q=Math.min(1,(prog-0.55)/0.45);
+      const shown=Math.max(2,Math.min(ep.length,Math.floor(ep.length*q+1e-9)));
+      ctx.save(); ctx.strokeStyle=cget('coral'); ctx.lineWidth=2; ctx.setLineDash([6,4]); ctx.beginPath();
+      for(let i=0;i<shown;i++){ const px=M.sx(ep[i][0]), py=M.sy(ep[i][1]); i?ctx.lineTo(px,py):ctx.moveTo(px,py); }
+      ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=cget('coral');
+      for(let i=0;i<shown;i++){ ctx.beginPath(); ctx.arc(M.sx(ep[i][0]),M.sy(ep[i][1]),3.2,0,7); ctx.fill(); }
+      const last=ep[shown-1];
+      ctx.font='12.5px '+getComputedStyle(document.body).getPropertyValue('--mono'); ctx.fillStyle=cget('coral');
+      // keep the readout on-canvas even when the solution shoots off the top
+      const lx=Math.min(Math.max(M.sx(last[0])+9,10), W-190);
+      const floor=lx>W*0.45?78:34;            // stay clear of the legend, which lives top-right
+      const ly=Math.min(Math.max(M.sy(last[1])+7,floor), H-30);
+      ctx.textAlign='left'; ctx.textBaseline='top';
+      ctx.fillText('Euler h='+h+' → y≈'+(+last[1].toFixed(3)), lx, ly);
+      ctx.restore();
+    }
+    ctx.save(); ctx.fillStyle=COL.ink; ctx.shadowColor=col; ctx.shadowBlur=14;
+    ctx.beginPath(); ctx.arc(M.sx(sol.x0),M.sy(sol.y0),5,0,7); ctx.fill(); ctx.restore();
+  });
+}
+
+/* parametric / polar curves: same glow + draw-in as functions, but traced through the point list */
+function drawParam(prog){
+  PARAM.forEach(c=>{
+    const n=Math.max(2,Math.floor(c.pts.length*prog));
+    ctx.save(); ctx.strokeStyle=cget(c.color); ctx.lineWidth=3.2; ctx.lineJoin='round'; ctx.lineCap='round';
+    ctx.shadowColor=cget(c.color); ctx.shadowBlur=10; ctx.beginPath();
+    for(let i=0;i<n;i++){ const px=M.sx(c.pts[i][0]), py=M.sy(c.pts[i][1]); i?ctx.lineTo(px,py):ctx.moveTo(px,py); }
+    ctx.stroke(); ctx.restore();
+  });
+}
+// a point riding the parametric path — the whole idea of parametric motion, animated
+function drawTrace(an,p){
+  const c=PARAM[(an&&an.on)||0]; if(!c) return;
+  const i=Math.min(c.pts.length-1, Math.max(0, Math.round(p*(c.pts.length-1))));
+  const px=M.sx(c.pts[i][0]), py=M.sy(c.pts[i][1]);
+  ctx.save(); ctx.shadowColor=COL.glow; ctx.shadowBlur=20; ctx.fillStyle=COL.glow;
+  ctx.beginPath(); ctx.arc(px,py,6,0,7); ctx.fill();
+  ctx.shadowBlur=0; ctx.fillStyle=COL.ink; ctx.font='13px '+getComputedStyle(document.body).getPropertyValue('--mono');
+  ctx.textAlign=px>W-140?'right':'left'; ctx.textBaseline='bottom';
+  ctx.fillText('('+(+c.pts[i][0].toFixed(2))+', '+(+c.pts[i][1].toFixed(2))+')', px+(px>W-140?-12:12), py-11);
+  ctx.restore();
+}
+
 const STATIC=/[?&]static/.test(location.search);   // ?static → render the final frame instantly (screenshots / fallback)
 function frame(now){
   if(!T0) T0=now; const t=(STATIC||FINAL)?9:(now-T0)/1000;
@@ -271,6 +396,7 @@ function frame(now){
   bg.addColorStop(0,'#14100a'); bg.addColorStop(1,'#0c0a05');
   ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
   drawGrid();
+  if(FIELD){ drawField(ease); drawSolutions(ease); }   // field sits behind everything else
   if(SCENE.riemann) drawRiemann(SCENE.riemann, ease);
   if(SCENE.shade) drawShade(SCENE.shade, ease);
   if(PSUM) drawPsum(Math.min(1, t/2.0));        // partial sums march in one by one over 2s
@@ -278,6 +404,7 @@ function frame(now){
   FNS_C.forEach((f,i)=>{ const spec=SCENE.functions[i]; ctx.save();
     ctx.strokeStyle=cget(spec.color); ctx.lineWidth=3.2; ctx.lineJoin='round'; ctx.lineCap='round';
     ctx.shadowColor=cget(spec.color); ctx.shadowBlur=10; funcPath(f, ease); ctx.stroke(); ctx.restore(); });
+  if(PARAM) drawParam(ease);
   const overlayP=Math.max(0,(t-0.9)/0.6), op=Math.min(1,overlayP);
   (SCENE.lines||[]).forEach(l=>drawLine(l, op));
   (SCENE.points||[]).forEach(p=>drawPoint(p, op));
@@ -285,6 +412,7 @@ function frame(now){
     let ap;
     if(ANIM_STATIC!=null) ap=ANIM_STATIC;                       // one-shot fallback frame (rAF throttled)
     else if(t<1.2) ap=0;                                        // wait for the draw-in
+    else if(SCENE.animate.kind==='traceParam') ap=((t-1.2)/4.5)%1;   // motion runs FORWARD and loops (never rewinds)
     else { const ph=((t-1.2)/3.4)%2; ap=ph<1?ph:2-ph; }         // ping-pong sweep, ~3.4s each way
     drawAnimate(SCENE.animate, ap);
     if(ANIM_STATIC==null) RAF=requestAnimationFrame(frame);     // live scenes loop forever
@@ -322,10 +450,41 @@ function build(){
       }
     }catch(e){ PSUM=null; }
   }
+  // Unit 9: parametric (x(t), y(t)) and polar (r(θ)) curves — sampled into xy point lists
+  PARAM=null; const pcs=[];
+  const asList=v=>v==null?[]:(Array.isArray(v)?v:[v]);
+  const tvar=s=>String(s).replace(/θ/g,'theta').replace(/\btheta\b/gi,'x').replace(/\bt\b/gi,'x');
+  asList(SCENE.param).forEach(p=>{
+    try{
+      const fx=compile(tvar(p.x)), fy=compile(tvar(p.y));
+      const t0=num(p.t&&p.t[0],0), t1=num(p.t&&p.t[1],6.28318531), N=720, pts=[];
+      for(let i=0;i<=N;i++){ const t=t0+(t1-t0)*i/N, X=fx(t), Y=fy(t); if(isFinite(X)&&isFinite(Y)) pts.push([X,Y]); }
+      if(pts.length>2) pcs.push({pts,color:p.color||'gold',label:p.label||('x='+p.x+', y='+p.y)});
+    }catch(e){}
+  });
+  asList(SCENE.polar).forEach(p=>{
+    try{
+      const fr=compile(tvar(p.r));
+      const t0=num(p.t&&p.t[0],0), t1=num(p.t&&p.t[1],6.28318531), N=900, pts=[];
+      for(let i=0;i<=N;i++){ const th=t0+(t1-t0)*i/N, r=fr(th);
+        if(isFinite(r)) pts.push([r*Math.cos(th), r*Math.sin(th)]); }
+      if(pts.length>2) pcs.push({pts,color:p.color||'gold',label:p.label||('r = '+p.r)});
+    }catch(e){}
+  });
+  if(pcs.length) PARAM=pcs;
+  // Unit 7: slope field dy/dx = f(x,y), plus optional particular-solution curves
+  FIELD=null;
+  if(SCENE.field&&SCENE.field.dydx){
+    try{ FIELD={ f:compile2(String(SCENE.field.dydx).replace(/θ/g,'theta')), sols:[].concat(SCENE.field.solutions||[]) }; }
+    catch(e){ FIELD=null; }
+  }
   DOM=SCENE.domain||(PSUM?[0,PSUM.N+1]:[-5,5]);
   document.getElementById('cap').textContent=SCENE.caption||'';
   let lg=SCENE.functions.map(f=>
     '<div class="lg"><span class="sw" style="background:'+cget(f.color)+'"></span>'+(f.label||f.expr)+'</div>').join('');
+  if(PARAM) lg+=PARAM.map(c=>'<div class="lg"><span class="sw" style="background:'+cget(c.color)+'"></span>'+c.label+'</div>').join('');
+  if(FIELD){ lg+='<div class="lg"><span class="sw" style="background:#8fbfd0"></span>dy/dx = '+SCENE.field.dydx+'</div>';
+    if(FIELD.sols.some(s=>s.euler)) lg+='<div class="lg"><span class="sw" style="background:'+cget('coral')+'"></span>Euler approximation</div>'; }
   if(PSUM) lg+='<div class="lg"><span class="sw" style="background:'+cget('gold')+'"></span>'+(SCENE.psum.label||('Sₙ = Σ '+PSUM.term))+'</div>';
   document.getElementById('legend').innerHTML=lg;
   resize(); play();
