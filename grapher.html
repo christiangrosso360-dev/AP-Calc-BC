@@ -58,7 +58,8 @@ function parse(str){ const T=tokenize(str); let p=0; const peek=()=>T[p], adv=()
   function ex(t){ if(!peek()||peek().t!==t) throw new Error('expected '+t); adv(); }
   const a=expr(); if(p<T.length) throw new Error('trailing'); return a; }
 const FNS={ sin:Math.sin,cos:Math.cos,tan:Math.tan,asin:Math.asin,acos:Math.acos,atan:Math.atan,sinh:Math.sinh,cosh:Math.cosh,tanh:Math.tanh,
-  sec:x=>1/Math.cos(x),csc:x=>1/Math.sin(x),cot:x=>1/Math.tan(x),ln:Math.log,log:x=>Math.log10(x),log2:Math.log2,exp:Math.exp,sqrt:Math.sqrt,cbrt:Math.cbrt,abs:Math.abs };
+  sec:x=>1/Math.cos(x),csc:x=>1/Math.sin(x),cot:x=>1/Math.tan(x),ln:Math.log,log:x=>Math.log10(x),log2:Math.log2,exp:Math.exp,sqrt:Math.sqrt,cbrt:Math.cbrt,abs:Math.abs,
+  fact:x=>{ x=Math.round(x); if(x<0||x>170) return NaN; let r=1; for(let i=2;i<=x;i++) r*=i; return r; } };
 function ev(n,x){ switch(n.t){ case 'num':return n.v; case 'var':return x; case 'neg':return -ev(n.a,x);
   case 'add':return ev(n.a,x)+ev(n.b,x); case 'sub':return ev(n.a,x)-ev(n.b,x); case 'mul':return ev(n.a,x)*ev(n.b,x); case 'div':return ev(n.a,x)/ev(n.b,x);
   case 'pow':return Math.pow(ev(n.a,x),ev(n.b,x)); case 'call':{ const f=FNS[n.name]; if(!f) throw new Error('fn '+n.name); return f(ev(n.arg,x)); } } }
@@ -91,6 +92,7 @@ function sanitizeScene(s){
   (s.lines||[]).forEach(l=>{ if(l.at!=null)l.at=num(l.at); if(l.from!=null)l.from=num(l.from); });
   if(s.riemann){ s.riemann.a=num(s.riemann.a); s.riemann.b=num(s.riemann.b); if(s.riemann.n!=null)s.riemann.n=num(s.riemann.n,10); }
   if(s.animate){ if(s.animate.from!=null)s.animate.from=num(s.animate.from); if(s.animate.to!=null)s.animate.to=num(s.animate.to); if(s.animate.a!=null)s.animate.a=num(s.animate.a); if(s.animate.b!=null)s.animate.b=num(s.animate.b); }
+  if(s.psum){ s.psum.from=Math.round(num(s.psum.from,1)); s.psum.N=Math.round(num(s.psum.N,28)); if(s.psum.limit!=null)s.psum.limit=num(s.psum.limit); }
   return s;
 }
 // pre-parse: turn bare symbols in numeric slots (e.g. [-pi,pi]) into numbers WITHOUT touching quoted exprs
@@ -113,7 +115,7 @@ function loadScene(){
 
 /* ================= RENDERER ================= */
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
-let W=0,H=0,DPR=1, SCENE=null, FNS_C=[], DOM=[-5,5], YR=[-5,5], M=null, T0=0, RAF=null, FINAL=false, SAFETY=null, ANIM_STATIC=null;
+let W=0,H=0,DPR=1, SCENE=null, FNS_C=[], PSUM=null, DOM=[-5,5], YR=[-5,5], M=null, T0=0, RAF=null, FINAL=false, SAFETY=null, ANIM_STATIC=null;
 
 function niceStep(range,target){ const raw=range/target, mag=Math.pow(10,Math.floor(Math.log10(raw))), n=raw/mag;
   const s=n<1.5?1:n<3?2:n<7?5:10; return s*mag; }
@@ -124,6 +126,7 @@ function resize(){ DPR=Math.min(2,window.devicePixelRatio||1); const r=cv.getBou
 function computeView(){
   const [a,b]=DOM; const N=400; let ys=[];
   for(const f of FNS_C){ for(let i=0;i<=N;i++){ const y=f(a+(b-a)*i/N); if(isFinite(y)) ys.push(y); } }
+  if(PSUM){ for(const p of PSUM.pts) ys.push(p[1]); if(PSUM.limit!=null) ys.push(PSUM.limit); ys.push(0); }
   let y0,y1;
   if(SCENE.yrange && SCENE.yrange[0]!=null){ y0=SCENE.yrange[0]; y1=SCENE.yrange[1]; }
   else if(ys.length){ ys.sort((p,q)=>p-q); const lo=ys[Math.floor(ys.length*0.02)], hi=ys[Math.floor(ys.length*0.98)];
@@ -235,6 +238,30 @@ function drawPoint(pt,prog){
     ctx.globalAlpha=(prog-0.6)/0.4; ctx.fillText(pt.label, px+11, py-9); ctx.globalAlpha=1; }
 }
 
+/* series: partial sums Sₙ plotted as glowing dots marching toward (or away from) the limit */
+function subDigits(k){ const m={'0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉'}; return String(k).split('').map(c=>m[c]||c).join(''); }
+function drawPsum(prog){
+  const pts=PSUM.pts, n=pts.length, shown=Math.max(1,Math.floor(prog*n));
+  const mono=getComputedStyle(document.body).getPropertyValue('--mono');
+  if(PSUM.limit!=null){
+    ctx.save(); ctx.strokeStyle=cget('mag'); ctx.globalAlpha=0.75; ctx.lineWidth=1.6; ctx.setLineDash([7,6]);
+    ctx.beginPath(); ctx.moveTo(M.sx(DOM[0]),M.sy(PSUM.limit)); ctx.lineTo(M.sx(DOM[1]),M.sy(PSUM.limit)); ctx.stroke();
+    ctx.setLineDash([]); ctx.font='13px '+mono; ctx.textAlign='left'; ctx.textBaseline='bottom'; ctx.fillStyle=cget('mag');
+    ctx.fillText('L ≈ '+(+PSUM.limit.toFixed(4)), M.sx(DOM[0])+8, M.sy(PSUM.limit)-5); ctx.restore();
+  }
+  ctx.save(); ctx.strokeStyle=cget('gold'); ctx.globalAlpha=0.32; ctx.lineWidth=1.4; ctx.beginPath();
+  for(let i=0;i<shown;i++){ const px=M.sx(pts[i][0]), py=M.sy(pts[i][1]); i?ctx.lineTo(px,py):ctx.moveTo(px,py); }
+  ctx.stroke(); ctx.restore();
+  const r=Math.max(2.2,5-n*0.05);
+  ctx.save(); ctx.fillStyle=cget('gold'); ctx.shadowColor=cget('glow'); ctx.shadowBlur=10;
+  for(let i=0;i<shown;i++){ ctx.beginPath(); ctx.arc(M.sx(pts[i][0]),M.sy(pts[i][1]),r,0,7); ctx.fill(); }
+  ctx.restore();
+  const last=pts[shown-1], px=M.sx(last[0]), py=M.sy(last[1]), rt=px>W-150;
+  ctx.save(); ctx.font='13.5px '+mono; ctx.fillStyle=cget('ink');
+  ctx.textAlign=rt?'right':'left'; ctx.textBaseline='bottom'; ctx.shadowColor='rgba(0,0,0,.85)'; ctx.shadowBlur=6;
+  ctx.fillText('S'+subDigits(last[0])+' ≈ '+(+last[1].toFixed(4)), px+(rt?-10:10), py-9); ctx.restore();
+}
+
 const STATIC=/[?&]static/.test(location.search);   // ?static → render the final frame instantly (screenshots / fallback)
 function frame(now){
   if(!T0) T0=now; const t=(STATIC||FINAL)?9:(now-T0)/1000;
@@ -246,6 +273,7 @@ function frame(now){
   drawGrid();
   if(SCENE.riemann) drawRiemann(SCENE.riemann, ease);
   if(SCENE.shade) drawShade(SCENE.shade, ease);
+  if(PSUM) drawPsum(Math.min(1, t/2.0));        // partial sums march in one by one over 2s
   // functions with glow, drawn in
   FNS_C.forEach((f,i)=>{ const spec=SCENE.functions[i]; ctx.save();
     ctx.strokeStyle=cget(spec.color); ctx.lineWidth=3.2; ctx.lineJoin='round'; ctx.lineCap='round';
@@ -261,17 +289,45 @@ function frame(now){
     drawAnimate(SCENE.animate, ap);
     if(ANIM_STATIC==null) RAF=requestAnimationFrame(frame);     // live scenes loop forever
   } else {
-    RAF=(t<2.2 && !FINAL) ? requestAnimationFrame(frame) : null;
+    RAF=(t<(PSUM?2.6:2.2) && !FINAL) ? requestAnimationFrame(frame) : null;   // psum reveal runs a bit longer
   }
 }
 
 function build(){
   SCENE=loadScene();
+  SCENE.functions=SCENE.functions||[];
   FNS_C=SCENE.functions.map(f=>compile(f.expr));
-  DOM=SCENE.domain||[-5,5];
+  // series: precompute partial sums S_k of the term aₙ (term written in n)
+  PSUM=null;
+  if(SCENE.psum&&SCENE.psum.term){
+    try{
+      // factorial notation → fact(); then the term's n becomes the parser's x
+      const termSrc=String(SCENE.psum.term)
+        .replace(/\bfactorial\s*\(/gi,'fact(')
+        .replace(/\(([^()]*)\)\s*!/g,'fact($1)')
+        .replace(/([a-z0-9]+)\s*!/gi,'fact($1)')
+        .replace(/\bn\b/gi,'x');
+      const tf=compile(termSrc);
+      const from=SCENE.psum.from!=null?SCENE.psum.from:1, N=Math.max(from+3,SCENE.psum.N!=null?SCENE.psum.N:28);
+      let s=0; const pts=[];
+      for(let k=from;k<=N;k++){ const a=tf(k); if(isFinite(a)) s+=a; if(isFinite(s)) pts.push([k,s]); }
+      if(pts.length>2){
+        let limit=(SCENE.psum.limit!=null&&isFinite(SCENE.psum.limit))?SCENE.psum.limit:null;
+        // deterministic self-heal: WE computed the real sums — if they've settled and the AI's
+        // limit disagrees (e.g. geometric a/(1-r) with the wrong first term), snap to the truth
+        const n=pts.length, last=pts[n-1][1];
+        const settled=Math.abs(last-pts[n-4][1])<=Math.max(1e-6,Math.abs(last)*0.002);
+        if(settled && (limit==null || Math.abs(limit-last)>Math.max(0.02,Math.abs(last)*0.03))) limit=+last.toFixed(4);
+        PSUM={pts,from,N,limit,term:SCENE.psum.term};
+      }
+    }catch(e){ PSUM=null; }
+  }
+  DOM=SCENE.domain||(PSUM?[0,PSUM.N+1]:[-5,5]);
   document.getElementById('cap').textContent=SCENE.caption||'';
-  document.getElementById('legend').innerHTML=SCENE.functions.map(f=>
+  let lg=SCENE.functions.map(f=>
     '<div class="lg"><span class="sw" style="background:'+cget(f.color)+'"></span>'+(f.label||f.expr)+'</div>').join('');
+  if(PSUM) lg+='<div class="lg"><span class="sw" style="background:'+cget('gold')+'"></span>'+(SCENE.psum.label||('Sₙ = Σ '+PSUM.term))+'</div>';
+  document.getElementById('legend').innerHTML=lg;
   resize(); play();
 }
 // start the reveal; a setTimeout safety net forces the COMPLETE frame even if rAF is throttled (embeds / this env)

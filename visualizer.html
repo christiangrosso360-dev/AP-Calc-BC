@@ -19,6 +19,10 @@
   textarea#q{width:100%;background:#0e0b04;border:1px solid var(--line);border-radius:12px;color:var(--ink);
     font-family:var(--mono);font-size:15.5px;line-height:1.55;padding:16px;min-height:96px;resize:vertical;outline:none}
   textarea#q:focus{border-color:rgba(240,180,41,.5)}
+  .syms{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .syms button{font-family:var(--mono);font-size:14px;line-height:1;color:var(--muted);background:#0e0b04;
+    border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;transition:color .15s,border-color .15s}
+  .syms button:hover{color:var(--approx);border-color:rgba(240,180,41,.5)}
   .vz-row{display:flex;gap:12px;align-items:center;margin-top:14px;flex-wrap:wrap}
   .vz-go{background:var(--approx);color:#241a02;border:none;border-radius:10px;font-family:var(--mono);
     font-weight:700;font-size:14px;padding:13px 26px;cursor:pointer;letter-spacing:.04em;box-shadow:0 10px 22px -12px var(--approx);transition:transform .15s,filter .15s}
@@ -85,6 +89,19 @@
 
   <div class="vz-box">
     <textarea id="q" placeholder="try:  revolve the region between y = sqrt(x) and y = x^2 about the x-axis" spellcheck="false" autocomplete="off"></textarea>
+    <div class="syms" id="syms" aria-label="insert a math symbol">
+      <button type="button" data-ins="∫ ">∫</button>
+      <button type="button" data-ins="√()">√</button>
+      <button type="button" data-ins="π">π</button>
+      <button type="button" data-ins="²">x²</button>
+      <button type="button" data-ins="³">x³</button>
+      <button type="button" data-ins="ⁿ">xⁿ</button>
+      <button type="button" data-ins="Σ ">Σ</button>
+      <button type="button" data-ins="∞">∞</button>
+      <button type="button" data-ins="θ">θ</button>
+      <button type="button" data-ins="d/dx ">d/dx</button>
+      <button type="button" data-ins="f'(x)">f′</button>
+    </div>
     <div class="vz-row">
       <button class="vz-go" id="go">Visualize →</button>
       <span class="vz-hint">it reads plain english · beta</span>
@@ -94,6 +111,8 @@
       <button data-q="area of the region enclosed by y=4-x^2 and y=x+2">area between two curves</button>
       <button data-q="tangent line to f(x)=x^3-3x at x=2">tangent line at a point</button>
       <button data-q="a 10 ft ladder slides down a wall at 2 ft/s — how fast is the base moving?">the sliding ladder</button>
+      <button data-q="does the series 1/n^2 converge?">does Σ 1/n² converge?</button>
+      <button data-q="maclaurin series for sin x">maclaurin: sin x</button>
     </div>
   </div>
 
@@ -165,10 +184,21 @@ function looksLikeExpr(e){
   if(/[a-z]{2,}/i.test(stripped)) return false;         // leftover word = it's prose, not math
   return true;
 }
+// pretty math symbols (typed or tapped from the palette) → parser/AI-friendly text
+function normalizeMath(s){
+  return s
+    .replace(/√\s*\(/g,'sqrt(')
+    .replace(/√\s*([a-zA-Z0-9.]+)/g,'sqrt($1)')
+    .replace(/²/g,'^2').replace(/³/g,'^3').replace(/⁴/g,'^4').replace(/⁵/g,'^5').replace(/ⁿ/g,'^n')
+    .replace(/π/g,'pi').replace(/∞/g,'infinity').replace(/θ/g,'theta')
+    .replace(/[×·]/g,'*').replace(/−/g,'-').replace(/≤/g,'<=').replace(/≥/g,'>=')
+    .replace(/Σ/g,' sum of ').replace(/∫/g,' integral of ')
+    .replace(/\s{2,}/g,' ').trim();
+}
 // does the input carry ANY real math signal? guards the grapher against junk ("how do i cook pasta")
 function looksMathy(s){
   return /[0-9=^]/.test(s) ||
-    /\bx\b|x\^|x\d|\dx|sqrt|sin|cos|tan|sec|csc|cot|\bln\b|log|exp|∫|√|π|\bpi\b|deriv|integral|tangent|slope|concav|inflect|riemann|\barea\b|volume|\blimit\b|function|f\(x\)|f'/i.test(s);
+    /\bx\b|x\^|x\d|\dx|sqrt|sin|cos|tan|sec|csc|cot|\bln\b|log|exp|∫|√|π|\bpi\b|deriv|integral|tangent|slope|concav|inflect|riemann|\barea\b|volume|\blimit\b|function|f\(x\)|f'|series|converge|maclaurin|taylor|\bsum\b|Σ/i.test(s);
 }
 function extractCurves(src){
   const out=[]; let m;
@@ -288,10 +318,12 @@ function aiToResult(j){
 
 /* ---------- UNIVERSAL GRAPHER: AI as scene DIRECTOR (long-tail problems) ---------- */
 const SCENE_SYS='You are a calculus visualization director. Read the problem and output ONLY a JSON object (no prose, no markdown fences) describing what to draw on a 2D graph. A deterministic renderer draws exactly what you specify — you choose WHAT to show, never how.\n'
-+'SCHEMA (include only keys you need): {"functions":[{"expr":"<in x>","color":"gold|teal|mag|coral","label":"<short>"}], "domain":[xmin,xmax], "shade":{"between":[i,j],"interval":[a,b]} OR {"under":i,"interval":[a,b]}, "riemann":{"of":<i>,"a":<x>,"b":<x>,"n":<count>,"rule":"left|right|mid"}, "animate":{"kind":"slidePoint","on":<i>,"from":<x1>,"to":<x2>} OR {"kind":"riemannN","of":<i>,"a":<x1>,"b":<x2>,"from":<n1>,"to":<n2>,"rule":"mid"}, "points":[{"x":<num>,"on":<i>,"label":"<short>"}], "lines":[{"type":"tangent","to":<i>,"at":<x>}|{"type":"secant","to":<i>,"from":<x1>,"at":<x2>}|{"type":"vertical","at":<x>}|{"type":"horizontal","at":<y>}], "caption":"<one short phrase>"}\n'
-+'RULES: expr = plain math in x (^,*,sqrt(),sin(),cos(),tan(),ln(),exp() or e^(...),pi); no "y=". Main curve gold, second teal. Pick a domain that shows the key features. on/to/shade/riemann indices are 0-based into functions. DERIVATIVE problem: plot BOTH the function AND its derivative (you compute the derivative expression). TANGENT/linearization: plot the function, add a tangent line at the point, mark the point (do NOT add the linearization as a separate function). AREA UNDER a curve / definite INTEGRAL of a single function: shade {"under":0,"interval":[a,b]}, AND if the problem is about a Riemann sum or approximating the integral with rectangles, add "riemann" with a sensible n (e.g. 6-10). AREA BETWEEN two curves: plot both, shade {"between":[0,1]}. Add "animate" ONLY when motion truly illuminates: use slidePoint (a point rides the curve, its tangent slope shown live) when the problem is about how a rate/slope CHANGES across an interval; use riemannN (rectangles refine as n grows) when it is about a Riemann sum CONVERGING to the integral. Most problems need no animate. ALL numeric fields (domain, interval, at, x, from, y, a, b, n) MUST be plain decimal numbers — never symbols (pi=3.14159, e=2.71828). Keep it minimal.\n'
++'SCHEMA (include only keys you need): {"functions":[{"expr":"<in x>","color":"gold|teal|mag|coral","label":"<short>"}], "domain":[xmin,xmax], "shade":{"between":[i,j],"interval":[a,b]} OR {"under":i,"interval":[a,b]}, "riemann":{"of":<i>,"a":<x>,"b":<x>,"n":<count>,"rule":"left|right|mid"}, "animate":{"kind":"slidePoint","on":<i>,"from":<x1>,"to":<x2>} OR {"kind":"riemannN","of":<i>,"a":<x1>,"b":<x2>,"from":<n1>,"to":<n2>,"rule":"mid"}, "points":[{"x":<num>,"on":<i>,"label":"<short>"}], "lines":[{"type":"tangent","to":<i>,"at":<x>}|{"type":"secant","to":<i>,"from":<x1>,"at":<x2>}|{"type":"vertical","at":<x>}|{"type":"horizontal","at":<y>}], "psum":{"term":"<a_n written in n>","from":<int>,"N":<int>,"limit":<number or null>,"label":"<short>"}, "caption":"<one short phrase>"}\n'
++'RULES: expr = plain math in x (^,*,sqrt(),sin(),cos(),tan(),ln(),exp() or e^(...),pi); no "y=". Main curve gold, second teal. Pick a domain that shows the key features. on/to/shade/riemann indices are 0-based into functions. DERIVATIVE problem: plot BOTH the function AND its derivative (you compute the derivative expression). TANGENT/linearization: plot the function, add a tangent line at the point, mark the point (do NOT add the linearization as a separate function). AREA UNDER a curve / definite INTEGRAL of a single function: shade {"under":0,"interval":[a,b]}, AND if the problem is about a Riemann sum or approximating the integral with rectangles, add "riemann" with a sensible n (e.g. 6-10). AREA BETWEEN two curves: plot both, shade {"between":[0,1]}. Add "animate" ONLY when motion truly illuminates: use slidePoint (a point rides the curve, its tangent slope shown live) when the problem is about how a rate/slope CHANGES across an interval; use riemannN (rectangles refine as n grows) when it is about a Riemann sum CONVERGING to the integral. Most problems need no animate. SERIES (Unit 10): for "does the series/sum a_n converge or diverge" → output "psum": term = a_n written in n (e.g. "1/n^2", "(1/2)^n", "1/n"), from = the starting index (default 1, use 0 when stated), N = 28 (use 40 for slow divergence like 1/n), limit = the exact sum as a plain DECIMAL when it converges (geometric: (first term AT n=from)/(1-r) — if from=0 the first term is a_0, e.g. sum of (1/2)^n from 0 = 1/(1-1/2) = 2; known sums like pi^2/6 = 1.6449; else null when it diverges), functions may be [] for pure series; the caption MUST state converges (and to what) or diverges. TAYLOR/MACLAURIN series or polynomials: do NOT use psum — plot the target function in gold PLUS 2-3 of its Taylor partial-sum POLYNOMIALS which you compute yourself (e.g. sin x -> "x", "x - x^3/6", "x - x^3/6 + x^5/120") in teal/mag/coral labeled P1, P3, P5, domain centered on the expansion point. RADIUS or INTERVAL of convergence of a power series in x: plot 2-3 partial-sum polynomials and add vertical lines at the interval endpoints; caption names the interval. ALL numeric fields (domain, interval, at, x, from, y, a, b, n, N, limit) MUST be plain decimal numbers — never symbols (pi=3.14159, e=2.71828). Keep it minimal.\n'
 +'EXAMPLES:\n"find the derivative of x^3" -> {"functions":[{"expr":"x^3","color":"gold","label":"f = x^3"},{"expr":"3*x^2","color":"teal","label":"f\' = 3x^2"}],"domain":[-2.5,2.5],"caption":"a function and its derivative"}\n'
 +'"area under y=x^2 from 0 to 2" -> {"functions":[{"expr":"x^2","color":"gold","label":"y = x^2"}],"domain":[-0.5,2.5],"shade":{"under":0,"interval":[0,2]},"caption":"the area under the curve"}\n'
++'"does the series 1/n^2 converge" -> {"functions":[],"psum":{"term":"1/n^2","from":1,"N":30,"limit":1.6449,"label":"S_n = sum of 1/n^2"},"caption":"the partial sums level off — converges to pi^2/6 = 1.645"}\n'
++'"maclaurin series for sin x" -> {"functions":[{"expr":"sin(x)","color":"gold","label":"sin x"},{"expr":"x","color":"teal","label":"P1"},{"expr":"x - x^3/6","color":"mag","label":"P3"},{"expr":"x - x^3/6 + x^5/120","color":"coral","label":"P5"}],"domain":[-6.5,6.5],"yrange":[-3,3],"caption":"Taylor polynomials hugging sin x near 0"}\n'
 +'If the input is NOT a graphable calculus problem — it names no function and no mathematical relationship (e.g. small talk, a non-math question) — output exactly {"functions":[]} and nothing else. Never invent a function that was not asked for.\nNow output ONLY the JSON scene-spec for the problem.';
 function jsonRepair(str){
   let out='',q=false,e=false;
@@ -300,7 +332,7 @@ function jsonRepair(str){
 }
 // instant + free: pure "graph this function" inputs need no AI — the local parser builds the scene
 function localScene(raw){
-  if(/deriv|differentiat|d\/dx|f'|sketch|concav|inflect|increas|decreas|\barea\b|integral|riemann|tangent|lineariz|\blimit\b|maximum|minimum|extrem|optimi|between|bounded|revolv/i.test(raw)) return null;
+  if(/deriv|differentiat|d\/dx|f'|sketch|concav|inflect|increas|decreas|\barea\b|integral|riemann|tangent|lineariz|\blimit\b|maximum|minimum|extrem|optimi|between|bounded|revolv|series|converge|diverge|maclaurin|taylor|partial sum|\bsum\b|radius of/i.test(raw)) return null;
   const s=raw.replace(/^\s*(graph|plot|draw|show|sketch)\s+/i,'').trim();
   const curves=extractCurves(s);
   if(!curves.length) return null;
@@ -316,7 +348,10 @@ async function getSceneOnce(raw){
     if(!res.ok||!d.text) return null;
     const m=d.text.match(/\{[\s\S]*\}/); if(!m) return null;
     let obj; try{ obj=JSON.parse(m[0]); }catch(e){ try{ obj=JSON.parse(jsonRepair(m[0])); }catch(e2){ return null; } }
-    if(!obj||!Array.isArray(obj.functions)||!obj.functions.length) return null;
+    if(!obj) return null;
+    const hasF=Array.isArray(obj.functions)&&obj.functions.length;
+    if(!hasF && !(obj.psum&&obj.psum.term)) return null;   // series scenes may carry only psum
+    if(!Array.isArray(obj.functions)) obj.functions=[];
     return obj;
   }catch(e){ clearTimeout(to); return null; }
 }
@@ -445,7 +480,8 @@ function groundText(r){
   if(r.arch==='tangent') return 'TANGENT LINE / LINEAR APPROXIMATION. f(x)='+f+', point a='+(r.at!=null?r.at:'the given x')+'. METHOD: the linearization is L(x) = f(a) + f\'(a)(x - a). Find f(a); find f\'(x) then f\'(a); write L(x); use it to estimate f near a. Exact at a, drifts as you move away.';
   if(r.arch==='rates') return 'RELATED RATES'+(r.scene?(' ('+r.scene+')'):'')+'. Given rate: '+(r.given!=null?r.given:'the stated rate')+'. METHOD (4 steps): (1) name the changing quantities, mark which rate is GIVEN and which is WANTED; (2) find the equation relating them; (3) differentiate both sides with respect to t (chain rule — every variable earns a rate, constants vanish); (4) substitute the instant\'s numbers LAST, then solve.';
   if(r.arch==='graph'){ const fs=(r.scene&&r.scene.functions||[]).map(f=>f.expr).join(', ');
-    return 'The graph shows: '+(fs||'the relevant function(s)')+'. Work out what the student\'s problem is actually asking (a derivative, where the function increases/decreases, concavity/inflection, an area or definite integral, a limit, or just reading the graph) and walk them through THAT step by step, using the graph and their numbers.'; }
+    if(r.scene&&r.scene.psum) return 'SERIES (Unit 10). The graph plots the PARTIAL SUMS S_n of the series with term a_n = '+r.scene.psum.term+(r.scene.psum.limit!=null?(', and they level off at L ≈ '+r.scene.psum.limit+' — the series CONVERGES to that sum'):', and they keep growing without leveling off — the series DIVERGES')+'. METHOD: a series converges exactly when its sequence of partial sums has a finite limit. Guide the student to the right test (nth-term test first, then geometric |r|<1, p-series p>1, comparison, ratio test for factorials/powers, alternating series) and tie the picture of S_n back to what the test predicts.';
+    return 'The graph shows: '+(fs||'the relevant function(s)')+'. Work out what the student\'s problem is actually asking (a derivative, where the function increases/decreases, concavity/inflection, an area or definite integral, a limit, a Taylor/Maclaurin approximation, or just reading the graph) and walk them through THAT step by step, using the graph and their numbers.'; }
   return '';
 }
 function tutorSystem(r,raw){
@@ -538,8 +574,9 @@ function showFail(){
 }
 let _runToken=0;
 async function run(){
-  const raw=document.getElementById('q').value.trim();
-  if(!raw) return;
+  const raw0=document.getElementById('q').value.trim();
+  if(!raw0) return;
+  const raw=normalizeMath(raw0);          // √ ² π ∫ Σ … → parser/AI-friendly text
   const token=++_runToken;
   const local=recognize(raw);
   if(local && !looksLikeProse(raw)){ show(local); return; }   // confident local signature archetype → instant
@@ -566,7 +603,7 @@ async function run(){
   if(token!==_runToken) return;
   if(scene){ showGraph(scene, raw); return; }
   if(local){ show(local); return; }                     // last resort: the local signature guess
-  logMiss(raw, mathy ? 'unrendered' : 'nonmath');       // real math we couldn't draw = the next rule to write
+  logMiss(raw0, mathy ? 'unrendered' : 'nonmath');      // log what the student ACTUALLY typed (pretty symbols intact)
   showFail();
 }
 document.getElementById('go').onclick=run;
@@ -574,6 +611,15 @@ document.getElementById('q').addEventListener('keydown',e=>{ if(e.key==='Enter'&
 document.getElementById('chips').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
   document.getElementById('q').value=b.dataset.q; run();
+});
+// symbol palette: insert at the cursor, keep typing flow (√() parks the cursor inside the parens)
+document.getElementById('syms').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  const q=document.getElementById('q'), ins=b.dataset.ins;
+  const st=q.selectionStart!=null?q.selectionStart:q.value.length, en=q.selectionEnd!=null?q.selectionEnd:st;
+  q.value=q.value.slice(0,st)+ins+q.value.slice(en);
+  const pos=st+(ins==='√()'?2:ins.length);
+  q.focus(); q.setSelectionRange(pos,pos);
 });
 document.getElementById('rWrong').onclick=()=>document.getElementById('picker').scrollIntoView({behavior:'smooth'});
 document.getElementById('tutorStart').onclick=startTutor;
