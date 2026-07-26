@@ -96,6 +96,7 @@ function sanitizeScene(s){
   if(s.animate){ if(s.animate.from!=null)s.animate.from=num(s.animate.from); if(s.animate.to!=null)s.animate.to=num(s.animate.to); if(s.animate.a!=null)s.animate.a=num(s.animate.a); if(s.animate.b!=null)s.animate.b=num(s.animate.b); }
   if(s.psum){ s.psum.from=Math.round(num(s.psum.from,1)); s.psum.N=Math.round(num(s.psum.N,28)); if(s.psum.limit!=null)s.psum.limit=num(s.psum.limit); }
   [].concat(s.param||[],s.polar||[]).forEach(c=>{ if(Array.isArray(c.t)) c.t=[num(c.t[0],0),num(c.t[1],6.28318531)]; });
+  [].concat(s.implicit||[]).forEach(c=>{ if(Array.isArray(c.tangentAt)) c.tangentAt=[num(c.tangentAt[0],0),num(c.tangentAt[1],0)]; });
   if(s.field) [].concat(s.field.solutions||[]).forEach(sol=>{ sol.x0=num(sol.x0,0); sol.y0=num(sol.y0,0);
     if(sol.euler){ sol.euler.h=num(sol.euler.h,0.5); sol.euler.steps=Math.round(num(sol.euler.steps,6)); } });
   return s;
@@ -120,7 +121,7 @@ function loadScene(){
 
 /* ================= RENDERER ================= */
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
-let W=0,H=0,DPR=1, SCENE=null, FNS_C=[], PSUM=null, PARAM=null, FIELD=null, DOM=[-5,5], YR=[-5,5], M=null, T0=0, RAF=null, FINAL=false, SAFETY=null, ANIM_STATIC=null;
+let W=0,H=0,DPR=1, SCENE=null, FNS_C=[], PSUM=null, PARAM=null, FIELD=null, IMPL=null, ANLZ=null, DOM=[-5,5], YR=[-5,5], M=null, T0=0, RAF=null, FINAL=false, SAFETY=null, ANIM_STATIC=null;
 
 function niceStep(range,target){ const raw=range/target, mag=Math.pow(10,Math.floor(Math.log10(raw))), n=raw/mag;
   const s=n<1.5?1:n<3?2:n<7?5:10; return s*mag; }
@@ -155,10 +156,19 @@ function computeView(){
   else if(ys.length){ ys.sort((p,q)=>p-q); const lo=ys[Math.floor(ys.length*0.02)], hi=ys[Math.floor(ys.length*0.98)];
     y0=Math.min(lo,0); y1=Math.max(hi,0); const pad=(y1-y0||1)*0.12; y0-=pad; y1+=pad; }
   else { y0=-5; y1=5; }
+  const padL=54,padR=26,padT=26,padB=40+(ANLZ?48:0);   // analysis reserves a band for the sign strips
+  let x0=a,x1=b;
+  if(IMPL){   // implicit curves are shapes, not graphs — lock the aspect so a circle IS a circle
+    const pxW=Math.max(1,W-padL-padR), pxH=Math.max(1,H-padT-padB);
+    const s=Math.max((x1-x0)/pxW,(y1-y0)/pxH);
+    const cx=(x0+x1)/2, cy=(y0+y1)/2, hw=s*pxW/2, hh=s*pxH/2;
+    x0=cx-hw; x1=cx+hw; y0=cy-hh; y1=cy+hh;
+    DOM=[x0,x1];
+  }
   YR=[y0,y1];
-  const padL=54,padR=26,padT=26,padB=40;
-  M={ sx:x=>padL+((x-a)/(b-a))*(W-padL-padR), sy:y=>H-padB-((y-y0)/(y1-y0))*(H-padT-padB),
-      ux:px=>a+((px-padL)/(W-padL-padR))*(b-a) };
+  M={ sx:x=>padL+((x-x0)/(x1-x0))*(W-padL-padR), sy:y=>H-padB-((y-y0)/(y1-y0))*(H-padT-padB),
+      ux:px=>x0+((px-padL)/(W-padL-padR))*(x1-x0), padB:padB, padL:padL, padR:padR };
+  if(IMPL) IMPL.forEach(c=>c._segs=null);   // marching-squares grid is view-dependent → recompute
 }
 
 function drawGrid(){
@@ -364,6 +374,139 @@ function drawSolutions(prog){
   });
 }
 
+/* Unit 5 — curve analysis: find where f' and f" change sign, mark and CLASSIFY them, and draw
+   sign strips. The point is to ANSWER "where is it increasing / concave up", not make you squint. */
+function findRoots(g,a,b,steps){
+  // tracks the last NON-ZERO sign, so a sample that lands EXACTLY on the root (very common —
+  // f'(0)=0 for any even function on a symmetric domain) is still detected as a crossing
+  const out=[]; let lastSign=0, lastX=a, zeroRun=null;
+  for(let i=0;i<=steps;i++){
+    const x=a+(b-a)*i/steps, v=g(x);
+    if(!isFinite(v)){ lastSign=0; zeroRun=null; continue; }
+    const s=v>0?1:(v<0?-1:0);
+    if(s===0){ zeroRun=zeroRun?[zeroRun[0],x]:[x,x]; continue; }
+    if(lastSign!==0&&s!==lastSign){
+      if(zeroRun) out.push((zeroRun[0]+zeroRun[1])/2);         // passed through an exact zero
+      else{
+        let lo=lastX,hi=x,flo=g(lo);
+        for(let k=0;k<60;k++){ const mid=(lo+hi)/2, fm=g(mid);
+          if(!isFinite(fm)) break;
+          if(fm===0){ lo=hi=mid; break; }
+          if((flo<0)!==(fm<0)) hi=mid; else { lo=mid; flo=fm; } }
+        out.push((lo+hi)/2);
+      }
+    }
+    zeroRun=null; lastSign=s; lastX=x;
+  }
+  return out;
+}
+function analyze(){
+  const f=FNS_C[ANLZ.of], [a,b]=DOM, h=Math.max(1e-5,(b-a)*1e-5);
+  const d1=x=>(f(x+h)-f(x-h))/(2*h), d2=x=>(f(x+h)-2*f(x)+f(x-h))/(h*h);
+  const crit=findRoots(d1,a,b,600).filter(x=>isFinite(f(x)));
+  const infl=findRoots(d2,a,b,600).filter(x=>isFinite(f(x)));
+  const kind=x=>{ const s=d2(x); return !isFinite(s)||Math.abs(s)<1e-6 ? '' : (s>0?'min':'max'); };
+  return { f, d1, d2, crit:crit.map(x=>({x,y:f(x),kind:kind(x)})), infl:infl.map(x=>({x,y:f(x)})) };
+}
+function drawAnalysis(prog){
+  if(prog<=0) return;
+  if(!ANLZ._r) ANLZ._r=analyze();
+  const R=ANLZ._r, [a,b]=DOM, mono=getComputedStyle(document.body).getPropertyValue('--mono');
+  // dashed guides + marked, labelled points
+  ctx.save(); ctx.globalAlpha=prog;
+  R.infl.forEach(p=>{ ctx.strokeStyle='rgba(232,132,234,.35)'; ctx.lineWidth=1.4; ctx.setLineDash([5,5]);
+    ctx.beginPath(); ctx.moveTo(M.sx(p.x),M.sy(YR[0])); ctx.lineTo(M.sx(p.x),M.sy(YR[1])); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=cget('mag'); ctx.shadowColor=cget('mag'); ctx.shadowBlur=12;
+    ctx.beginPath(); ctx.arc(M.sx(p.x),M.sy(p.y),5,0,7); ctx.fill(); ctx.shadowBlur=0; });
+  R.crit.forEach(p=>{ ctx.strokeStyle='rgba(255,214,107,.32)'; ctx.lineWidth=1.4; ctx.setLineDash([5,5]);
+    ctx.beginPath(); ctx.moveTo(M.sx(p.x),M.sy(YR[0])); ctx.lineTo(M.sx(p.x),M.sy(YR[1])); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=cget('glow'); ctx.shadowColor=cget('glow'); ctx.shadowBlur=14;
+    ctx.beginPath(); ctx.arc(M.sx(p.x),M.sy(p.y),6,0,7); ctx.fill(); ctx.shadowBlur=0;
+    if(p.kind){ ctx.fillStyle=COL.ink; ctx.font='13px '+mono; ctx.textAlign='center'; ctx.textBaseline=p.kind==='max'?'bottom':'top';
+      ctx.fillText('local '+p.kind+' ('+(+p.x.toFixed(2))+', '+(+p.y.toFixed(2))+')', M.sx(p.x), M.sy(p.y)+(p.kind==='max'?-14:16)); } });
+  ctx.restore();
+  // the two sign strips, in the band reserved under the axis
+  const yBase=H-M.padB+14, sh=15, gap=5;
+  const strip=(rowY,cuts,test,posCol,negCol,posTxt,negTxt,name)=>{
+    const xs=[a].concat(cuts.map(c=>c.x!==undefined?c.x:c),[b]);
+    ctx.save(); ctx.globalAlpha=prog;
+    for(let i=0;i<xs.length-1;i++){
+      const mid=(xs[i]+xs[i+1])/2, pos=test(mid);
+      const x0=M.sx(xs[i]), x1=M.sx(xs[i+1]);
+      ctx.fillStyle=pos?posCol:negCol; ctx.fillRect(x0,rowY,Math.max(1,x1-x0),sh);
+      if(x1-x0>34){ ctx.fillStyle='rgba(12,10,5,.92)'; ctx.font='11px '+mono; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(pos?posTxt:negTxt,(x0+x1)/2,rowY+sh/2+0.5); }
+    }
+    ctx.strokeStyle='rgba(120,100,60,.5)'; ctx.lineWidth=1; ctx.strokeRect(M.sx(a),rowY,M.sx(b)-M.sx(a),sh);
+    ctx.fillStyle='rgba(169,158,134,.9)'; ctx.font='11px '+mono; ctx.textAlign='right'; ctx.textBaseline='middle';
+    ctx.fillText(name, M.sx(a)-8, rowY+sh/2);
+    ctx.restore();
+  };
+  strip(yBase, R.crit, x=>R.d1(x)>0, 'rgba(63,208,176,.75)', 'rgba(224,100,79,.75)', '↑ incr', '↓ decr', "f '");
+  strip(yBase+sh+gap, R.infl, x=>R.d2(x)>0, 'rgba(240,180,41,.72)', 'rgba(232,132,234,.72)', '∪ CU', '∩ CD', 'f "');
+}
+
+/* Unit 3 — implicit curves F(x,y)=0 via marching squares. A circle isn't a function of x, so it
+   can't go through funcPath(); instead we find where F changes sign across each little grid cell. */
+function implicitSegments(f){
+  const [a,b]=DOM,[y0,y1]=YR, N=120, segs=[];
+  const gx=i=>a+(b-a)*i/N, gy=j=>y0+(y1-y0)*j/N;
+  let prev=new Array(N+1), cur=new Array(N+1);
+  for(let i=0;i<=N;i++) prev[i]=f(gx(i),gy(0));
+  for(let j=1;j<=N;j++){
+    for(let i=0;i<=N;i++) cur[i]=f(gx(i),gy(j));
+    for(let i=0;i<N;i++){
+      const v=[prev[i],prev[i+1],cur[i+1],cur[i]];                        // BL, BR, TR, TL
+      if(v[0]!==v[0]||v[1]!==v[1]||v[2]!==v[2]||v[3]!==v[3]) continue;    // NaN corner → skip cell
+      const cxs=[gx(i),gx(i+1),gx(i+1),gx(i)], cys=[gy(j-1),gy(j-1),gy(j),gy(j)];
+      const hits=[];
+      for(let k=0;k<4;k++){ const k2=(k+1)%4, A=v[k], B=v[k2];
+        if((A<0)!==(B<0)){ const t=A/(A-B);
+          hits.push([cxs[k]+(cxs[k2]-cxs[k])*t, cys[k]+(cys[k2]-cys[k])*t]); } }
+      if(hits.length===2) segs.push([hits[0],hits[1]]);
+      else if(hits.length===4){ segs.push([hits[0],hits[1]]); segs.push([hits[2],hits[3]]); }  // saddle cell
+    }
+    const sw=prev; prev=cur; cur=sw;
+  }
+  return segs;
+}
+function drawImplicit(prog){
+  IMPL.forEach(c=>{
+    if(!c._segs) c._segs=implicitSegments(c.f);
+    const segs=c._segs, n=Math.max(1,Math.floor(segs.length*prog));
+    ctx.save(); ctx.strokeStyle=cget(c.color); ctx.lineWidth=3; ctx.lineCap='round';
+    ctx.shadowColor=cget(c.color); ctx.shadowBlur=10; ctx.beginPath();
+    for(let k=0;k<n;k++){ const s=segs[k];
+      ctx.moveTo(M.sx(s[0][0]),M.sy(s[0][1])); ctx.lineTo(M.sx(s[1][0]),M.sy(s[1][1])); }
+    ctx.stroke(); ctx.restore();
+    // implicit differentiation: dy/dx = -F_x / F_y — the answer the problem is actually asking for
+    if(c.tangentAt&&prog>0.7){
+      const tx=num(c.tangentAt[0],0), ty=num(c.tangentAt[1],0), h=1e-5;
+      const Fx=(c.f(tx+h,ty)-c.f(tx-h,ty))/(2*h), Fy=(c.f(tx,ty+h)-c.f(tx,ty-h))/(2*h);
+      const L=(DOM[1]-DOM[0])*0.3;
+      ctx.save(); ctx.strokeStyle=cget('glow'); ctx.lineWidth=2.2; ctx.shadowColor=cget('glow'); ctx.shadowBlur=10;
+      ctx.beginPath();
+      let lbl;
+      if(isFinite(Fx)&&isFinite(Fy)&&Math.abs(Fy)>1e-7){
+        const m=-Fx/Fy;
+        ctx.moveTo(M.sx(tx-L),M.sy(ty-m*L)); ctx.lineTo(M.sx(tx+L),M.sy(ty+m*L));
+        lbl='dy/dx = '+(m>=0?'':'')+(+m.toFixed(3));
+      } else {                                    // F_y = 0 → the tangent is vertical
+        ctx.moveTo(M.sx(tx),M.sy(YR[0])); ctx.lineTo(M.sx(tx),M.sy(YR[1]));
+        lbl='dy/dx undefined (vertical)';
+      }
+      ctx.stroke();
+      ctx.shadowColor=cget('glow'); ctx.shadowBlur=16; ctx.fillStyle=cget('glow');
+      ctx.beginPath(); ctx.arc(M.sx(tx),M.sy(ty),6,0,7); ctx.fill();
+      ctx.shadowBlur=0; ctx.fillStyle=COL.ink;
+      ctx.font='14px '+getComputedStyle(document.body).getPropertyValue('--mono');
+      const rt=M.sx(tx)>W-190; ctx.textAlign=rt?'right':'left'; ctx.textBaseline='bottom';
+      ctx.fillText(lbl+'  at ('+(+tx.toFixed(2))+', '+(+ty.toFixed(2))+')', M.sx(tx)+(rt?-12:12), M.sy(ty)-12);
+      ctx.restore();
+    }
+  });
+}
+
 /* parametric / polar curves: same glow + draw-in as functions, but traced through the point list */
 function drawParam(prog){
   PARAM.forEach(c=>{
@@ -405,6 +548,8 @@ function frame(now){
     ctx.strokeStyle=cget(spec.color); ctx.lineWidth=3.2; ctx.lineJoin='round'; ctx.lineCap='round';
     ctx.shadowColor=cget(spec.color); ctx.shadowBlur=10; funcPath(f, ease); ctx.stroke(); ctx.restore(); });
   if(PARAM) drawParam(ease);
+  if(IMPL) drawImplicit(ease);
+  if(ANLZ) drawAnalysis(Math.min(1,Math.max(0,(t-0.9)/0.8)));
   const overlayP=Math.max(0,(t-0.9)/0.6), op=Math.min(1,overlayP);
   (SCENE.lines||[]).forEach(l=>drawLine(l, op));
   (SCENE.points||[]).forEach(p=>drawPoint(p, op));
@@ -478,15 +623,28 @@ function build(){
     try{ FIELD={ f:compile2(String(SCENE.field.dydx).replace(/θ/g,'theta')), sols:[].concat(SCENE.field.solutions||[]) }; }
     catch(e){ FIELD=null; }
   }
+  // Unit 3: implicit curves F(x,y)=0 (circles, ellipses, folium…) — the AI moves everything to one side
+  IMPL=null;
+  const ims=[].concat(SCENE.implicit||[]).map(c=>{
+    try{ return { f:compile2(String(c.eq)), color:c.color||'gold', label:c.label||(String(c.eq)+' = 0'),
+                  tangentAt:Array.isArray(c.tangentAt)?c.tangentAt:null }; }catch(e){ return null; }
+  }).filter(Boolean);
+  if(ims.length) IMPL=ims;
+  // Unit 5: mark + classify the critical and inflection points of a function
+  ANLZ=(SCENE.analysis&&FNS_C.length)?{of:Math.max(0,Math.min(FNS_C.length-1,Math.round(num(SCENE.analysis.of,0))))}:null;
   DOM=SCENE.domain||(PSUM?[0,PSUM.N+1]:[-5,5]);
   document.getElementById('cap').textContent=SCENE.caption||'';
   let lg=SCENE.functions.map(f=>
     '<div class="lg"><span class="sw" style="background:'+cget(f.color)+'"></span>'+(f.label||f.expr)+'</div>').join('');
   if(PARAM) lg+=PARAM.map(c=>'<div class="lg"><span class="sw" style="background:'+cget(c.color)+'"></span>'+c.label+'</div>').join('');
+  if(IMPL) lg+=IMPL.map(c=>'<div class="lg"><span class="sw" style="background:'+cget(c.color)+'"></span>'+c.label+'</div>').join('');
   if(FIELD){ lg+='<div class="lg"><span class="sw" style="background:#8fbfd0"></span>dy/dx = '+SCENE.field.dydx+'</div>';
     if(FIELD.sols.some(s=>s.euler)) lg+='<div class="lg"><span class="sw" style="background:'+cget('coral')+'"></span>Euler approximation</div>'; }
   if(PSUM) lg+='<div class="lg"><span class="sw" style="background:'+cget('gold')+'"></span>'+(SCENE.psum.label||('Sₙ = Σ '+PSUM.term))+'</div>';
   document.getElementById('legend').innerHTML=lg;
+  // the sign strips live in the bottom-left band — get the replay button out of their way
+  const rp=document.getElementById('replay');
+  if(ANLZ){ rp.style.left='auto'; rp.style.right='22px'; } else { rp.style.left=''; rp.style.right=''; }
   resize(); play();
 }
 // start the reveal; a setTimeout safety net forces the COMPLETE frame even if rAF is throttled (embeds / this env)
