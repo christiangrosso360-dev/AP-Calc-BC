@@ -293,6 +293,68 @@ const MC=[
   explain:`<b>Find where they meet, then integrate outer² − inner² over that range.</b> \\(2+2\\cos\\theta=2\\Rightarrow\\cos\\theta=0\\Rightarrow\\theta=\\pm\\tfrac\\pi2\\). Between these the cardioid is outside the circle, so \\(A=\\tfrac12\\int_{-\\pi/2}^{\\pi/2}\\big[(2+2\\cos\\theta)^2-2^2\\big]\\,d\\theta\\).<br>Expand: \\((2+2\\cos\\theta)^2-4=8\\cos\\theta+4\\cos^2\\theta\\). Integrating over \\([-\\tfrac\\pi2,\\tfrac\\pi2]\\): \\(\\int 8\\cos\\theta=16\\) and \\(\\int 4\\cos^2\\theta=2\\pi\\). So \\(A=\\tfrac12(16+2\\pi)=8+\\pi\\approx 11.14\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>8</b> drops the \\(\\cos^2\\) (the \\(\\pi\\) term).<br>• <b>\\(\\pi\\)</b> keeps only the \\(\\cos^2\\) part, losing the \\(8\\) from \\(\\int 8\\cos\\theta\\).<br>• <b>\\(8+2\\pi\\)</b> forgets the outer \\(\\tfrac12\\) on the \\(\\cos^2\\) piece.<br><br><b>The principle:</b> intersection gives the limits; integrand is (outer)² − (inner)²; integrate the \\(\\cos\\theta\\) and \\(\\cos^2\\theta\\) terms carefully over the symmetric interval.`}
 ];
 
+/* ==== 80-question expansion, added 2026-07-27 ====
+   Table/graph, conceptual and set-up questions, to bring this unit closer to the
+   real exam's mix. Appended rather than merged so the block can be removed whole.
+   Every value was verified numerically before the question was written. */
+MC.push(
+{topic:"param", calc:false,
+ prompt:"A curve is given by \\(x(t)=t^{2}\\), \\(y(t)=t^{3}\\). What is the speed of a particle on this curve at \\(t=1\\)?",
+ opts:[{t:"\\(\\sqrt{13}\\)",correct:true},{t:"\\(\\dfrac{3}{2}\\)"},{t:"\\(5\\)"},{t:"\\(13\\)"}],
+ explain:`<b>Speed is the magnitude of the velocity vector</b>, \\(\\sqrt{\\big(x'(t)\\big)^{2}+\\big(y'(t)\\big)^{2}}\\) — not a slope and not a single derivative.<br><br>\\(x'=2t\\) and \\(y'=3t^{2}\\), so at \\(t=1\\) the velocity is \\(\\langle 2,3\\rangle\\) and the speed is \\(\\sqrt{4+9}=\\sqrt{13}\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>\\(\\tfrac32\\)</b> is \\(\\dfrac{dy}{dx}=\\dfrac{y'}{x'}\\), the <i>slope</i> of the path — a direction, not a rate of travel. <b>5</b> adds the components \\(2+3\\) instead of using Pythagoras. <b>13</b> forgets the square root, leaving speed squared.<br><br><b>The principle:</b> velocity is a vector, speed is its length. Square the components, add, then take the root — the same operation every time, in parametric, vector and polar problems alike.`},
+
+{topic:"param", calc:false,
+ prompt:"For the same curve \\(x(t)=t^{2}\\), \\(y(t)=t^{3}\\), what is \\(\\dfrac{d^{2}y}{dx^{2}}\\) at \\(t=1\\)?",
+ opts:[{t:"\\(\\dfrac{3}{4}\\)",correct:true},{t:"\\(\\dfrac{3}{2}\\)"},{t:"\\(3\\)"},{t:"\\(\\dfrac{6}{2}=3t\\)"}],
+ explain:`<b>The second parametric derivative is a two-step chain, and the second step is the one everybody drops.</b><br><br>First \\(\\dfrac{dy}{dx}=\\dfrac{y'}{x'}=\\dfrac{3t^{2}}{2t}=\\dfrac{3t}{2}\\).<br>Then \\(\\dfrac{d^{2}y}{dx^{2}}=\\dfrac{\\frac{d}{dt}\\!\\left(\\frac{dy}{dx}\\right)}{\\frac{dx}{dt}}=\\dfrac{3/2}{2t}=\\dfrac{3}{4t}\\), which at \\(t=1\\) is \\(\\dfrac34\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>\\(\\tfrac32\\)</b> is the first derivative \\(\\frac{dy}{dx}\\) at \\(t=1\\), one step short. <b>3</b> differentiates \\(\\frac{3t}{2}\\) with respect to \\(t\\) and stops — that is \\(\\frac{d}{dt}\\left(\\frac{dy}{dx}\\right)\\), which still has to be divided by \\(\\frac{dx}{dt}\\). <b>\\(\\frac{y''}{x''}\\)</b> is the tempting shortcut and it is simply wrong: second derivatives do not divide like first ones.<br><br><b>The principle:</b> differentiate \\(\\frac{dy}{dx}\\) with respect to \\(t\\), then divide by \\(\\frac{dx}{dt}\\) again. Never \\(\\frac{y''}{x''}\\).`},
+
+{topic:"param", calc:false,
+ prompt:"Which expression gives the length of the path traced by \\(x(t)=t^{2}\\), \\(y(t)=t^{3}\\) for \\(0\\le t\\le 1\\)?",
+ opts:[{t:"\\(\\displaystyle\\int_0^1\\sqrt{4t^{2}+9t^{4}}\\;dt\\)",correct:true},
+       {t:"\\(\\displaystyle\\int_0^1\\sqrt{t^{4}+t^{6}}\\;dt\\)"},
+       {t:"\\(\\displaystyle\\int_0^1\\big(2t+3t^{2}\\big)dt\\)"},
+       {t:"\\(\\displaystyle\\int_0^1\\sqrt{1+\\Big(\\tfrac{3t}{2}\\Big)^{2}}\\;dt\\)"}],
+ explain:`<b>Parametric arc length integrates the speed:</b> \\(\\displaystyle\\int_a^b\\sqrt{\\big(x'\\big)^{2}+\\big(y'\\big)^{2}}\\,dt\\).<br><br>With \\(x'=2t\\) and \\(y'=3t^{2}\\) that is \\(\\displaystyle\\int_0^1\\sqrt{4t^{2}+9t^{4}}\\,dt\\).<br><br><b>Why each distractor is a specific mistake:</b> the second squares the <i>functions</i> rather than their derivatives. The third integrates \\(x'+y'\\) with no root — adding component speeds instead of combining them by Pythagoras. The fourth uses the Cartesian formula \\(\\sqrt{1+(dy/dx)^{2}}\\) but integrates \\(dt\\); that form is correct only with \\(dx\\), and mixing the two is the most seductive error here because both formulas are on the sheet.<br><br><b>The principle:</b> match the formula to the variable you are integrating in. Parametric with \\(dt\\) needs \\(\\sqrt{(x')^{2}+(y')^{2}}\\); Cartesian with \\(dx\\) needs \\(\\sqrt{1+(y')^{2}}\\).`},
+
+{topic:"polar", calc:false,
+ prompt:"Which expression gives the area enclosed by the cardioid \\(r=1+\\cos\\theta\\)?",
+ opts:[{t:"\\(\\dfrac12\\displaystyle\\int_0^{2\\pi}(1+\\cos\\theta)^{2}\\,d\\theta\\)",correct:true},
+       {t:"\\(\\displaystyle\\int_0^{2\\pi}(1+\\cos\\theta)^{2}\\,d\\theta\\)"},
+       {t:"\\(\\dfrac12\\displaystyle\\int_0^{2\\pi}(1+\\cos\\theta)\\,d\\theta\\)"},
+       {t:"\\(\\dfrac12\\displaystyle\\int_0^{\\pi}(1+\\cos\\theta)^{2}\\,d\\theta\\)"}],
+ explain:`<b>Polar area is \\(\\dfrac12\\displaystyle\\int_\\alpha^\\beta r^{2}\\,d\\theta\\)</b> — the \\(\\tfrac12\\) and the square both come from the area of a circular sector, \\(\\tfrac12r^{2}\\Delta\\theta\\).<br><br>A cardioid is traced once as \\(\\theta\\) runs from \\(0\\) to \\(2\\pi\\), so that is the full interval, and the area works out to \\(\\tfrac{3\\pi}{2}\\).<br><br><b>Why each distractor is a specific mistake:</b> the second omits the \\(\\tfrac12\\), doubling the answer. The third omits the square, integrating the radius rather than the sector area. The fourth sweeps only \\(0\\) to \\(\\pi\\), which covers half the curve — a genuine trap, because for <i>some</i> polar curves half the range is right, so the range must be justified by how the curve is traced rather than assumed.<br><br><b>The principle:</b> \\(\\tfrac12\\int r^{2}d\\theta\\), and decide the limits by asking over what \\(\\theta\\) the curve is drawn exactly once.`},
+
+{topic:"polar", calc:false,
+ prompt:"The rose \\(r=2\\sin(2\\theta)\\) has four petals, one of which is traced as \\(\\theta\\) goes from \\(0\\) to \\(\\dfrac{\\pi}{2}\\). What is the area of that single petal?",
+ opts:[{t:"\\(\\dfrac{\\pi}{2}\\)",correct:true},{t:"\\(\\pi\\)"},{t:"\\(2\\pi\\)"},{t:"\\(\\dfrac{\\pi}{4}\\)"}],
+ explain:`<b>Apply \\(\\dfrac12\\displaystyle\\int r^{2}d\\theta\\) over the interval that draws one petal.</b><br><br>\\(\\dfrac12\\displaystyle\\int_0^{\\pi/2}4\\sin^{2}(2\\theta)\\,d\\theta=2\\displaystyle\\int_0^{\\pi/2}\\sin^{2}(2\\theta)\\,d\\theta\\). Using \\(\\sin^{2}u=\\tfrac{1-\\cos 2u}{2}\\), the integral is \\(\\tfrac{\\pi}{4}\\), so the area is \\(2\\cdot\\tfrac{\\pi}{4}=\\tfrac{\\pi}{2}\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>\\(\\pi\\)</b> drops the \\(\\tfrac12\\) from the polar area formula. <b>\\(2\\pi\\)</b> is the area of all four petals — answering a question that was not asked. <b>\\(\\tfrac{\\pi}{4}\\)</b> is the value of the integral before multiplying by the \\(2\\) that came from \\(r^{2}=4\\sin^{2}(2\\theta)\\).<br><br><b>The principle:</b> for roses, the hard part is the limits, not the integral. Find where \\(r=0\\) on either side of a petal — here \\(\\theta=0\\) and \\(\\theta=\\tfrac{\\pi}{2}\\) — and integrate between them.`},
+
+{topic:"polar", calc:false,
+ prompt:"For a polar curve \\(r=f(\\theta)\\), the value of \\(\\dfrac{dy}{dx}\\) is found by",
+ opts:[{t:"writing \\(x=r\\cos\\theta\\), \\(y=r\\sin\\theta\\) and computing \\(\\dfrac{dy/d\\theta}{dx/d\\theta}\\)",correct:true},
+       {t:"computing \\(\\dfrac{dr}{d\\theta}\\)"},
+       {t:"computing \\(\\dfrac{r}{\\theta}\\)"},
+       {t:"computing \\(\\dfrac{dr/d\\theta}{r}\\)"}],
+ explain:`<b>A polar curve is a parametric curve in disguise</b>, with \\(\\theta\\) as the parameter: \\(x=r\\cos\\theta=f(\\theta)\\cos\\theta\\) and \\(y=f(\\theta)\\sin\\theta\\). The slope in the \\(xy\\)-plane is therefore the usual parametric slope \\(\\dfrac{dy/d\\theta}{dx/d\\theta}\\), and both derivatives need the product rule.<br><br><b>Why each distractor is a specific mistake:</b> <b>\\(\\frac{dr}{d\\theta}\\)</b> measures how fast the <i>radius</i> grows as you sweep round — it says nothing about the direction of the curve in the plane, and it is the most common wrong answer because it is the only derivative on display. The other two are expressions with no geometric meaning here.<br><br><b>The principle:</b> \\(\\frac{dy}{dx}\\) always means the slope of the tangent in the \\(xy\\)-plane. Convert to \\(x\\) and \\(y\\) first, then differentiate — never differentiate \\(r\\) and hope.`},
+
+{topic:"vector", calc:false,
+ prompt:"A particle has position \\(\\big\\langle x(t),y(t)\\big\\rangle\\) with velocity \\(\\big\\langle 2,-3\\big\\rangle\\) at \\(t=4\\), and \\(x(4)=1\\), \\(y(4)=5\\). Using a tangent-line approximation, the position at \\(t=4.1\\) is approximately",
+ opts:[{t:"\\(\\big\\langle 1.2,\\;4.7\\big\\rangle\\)",correct:true},
+       {t:"\\(\\big\\langle 3,\\;2\\big\\rangle\\)"},
+       {t:"\\(\\big\\langle 2.2,\\;1.7\\big\\rangle\\)"},
+       {t:"\\(\\big\\langle 1.02,\\;4.97\\big\\rangle\\)"}],
+ explain:`<b>Linear approximation works component by component:</b> \\(x(4.1)\\approx x(4)+x'(4)\\Delta t\\) and likewise for \\(y\\), with \\(\\Delta t=0.1\\).<br><br>\\(x\\approx 1+2(0.1)=1.2\\) and \\(y\\approx 5+(-3)(0.1)=4.7\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>\\(\\langle3,2\\rangle\\)</b> adds the whole velocity, using \\(\\Delta t=1\\) instead of \\(0.1\\). <b>\\(\\langle2.2,1.7\\rangle\\)</b> adds both the velocity and the scaled velocity, double-counting. <b>\\(\\langle1.02,4.97\\rangle\\)</b> uses \\(\\Delta t=0.01\\), an order-of-magnitude slip.<br><br><b>The principle:</b> a vector-valued tangent-line approximation is just two ordinary ones run in parallel. Keep the sign of each component — the negative \\(y\\)-velocity means the particle is moving <i>down</i>.`},
+
+{topic:"vector", calc:false,
+ prompt:"A particle moves with velocity vector \\(\\mathbf{v}(t)\\). The total distance travelled from \\(t=a\\) to \\(t=b\\) is",
+ opts:[{t:"\\(\\displaystyle\\int_a^b\\left|\\mathbf{v}(t)\\right|dt\\)",correct:true},
+       {t:"\\(\\displaystyle\\int_a^b\\mathbf{v}(t)\\,dt\\)"},
+       {t:"\\(\\left|\\displaystyle\\int_a^b\\mathbf{v}(t)\\,dt\\right|\\)"},
+       {t:"\\(\\mathbf{v}(b)-\\mathbf{v}(a)\\)"}],
+ explain:`<b>Distance accumulates speed, and speed is the magnitude of velocity</b>, so you take the magnitude <i>before</i> integrating: \\(\\int_a^b|\\mathbf v|\\,dt=\\int_a^b\\sqrt{(x')^{2}+(y')^{2}}\\,dt\\).<br><br><b>Why each distractor is a specific mistake:</b> the second integrates the vector itself, which gives <i>displacement</i> — a vector from start to finish. The third takes the magnitude of that displacement, i.e. the straight-line distance between endpoints; a particle that loops back to where it started gives \\(0\\) here while having travelled a long way. The fourth is the change in velocity, which is related to acceleration, not position.<br><br><b>The principle:</b> the order of the magnitude and the integral is the whole question. Magnitude first gives distance travelled; integral first gives net displacement.`}
+);
+
+
 // ===================== MC ENGINE (batches of 12) =====================
 let mcBatch=[], mcIdx=0, mcScore=0, mcAnswered=false;
 const stats={};

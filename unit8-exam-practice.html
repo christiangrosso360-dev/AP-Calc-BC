@@ -305,6 +305,84 @@ const MC=[
   explain:`<b>Same Pythagorean idea, variables swapped.</b> When the curve is written \\(x=g(y)\\), differentiate \\(x\\) with respect to \\(y\\) and integrate over the \\(y\\)-interval: \\(L=\\displaystyle\\int_c^d\\sqrt{1+\\left(\\tfrac{dx}{dy}\\right)^2}\\,dy\\). Picture factoring \\(\\Delta y\\) (instead of \\(\\Delta x\\)) out of \\(\\sqrt{(\\Delta x)^2+(\\Delta y)^2}\\).<br><br><b>Why the distractors miss:</b> the second option pairs \\(\\tfrac{dx}{dy}\\) with \\(dx\\) — the differential must match the variable of integration (\\(dy\\)). The third mixes \\(\\tfrac{dy}{dx}\\) with \\(dy\\), the same mismatch reversed. <b>"Undefined"</b> is wrong: the \\(x=g(y)\\) form is precisely what lets you handle curves that aren't functions of \\(x\\).`}
 ];
 
+/* ==== 80-question expansion, added 2026-07-27 ====
+   Table/graph, conceptual and set-up questions, to bring this unit closer to the
+   real exam's mix. Appended rather than merged so the block can be removed whole.
+   Every value was verified numerically before the question was written. */
+MC.push(
+{topic:"area", calc:false,
+ prompt:"What is the area of the region enclosed by \\(y=x^{2}\\) and \\(y=4\\)?",
+ opts:[{t:"\\(\\dfrac{32}{3}\\)",correct:true},{t:"\\(\\dfrac{16}{3}\\)"},{t:"\\(\\dfrac{64}{3}\\)"},{t:"\\(16\\)"}],
+ explain:`<b>Find the limits, then integrate top minus bottom.</b> Setting \\(x^{2}=4\\) gives \\(x=\\pm2\\), and on \\((-2,2)\\) the line \\(y=4\\) is above the parabola.<br><br>\\(\\displaystyle\\int_{-2}^{2}\\!\\big(4-x^{2}\\big)dx=\\Big[4x-\\tfrac{x^{3}}{3}\\Big]_{-2}^{2}=\\Big(8-\\tfrac83\\Big)-\\Big(-8+\\tfrac83\\Big)=\\tfrac{32}{3}\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>\\(\\tfrac{16}{3}\\)</b> integrates only from \\(0\\) to \\(2\\) and forgets to double for the symmetric left half — the most common slip when a region straddles the \\(y\\)-axis. <b>\\(\\tfrac{64}{3}\\)</b> doubles once too often. <b>16</b> is the area of the \\(4\\times4\\) rectangle, ignoring the curve entirely.<br><br><b>The principle:</b> symmetry is a shortcut only if you remember to use it — either integrate across the whole interval, or integrate half and double. Doing neither, or both, is where the marks go.`},
+
+{topic:"solid", calc:false,
+ prompt:"The region under \\(y=\\sqrt{x}\\) from \\(x=0\\) to \\(x=4\\) is revolved about the \\(x\\)-axis. Which expression gives the volume?",
+ opts:[{t:"\\(\\pi\\displaystyle\\int_0^4 x\\,dx\\)",correct:true},
+       {t:"\\(\\displaystyle\\int_0^4 x\\,dx\\)"},
+       {t:"\\(\\pi\\displaystyle\\int_0^4 \\sqrt{x}\\,dx\\)"},
+       {t:"\\(2\\pi\\displaystyle\\int_0^4 x\\sqrt{x}\\,dx\\)"}],
+ explain:`<b>Revolving a solid region about the axis it sits on gives disks:</b> \\(V=\\pi\\displaystyle\\int R^{2}dx\\), where \\(R\\) is the distance from the axis to the curve.<br><br>Here \\(R=\\sqrt{x}\\), so \\(R^{2}=x\\) and \\(V=\\pi\\int_0^4 x\\,dx=8\\pi\\).<br><br><b>Why each distractor is a specific mistake:</b> the second drops the \\(\\pi\\), which turns a volume into an area. The third forgets to square the radius — it integrates the curve instead of the circle's area. The fourth is a <i>shells</i> integral about the \\(y\\)-axis: right technique, wrong axis, and you can spot it by the \\(2\\pi\\) and the extra factor of \\(x\\).<br><br><b>The principle:</b> disks need \\(\\pi R^{2}\\). Identify the radius first, square it, and only then integrate.`},
+
+{topic:"solid", calc:false,
+ prompt:"The region bounded by \\(y=x^{2}\\) and \\(y=2x\\) is revolved about the line \\(y=-1\\). Which expression gives the volume?",
+ opts:[{t:"\\(\\pi\\displaystyle\\int_0^2\\Big[(2x+1)^{2}-(x^{2}+1)^{2}\\Big]dx\\)",correct:true},
+       {t:"\\(\\pi\\displaystyle\\int_0^2\\Big[(2x)^{2}-(x^{2})^{2}\\Big]dx\\)"},
+       {t:"\\(\\pi\\displaystyle\\int_0^2\\Big[(2x-1)^{2}-(x^{2}-1)^{2}\\Big]dx\\)"},
+       {t:"\\(\\pi\\displaystyle\\int_0^2\\Big[(2x+1)-(x^{2}+1)\\Big]^{2}dx\\)"}],
+ explain:`<b>When the axis of revolution is not the \\(x\\)-axis, every radius is measured FROM THAT LINE.</b> The curves meet where \\(x^{2}=2x\\), so \\(x=0\\) and \\(x=2\\), with \\(2x\\) on top.<br><br>Distance from \\(y=-1\\) up to the outer curve is \\(2x-(-1)=2x+1\\); to the inner curve it is \\(x^{2}+1\\). Hence \\(\\pi\\int_0^2\\big[(2x+1)^{2}-(x^{2}+1)^{2}\\big]dx\\).<br><br><b>Why each distractor is a specific mistake:</b> the second ignores the shift entirely and revolves about the \\(x\\)-axis — the error to expect if you set up on autopilot. The third subtracts \\(1\\) instead of adding it; since the axis is <i>below</i> the region, moving the axis down makes every radius <i>longer</i>. The fourth squares the gap between the radii rather than subtracting their squares, and \\((a-b)^{2}\\ne a^{2}-b^{2}\\).<br><br><b>The principle:</b> radius \\(=\\) |curve \\(-\\) axis|. Write that difference down explicitly before squaring anything, and sanity-check whether the shift should make radii bigger or smaller.`},
+
+{topic:"xsec", calc:false,
+ prompt:"The base of a solid is the region bounded by \\(y=\\sqrt{x}\\), \\(y=0\\) and \\(x=4\\). Cross sections perpendicular to the \\(x\\)-axis are equilateral triangles. Which expression gives the volume?",
+ opts:[{t:"\\(\\dfrac{\\sqrt{3}}{4}\\displaystyle\\int_0^4 x\\,dx\\)",correct:true},
+       {t:"\\(\\displaystyle\\int_0^4 x\\,dx\\)"},
+       {t:"\\(\\dfrac{\\sqrt{3}}{4}\\displaystyle\\int_0^4 \\sqrt{x}\\,dx\\)"},
+       {t:"\\(\\dfrac{1}{2}\\displaystyle\\int_0^4 x\\,dx\\)"}],
+ explain:`<b>Cross-section volumes are \\(\\displaystyle\\int A(x)\\,dx\\)</b> — find the side, then apply that shape's own area formula.<br><br>The side is the height of the region, \\(s=\\sqrt{x}\\). An equilateral triangle of side \\(s\\) has area \\(\\dfrac{\\sqrt3}{4}s^{2}=\\dfrac{\\sqrt3}{4}x\\). So \\(V=\\dfrac{\\sqrt3}{4}\\displaystyle\\int_0^4 x\\,dx=2\\sqrt3\\).<br><br><b>Why each distractor is a specific mistake:</b> the second uses \\(s^{2}\\) — the area of a <i>square</i>, not a triangle. The third forgets to square the side. The fourth uses \\(\\tfrac12 s^{2}\\), the formula for a right isosceles triangle with legs \\(s\\); an equilateral triangle's height is \\(\\tfrac{\\sqrt3}{2}s\\), not \\(s\\), which is where the \\(\\sqrt3\\) comes from.<br><br><b>The principle:</b> the calculus is identical for every cross-section question. All that changes is the area formula, so learn the three that appear — square \\(s^{2}\\), equilateral \\(\\tfrac{\\sqrt3}{4}s^{2}\\), semicircle \\(\\tfrac{\\pi}{8}s^{2}\\).`},
+
+{topic:"area", calc:false,
+ prompt:"Let \\(R\\) be the region enclosed by \\(x=y^{2}\\) and \\(x=y+2\\). Which expression gives the area of \\(R\\)?",
+ opts:[{t:"\\(\\displaystyle\\int_{-1}^{2}\\big[(y+2)-y^{2}\\big]dy\\)",correct:true},
+       {t:"\\(\\displaystyle\\int_{-1}^{2}\\big[y^{2}-(y+2)\\big]dy\\)"},
+       {t:"\\(\\displaystyle\\int_{-1}^{2}\\big[(y+2)-y^{2}\\big]dx\\)"},
+       {t:"\\(\\displaystyle\\int_{0}^{4}\\big[\\sqrt{x}-(x-2)\\big]dx\\)"}],
+ explain:`<b>These curves are written as \\(x\\) in terms of \\(y\\), so slice horizontally and integrate with respect to \\(y\\).</b><br><br>Setting \\(y^{2}=y+2\\) gives \\(y^{2}-y-2=0\\), so \\(y=-1\\) and \\(y=2\\). For \\(y\\) between them the line \\(x=y+2\\) is to the <i>right</i>, so the width of a horizontal strip is \\((y+2)-y^{2}\\), and the area is \\(\\tfrac92\\).<br><br><b>Why each distractor is a specific mistake:</b> the second reverses right and left and returns a negative area. The third has the correct integrand but \\(dx\\) — the variable of integration must match the variable in the limits and the integrand, or the expression is meaningless. The fourth switches to vertical slices without noticing that the parabola opens sideways, so a single \\(\\sqrt{x}\\) misses the bottom half of the region and the limits are wrong too.<br><br><b>The principle:</b> when curves are given as \\(x=g(y)\\), horizontal slices avoid splitting the region. The integrand is then <i>right minus left</i>, and everything — limits, integrand, differential — must be in \\(y\\).`},
+
+{topic:"motion", calc:false,
+ prompt:"A particle moves along a line with velocity \\(v(t)=t^{2}-4\\) for \\(0\\le t\\le 3\\). What is the total distance travelled?",
+ opts:[{t:"\\(\\dfrac{23}{3}\\)",correct:true},{t:"\\(3\\)"},{t:"\\(\\dfrac{16}{3}\\)"},{t:"\\(-3\\)"}],
+ explain:`<b>Total distance is \\(\\displaystyle\\int|v|\\,dt\\)</b>, so you must first find where the particle turns around. \\(v=0\\) at \\(t=2\\), and \\(v<0\\) before it, \\(v>0\\) after.<br><br>Split there: \\(\\displaystyle\\int_0^2(4-t^{2})dt=\\tfrac{16}{3}\\) and \\(\\displaystyle\\int_2^3(t^{2}-4)dt=\\tfrac{7}{3}\\). Total \\(=\\tfrac{16}{3}+\\tfrac{7}{3}=\\tfrac{23}{3}\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>3</b> is the magnitude of the <i>displacement</i>, \\(\\left|\\int_0^3 v\\,dt\\right|=|-3|\\) — that is where the particle ended up, not how far it travelled. <b>\\(\\tfrac{16}{3}\\)</b> is only the first leg, stopping at the turning point. <b>-3</b> is the displacement itself; a distance can never be negative, which alone rules it out.<br><br><b>The principle:</b> displacement integrates \\(v\\); distance integrates \\(|v|\\). They agree only if the particle never reverses, so always solve \\(v=0\\) first.`},
+
+{topic:"motion", calc:false,
+ prompt:"The same particle has \\(v(t)=t^{2}-4\\) and position \\(s(0)=2\\). What is \\(s(3)\\)?",
+ opts:[{t:"\\(-1\\)",correct:true},{t:"\\(-3\\)"},{t:"\\(5\\)"},{t:"\\(\\dfrac{29}{3}\\)"}],
+ explain:`<b>Position is the initial position plus the displacement:</b> \\(s(3)=s(0)+\\displaystyle\\int_0^3 v(t)\\,dt\\).<br><br>\\(\\displaystyle\\int_0^3(t^{2}-4)dt=\\Big[\\tfrac{t^{3}}{3}-4t\\Big]_0^3=9-12=-3\\), so \\(s(3)=2+(-3)=-1\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>-3</b> is the displacement alone, forgetting the particle did not start at the origin. <b>5</b> adds \\(|{-3}|\\) instead of \\(-3\\) — the particle finished to the <i>left</i> of where it began. <b>\\(\\tfrac{29}{3}\\)</b> adds the total distance \\(\\tfrac{23}{3}\\) to \\(2\\), using distance where displacement was required.<br><br><b>The principle:</b> position questions use signed displacement, never total distance. The sign carries the direction, which is the whole point.`},
+
+{topic:"arc", calc:false,
+ prompt:"Which expression gives the length of the curve \\(y=x^{3/2}\\) from \\(x=0\\) to \\(x=4\\)?",
+ opts:[{t:"\\(\\displaystyle\\int_0^4\\sqrt{1+\\tfrac{9x}{4}}\\;dx\\)",correct:true},
+       {t:"\\(\\displaystyle\\int_0^4\\sqrt{1+x^{3}}\\;dx\\)"},
+       {t:"\\(\\displaystyle\\int_0^4\\sqrt{1+\\tfrac{3}{2}\\sqrt{x}}\\;dx\\)"},
+       {t:"\\(\\displaystyle\\int_0^4\\Big(1+\\tfrac{9x}{4}\\Big)dx\\)"}],
+ explain:`<b>Arc length is \\(\\displaystyle\\int_a^b\\sqrt{1+\\big(y'\\big)^{2}}\\,dx\\)</b> — the derivative gets <i>squared</i> inside the root.<br><br>\\(y'=\\tfrac32x^{1/2}\\), so \\((y')^{2}=\\tfrac94x\\), giving \\(\\displaystyle\\int_0^4\\sqrt{1+\\tfrac{9x}{4}}\\,dx\\).<br><br><b>Why each distractor is a specific mistake:</b> the second squares the <i>function</i> instead of its derivative. The third puts \\(y'\\) in without squaring it. The fourth drops the square root altogether, which turns a length into something with no geometric meaning.<br><br><b>The principle:</b> the formula has three parts that all get missed — the \\(1+\\), the square on \\(y'\\), and the root over everything. Differentiate first, square it, then assemble.`},
+
+{topic:"avg", calc:false,
+ prompt:"The average value of a continuous function \\(f\\) on \\([a,b]\\) is \\(5\\). Which of the following must be true?",
+ opts:[{t:"\\(\\displaystyle\\int_a^b f(x)\\,dx=5(b-a)\\)",correct:true},
+       {t:"\\(\\displaystyle\\int_a^b f(x)\\,dx=5\\)"},
+       {t:"\\(f(x)=5\\) somewhere on \\([a,b]\\), only if \\(f\\) is increasing"},
+       {t:"\\(f\\!\\left(\\dfrac{a+b}{2}\\right)=5\\)"}],
+ explain:`<b>Average value is \\(\\dfrac{1}{b-a}\\displaystyle\\int_a^b f\\,dx\\)</b>, so multiplying both sides by the width gives \\(\\int_a^b f\\,dx=5(b-a)\\) — the integral equals the average times the interval length, which is just the area of a rectangle of height 5.<br><br><b>Why each distractor is a specific mistake:</b> the second forgets the width, and is only right in the special case \\(b-a=1\\). The third states the Mean Value Theorem for Integrals but adds a condition it does not need — continuity alone guarantees \\(f\\) attains its average value somewhere; increasing has nothing to do with it. The fourth assumes the average occurs at the <i>midpoint of the interval</i>, which is true for linear functions and false in general.<br><br><b>The principle:</b> average value is a height. Multiply it by the width to recover the integral, and expect the function to hit that height somewhere — but not necessarily in the middle.`},
+
+{topic:"accum", calc:false,
+ prompt:"Water leaves a tank at a rate of \\(L(t)\\) gallons per hour, and \\(\\displaystyle\\int_0^{5}L(t)\\,dt=42\\). Which statement interprets this correctly?",
+ opts:[{t:"\\(42\\) gallons left the tank during the first 5 hours",correct:true},
+       {t:"the tank contains \\(42\\) gallons at \\(t=5\\)"},
+       {t:"water leaves at \\(42\\) gallons per hour"},
+       {t:"the tank loses \\(8.4\\) gallons in each of the 5 hours"}],
+ explain:`<b>Integrating a rate over an interval gives the total amount accumulated over that interval</b>, and the units confirm it: \\(\\frac{\\text{gallons}}{\\text{hour}}\\times\\text{hours}=\\) gallons.<br><br><b>Why each distractor is a specific mistake:</b> <b>"contains 42"</b> confuses the amount that left with the amount remaining — you would need the starting volume to say anything about what is in the tank. <b>"42 gal/hr"</b> reports the integral as though it were a rate, which the units contradict. <b>"8.4 each hour"</b> is the average rate \\(\\frac{42}{5}\\) presented as if the flow were constant; the total is right but the distribution over time is unknown.<br><br><b>The principle:</b> read the units of \\(\\int (\\text{rate})\\,dt\\) and they tell you what the number means. Every interpretation question on the exam is settled this way.`}
+);
+
+
 // ===================== MC ENGINE (batches of 12) =====================
 let mcBatch=[], mcIdx=0, mcScore=0, mcAnswered=false;
 const stats={};

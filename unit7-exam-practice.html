@@ -290,6 +290,49 @@ const MC=[
   explain:`<b>The rate \\(\\dfrac{dP}{dt}\\) peaks at \\(P=L/2\\).</b> Starting there means the population begins at the steepest point, so from \\(t=0\\) onward \\(P>L/2\\) and the rate <i>only decreases</i> toward zero as \\(P\\to L\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>"increases then decreases"</b> is the usual story when starting <i>below</i> \\(L/2\\) — but here we begin exactly at the peak.<br>• <b>Constant</b> contradicts logistic behavior.<br>• <b>"decreases then increases"</b> would require the rate to rebound, which it never does once past \\(L/2\\).<br><br><b>The principle:</b> the logistic growth rate rises up to \\(P=L/2\\) and falls after; beginning at \\(L/2\\) skips the rising phase entirely.`}
 ];
 
+/* ==== 80-question expansion, added 2026-07-27 ====
+   Table/graph, conceptual and set-up questions, to bring this unit closer to the
+   real exam's mix. Appended rather than merged so the block can be removed whole.
+   Every value was verified numerically before the question was written. */
+MC.push(
+{topic:"modeling", calc:false,
+ prompt:"The slope field shown has segments that are identical along each horizontal line, and steeper further from the \\(x\\)-axis. Which differential equation could produce it?<div class=\"qfig\"><svg viewBox=\"0 0 300 170\" width=\"300\" height=\"170\" fill=\"none\" role=\"img\" aria-label=\"A slope field whose segments depend only on y: flat near the x-axis and increasingly steep above and below it, with the same slopes repeated across every column\"><path d=\"M20 95 H285\" stroke=\"currentColor\" stroke-width=\"1\" opacity=\".35\"/><path d=\"M30 20 V165\" stroke=\"currentColor\" stroke-width=\"1\" opacity=\".35\"/><g stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\"><path d=\"M42 33 l16 -13\"/><path d=\"M92 33 l16 -13\"/><path d=\"M142 33 l16 -13\"/><path d=\"M192 33 l16 -13\"/><path d=\"M242 33 l16 -13\"/><path d=\"M43 63 l14 -7\"/><path d=\"M93 63 l14 -7\"/><path d=\"M143 63 l14 -7\"/><path d=\"M193 63 l14 -7\"/><path d=\"M243 63 l14 -7\"/><path d=\"M43 95 h14\"/><path d=\"M93 95 h14\"/><path d=\"M143 95 h14\"/><path d=\"M193 95 h14\"/><path d=\"M243 95 h14\"/><path d=\"M43 127 l14 7\"/><path d=\"M93 127 l14 7\"/><path d=\"M143 127 l14 7\"/><path d=\"M193 127 l14 7\"/><path d=\"M243 127 l14 7\"/><path d=\"M42 157 l16 13\"/><path d=\"M92 157 l16 13\"/><path d=\"M142 157 l16 13\"/><path d=\"M192 157 l16 13\"/><path d=\"M242 157 l16 13\"/></g></svg></div>",
+ opts:[{t:"\\(\\dfrac{dy}{dx}=y\\)",correct:true},{t:"\\(\\dfrac{dy}{dx}=x\\)"},{t:"\\(\\dfrac{dy}{dx}=x+y\\)"},{t:"\\(\\dfrac{dy}{dx}=2\\)"}],
+ explain:`<b>Read what the slope depends on.</b> The segments repeat unchanged as you move horizontally, so the slope does not depend on \\(x\\) at all — it can only be a function of \\(y\\).<br><br>Along the \\(x\\)-axis the segments are flat, so \\(\\frac{dy}{dx}=0\\) when \\(y=0\\); above it they tilt up and below they tilt down, with steepness growing with \\(|y|\\). That is \\(\\frac{dy}{dx}=y\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>\\(\\frac{dy}{dx}=x\\)</b> would repeat down each <i>column</i> instead, changing as you move sideways — the mirror image of what is drawn. <b>\\(x+y\\)</b> would change in both directions, so no row could be uniform. <b>\\(2\\)</b> would make every segment identical everywhere, with no flat row.<br><br><b>The principle:</b> ask which direction the picture is constant in. Constant along horizontals means the equation has no \\(x\\); constant along verticals means it has no \\(y\\).`},
+
+{topic:"euler", calc:false,
+ prompt:"Use Euler's method with two steps of size \\(h=0.5\\) to approximate \\(y(1)\\) for \\(\\dfrac{dy}{dx}=x+y\\) with \\(y(0)=1\\).",
+ opts:[{t:"\\(2.5\\)",correct:true},{t:"\\(1.5\\)"},{t:"\\(2\\)"},{t:"\\(3.5\\)"}],
+ explain:`<b>Each Euler step walks along the tangent line:</b> \\(y_{\\text{new}}=y+h\\cdot\\frac{dy}{dx}\\), then \\(x\\) advances by \\(h\\).<br><br><b>Step 1</b> from \\((0,1)\\): slope \\(=0+1=1\\), so \\(y=1+0.5(1)=1.5\\) at \\(x=0.5\\).<br><b>Step 2</b> from \\((0.5,1.5)\\): slope \\(=0.5+1.5=2\\), so \\(y=1.5+0.5(2)=2.5\\) at \\(x=1\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>1.5</b> takes one step and stops. <b>2</b> re-uses the first slope for the second step instead of recomputing it at the new point — the whole method is that the slope updates. <b>3.5</b> uses \\(h=1\\) for the second step.<br><br><b>The principle:</b> recompute the slope at every new point. Euler is a sequence of short tangent-line approximations, each starting where the last one finished.`},
+
+{topic:"euler", calc:false,
+ prompt:"For that same equation \\(\\dfrac{dy}{dx}=x+y\\) with \\(y(0)=1\\), the solution is concave up on \\([0,1]\\). The Euler approximation of \\(y(1)\\) is therefore",
+ opts:[{t:"an underestimate",correct:true},{t:"an overestimate"},{t:"exact"},{t:"impossible to classify without solving the equation"}],
+ explain:`<b>Euler steps along tangent lines, and for a concave-up curve every tangent line lies BELOW the curve.</b> So each step lands short, and the errors accumulate — the approximation underestimates.<br><br>You can check the concavity without solving: differentiating \\(y'=x+y\\) gives \\(y''=1+y'=1+x+y\\), which is positive throughout this region.<br><br>(The true value is \\(2e-2\\approx3.44\\), against Euler's \\(2.5\\) — a large underestimate, as predicted.)<br><br><b>Why each distractor is a specific mistake:</b> <b>overestimate</b> is the concave-<i>down</i> case. <b>exact</b> would need a straight-line solution. <b>"impossible to classify"</b> misses that concavity alone settles the direction of the error — and that you can get \\(y''\\) by differentiating the equation itself, without ever solving it.<br><br><b>The principle:</b> tangent lines sit below a concave-up curve and above a concave-down one. That single fact decides the direction of the error for both Euler's method and linearisation.`},
+
+{topic:"separation", calc:false,
+ prompt:"Which is the correct first step in solving \\(\\dfrac{dy}{dx}=\\dfrac{x}{y^{2}}\\) by separation of variables?",
+ opts:[{t:"\\(y^{2}\\,dy=x\\,dx\\)",correct:true},
+       {t:"\\(\\dfrac{1}{y^{2}}\\,dy=x\\,dx\\)"},
+       {t:"\\(y^{2}\\,dy=\\dfrac{1}{x}\\,dx\\)"},
+       {t:"\\(\\displaystyle\\int\\frac{x}{y^{2}}\\,dx\\)"}],
+ explain:`<b>Separation means every \\(y\\) on one side with \\(dy\\), every \\(x\\) on the other with \\(dx\\).</b><br><br>Multiplying both sides of \\(\\dfrac{dy}{dx}=\\dfrac{x}{y^{2}}\\) by \\(y^{2}\\,dx\\) gives \\(y^{2}\\,dy=x\\,dx\\), which integrates to \\(\\tfrac{y^{3}}{3}=\\tfrac{x^{2}}{2}+C\\).<br><br><b>Why each distractor is a specific mistake:</b> the second moves \\(y^{2}\\) the wrong way — it was in the denominator on the right, so it multiplies across rather than dividing. The third does the same to \\(x\\). The fourth integrates with respect to \\(x\\) while \\(y\\) is still present, which cannot be done because \\(y\\) is an unknown function of \\(x\\).<br><br><b>The principle:</b> you can only integrate once each side involves a single variable. If any \\(y\\) is left sitting next to a \\(dx\\), you have not finished separating.`},
+
+{topic:"growth", calc:false,
+ prompt:"A population satisfies \\(\\dfrac{dP}{dt}=0.03P\\!\\left(1-\\dfrac{P}{800}\\right)\\). For what value of \\(P\\) is the population growing fastest?",
+ opts:[{t:"\\(400\\)",correct:true},{t:"\\(800\\)"},{t:"\\(0.03\\)"},{t:"\\(24\\)"}],
+ explain:`<b>This is the logistic equation \\(\\frac{dP}{dt}=kP\\left(1-\\frac{P}{K}\\right)\\)</b> with carrying capacity \\(K=800\\). The growth rate is a downward parabola in \\(P\\), zero at \\(P=0\\) and \\(P=K\\), so it peaks halfway between: \\(P=\\dfrac{K}{2}=400\\).<br><br>That is also the inflection point of the \\(S\\)-shaped solution curve — growth accelerates up to it and decelerates after.<br><br><b>Why each distractor is a specific mistake:</b> <b>800</b> is the carrying capacity, where growth <i>stops</i>; the population approaches it but never grows fastest there. <b>0.03</b> is the growth constant \\(k\\), not a population. <b>24</b> is the value of \\(\\frac{dP}{dt}\\) at \\(P=400\\) — the maximum growth <i>rate</i>, which answers a different question.<br><br><b>The principle:</b> for any logistic model, fastest growth is at half the carrying capacity. Read \\(K\\) off the bracket and halve it.`},
+
+{topic:"growth", calc:false,
+ prompt:"A quantity decays so that \\(\\dfrac{dA}{dt}=-kA\\) with \\(k>0\\). Which statement must be true?",
+ opts:[{t:"\\(A\\) approaches \\(0\\) but never reaches it",correct:true},
+       {t:"\\(A\\) reaches \\(0\\) after a finite time"},
+       {t:"\\(A\\) decreases by the same amount each unit of time"},
+       {t:"\\(A\\) becomes negative for large \\(t\\)"}],
+ explain:`<b>The solution is \\(A=A_0e^{-kt}\\)</b>, and an exponential is never zero — it approaches the axis asymptotically.<br><br><b>Why each distractor is a specific mistake:</b> <b>"reaches 0"</b> confuses a limit with an attained value. <b>"same amount each unit of time"</b> describes <i>linear</i> decay; exponential decay loses the same <i>proportion</i> each unit of time, which is why half-lives are constant while absolute losses shrink. <b>"becomes negative"</b> would require crossing zero, and the model forbids it — notice that when \\(A\\) is small the rate \\(-kA\\) is also small, so the decay slows itself down.<br><br><b>The principle:</b> \\(\\frac{dA}{dt}=-kA\\) means the rate is proportional to what remains. As the amount shrinks so does the loss, which is exactly why it never gets all the way down.`}
+);
+
+
 // ===================== MC ENGINE (batches of 12) =====================
 let mcBatch=[], mcIdx=0, mcScore=0, mcAnswered=false;
 const stats={};

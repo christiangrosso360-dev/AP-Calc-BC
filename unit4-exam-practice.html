@@ -310,6 +310,52 @@ const MC=[
   explain:`<b>Form \\(\\tfrac00\\).</b> By L'Hôpital: \\(\\displaystyle\\lim_{x\\to0}\\frac{e^{x}}{1}=e^{0}=1\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>0</b> uses \\(e^0-1=0\\) in the numerator only.<br>• <b>\\(e\\)</b> evaluates \\(e^x\\) at \\(x=1\\) instead of \\(x=0\\).<br>• <b>\\(\\infty\\)</b> assumes the denominator dominates.<br><br><b>The principle:</b> \\(\\tfrac{e^x-1}{x}\\to1\\) is the statement that \\(e^x\\) has slope \\(1\\) at \\(0\\) — the derivative of \\(e^x\\) at \\(0\\) by definition.`}
 ];
 
+/* ==== 80-question expansion, added 2026-07-27 ====
+   Table/graph, conceptual and set-up questions, to bring this unit closer to the
+   real exam's mix. Appended rather than merged so the block can be removed whole.
+   Every value was verified numerically before the question was written. */
+MC.push(
+{topic:"related", calc:false,
+ prompt:"A \\(13\\)-foot ladder leans against a wall. The bottom slides away from the wall at \\(2\\) ft/sec. How fast is the top sliding down when the bottom is \\(5\\) feet from the wall?",
+ opts:[{t:"\\(-\\dfrac{5}{6}\\) ft/sec",correct:true},{t:"\\(-\\dfrac{24}{5}\\) ft/sec"},{t:"\\(-\\dfrac{6}{5}\\) ft/sec"},{t:"\\(-2\\) ft/sec"}],
+ explain:`<b>Relate first, differentiate second, substitute last</b> — substituting numbers before differentiating is what kills these problems.<br><br>The relation is \\(x^{2}+y^{2}=169\\). Differentiating with respect to \\(t\\): \\(2x\\dfrac{dx}{dt}+2y\\dfrac{dy}{dt}=0\\), so \\(\\dfrac{dy}{dt}=-\\dfrac{x}{y}\\dfrac{dx}{dt}\\).<br><br>When \\(x=5\\), \\(y=\\sqrt{169-25}=12\\), giving \\(\\dfrac{dy}{dt}=-\\dfrac{5}{12}(2)=-\\dfrac56\\) ft/sec.<br><br><b>Why each distractor is a specific mistake:</b> <b>\\(-\\tfrac{24}{5}\\)</b> flips the ratio to \\(-\\frac{y}{x}\\frac{dx}{dt}\\). <b>\\(-\\tfrac65\\)</b> uses \\(y=13\\), confusing the ladder's length with the height on the wall — the length is the hypotenuse and is <i>constant</i>, which is exactly why it disappears when you differentiate. <b>\\(-2\\)</b> assumes the top falls as fast as the bottom slides.<br><br><b>The principle:</b> the \\(13\\) is a constant and belongs in the equation, never as a value of \\(x\\) or \\(y\\). Find the missing side with Pythagoras at the given instant.`},
+
+{topic:"related", calc:false,
+ prompt:"A spherical balloon is inflated so that its volume increases at a constant rate. As the balloon grows, the rate at which the radius increases",
+ opts:[{t:"decreases, because the same volume is spread over a larger surface",correct:true},
+       {t:"stays constant, because \\(\\dfrac{dV}{dt}\\) is constant"},
+       {t:"increases, because the balloon is getting bigger"},
+       {t:"cannot be determined without the value of \\(\\dfrac{dV}{dt}\\)"}],
+ explain:`<b>Differentiate the relationship and look at what multiplies \\(\\frac{dr}{dt}\\).</b> From \\(V=\\tfrac43\\pi r^{3}\\), \\(\\dfrac{dV}{dt}=4\\pi r^{2}\\dfrac{dr}{dt}\\), so \\(\\dfrac{dr}{dt}=\\dfrac{1}{4\\pi r^{2}}\\dfrac{dV}{dt}\\).<br><br>With \\(\\frac{dV}{dt}\\) fixed, \\(\\frac{dr}{dt}\\) is proportional to \\(\\frac{1}{r^{2}}\\) — so as \\(r\\) grows the radius creeps more and more slowly. Note \\(4\\pi r^{2}\\) is the surface area: the same volume per second has to spread over more skin.<br><br><b>Why each distractor is a specific mistake:</b> <b>"stays constant"</b> assumes a constant \\(\\frac{dV}{dt}\\) forces a constant \\(\\frac{dr}{dt}\\), but they are linked by a factor that itself depends on \\(r\\). <b>"increases"</b> has the relationship backwards. <b>"cannot be determined"</b> misses that the <i>trend</i> follows from the algebra whatever the constant is.<br><br><b>The principle:</b> in related rates the two rates are joined by a factor that usually varies. Solve for the rate you want and read off what it depends on.`},
+
+{topic:"linear", calc:false,
+ prompt:"Use the tangent line to \\(f(x)=\\sqrt[3]{x}\\) at \\(x=8\\) to estimate \\(\\sqrt[3]{8.06}\\).",
+ opts:[{t:"\\(2.005\\)",correct:true},{t:"\\(2.06\\)"},{t:"\\(2.02\\)"},{t:"\\(2.0005\\)"}],
+ explain:`<b>Linearisation is \\(L(x)=f(a)+f'(a)(x-a)\\)</b>, chosen at a nearby point where everything is exact.<br><br>\\(f(8)=2\\) and \\(f'(x)=\\dfrac{1}{3x^{2/3}}\\), so \\(f'(8)=\\dfrac{1}{3\\cdot4}=\\dfrac1{12}\\). Then \\(L(8.06)=2+\\dfrac{1}{12}(0.06)=2.005\\). (The true value is \\(2.004988\\ldots\\), so the estimate is excellent.)<br><br><b>Why each distractor is a specific mistake:</b> <b>2.06</b> adds the whole \\(\\Delta x\\) without multiplying by the derivative — treating the slope as \\(1\\). <b>2.02</b> uses \\(f'(8)=\\tfrac13\\), forgetting the \\(x^{2/3}=4\\) in the denominator. <b>2.0005</b> misplaces a decimal.<br><br><b>The principle:</b> the change in \\(y\\) is the slope times the change in \\(x\\), never the change in \\(x\\) itself. Choosing \\(a\\) to be the nearby perfect cube is the whole art.`},
+
+{topic:"lhopital", calc:false,
+ prompt:"\\(\\displaystyle\\lim_{x\\to0}\\frac{e^{x}-1-x}{x^{2}}=\\)",
+ opts:[{t:"\\(\\dfrac12\\)",correct:true},{t:"\\(0\\)"},{t:"\\(1\\)"},{t:"the limit does not exist"}],
+ explain:`<b>Check the form first:</b> substituting \\(0\\) gives \\(\\frac{1-1-0}{0}=\\frac00\\), so L'Hôpital's rule applies.<br><br>Differentiating top and bottom: \\(\\displaystyle\\lim_{x\\to0}\\frac{e^{x}-1}{2x}\\) — still \\(\\frac00\\), so apply it again: \\(\\displaystyle\\lim_{x\\to0}\\frac{e^{x}}{2}=\\frac12\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>0</b> stops after one application and evaluates \\(\\frac{e^{0}-1}{0}\\) as if the numerator alone decided it. <b>1</b> comes from applying the rule three times, past the point where the form stopped being indeterminate — once the expression is no longer \\(\\frac00\\) you must stop, or you will change the answer. <b>does not exist</b> gives up at the second indeterminate form.<br><br><b>The principle:</b> re-check the form after every application. Keep going while it stays \\(\\frac00\\) or \\(\\frac\\infty\\infty\\), and stop the moment it does not.`},
+
+{topic:"motion", calc:false,
+ prompt:"A particle moving along a line has velocity \\(v(t)<0\\) and acceleration \\(a(t)>0\\) at time \\(t\\). At that moment the particle is",
+ opts:[{t:"moving left and slowing down",correct:true},
+       {t:"moving left and speeding up"},
+       {t:"moving right and slowing down"},
+       {t:"momentarily at rest"}],
+ explain:`<b>Two separate readings.</b> The <i>sign</i> of \\(v\\) gives direction: \\(v<0\\) means moving in the negative direction, i.e. left.<br><br>Whether it is speeding up depends on whether \\(v\\) and \\(a\\) have the <b>same</b> sign. Here they are opposite, so the acceleration opposes the motion and the speed \\(|v|\\) is decreasing — the particle is slowing down.<br><br><b>Why each distractor is a specific mistake:</b> <b>"left and speeding up"</b> reads \\(a>0\\) as "speeding up", but positive acceleration only means the velocity is <i>increasing</i> — and increasing a negative velocity moves it toward zero. <b>"right"</b> misreads the sign of \\(v\\). <b>"at rest"</b> would need \\(v=0\\).<br><br><b>The principle:</b> direction comes from the sign of \\(v\\); speeding up or slowing down comes from whether \\(v\\) and \\(a\\) agree in sign. Positive acceleration does not mean speeding up.`},
+
+{topic:"rates", calc:false,
+ prompt:"The temperature of an object is \\(T(t)\\) degrees at time \\(t\\) hours, and \\(T'(3)=-4\\). Which is the correct interpretation?",
+ opts:[{t:"at \\(t=3\\) hours the temperature is falling at about \\(4\\) degrees per hour",correct:true},
+       {t:"after 3 hours the object has cooled by \\(4\\) degrees"},
+       {t:"the temperature at \\(t=3\\) is \\(-4\\) degrees"},
+       {t:"the object cools by \\(4\\) degrees during every hour"}],
+ explain:`<b>A derivative is an instantaneous rate, and its units are the output's units per the input's units</b> — here degrees per hour. The negative sign means decreasing.<br><br><b>Why each distractor is a specific mistake:</b> <b>"has cooled by 4"</b> reports a total change over three hours, which would be \\(T(3)-T(0)\\), not \\(T'(3)\\). <b>"is \\(-4\\) degrees"</b> confuses \\(T'(3)\\) with \\(T(3)\\) — the rate with the value. <b>"every hour"</b> extends an instantaneous rate to a whole interval, which is only true if \\(T\\) is linear; the rate at \\(t=3\\) says nothing about \\(t=7\\).<br><br><b>The principle:</b> a good interpretation names the time, the direction, the size and the units, and says "about" — because an instantaneous rate only predicts the immediate future.`}
+);
+
+
 // ===================== MC ENGINE (batches of 12) =====================
 let mcBatch=[], mcIdx=0, mcScore=0, mcAnswered=false;
 const stats={};

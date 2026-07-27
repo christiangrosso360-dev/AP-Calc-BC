@@ -235,6 +235,53 @@ const MC=[
   explain:`<b>The target must lie between the endpoint values.</b> Since \\(3<6<8\\) and \\(g\\) is continuous on \\([2,5]\\), the IVT guarantees some \\(c\\in(2,5)\\) with \\(g(c)=6\\).<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>6 greater than 3</b> is incomplete — it must also be below \\(8\\), i.e. strictly between.<br>• <b>\\(g\\) increasing</b> is never given and isn't required by the IVT.<br>• <b>even number</b> is irrelevant.<br><br><b>The principle:</b> the IVT applies to any value strictly between \\(f(a)\\) and \\(f(b)\\) — not just roots.`},
 ];
 
+/* ==== 80-question expansion, added 2026-07-27 ====
+   Table/graph, conceptual and set-up questions, to bring this unit closer to the
+   real exam's mix. Appended rather than merged so the block can be removed whole.
+   Every value was verified numerically before the question was written. */
+MC.push(
+{topic:"whatisalimit", calc:false,
+ prompt:"The table gives values of \\(f\\) near \\(x=2\\). What does the table suggest about \\(\\displaystyle\\lim_{x\\to 2}f(x)\\)?<div class=\"qtable\"><table><tr><th>\\(x\\)</th><th>1.9</th><th>1.99</th><th>2.01</th><th>2.1</th></tr><tr><th>\\(f(x)\\)</th><td>3.90</td><td>3.99</td><td>5.01</td><td>5.10</td></tr></table></div>",
+ opts:[{t:"it does not exist, because the one-sided limits differ",correct:true},
+       {t:"it is \\(4.5\\), the average of the two sides"},
+       {t:"it is \\(4\\)"},
+       {t:"it is \\(5\\)"}],
+ explain:`<b>Read each side separately.</b> From the left the values climb toward \\(4\\); from the right they fall toward \\(5\\). A two-sided limit exists only when both sides agree, and \\(4\\ne5\\), so the limit does not exist.<br><br><b>Why each distractor is a specific mistake:</b> <b>4.5</b> averages the two one-sided limits — but a limit is not a compromise between the sides; if they disagree there is simply no single value the function approaches. <b>4</b> and <b>5</b> each report one side and ignore the other, which would be correct only if the question had asked for \\(\\lim_{x\\to2^-}\\) or \\(\\lim_{x\\to2^+}\\).<br><br><b>The principle:</b> with a table, cover the right-hand columns and read the left, then do the reverse. The two-sided limit exists only if the two readings match.`},
+
+{topic:"asymptotes", calc:false,
+ prompt:"The line \\(y=\\dfrac32\\) is a horizontal asymptote of which function?",
+ opts:[{t:"\\(f(x)=\\dfrac{3x^{2}-1}{2x^{2}+5}\\)",correct:true},
+       {t:"\\(f(x)=\\dfrac{3x-1}{2x^{2}+5}\\)"},
+       {t:"\\(f(x)=\\dfrac{3x^{3}-1}{2x^{2}+5}\\)"},
+       {t:"\\(f(x)=\\dfrac{3x^{2}-1}{2x+5}\\)"}],
+ explain:`<b>Horizontal asymptotes are decided by comparing degrees</b>, because as \\(|x|\\) grows only the leading terms matter.<br><br>Equal degrees give the ratio of the leading coefficients: \\(\\dfrac{3x^{2}}{2x^{2}}\\to\\dfrac32\\).<br><br><b>Why each distractor is a specific mistake:</b> the second has a <i>smaller</i> degree on top, so it approaches \\(y=0\\) — bottom-heavy always flattens to zero. The third and fourth are top-heavy, so they have no horizontal asymptote at all; the third grows without bound and the fourth has a slant asymptote.<br><br><b>The principle:</b> compare degrees first. Bigger on the bottom → \\(y=0\\); equal → ratio of leading coefficients; bigger on top → no horizontal asymptote.`},
+
+{topic:"continuity", calc:false,
+ prompt:"\\(f\\) is continuous everywhere, \\(f(0)=-4\\) and \\(f(3)=6\\). Which of the following must be true?",
+ opts:[{t:"\\(f(c)=0\\) for at least one \\(c\\) in \\((0,3)\\)",correct:true},
+       {t:"\\(f\\) is increasing on \\([0,3]\\)"},
+       {t:"\\(f(c)=0\\) for exactly one \\(c\\) in \\((0,3)\\)"},
+       {t:"\\(f(1.5)=1\\)"}],
+ explain:`<b>The Intermediate Value Theorem</b> says a continuous function takes every value between its endpoint values. \\(0\\) lies between \\(-4\\) and \\(6\\), so some \\(c\\) gives \\(f(c)=0\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>increasing</b> reads far more into continuity than it provides — \\(f\\) may wander up and down repeatedly and still finish higher. <b>exactly one</b> is the subtle one: the theorem guarantees <i>at least</i> one crossing and never uniqueness, and a wiggly \\(f\\) could cross zero three times. <b>\\(f(1.5)=1\\)</b> assumes \\(f\\) is linear.<br><br><b>The principle:</b> existence theorems promise existence. Any option upgrading "at least one" to "exactly one", or continuity to monotonicity, is claiming something nobody proved.`},
+
+{topic:"squeeze", calc:false,
+ prompt:"Suppose \\(-x^{2}\\le g(x)\\le x^{2}\\) for all \\(x\\). What can be concluded about \\(\\displaystyle\\lim_{x\\to0}g(x)\\)?",
+ opts:[{t:"it is \\(0\\), by the Squeeze Theorem",correct:true},
+       {t:"it is \\(0\\), because \\(g(0)=0\\)"},
+       {t:"nothing, since \\(g\\) is not given explicitly"},
+       {t:"it does not exist, because \\(g\\) may oscillate"}],
+ explain:`<b>The Squeeze Theorem:</b> if \\(g\\) is trapped between two functions that share a limit, \\(g\\) must share it too. Here both \\(-x^{2}\\) and \\(x^{2}\\) approach \\(0\\) as \\(x\\to0\\), so the gap closes and \\(g\\) has nowhere else to go.<br><br><b>Why each distractor is a specific mistake:</b> <b>"because \\(g(0)=0\\)"</b> reaches the right answer for the wrong reason, and the reason is not even established — the inequality forces \\(g(0)=0\\), but a limit never depends on the value <i>at</i> the point. <b>"nothing"</b> misses that the bounds alone are enough; you do not need a formula. <b>"does not exist"</b> is precisely what the theorem rules out — \\(g\\) may oscillate wildly, like \\(x^{2}\\sin\\frac1x\\), and the limit is still \\(0\\) because the amplitude is crushed to nothing.<br><br><b>The principle:</b> squeeze arguments give you a limit without ever knowing the function. Check that both bounds share the same limit, and that is the whole proof.`},
+
+{topic:"continuity", calc:false,
+ prompt:"\\(f(x)=\\dfrac{x^{2}-9}{x-3}\\) for \\(x\\ne3\\). What kind of discontinuity does \\(f\\) have at \\(x=3\\), and can it be removed?",
+ opts:[{t:"removable; define \\(f(3)=6\\)",correct:true},
+       {t:"removable; define \\(f(3)=0\\)"},
+       {t:"infinite; it cannot be removed"},
+       {t:"jump; it cannot be removed"}],
+ explain:`<b>Factor before judging.</b> \\(\\dfrac{x^{2}-9}{x-3}=\\dfrac{(x-3)(x+3)}{x-3}=x+3\\) for \\(x\\ne3\\), so the graph is the line \\(y=x+3\\) with a single point punched out.<br><br>The limit exists — \\(\\lim_{x\\to3}f(x)=6\\) — so the hole can be filled by defining \\(f(3)=6\\). That is exactly what "removable" means.<br><br><b>Why each distractor is a specific mistake:</b> <b>\\(f(3)=0\\)</b> plugs in the value that made the denominator vanish rather than the value of the limit. <b>infinite</b> would need the numerator to survive while the denominator dies; here the \\((x-3)\\) cancels, so nothing blows up. <b>jump</b> would need the one-sided limits to differ, and they do not.<br><br><b>The principle:</b> a zero denominator is not automatically an asymptote. Factor first — if the offending factor cancels, the discontinuity is a hole and the limit tells you how to fill it.`}
+);
+
+
 // ===================== MC ENGINE (batches of 12) =====================
 let mcBatch=[], mcIdx=0, mcScore=0, mcAnswered=false;
 const stats={};

@@ -484,6 +484,33 @@ const EXAM=[
  ex:"Everything is already matched for you: \\(g(3)=2\\) says the mirror input is 2, and \\(f'(2)\\) is given. So \\(g'(3)=\\dfrac{1}{f'\\big(g(3)\\big)}=\\dfrac{1}{f'(2)}=\\dfrac{1}{6}\\). This is the formula with zero algebra &mdash; the test is whether you plug into the right spot. (A) forgets the reciprocal; (C) reciprocates the input 3 instead of the derivative value."}
 ];
 
+/* ==== 80-question expansion, added 2026-07-27 ====
+   Table/graph, conceptual and set-up questions, to bring this unit closer to the
+   real exam's mix. Appended rather than merged so the block can be removed whole.
+   Every value was verified numerically before the question was written. */
+EXAM.push(
+{t:0, q:"The table gives values of \\(f\\), \\(f'\\), \\(g\\) and \\(g'\\). If \\(h(x)=f\\big(g(x)\\big)\\), what is \\(h'(1)\\)?<div class=\"qtable\"><table><tr><th>\\(x\\)</th><th>\\(f(x)\\)</th><th>\\(f'(x)\\)</th><th>\\(g(x)\\)</th><th>\\(g'(x)\\)</th></tr><tr><td>1</td><td>5</td><td>3</td><td>4</td><td>\\(-2\\)</td></tr><tr><td>4</td><td>2</td><td>6</td><td>1</td><td>7</td></tr></table></div>",
+ o:["\\(-12\\)","\\(-6\\)","\\(18\\)","\\(42\\)"], a:0,
+ ex:"The chain rule in table form: \\(h'(1)=f'\\big(g(1)\\big)\\cdot g'(1)\\). Read \\(g(1)=4\\), so you need \\(f'(4)=6\\), then multiply by \\(g'(1)=-2\\): \\(6\\cdot(-2)=-12\\).<br><br><b>Why each distractor is a specific mistake:</b> \\(-6\\) evaluates \\(f'\\) at \\(x=1\\) instead of at \\(g(1)\\) — the single most common table error, and the reason the table gives you two rows. \\(18\\) uses \\(f'(1)\\cdot g'(4)\\), mixing up which row each factor comes from. \\(42\\) computes \\(f'(4)\\cdot g'(4)\\), reading both values off the wrong row.<br><br><b>The principle:</b> evaluate the outer derivative at the <i>inner value</i>, not at \\(x\\). Write \\(g(1)\\) down first, then go looking for \\(f'\\) at that number."},
+
+{t:2, q:"\\(f\\) is differentiable and invertible, with \\(f(1)=2\\) and \\(f'(1)=3\\). What is \\(\\big(f^{-1}\\big)'(2)\\)?",
+ o:["\\(\\tfrac13\\)","\\(3\\)","\\(\\tfrac12\\)","\\(-3\\)"], a:0,
+ ex:"The inverse derivative rule is \\(\\big(f^{-1}\\big)'(b)=\\dfrac{1}{f'\\big(f^{-1}(b)\\big)}\\). Since \\(f(1)=2\\), the mirror input is \\(f^{-1}(2)=1\\), so \\(\\big(f^{-1}\\big)'(2)=\\dfrac{1}{f'(1)}=\\dfrac13\\).<br><br><b>Why each distractor is a specific mistake:</b> \\(3\\) forgets the reciprocal entirely. \\(\\tfrac12\\) reciprocates the <i>input</i> \\(2\\) rather than the derivative value. \\(-3\\) invents a sign — inverting a function reflects it across \\(y=x\\), which reciprocates slopes but never flips their sign.<br><br><b>The principle:</b> two steps, in this order. Find where the inverse sends your input, then take one over \\(f'\\) at that place."},
+
+{t:1, q:"The curve \\(x^{2}+y^{2}=25\\) passes through \\((3,4)\\). What is \\(\\dfrac{dy}{dx}\\) there?",
+ o:["\\(-\\tfrac34\\)","\\(\\tfrac34\\)","\\(-\\tfrac43\\)","\\(\\tfrac43\\)"], a:0,
+ ex:"Differentiate both sides with respect to \\(x\\), remembering that \\(y\\) is a function of \\(x\\): \\(2x+2y\\dfrac{dy}{dx}=0\\), so \\(\\dfrac{dy}{dx}=-\\dfrac{x}{y}\\). At \\((3,4)\\) that is \\(-\\dfrac34\\).<br><br>A sanity check: the point is in the first quadrant of a circle, where the curve is falling — so a negative slope is exactly what the geometry demands.<br><br><b>Why each distractor is a specific mistake:</b> \\(\\tfrac34\\) drops the minus sign, which the picture immediately contradicts. \\(-\\tfrac43\\) inverts to \\(-\\dfrac{y}{x}\\), swapping the roles of the coordinates. \\(\\tfrac43\\) does both.<br><br><b>The principle:</b> implicit differentiation puts \\(\\frac{dy}{dx}\\) wherever you differentiate a \\(y\\). On a circle the answer \\(-x/y\\) is worth remembering, and the sign is always checkable against the picture."},
+
+{t:5, q:"If \\(f(x)=\\sin(2x)\\), then \\(f''(x)=\\)",
+ o:["\\(-4\\sin(2x)\\)","\\(-\\sin(2x)\\)","\\(4\\cos(2x)\\)","\\(-2\\sin(2x)\\)"], a:0,
+ ex:"Differentiate twice, and the chain rule contributes a factor of \\(2\\) each time. \\(f'(x)=2\\cos(2x)\\), then \\(f''(x)=2\\cdot\\big(-\\sin(2x)\\big)\\cdot 2=-4\\sin(2x)\\).<br><br><b>Why each distractor is a specific mistake:</b> \\(-\\sin(2x)\\) ignores the inner derivative on both passes — the answer you would get for \\(\\sin x\\). \\(4\\cos(2x)\\) keeps both factors of \\(2\\) but differentiates cosine as if it were sine, losing the sign. \\(-2\\sin(2x)\\) collects only one of the two factors of \\(2\\).<br><br><b>The principle:</b> each differentiation of \\(\\sin(kx)\\) brings down another \\(k\\). After \\(n\\) derivatives the coefficient is \\(k^{n}\\), which is why higher-order chain rule problems grow so fast."},
+
+{t:4, q:"Which technique is needed to differentiate \\(y=x^{\\sin x}\\)?",
+ o:["logarithmic differentiation","the power rule","the chain rule alone","the product rule alone"], a:0,
+ ex:"Look at where the variable sits. The power rule needs a <i>constant</i> exponent, and the exponential rule needs a <i>constant</i> base — here \\(x\\) appears in both places, so neither applies.<br><br>Take logs first: \\(\\ln y=\\sin x\\,\\ln x\\), then differentiate implicitly. That turns the exponent into a product, which the product rule can handle.<br><br><b>Why each distractor is a specific mistake:</b> the <b>power rule</b> would give \\(\\sin x\\cdot x^{\\sin x-1}\\), treating the exponent as constant. The <b>chain rule alone</b> cannot start, because there is no single inner function. The <b>product rule alone</b> misreads \\(x^{\\sin x}\\) as a product rather than a power.<br><br><b>The principle:</b> variable base <i>and</i> variable exponent means logarithmic differentiation. Spotting which of the three shapes you have — \\(x^{n}\\), \\(a^{x}\\), or \\(f(x)^{g(x)}\\) — is the whole decision."}
+);
+
+
 EXAM.push(
 /* ============ 3.4 INVERSE TRIG (Q28-34) ============ */
 {t:3, q:"\\(\\dfrac{d}{dx}\\,\\arcsin(3x)=\\)",

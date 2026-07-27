@@ -273,6 +273,44 @@ const MC=[
   explain:`<b>When both factors are polynomials, expanding is often cleanest.</b> \\((x^2+1)(x^3-x)=x^5-x^3+x^3-x=x^5-x\\), so \\(y'=5x^4-1\\) in one line — no product rule bookkeeping.<br><br><b>Why each distractor is a specific mistake:</b><br>• <b>quotient rule</b> doesn't apply — there's no division here.<br>• <b>rewriting as a quotient</b> manufactures a harder problem out of a simple product.<br>• <b>differentiate each factor and multiply</b> is the \\((uv)'=u'v'\\) trap — flat-out wrong.<br><br><b>The principle:</b> the product rule always works, but for polynomial \\(\\times\\) polynomial, expanding first is usually faster and less error-prone.`}
 ];
 
+/* ==== 80-question expansion, added 2026-07-27 ====
+   Table/graph, conceptual and set-up questions, to bring this unit closer to the
+   real exam's mix. Appended rather than merged so the block can be removed whole.
+   Every value was verified numerically before the question was written. */
+MC.push(
+{topic:"derivdefined", calc:false,
+ prompt:"The limit \\(\\displaystyle\\lim_{h\\to0}\\frac{(2+h)^{5}-32}{h}\\) is the derivative of which function, at which point — and what is its value?",
+ opts:[{t:"\\(f(x)=x^{5}\\) at \\(x=2\\); the value is \\(80\\)",correct:true},
+       {t:"\\(f(x)=x^{5}\\) at \\(x=2\\); the value is \\(32\\)"},
+       {t:"\\(f(x)=(x+2)^{5}\\) at \\(x=0\\); the value is \\(10\\)"},
+       {t:"\\(f(x)=5x^{4}\\) at \\(x=2\\); the value is \\(80\\)"}],
+ explain:`<b>Match the limit against the definition \\(f'(a)=\\displaystyle\\lim_{h\\to0}\\frac{f(a+h)-f(a)}{h}\\).</b> The pattern \\((2+h)^{5}\\) identifies \\(f(x)=x^{5}\\) and \\(a=2\\), and the \\(32\\) is \\(f(2)=2^{5}\\), which confirms it.<br><br>So the value is \\(f'(2)=5(2)^{4}=80\\).<br><br><b>Why each distractor is a specific mistake:</b> the second identifies the function correctly but reports \\(f(2)\\) instead of \\(f'(2)\\). The third is a valid re-parametrisation but its value is wrong. The fourth confuses the function with its derivative — if \\(f\\) were \\(5x^{4}\\), the limit would give \\(f'(2)=160\\); the answer \\(80\\) is right but the reasoning would then be inconsistent.<br><br><b>The principle:</b> in these recognition questions, the constant being subtracted is \\(f(a)\\). Use it to confirm your \\(f\\) and \\(a\\) before differentiating.`},
+
+{topic:"prodquot", calc:false,
+ prompt:"The table gives values of \\(f\\), \\(f'\\), \\(g\\) and \\(g'\\) at \\(x=2\\). If \\(h(x)=f(x)\\,g(x)\\), what is \\(h'(2)\\)?<div class=\"qtable\"><table><tr><th>\\(x\\)</th><th>\\(f(x)\\)</th><th>\\(f'(x)\\)</th><th>\\(g(x)\\)</th><th>\\(g'(x)\\)</th></tr><tr><td>2</td><td>3</td><td>\\(-1\\)</td><td>4</td><td>5</td></tr></table></div>",
+ opts:[{t:"\\(11\\)",correct:true},{t:"\\(-5\\)"},{t:"\\(19\\)"},{t:"\\(-19\\)"}],
+ explain:`<b>The product rule is \\((fg)'=f'g+fg'\\)</b> — each factor takes a turn being differentiated.<br><br>\\(h'(2)=f'(2)g(2)+f(2)g'(2)=(-1)(4)+(3)(5)=-4+15=11\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>-5</b> is \\(f'g'=(-1)(5)\\), the belief that the derivative of a product is the product of the derivatives — the error the product rule exists to prevent. <b>19</b> is \\((+1)(4)+(3)(5)\\), losing the minus sign on \\(f'(2)\\). <b>-19</b> is \\(f'g-fg'\\), using the <i>quotient</i> rule's numerator by mistake.<br><br><b>The principle:</b> table questions test whether you can place four numbers in the right four slots. Write the rule out symbolically first, then substitute.`},
+
+{topic:"prodquot", calc:false,
+ prompt:"Using the same table, if \\(q(x)=\\dfrac{f(x)}{g(x)}\\), what is \\(q'(2)\\)?<div class=\"qtable\"><table><tr><th>\\(x\\)</th><th>\\(f(x)\\)</th><th>\\(f'(x)\\)</th><th>\\(g(x)\\)</th><th>\\(g'(x)\\)</th></tr><tr><td>2</td><td>3</td><td>\\(-1\\)</td><td>4</td><td>5</td></tr></table></div>",
+ opts:[{t:"\\(-\\dfrac{19}{16}\\)",correct:true},{t:"\\(\\dfrac{11}{16}\\)"},{t:"\\(-\\dfrac{19}{4}\\)"},{t:"\\(-\\dfrac{1}{5}\\)"}],
+ explain:`<b>The quotient rule is \\(\\left(\\dfrac fg\\right)'=\\dfrac{f'g-fg'}{g^{2}}\\)</b> — and unlike the product rule, the order of the two terms matters.<br><br>\\(q'(2)=\\dfrac{(-1)(4)-(3)(5)}{4^{2}}=\\dfrac{-4-15}{16}=-\\dfrac{19}{16}\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>\\(\\tfrac{11}{16}\\)</b> adds the two terms in the numerator, i.e. uses the product rule on top. <b>\\(-\\tfrac{19}{4}\\)</b> divides by \\(g\\) instead of \\(g^{2}\\). <b>\\(-\\tfrac15\\)</b> is \\(f'/g'\\), the quotient of the derivatives.<br><br><b>The principle:</b> low d-high minus high d-low, over the square of the low. Getting the subtraction backwards flips the sign, which is why the numerator's order is worth saying out loud.`},
+
+{topic:"diffcont", calc:false,
+ prompt:"Which statement about differentiability and continuity is always true?",
+ opts:[{t:"if \\(f\\) is differentiable at \\(a\\), then \\(f\\) is continuous at \\(a\\)",correct:true},
+       {t:"if \\(f\\) is continuous at \\(a\\), then \\(f\\) is differentiable at \\(a\\)"},
+       {t:"if \\(f\\) is continuous at \\(a\\), then \\(f'(a)=0\\)"},
+       {t:"if \\(f\\) is not differentiable at \\(a\\), then \\(f\\) is not continuous at \\(a\\)"}],
+ explain:`<b>Differentiability is the stronger condition</b>: having a tangent line requires the graph to be unbroken there, so differentiable \\(\\Rightarrow\\) continuous.<br><br>The converse fails, and the standard counterexample is \\(f(x)=|x|\\) at \\(x=0\\) — perfectly continuous, but the corner means the left and right difference quotients disagree, so no derivative exists.<br><br><b>Why each distractor is a specific mistake:</b> the second is that false converse. The third confuses continuity with having a horizontal tangent. The fourth is the contrapositive of the <i>false</i> converse, so it fails for the same reason — \\(|x|\\) is not differentiable at \\(0\\) yet is continuous there.<br><br><b>The principle:</b> one arrow only. Differentiable implies continuous; continuous implies nothing about differentiability. Corners, cusps and vertical tangents are all continuous and all non-differentiable.`},
+
+{topic:"keyfunc", calc:false,
+ prompt:"If \\(f(x)=e^{x}\\sin x\\), then \\(f'(0)=\\)",
+ opts:[{t:"\\(1\\)",correct:true},{t:"\\(0\\)"},{t:"\\(2\\)"},{t:"\\(-1\\)"}],
+ explain:`<b>Product rule with two "key functions".</b> \\(f'(x)=e^{x}\\sin x+e^{x}\\cos x\\).<br><br>At \\(x=0\\): \\(e^{0}\\sin 0+e^{0}\\cos 0=1\\cdot0+1\\cdot1=1\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>0</b> comes from evaluating only the first term, or from computing \\(f(0)\\) rather than \\(f'(0)\\). <b>2</b> adds \\(e^{0}\\) twice as if both trig factors were \\(1\\), forgetting \\(\\sin 0=0\\). <b>-1</b> uses \\(\\frac{d}{dx}\\sin x=-\\cos x\\); the minus sign belongs to the derivative of <i>cosine</i>, not sine.<br><br><b>The principle:</b> apply the rule symbolically, then substitute. Plugging numbers in early is how the \\(\\sin 0=0\\) simplification gets missed.`}
+);
+
+
 // ===================== MC ENGINE (batches of 12) =====================
 let mcBatch=[], mcIdx=0, mcScore=0, mcAnswered=false;
 const stats={};

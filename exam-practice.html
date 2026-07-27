@@ -389,6 +389,94 @@ const MC=[
    explain:`The nth-term (divergence) test: if the terms fail to approach 0, the series must diverge — that's the first statement, and it's always true. The converse (terms → 0 ⇒ converges) is false (harmonic series). A divergent series can have terms → 0 (harmonic again), so the third is false too.`}
 ];
 
+/* ==== 80-question expansion, added 2026-07-27 ====
+   Table/graph, conceptual and set-up questions, to bring this unit closer to the
+   real exam's mix. Appended rather than merged so the block can be removed whole.
+   Every value was verified numerically before the question was written. */
+MC.push(
+{topic:"found", calc:false,
+ prompt:"Suppose \\(\\displaystyle\\sum_{n=1}^{\\infty}a_n\\) converges. Which of the following must be true?",
+ opts:[{t:"\\(\\displaystyle\\lim_{n\\to\\infty}a_n=0\\)",correct:true},
+       {t:"\\(\\displaystyle\\sum_{n=1}^{\\infty}|a_n|\\) converges"},
+       {t:"\\(a_n\\) is decreasing for all \\(n\\)"},
+       {t:"\\(\\displaystyle\\sum_{n=1}^{\\infty}a_n^{2}\\) converges"}],
+ explain:`<b>Only the \\(n\\)th-term condition is forced</b> — it is the contrapositive of the \\(n\\)th-term test for divergence.<br><br><b>Why each distractor is a specific mistake:</b> <b>absolute convergence</b> fails for any conditionally convergent series — \\(\\sum\\frac{(-1)^n}{n}\\) converges while \\(\\sum\\frac1n\\) does not. <b>decreasing</b> is a <i>hypothesis</i> of the alternating series test, not a consequence of convergence. <b>\\(\\sum a_n^2\\)</b> is the one worth memorising: take \\(a_n=\\frac{(-1)^n}{\\sqrt n}\\), which converges by the alternating series test, yet \\(a_n^{2}=\\frac1n\\) gives the harmonic series, which diverges.<br><br><b>The principle:</b> \\(a_n\\to0\\) is necessary and nowhere near sufficient. Three of these four options are a theorem's hypothesis being mistaken for its conclusion.`},
+
+{topic:"tests", calc:false,
+ prompt:"The \\(n\\)th-term test can be used to show that a series <b>diverges</b>. Which series does it settle?",
+ opts:[{t:"\\(\\displaystyle\\sum_{n=1}^{\\infty}\\frac{n}{2n+1}\\)",correct:true},
+       {t:"\\(\\displaystyle\\sum_{n=1}^{\\infty}\\frac{1}{n}\\)"},
+       {t:"\\(\\displaystyle\\sum_{n=1}^{\\infty}\\frac{1}{n^{2}}\\)"},
+       {t:"\\(\\displaystyle\\sum_{n=1}^{\\infty}\\frac{(-1)^{n}}{n}\\)"}],
+ explain:`<b>The \\(n\\)th-term test says: if \\(\\lim a_n\\ne0\\), the series diverges.</b> It can never prove convergence.<br><br>For \\(\\frac{n}{2n+1}\\) the terms approach \\(\\tfrac12\\), not \\(0\\), so the series diverges and the test settles it in one line.<br><br><b>Why each distractor is a specific mistake:</b> all three of the others have terms going to \\(0\\), so the test is <b>inconclusive</b> for every one of them — and notice they do not all behave the same way: \\(\\sum\\frac1n\\) diverges, \\(\\sum\\frac1{n^2}\\) converges, and \\(\\sum\\frac{(-1)^n}{n}\\) converges conditionally. That is exactly why "terms go to zero" tells you nothing on its own.<br><br><b>The principle:</b> the \\(n\\)th-term test is a divergence test only. If the limit is \\(0\\) you have learned nothing and must pick another test.`},
+
+{topic:"tests", calc:false,
+ prompt:"Which test most directly establishes the behaviour of \\(\\displaystyle\\sum_{n=1}^{\\infty}\\frac{n!}{n^{n}}\\)?",
+ opts:[{t:"the ratio test — it converges",correct:true},
+       {t:"the \\(p\\)-series test — it converges"},
+       {t:"the \\(n\\)th-term test — it diverges"},
+       {t:"the alternating series test — it converges"}],
+ explain:`<b>Factorials and \\(n\\)th powers are the ratio test's home ground</b>, because both collapse when you form \\(\\frac{a_{n+1}}{a_n}\\).<br><br>\\(\\dfrac{a_{n+1}}{a_n}=\\dfrac{(n+1)!}{(n+1)^{n+1}}\\cdot\\dfrac{n^{n}}{n!}=\\left(\\dfrac{n}{n+1}\\right)^{n}\\to\\dfrac1e\\approx0.368<1\\), so the series converges.<br><br><b>Why each distractor is a specific mistake:</b> the <b>\\(p\\)-series</b> test only applies to \\(\\sum\\frac1{n^p}\\) — this is not that shape. The <b>\\(n\\)th-term</b> test would need the terms not to approach zero, but they do. The <b>alternating series</b> test needs alternating signs, and every term here is positive.<br><br><b>The principle:</b> match the test to the <i>structure</i>. Factorials or \\(r^n\\) or \\(n^n\\) → ratio test. A power of \\(n\\) in the denominator → \\(p\\)-series or comparison. Alternating signs → alternating series test.`},
+
+{topic:"absc", calc:false,
+ prompt:"The series \\(\\displaystyle\\sum_{n=1}^{\\infty}\\frac{(-1)^{n}}{\\sqrt{n}}\\) is",
+ opts:[{t:"conditionally convergent",correct:true},{t:"absolutely convergent"},{t:"divergent"},{t:"convergent to \\(0\\)"}],
+ explain:`<b>Two questions, asked in order.</b> First, does it converge? The terms \\(\\frac1{\\sqrt n}\\) decrease to \\(0\\) and alternate in sign, so yes, by the alternating series test.<br><br>Second, does it converge absolutely? Take absolute values: \\(\\sum\\frac{1}{\\sqrt n}=\\sum\\frac1{n^{1/2}}\\) is a \\(p\\)-series with \\(p=\\tfrac12\\le1\\), so it diverges. Converges, but not absolutely — that is exactly what "conditionally" means.<br><br><b>Why each distractor is a specific mistake:</b> <b>absolutely convergent</b> forgets to check the absolute series, or misreads \\(p=\\tfrac12\\) as being greater than 1. <b>divergent</b> confuses the failure of absolute convergence with failure of convergence itself. <b>converges to 0</b> confuses the limit of the <i>terms</i> with the sum of the series — the terms go to \\(0\\), the sum does not.<br><br><b>The principle:</b> "conditionally convergent" is a two-part verdict. Test the series, then test its absolute value, and report both.`},
+
+{topic:"ioc", calc:false,
+ prompt:"Find the interval of convergence of \\(\\displaystyle\\sum_{n=1}^{\\infty}\\frac{(x-2)^{n}}{n\\,3^{n}}\\), checking both endpoints.",
+ opts:[{t:"\\([-1,5)\\)",correct:true},{t:"\\((-1,5)\\)"},{t:"\\((-1,5]\\)"},{t:"\\([-1,5]\\)"}],
+ explain:`<b>Radius first, endpoints second — the endpoints are the whole question.</b><br><br>The ratio test gives \\(\\left|\\frac{x-2}{3}\\right|<1\\), so \\(|x-2|<3\\): radius \\(3\\) about centre \\(2\\), i.e. \\(-1<x<5\\).<br><br><b>At \\(x=5\\):</b> the series becomes \\(\\sum\\frac{3^{n}}{n3^{n}}=\\sum\\frac1n\\), the harmonic series — <i>diverges</i>, so \\(5\\) is excluded.<br><b>At \\(x=-1\\):</b> it becomes \\(\\sum\\frac{(-3)^{n}}{n3^{n}}=\\sum\\frac{(-1)^{n}}{n}\\), the alternating harmonic series — <i>converges</i>, so \\(-1\\) is included.<br><br>Interval: \\([-1,5)\\).<br><br><b>Why each distractor is a specific mistake:</b> the <b>open</b> interval is what you get by stopping after the ratio test — correct radius, no endpoint work, and it is the most common answer given. The other two include or exclude the wrong end, usually by assuming both endpoints behave alike. They almost never do: one gives \\(\\sum\\frac1n\\) and the other \\(\\sum\\frac{(-1)^n}{n}\\), and those disagree.<br><br><b>The principle:</b> the ratio test is inconclusive exactly at the endpoints, so each must be substituted back and tested separately by name.`},
+
+{topic:"taylor", calc:false,
+ prompt:"Given \\(\\sin u=u-\\dfrac{u^{3}}{3!}+\\dfrac{u^{5}}{5!}-\\cdots\\), what is the coefficient of \\(x^{6}\\) in the Maclaurin series for \\(\\sin\\!\\left(x^{2}\\right)\\)?",
+ opts:[{t:"\\(-\\dfrac{1}{6}\\)",correct:true},{t:"\\(\\dfrac{1}{6}\\)"},{t:"\\(-\\dfrac{1}{120}\\)"},{t:"\\(-\\dfrac{1}{720}\\)"}],
+ explain:`<b>Substitute, do not re-derive.</b> Putting \\(u=x^{2}\\) into the known series gives \\(\\sin(x^2)=x^{2}-\\dfrac{x^{6}}{3!}+\\dfrac{x^{10}}{5!}-\\cdots\\).<br><br>The \\(x^{6}\\) term is \\(-\\dfrac{x^6}{3!}=-\\dfrac{x^6}{6}\\), so the coefficient is \\(-\\tfrac16\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>\\(+\\tfrac16\\)</b> loses the alternating sign — the \\(u^3\\) term is subtracted. <b>\\(-\\tfrac1{120}\\)</b> is \\(-\\frac1{5!}\\), taking the third term of the series instead of the second; that term carries \\(x^{10}\\), not \\(x^6\\). <b>\\(-\\tfrac1{720}\\)</b> is \\(-\\frac1{6!}\\), reading the exponent \\(6\\) as the factorial to use — but the factorial comes from the position in the sine series, not from the power of \\(x\\).<br><br><b>The principle:</b> composing a known series is substitution, not new work. Track which term of the <i>original</i> produces the power you were asked about.`},
+
+{topic:"error", calc:false,
+ prompt:"The alternating series \\(\\displaystyle\\sum_{n=1}^{\\infty}\\frac{(-1)^{n+1}}{n^{3}}\\) is approximated by its first three terms. What does the alternating series error bound guarantee about the error?",
+ opts:[{t:"it is at most \\(\\dfrac{1}{64}\\)",correct:true},
+       {t:"it is at most \\(\\dfrac{1}{27}\\)"},
+       {t:"it is exactly \\(\\dfrac{1}{64}\\)"},
+       {t:"it is at most \\(\\dfrac{1}{8}\\)"}],
+ explain:`<b>For a convergent alternating series, the error after \\(n\\) terms is no bigger than the FIRST OMITTED term</b> — that is the entire theorem, and it is unusually easy to use.<br><br>Three terms used means \\(n=1,2,3\\); the first omitted term is \\(n=4\\), of size \\(\\frac{1}{4^{3}}=\\frac1{64}\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>\\(\\tfrac1{27}\\)</b> is the third term, \\(n=3\\) — the last one you <i>used</i>, not the first one you dropped, an off-by-one that is very easy to make under time pressure. <b>exactly \\(\\tfrac1{64}\\)</b> overstates the theorem: it gives a bound, not the error. <b>\\(\\tfrac18\\)</b> is the \\(n=2\\) term.<br><br><b>The principle:</b> count which term comes <i>next</i>. The bound is about what you threw away, not what you kept.`},
+
+{topic:"error", calc:false,
+ prompt:"\\(P_3\\) is the third-degree Maclaurin polynomial for \\(e^{x}\\), used to approximate \\(e^{0.5}\\). Which expression is the Lagrange error bound?",
+ opts:[{t:"\\(\\dfrac{e^{0.5}(0.5)^{4}}{4!}\\)",correct:true},
+       {t:"\\(\\dfrac{(0.5)^{4}}{4!}\\)"},
+       {t:"\\(\\dfrac{e^{0.5}(0.5)^{3}}{3!}\\)"},
+       {t:"\\(\\dfrac{(0.5)^{5}}{5!}\\)"}],
+ explain:`<b>The Lagrange bound after degree \\(n\\) is \\(\\dfrac{\\max|f^{(n+1)}(z)|}{(n+1)!}\\,|x-a|^{\\,n+1}\\)</b>, with the maximum taken over the interval between \\(a\\) and \\(x\\).<br><br>Here \\(n=3\\), so the power and factorial are both \\(4\\). Every derivative of \\(e^x\\) is \\(e^x\\), which is increasing, so on \\([0,0.5]\\) its largest value is \\(e^{0.5}\\). That gives \\(\\dfrac{e^{0.5}(0.5)^4}{4!}\\).<br><br><b>Why each distractor is a specific mistake:</b> the second drops the \\(e^{0.5}\\), i.e. bounds the derivative by \\(1\\) — true for sine and cosine, false for a growing exponential. The third uses \\(n\\) instead of \\(n+1\\) in both places. The fourth uses degree \\(4\\)'s bound and again omits the derivative factor.<br><br><b>The principle:</b> the exponent and the factorial are always \\(n+1\\), and the numerator is a <i>bound on the next derivative</i>, which you must actually maximise rather than assume is 1.`},
+
+{topic:"found", calc:false,
+ prompt:"What is the sum \\(\\displaystyle\\sum_{n=1}^{\\infty}3\\left(\\frac14\\right)^{n}\\)?",
+ opts:[{t:"\\(1\\)",correct:true},{t:"\\(4\\)"},{t:"\\(3\\)"},{t:"\\(\\dfrac{3}{5}\\)"}],
+ explain:`<b>A geometric series sums to \\(\\dfrac{\\text{first term}}{1-r}\\)</b> — and "first term" means the first one actually in the sum, which is where this question does its damage.<br><br>The index starts at \\(n=1\\), so the first term is \\(3\\left(\\tfrac14\\right)^{1}=\\tfrac34\\), and the sum is \\(\\dfrac{3/4}{1-1/4}=\\dfrac{3/4}{3/4}=1\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>4</b> is \\(\\dfrac{3}{1-1/4}\\), using \\(3\\) as the first term — that is the answer if the sum had started at \\(n=0\\). This single off-by-one is the most common geometric-series error on the exam. <b>3</b> reports the coefficient. <b>\\(\\tfrac35\\)</b> comes from \\(\\frac{3}{1+\\frac14\\cdot4}\\)-style sign confusion in the denominator.<br><br><b>The principle:</b> read the lower index before anything else. \\(\\frac{a}{1-r}\\) needs \\(a\\) to be the term the series actually opens with.`},
+
+{topic:"tests", calc:false,
+ prompt:"To determine whether \\(\\displaystyle\\sum_{n=1}^{\\infty}\\frac{n+2}{n^{3}+5}\\) converges, which comparison is most useful?",
+ opts:[{t:"limit comparison with \\(\\displaystyle\\sum\\frac{1}{n^{2}}\\) — converges",correct:true},
+       {t:"limit comparison with \\(\\displaystyle\\sum\\frac{1}{n}\\) — diverges"},
+       {t:"limit comparison with \\(\\displaystyle\\sum\\frac{1}{n^{3}}\\) — converges"},
+       {t:"the ratio test — inconclusive, so it diverges"}],
+ explain:`<b>For a rational expression, keep only the dominant power on top and bottom.</b> For large \\(n\\), \\(\\dfrac{n+2}{n^{3}+5}\\) behaves like \\(\\dfrac{n}{n^{3}}=\\dfrac{1}{n^{2}}\\).<br><br>Limit comparison confirms it: \\(\\displaystyle\\lim_{n\\to\\infty}\\dfrac{(n+2)/(n^{3}+5)}{1/n^{2}}=1\\), a finite nonzero number, so both series do the same thing. \\(\\sum\\frac1{n^2}\\) is a \\(p\\)-series with \\(p=2>1\\), so both converge.<br><br><b>Why each distractor is a specific mistake:</b> comparing with <b>\\(\\frac1n\\)</b> gets the degree difference wrong (it is \\(3-1=2\\), not 1). Comparing with <b>\\(\\frac1{n^3}\\)</b> ignores the \\(n\\) in the numerator; the limit comes out \\(\\infty\\), which proves nothing when the smaller series converges. The <b>ratio test</b> gives \\(1\\) for every rational expression, so it is always inconclusive here — and "inconclusive" never means "diverges".<br><br><b>The principle:</b> subtract the degrees. \\(\\frac{n+2}{n^3+5}\\) is a \\(p=2\\) series in disguise, and \\(p>1\\) decides it.`},
+
+{topic:"taylor", calc:false,
+ prompt:"If \\(f(x)=\\displaystyle\\sum_{n=0}^{\\infty}\\frac{x^{n}}{n+1}\\) for \\(|x|<1\\), what is \\(f''(0)\\)?",
+ opts:[{t:"\\(\\dfrac{2}{3}\\)",correct:true},{t:"\\(\\dfrac{1}{3}\\)"},{t:"\\(2\\)"},{t:"\\(\\dfrac{1}{2}\\)"}],
+ explain:`<b>The link between a Taylor series and derivatives at the centre is \\(c_n=\\dfrac{f^{(n)}(0)}{n!}\\)</b>, so \\(f^{(n)}(0)=c_n\\cdot n!\\).<br><br>Here \\(c_2=\\dfrac{1}{2+1}=\\dfrac13\\), so \\(f''(0)=\\dfrac13\\cdot 2!=\\dfrac23\\).<br><br><b>Why each distractor is a specific mistake:</b> <b>\\(\\tfrac13\\)</b> reports the coefficient itself and forgets the \\(n!\\) — reading the series as if its coefficients <i>were</i> the derivatives. <b>2</b> uses \\(2!\\) alone. <b>\\(\\tfrac12\\)</b> takes \\(c_n=\\frac1{n+1}\\) at \\(n=1\\), differentiating once instead of twice.<br><br><b>The principle:</b> coefficients and derivatives differ by a factorial. Going from series to derivative you multiply by \\(n!\\); going the other way you divide.`},
+
+{topic:"ioc", calc:false,
+ prompt:"A power series \\(\\displaystyle\\sum c_n(x-4)^{n}\\) converges at \\(x=9\\) and diverges at \\(x=-2\\). Which must be true?",
+ opts:[{t:"it converges at \\(x=1\\)",correct:true},
+       {t:"it diverges at \\(x=10\\)"},
+       {t:"it converges at \\(x=-3\\)"},
+       {t:"its radius of convergence is exactly \\(5\\)"}],
+ explain:`<b>A power series converges on an interval centred at \\(a\\)</b> — here \\(a=4\\) — so the only thing that matters is distance from the centre.<br><br>Convergence at \\(x=9\\) is distance \\(5\\), so it converges everywhere strictly within \\(5\\) of \\(4\\). Divergence at \\(x=-2\\) is distance \\(6\\), so it diverges beyond \\(6\\). The radius \\(R\\) therefore satisfies \\(5\\le R\\le 6\\).<br><br>\\(x=1\\) is distance \\(3\\), comfortably inside \\(5\\) — so it must converge.<br><br><b>Why each distractor is a specific mistake:</b> <b>\\(x=10\\)</b> is distance \\(6\\), which sits in the unknown band between \\(5\\) and \\(6\\) — it could go either way. <b>\\(x=-3\\)</b> is distance \\(7\\), beyond a known divergence point, so it diverges. <b>radius exactly 5</b> over-claims: convergence at distance \\(5\\) means \\(R\\ge5\\), and the radius could be anything up to \\(6\\).<br><br><b>The principle:</b> convert every \\(x\\) to its distance from the centre and compare. One convergence point gives a lower bound on \\(R\\), one divergence point gives an upper bound, and anything strictly between them is undecided.`}
+);
+
+
 const DRAW_N=12; // questions drawn per run from the larger pool
 let mcOrder=[], mcIdx=0, mcScore=0;
 const topicStats={}; // topic -> {right, total}
