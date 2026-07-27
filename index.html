@@ -238,6 +238,31 @@
     font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--cardc,var(--gold))}
   .go .arr{transition:transform .4s cubic-bezier(.16,.8,.3,1)}
   .card:hover .go .arr{transform:translateX(6px)}
+  /* ---- the exam card ----
+     Spans the whole row and runs sideways instead of stacking, so it reads as a
+     different KIND of thing rather than an eleventh unit — same materials, new
+     shape. Gold is used here and nowhere else in the grid: the ten units each own
+     a colour, and the exam owns the site's own. */
+  .card.exam{grid-column:1/-1;flex-direction:row;align-items:stretch;min-height:0;
+    --cardc:var(--gold);--cardglow:rgba(240,180,41,.16)}
+  .card.exam .card-art{height:auto;width:228px;flex:0 0 228px;border-bottom:0;
+    border-right:1px solid var(--line);padding:26px 0}
+  .card.exam .card-art svg{width:188px;height:auto}
+  .card.exam .card-body{padding:26px 28px 26px 30px;justify-content:center}
+  .card.exam .uname{font-size:25px}
+  .card.exam .udesc{max-width:64ch}
+  .card.exam:hover .card-art{border-color:rgba(240,180,41,.25)}
+  .card.exam:hover .card-art svg{filter:drop-shadow(0 0 14px rgba(240,180,41,.4))}
+  .card.exam:hover .uname{text-shadow:0 0 22px rgba(240,180,41,.45)}
+  .card.exam:hover .chip{border-color:rgba(240,180,41,.34);color:#f3d597}
+  /* below the grid's breakpoint it stacks like every other card */
+  @media(max-width:860px){
+    .card.exam{flex-direction:column}
+    .card.exam .card-art{width:auto;flex:1 1 auto;height:118px;padding:0;
+      border-right:0;border-bottom:1px solid var(--line)}
+    .card.exam .card-body{padding:18px 20px 20px}
+    .card.exam .uname{font-size:22px}
+  }
   /* per-card color binding */
   .u1{--cardc:var(--u1);--cardglow:rgba(232,106,180,.20)}
   .u2{--cardc:var(--u2);--cardglow:rgba(141,204,78,.20)}
@@ -486,6 +511,7 @@
     <nav class="topnav" aria-label="Main">
       <a href="#readyGroup">Units</a>
       <a href="visualizer.html" class="hi">Visualizer</a>
+      <a href="mock-exam.html">Practice exam</a>
     </nav>
     <span class="top-tag">AP&nbsp;·&nbsp;BC</span>
   </div>
@@ -789,6 +815,46 @@
           <span class="go">Open unit <span class="arr">&#8594;</span></span>
         </div>
       </a>
+
+      <!-- The exam. Deliberately NOT an eleventh unit card: it spans the full row
+           and lays out sideways, so it reads as a different kind of thing while
+           keeping the same materials. The art is the exam's own answer sheet. -->
+      <a class="card exam" href="mock-exam.html">
+        <div class="card-art" aria-hidden="true">
+          <svg viewBox="0 0 190 128" width="190" height="128" fill="none">
+            <!-- answer sheet: filled cells are questions already answered -->
+            <g>
+              <rect class="cfill" x="14" y="34" width="15" height="15" rx="2" fill="currentColor" opacity=".85"/>
+              <rect class="cfill" style="animation-delay:.04s" x="33" y="34" width="15" height="15" rx="2" fill="currentColor" opacity=".85"/>
+              <rect x="52" y="34" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.4" opacity=".28"/>
+              <rect class="cfill" style="animation-delay:.08s" x="71" y="34" width="15" height="15" rx="2" fill="currentColor" opacity=".85"/>
+              <rect x="90" y="34" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.4" opacity=".28"/>
+              <rect class="cfill" style="animation-delay:.12s" x="109" y="34" width="15" height="15" rx="2" fill="currentColor" opacity=".85"/>
+              <rect x="128" y="34" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.4" opacity=".28"/>
+              <rect x="147" y="34" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.4" opacity=".28"/>
+              <rect class="cfill" style="animation-delay:.16s" x="14" y="53" width="15" height="15" rx="2" fill="currentColor" opacity=".85"/>
+              <rect x="33" y="53" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.4" opacity=".28"/>
+              <rect x="52" y="53" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.4" opacity=".28"/>
+              <rect x="71" y="53" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.4" opacity=".28"/>
+              <rect x="90" y="53" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.4" opacity=".28"/>
+              <rect x="109" y="53" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.4" opacity=".28"/>
+              <rect x="128" y="53" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.4" opacity=".28"/>
+              <rect x="147" y="53" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.4" opacity=".28"/>
+            </g>
+            <!-- the clock: a rule that empties as the section runs down -->
+            <path d="M14 82 H162" stroke="currentColor" stroke-width="2" opacity=".16" stroke-linecap="round"/>
+            <path class="cdraw" pathLength="1" d="M14 82 H104" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M104 76 V88" stroke="currentColor" stroke-width="1.4" opacity=".5"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="unum">The exam</div>
+          <h3 class="uname">Sit the whole thing, timed</h3>
+          <p class="udesc">The real 2027 structure &mdash; 42 multiple choice and 6 free response across four timed sections, with no feedback until you submit. Your written answers are read against the rubric for a composite out of 108 and a predicted 1&ndash;5. Built to a fresh blueprint inside College&nbsp;Board&rsquo;s published unit ranges, so no two are the same shape.</p>
+          <div class="chips"><span class="chip">3 h 10 m</span><span class="chip">Half length too</span><span class="chip">FRQs graded</span><span class="chip">Predicted score</span><span class="chip">Pacing report</span></div>
+          <span class="go">Start the exam <span class="arr">&#8594;</span></span>
+        </div>
+      </a>
     </div>
   </div>
 
@@ -887,6 +953,7 @@
       <div class="fmore">
         <div class="fh">Tools</div>
         <a href="visualizer.html">The Visualizer</a>
+        <a href="mock-exam.html">Practice exam</a>
         <a href="embed.html">Embed a graph</a>
       </div>
     </div>

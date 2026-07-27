@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Full AP Calculus BC Practice Exam — Timed, Scored, FRQs Graded</title>
+<meta name="description" content="Sit a full timed AP Calculus BC practice exam in the 2027 format. 42 multiple-choice plus 6 free-response, real exam timing, your written FRQ answers graded against the rubric, and a predicted 1-5 score." />
+<link rel="canonical" href="https://visualcalculus.org/mock-exam.html" />
+<meta property="og:title" content="Full AP Calculus BC Practice Exam — Timed and Scored" />
+<meta property="og:description" content="Real format, real timing, free-response graded against the rubric, and a predicted 1-5 score at the end." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://visualcalculus.org/mock-exam.html" />
+<meta property="og:image" content="https://visualcalculus.org/og-image.png" />
+<meta property="og:site_name" content="Visual AP Calculus BC" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://visualcalculus.org/og-image.png" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%231a1305%27%2F%3E%3Cpath%20d%3D%27M6%2024%20C%2014%2010%2C%2020%2010%2C%2026%2020%27%20fill%3D%27none%27%20stroke%3D%27%23f0b429%27%20stroke-width%3D%272.4%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="styles.css">
+<script src="helpers.js"></script>
+<script data-goatcounter="https://visualcalculus.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<style>
+  :root{ --approx:#f0b429; --gold:#f0b429; --true:#ffd66b; --teal:#3fd0b0; --wrap-max:900px; }
+  .lede{color:var(--muted);font-size:16px;line-height:1.65;margin-top:10px;max-width:640px}
+  /* setup */
+  .picks{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:28px}
+  @media(max-width:700px){ .picks{grid-template-columns:1fr} }
+  .pick{text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;cursor:pointer;
+    color:inherit;font:inherit;transition:border-color .15s,transform .15s}
+  .pick:hover{border-color:var(--approx);transform:translateY(-2px)}
+  .pick h3{font-family:var(--display);font-size:20px;margin-bottom:6px}
+  .pick .t{font-family:var(--mono);font-size:12px;color:var(--approx);letter-spacing:.1em;text-transform:uppercase}
+  .pick p{color:var(--muted);font-size:13.5px;line-height:1.6;margin-top:8px}
+  .rules{margin-top:26px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+  .rules li{color:var(--muted);font-size:13.5px;line-height:1.85;margin-left:18px}
+  /* exam chrome */
+  .bar{position:sticky;top:0;z-index:40;background:rgba(12,14,16,.95);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);padding:12px 0;margin-bottom:22px}
+  .barin{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .sec{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--approx)}
+  .clock{font-family:var(--mono);font-size:20px;font-weight:700;margin-left:auto;letter-spacing:.04em}
+  .clock.warn{color:#e0644f}
+  .calcflag{font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-radius:20px;padding:4px 11px;color:var(--muted)}
+  .prog{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:10px}
+  .prog i{display:block;height:100%;background:var(--approx);width:0}
+  /* questions */
+  .qcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:16px}
+  .qnum{font-family:var(--mono);font-size:11.5px;color:var(--approx);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px}
+  .qtext{font-size:16px;line-height:1.7}
+  /* Unit 3 (and one FRQ) embed a data table in the stem. Without these rules the
+     cells collapse into a run of loose digits and the question becomes genuinely
+     unanswerable — you cannot tell f(x) from f'(x). Kept in step with the same
+     class on the unit pages. */
+  .qtable{margin:14px 0 2px;overflow-x:auto;font-weight:400}   /* unscoped: stems, FRQ intros and review cards all use it */
+  .qtable table{border-collapse:collapse;font-size:13.5px;margin:0}
+  .qtable th,.qtable td{border:1px solid var(--line);padding:6px 14px;text-align:center;white-space:nowrap}
+  .qtable th{background:rgba(240,180,41,.07);color:var(--muted);font-weight:600}
+  .opts{margin-top:18px;display:grid;gap:9px}
+  .opt{display:flex;gap:12px;align-items:flex-start;background:#0e0b04;border:1px solid var(--line);border-radius:11px;
+    padding:13px 15px;cursor:pointer;transition:border-color .12s,background .12s;text-align:left;color:inherit;font:inherit}
+  .opt:hover{border-color:rgba(240,180,41,.5)}
+  .opt.sel{border-color:var(--approx);background:rgba(240,180,41,.08)}
+  .opt .let{font-family:var(--mono);font-size:12.5px;color:var(--approx);min-width:16px;font-weight:700}
+  .frqbox{margin-top:14px}
+  .frqbox textarea{width:100%;min-height:120px;background:#0e0b04;border:1px solid var(--line);border-radius:11px;
+    color:var(--ink);font-family:var(--mono);font-size:14px;line-height:1.6;padding:13px;resize:vertical;outline:none}
+  .frqbox textarea:focus{border-color:rgba(240,180,41,.5)}
+  .ptag{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:6px}
+  .nav{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:22px 0 40px}
+  .btn{background:var(--approx);color:#241a02;border:none;border-radius:10px;font-family:var(--mono);font-weight:700;
+    font-size:13.5px;padding:13px 24px;cursor:pointer}
+  .btn.ghost{background:none;border:1px solid var(--line);color:var(--muted);font-weight:400}
+  .btn.ghost:hover{border-color:var(--approx);color:var(--ink)}
+  .grid{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+  .gd{width:28px;height:28px;border-radius:7px;border:1px solid var(--line);background:#0e0b04;color:var(--muted);
+    font-family:var(--mono);font-size:11px;cursor:pointer}
+  .gd.done{border-color:var(--approx);color:var(--approx)}
+  .gd.here{background:var(--approx);color:#241a02;border-color:var(--approx);font-weight:700}
+  /* results */
+  .score{text-align:center;background:var(--panel);border:1px solid rgba(240,180,41,.4);border-radius:20px;padding:38px 24px;margin-bottom:22px}
+  .score .big{font-family:var(--display);font-size:82px;line-height:1;color:var(--approx)}
+  .score .lab{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:10px}
+  .score .comp{margin-top:14px;font-size:15px;color:var(--muted)}
+  .bd{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:22px}
+  .bdc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .bdc .n{font-family:var(--display);font-size:30px}
+  .bdc .l{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:5px}
+  .unitrow{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .unitrow .nm{font-size:14px;min-width:190px}
+  .unitrow .track{flex:1;height:7px;background:#0e0b04;border-radius:4px;overflow:hidden}
+  .unitrow .track i{display:block;height:100%;background:var(--teal)}
+  .unitrow .pc{font-family:var(--mono);font-size:12.5px;color:var(--muted);min-width:56px;text-align:right}
+  .unitrow .wt{font-family:var(--mono);font-size:11px;color:var(--faint,#6b6047);min-width:74px;text-align:right}
+  /* pacing chart: one bar per question, height = seconds spent */
+  .pacesec{margin-top:16px}
+  .pacehd{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);
+    font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .pacehd .pacebudget{color:var(--faint,#6b6047);letter-spacing:.04em;text-transform:none}
+  .pacechart{position:relative;display:flex;align-items:flex-end;gap:2px;height:96px;
+    background:#0e0b04;border:1px solid var(--line);border-radius:9px;padding:8px}
+  .pacechart .pb{flex:1;min-width:3px;border-radius:2px 2px 0 0;background:var(--teal);transition:opacity .12s}
+  .pacechart .pb:hover{opacity:.65}
+  .pb.wrong{background:#e0644f}
+  .pb.skipped{background:#4a4232}
+  .pb.unseen{background:transparent;border:1px dashed rgba(224,100,79,.45);border-bottom:0;border-radius:3px 3px 0 0}
+  /* the budget line sits INSIDE the padded box, so its offset is measured from the
+     padding edge — same origin the bars grow from, or it would float off by 8px */
+  .paceline{position:absolute;left:8px;right:8px;height:0;border-top:1px dashed rgba(240,180,41,.55);pointer-events:none}
+  .pacekey{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+  .pacekey span{display:flex;align-items:center;gap:5px}
+  .pacekey .pb{display:inline-block;width:9px;height:9px;border-radius:2px}
+  .pacekey .paceline-key{display:inline-block;width:14px;height:0;border-top:1px dashed rgba(240,180,41,.7)}
+  .rev{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:12px}
+  .rev.ok{border-left:3px solid var(--teal)} .rev.no{border-left:3px solid #e0644f}
+  .rev .ex{color:var(--muted);font-size:13.5px;line-height:1.75;margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
+  .rbullet{font-size:13.5px;line-height:1.7;margin:4px 0 4px 4px}
+  .rbullet.got{color:var(--teal)} .rbullet.miss{color:#e0644f}
+  .qmath{margin:16px 0 4px;overflow-x:auto}
+  .qmath .katex-display{margin:0}
+  .qnote{margin:12px 0 2px;font-size:14px;line-height:1.7;color:var(--muted)}
+  .coverage{margin:18px 0 0;font-size:12.5px;line-height:1.6;color:var(--muted)}
+  .coverage .cv-dim{color:var(--muted)} .coverage b{color:var(--ink)}
+  .cv-reset{background:none;border:0;color:var(--approx);font:inherit;font-size:12.5px;
+    text-decoration:underline;cursor:pointer;padding:0}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap" style="max-width:var(--wrap-max)">
+  <a class="backlink" href="index.html">← Visual Calculus</a>
+
+  <!-- ============ SETUP ============ -->
+  <div id="setup">
+    <h1 style="font-family:var(--display);font-size:40px;margin:26px 0 0;letter-spacing:-0.02em">Practice exam<span style="color:var(--approx)">.</span></h1>
+    <p class="lede">The real format, the real timing, and no feedback until you're done — because that's the
+      part everyone skips. At the end your multiple choice is scored, <b style="color:var(--ink)">your written
+      free-response answers are graded against the rubric</b>, and you get a predicted 1–5.</p>
+    <div class="picks">
+      <button class="pick" data-mode="full">
+        <div class="t">Full exam · 3 h 10 m</div>
+        <h3>The real thing</h3>
+        <p>42 multiple choice and 6 free response, split into the four timed sections exactly as the College Board runs them from May 2027.</p>
+      </button>
+      <button class="pick" data-mode="half">
+        <div class="t">Half exam · 1 h 35 m</div>
+        <h3>Half length</h3>
+        <p>Same structure and the same scoring, at half the size. Scaled to the same 1–5 prediction so it still means something.</p>
+      </button>
+    </div>
+    <p class="coverage" id="coverage"></p>
+    <div class="rules">
+      <ul>
+        <li>College Board publishes each unit's share of the exam as a <b style="color:var(--ink)">range</b>, not a fixed number. Every exam here is built to a fresh blueprint sampled inside those ranges — so no two attempts are the same shape, and both are legal.</li>
+        <li>Questions you've already been given are <b style="color:var(--ink)">held back</b> from your next exam until the bank runs low, so sitting several in a row keeps giving you new material.</li>
+        <li>Calculator sections are marked. Trust the flag: use one only where it says you may.</li>
+        <li>You can move freely within a section, but once a section's time is up it closes.</li>
+        <li>Your progress is saved in this browser — a refresh won't lose your exam.</li>
+      </ul>
+    </div>
+    <p style="margin-top:26px;font-size:12.5px;color:var(--faint,#6b6047);font-family:var(--mono)">
+      Score bands follow the widely used composite scale. It's an estimate, not a promise.</p>
+  </div>
+
+  <!-- ============ EXAM ============ -->
+  <div id="exam" class="hidden">
+    <div class="bar"><div class="barin">
+      <span class="sec" id="secName">Section I · Part A</span>
+      <span class="calcflag" id="calcFlag">No calculator</span>
+      <span class="clock" id="clock">60:00</span>
+    </div><div class="prog"><i id="progBar"></i></div></div>
+    <div id="qhost"></div>
+    <div class="nav">
+      <button class="btn ghost" id="prevB">← Back</button>
+      <button class="btn" id="nextB">Next →</button>
+      <div class="grid" id="grid"></div>
+    </div>
+  </div>
+
+  <!-- ============ GRADING / RESULTS ============ -->
+  <div id="grading" class="hidden" style="text-align:center;padding:70px 0">
+    <div style="font-family:var(--mono);font-size:14px;color:var(--approx)" id="gradeMsg">Scoring your exam…</div>
+    <div class="prog" style="max-width:340px;margin:18px auto"><i id="gradeBar"></i></div>
+    <p style="color:var(--muted);font-size:13px;margin-top:14px">Reading your free-response answers against the rubric.</p>
+  </div>
+
+  <div id="results" class="hidden"></div>
+</div>
+
+<script src="exam-bank.js"></script>
+<script>
+/* ============================ CONFIG ============================ */
+/* Albert's composite bands, out of 108. Edit here if the numbers move. */
+const CUTS=[{min:65,score:5},{min:53,score:4},{min:43,score:3},{min:30,score:2},{min:0,score:1}];
+/* College Board publishes each unit's share of the exam as a RANGE, not a single
+   number — so no two real exams have the same blueprint. We sample inside these
+   ranges per exam, which is why two attempts here are shaped differently while both
+   stay legal. Source: AP Calculus AB/BC Course and Exam Description. */
+const RANGE={1:[4,7], 2:[4,7], 3:[4,7], 4:[6,9], 5:[8,11],
+             6:[17,20], 7:[6,9], 8:[6,9], 9:[11,12], 10:[17,18]};
+const UNAME={1:"Limits & Continuity",2:"Differentiation: Definition & Rules",3:"Composite, Implicit & Inverse",
+  4:"Contextual Applications",5:"Analytical Applications",6:"Integration & Accumulation",7:"Differential Equations",
+  8:"Applications of Integration",9:"Parametric, Polar & Vectors",10:"Sequences & Series"};
+/* The 2027 structure. College Board cut Section I from 45 questions to 42 and
+   re-timed both parts — "the updates will be effective starting with the May 2027
+   exams", which is the next administration anyone sits. Section II is unchanged. */
+const FORMAT={
+  full:{ mcA:29, mcB:13, frA:2, frB:4, tA:62, tB:38, tC:30, tD:60 },
+  half:{ mcA:15, mcB:7,  frA:1, frB:2, tA:31, tB:19, tC:15, tD:30 }
+};
+const SAVE='vc:mockexam:v1';
+const AI_ENDPOINT=(()=>{ try{ return localStorage.getItem('tutor:endpoint')||'https://calc-tutor.christiangrosso360.workers.dev'; }
+  catch(e){ return 'https://calc-tutor.christiangrosso360.workers.dev'; } })();
+
+/* ============================ HELPERS ============================ */
+const $=id=>document.getElementById(id);
+function mathify(h){ return (h||"").replace(/\\\((.+?)\\\)/g,(m,t)=>{
+  try{ return window.katex?katex.renderToString(t,{throwOnError:false}):'<span class="tex-fallback">'+t+'</span>'; }catch(e){ return m; } }); }
+function renderOpt(t){ if((t||'').indexOf("\\(")>=0) return mathify(t);
+  if(/[\\^_{}]/.test(t||'')){ try{ return window.katex?katex.renderToString(t,{throwOnError:false}):t; }catch(e){ return t; } }
+  return mathify(t); }
+/* `math` and `given` hold BARE LaTeX with no \( \) delimiters — the unit pages
+   feed them straight to KaTeX in display mode. mathify() would leave them as
+   literal source, which is how they end up looking like rubbish on screen. */
+function texBlock(src){
+  const s=String(src||''); if(!s.trim()) return '';
+  try{ return window.katex?katex.renderToString(s,{throwOnError:false,displayMode:true})
+                         :'<span class="tex-fallback">'+s+'</span>'; }
+  catch(e){ return '<span class="tex-fallback">'+s+'</span>'; }
+}
+/* The given data for a free-response question: display maths, a prose restatement
+   that often carries detail the maths omits ("in the first quadrant"), and any
+   data table. Without this the student sees only the topic summary and is asked to
+   find the area between two curves that were never named. */
+function frqGiven(f){
+  if(!f) return '';
+  let h='';
+  if(f.given)     h+='<div class="qmath">'+texBlock(f.given)+'</div>';
+  if(f.givenHTML) h+=f.givenHTML;
+  if(f.givenNote) h+='<div class="qnote">'+mathify(f.givenNote)+'</div>';
+  return h;
+}
+/* the same thing as plain text, for the grader's prompt */
+function frqGivenText(f){
+  if(!f) return '';
+  return [f.givenNote, f.given, f.givenFall].filter(Boolean).join('\n')
+    + (f.givenHTML? '\n'+String(f.givenHTML).replace(/<\/(td|th)>/g,' | ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ') : '');
+}
+const mmss=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+/* ======================== WHAT YOU HAVE ALREADY SEEN ========================
+   Each exam used to be drawn with no memory of the last one, so a student's
+   first repeated question showed up on their SECOND sitting and by the sixth a
+   third of the paper was familiar. A repeat is close to worthless as practice —
+   the options are in the same order too, so it is recognised rather than solved.
+   Remembering which ids have been served pushes the first repeat out to roughly
+   the bank's real capacity. Stored per browser; nothing leaves the machine. */
+const SEEN_KEY='vc:mockexam:seen:v1';
+function loadSeen(){
+  try{ const s=JSON.parse(localStorage.getItem(SEEN_KEY));
+       if(s&&s.mc&&s.frq) return s; }catch(e){}
+  return { n:0, mc:{}, frq:{} };
+}
+function saveSeen(s){ try{ localStorage.setItem(SEEN_KEY, JSON.stringify(s)); }catch(e){} }
+function resetSeen(){ try{ localStorage.removeItem(SEEN_KEY); }catch(e){} }
+
+/* Take k from `list`, preferring questions this browser has never been served.
+   When a unit runs dry we fall back to the LEAST recently seen rather than
+   refusing — an exam that is short of questions would be worse than a repeat. */
+function drawFresh(list, k, seenMap){
+  if(k<=0) return [];
+  const unseen=shuffle(list.filter(q=>!(q.id in seenMap)).slice());
+  if(unseen.length>=k) return unseen.slice(0,k);
+  const stale=list.filter(q=>q.id in seenMap)
+    // oldest sitting first; the random tiebreak stops the same "oldest" block
+    // coming back in the same order every time once the bank has been exhausted
+    .sort((a,b)=>(seenMap[a.id]-seenMap[b.id]) || (Math.random()-0.5));
+  return unseen.concat(stale.slice(0, k-unseen.length));
+}
+
+/* Mark everything this exam served. Done at BUILD time, not at submit: if a
+   student abandons an exam they have still read those questions, and handing
+   them straight back on the retry is exactly what this is meant to prevent. */
+function markSeen(exam){
+  const s=loadSeen(); s.n=(s.n||0)+1;
+  exam.sections.forEach(sec=>sec.items.forEach(it=>{
+    (sec.kind==='mc'?s.mc:s.frq)[it.id]=s.n;
+  }));
+  saveSeen(s); return s;
+}
+function seenCounts(){
+  const s=loadSeen();
+  return { sittings:s.n||0, mc:Object.keys(s.mc).length, frq:Object.keys(s.frq).length,
+           mcTotal:EXAM_BANK.MC.length, frqTotal:EXAM_BANK.FRQ.length };
+}
+
+/* ============================ EXAM ASSEMBLY ============================ */
+/* Build this exam's blueprint: how many of the n questions each unit gets.
+   Every unit starts at the bottom of its published range, then the leftover
+   questions are handed out at random among the units that still have headroom.
+   That is what makes two exams differ while both stay inside College Board's
+   ranges — a fixed midpoint per unit would produce the same shape every time. */
+function allocateUnits(n){
+  const units=Object.keys(RANGE).map(Number);
+  const have={}; EXAM_BANK.MC.forEach(q=>{ have[q.unit]=(have[q.unit]||0)+1; });
+  const lo={}, hi={}, alloc={};
+  units.forEach(u=>{
+    const stock=have[u]||0;
+    lo[u]=Math.min(Math.round(RANGE[u][0]/100*n), stock);
+    hi[u]=Math.min(Math.round(RANGE[u][1]/100*n), stock);
+    if(hi[u]<lo[u]) hi[u]=lo[u];
+    alloc[u]=lo[u];
+  });
+  let total=units.reduce((s,u)=>s+alloc[u],0);
+  // Hand out the remainder one question at a time, only to units below their
+  // ceiling, weighted by how much headroom each still has. Picking uniformly
+  // instead pins the narrow-range units (Unit 9 is 11-12%, one slot of room) to
+  // their ceiling immediately while the wide ones absorb the rest, which pushed
+  // most units to the top of their band.
+  while(total<n){
+    const room=units.filter(u=>alloc[u]<hi[u]);
+    if(!room.length) break;                      // ranges cannot reach n — accept and top up later
+    const w=room.map(u=>hi[u]-alloc[u]);
+    let r=Math.random()*w.reduce((s,x)=>s+x,0), pick=room[room.length-1];
+    for(let i=0;i<room.length;i++){ r-=w[i]; if(r<=0){ pick=room[i]; break; } }
+    alloc[pick]++; total++;
+  }
+  // the floors can overshoot n on a very short exam; trim units above their floor first
+  while(total>n){
+    const over=units.filter(u=>alloc[u]>lo[u]);
+    const pool=over.length?over:units.filter(u=>alloc[u]>0);
+    if(!pool.length) break;
+    alloc[pool[Math.floor(Math.random()*pool.length)]]--; total--;
+  }
+  return alloc;
+}
+
+/* Draw the whole of Section I in one go, then split it.
+   Doing Part A and Part B as two independent draws cannot honour a per-unit
+   blueprint, because neither draw knows what the other took. So we allocate
+   across all 42 first, then deal the questions into the two parts.
+
+   `calc:true` means the question CANNOT be done by hand — not "belongs in Part B".
+   Part A forbids a calculator so it must contain none of them; Part B merely
+   PERMITS one, so anything is legal there. */
+function pickSectionI(nA, nB){
+  const alloc=allocateUnits(nA+nB);
+  const byUnit={}; EXAM_BANK.MC.forEach(q=>{ (byUnit[q.unit]=byUnit[q.unit]||[]).push(q); });
+  const seen=loadSeen();
+  let picked=[];
+  Object.keys(alloc).forEach(u=>{ picked=picked.concat(drawFresh(byUnit[u]||[], alloc[u], seen.mc)); });
+
+  /* Hold the bare one-step drills down to about a tenth of the paper.
+     They are 15% of the bank but cluster badly — Unit 6 is 38% drills and also
+     takes the largest share of the exam, so an uncapped paper averaged ~7 of 42
+     and flattered the student against a real exam that rarely asks anything that
+     nakedly. Surplus drills are swapped for a fuller question FROM THE SAME UNIT,
+     matching the calculator flag, so neither the blueprint nor the section split
+     moves. Some drills stay: the real exam has easy questions too. */
+  const drillCap=Math.round((nA+nB)*0.10);
+  let drills=picked.filter(q=>q.drill);
+  if(drills.length>drillCap){
+    const inUse=new Set(picked.map(q=>q.id));
+    shuffle(drills.slice()).slice(drillCap).forEach(q=>{
+      const room=(byUnit[q.unit]||[]).filter(c=>!c.drill && !inUse.has(c.id));
+      const same=room.filter(c=>c.calc===q.calc);
+      const sub=drawFresh(same.length?same:room, 1, seen.mc)[0];
+      if(sub){ picked[picked.indexOf(q)]=sub; inUse.add(sub.id); }
+    });
+  }
+
+  let needs=picked.filter(q=>q.calc===true);
+  const rest=()=>picked.filter(q=>q.calc!==true);
+
+  // If more calculator-required questions came up than Part B can hold, swap the
+  // surplus for a hand-doable question FROM THE SAME UNIT so the blueprint is
+  // untouched. Without this the surplus would have to sit in Part A, unsolvable.
+  if(needs.length>nB){
+    const inUse=new Set(picked.map(q=>q.id));
+    shuffle(needs).slice(nB).forEach(q=>{
+      const sub=shuffle((byUnit[q.unit]||[]).slice()).find(c=>c.calc!==true && !inUse.has(c.id));
+      if(sub){ picked[picked.indexOf(q)]=sub; inUse.add(sub.id); }
+    });
+    needs=picked.filter(q=>q.calc===true);
+  }
+
+  const free=shuffle(rest());
+  const B=needs.slice(0,nB);                     // every calculator question goes to Part B
+  while(B.length<nB && free.length) B.push(free.pop());
+  const A=free.slice(0,nA);
+  return { A:shuffle(A), B:shuffle(B), alloc };
+}
+function pickFRQ(n, used, seenMap){
+  const pool=EXAM_BANK.FRQ.filter(f=>!used.has(f.id) && f.parts && f.parts.length);
+  // only 32 free-response questions exist, so freshness matters even more here
+  const out=drawFresh(pool, n, seenMap||{});
+  out.forEach(f=>used.add(f.id));
+  return out;
+}
+function buildExam(mode){
+  const F=FORMAT[mode], usedF=new Set();
+  const seen=loadSeen();
+  const S1=pickSectionI(F.mcA, F.mcB);
+  return { mode, built:Date.now(), blueprint:S1.alloc,
+    sections:[
+      {name:"Section I · Part A", calc:false, kind:'mc',  secs:F.tA*60, items:S1.A},
+      {name:"Section I · Part B", calc:true,  kind:'mc',  secs:F.tB*60, items:S1.B},
+      {name:"Section II · Part A",calc:true,  kind:'frq', secs:F.tC*60, items:pickFRQ(F.frA,usedF,seen.frq)},
+      {name:"Section II · Part B",calc:false, kind:'frq', secs:F.tD*60, items:pickFRQ(F.frB,usedF,seen.frq)}
+    ],
+    answers:{}, spent:{}, si:0, qi:0, left:F.tA*60 };
+}
+
+/* ============================ STATE ============================ */
+let E=null, timer=null;
+function save(){ try{ localStorage.setItem(SAVE, JSON.stringify(E)); }catch(e){} }
+function clearSave(){ try{ localStorage.removeItem(SAVE); }catch(e){} }
+
+document.querySelectorAll('.pick').forEach(b=>b.onclick=()=>{
+  E=buildExam(b.dataset.mode); markSeen(E); save(); startExam(); });
+
+/* how much of the bank this browser has worked through */
+function paintCoverage(){
+  const el=$('coverage'); if(!el) return;
+  const c=seenCounts();
+  if(!c.sittings){ el.innerHTML='<span class="cv-dim">'+c.mcTotal+' multiple choice and '+c.frqTotal
+    +' free response in the bank. Questions you have already seen are held back from your next exam.</span>'; return; }
+  el.innerHTML='<span class="cv-dim">You have sat <b>'+c.sittings+'</b> exam'+(c.sittings===1?'':'s')
+    +' and seen <b>'+c.mc+'</b> of '+c.mcTotal+' multiple choice ('+Math.round(100*c.mc/c.mcTotal)+'%) and <b>'
+    +c.frq+'</b> of '+c.frqTotal+' free response. Fresh questions come first.</span> '
+    +'<button class="cv-reset" id="cvReset">Start over</button>';
+  const r=$('cvReset');
+  if(r) r.onclick=()=>{ if(confirm('Forget which questions you have seen? Your next exam can then repeat anything.')){
+    resetSeen(); paintCoverage(); } };
+}
+
+paintCoverage();
+
+(function resume(){
+  try{ const s=localStorage.getItem(SAVE); if(!s) return;
+    const prev=JSON.parse(s); if(!prev||!prev.sections) return;
+    if(confirm('You have an exam in progress. Resume it?')){ E=prev; startExam(); }
+    else clearSave();
+  }catch(e){}
+})();
+
+function startExam(){
+  $('setup').classList.add('hidden'); $('exam').classList.remove('hidden');
+  renderQ(); tick();
+  clearInterval(timer); timer=setInterval(tick,1000);
+}
+function paintClock(){
+  $('clock').textContent=mmss(Math.max(0,E.left));
+  $('clock').classList.toggle('warn', E.left<=300);
+}
+function currentItemId(){
+  const s=E.sections[E.si]; if(!s) return null;
+  const it=s.items[E.qi]; return it?it.id:null;
+}
+function tick(){
+  paintClock();
+  // Charge this second to whatever question is on screen. Accumulating here rather
+  // than diffing timestamps on navigation means a refresh, a backgrounded tab or a
+  // shut laptop can never invent time the student did not actually spend — the
+  // counter only advances while the exam clock does. Rides save() for persistence.
+  const id=currentItemId();
+  if(id){ E.spent=E.spent||{}; E.spent[id]=(E.spent[id]||0)+1; }
+  if(E.left<=0){ nextSection(true); return; }
+  E.left--; if(E.left%10===0) save();
+}
+function nextSection(auto){
+  if(E.si>=E.sections.length-1){ finish(); return; }
+  if(!auto && !confirm("Move on to the next section? You can't come back to this one.")) return;
+  E.si++; E.qi=0; E.left=E.sections[E.si].secs; save(); renderQ();
+  paintClock();          // repaint at once, or the student sees the previous section's time for a second
+}
+
+/* ============================ PACING ============================ */
+/* Pacing is the thing a paper practice test physically cannot measure, and it is
+   what actually costs students marks in May: minutes sunk into a question they
+   were never going to get, paid for with questions at the end they never saw. */
+function paceRows(){
+  const rows=[];
+  (E.sections||[]).forEach((s,si)=>{
+    if(s.kind!=='mc') return;              // FRQ parts differ too much in size to compare fairly
+    const budget=s.secs/Math.max(1,s.items.length);
+    s.items.forEach((it,qi)=>{
+      const t=(E.spent||{})[it.id]||0;
+      const a=E.answers[it.id];
+      const answered=(a!=null && a!=='');
+      rows.push({ si, qi, n:qi+1, sec:s.name, t, budget, answered,
+                  right: answered && it.opts[a] && it.opts[a].correct===true,
+                  // "never reached" = no answer AND essentially no time on screen.
+                  // Skipping a question after reading it is a choice; running out
+                  // of clock before ever seeing it is a pacing failure. Different bugs.
+                  unseen: !answered && t<5 });
+    });
+  });
+  return rows;
+}
+function pacingReport(){
+  const rows=paceRows();
+  if(!rows.length || !rows.some(r=>r.t>0)) return '';   // nothing timed (e.g. a restored old exam)
+
+  const unseen=rows.filter(r=>r.unseen);
+  const over  =rows.filter(r=>r.t>r.budget*1.6);
+  const sunk  =over.filter(r=>!r.right);
+  // seconds that could have been returned by capping every overspent WRONG question
+  const recover=sunk.reduce((s,r)=>s+(r.t-r.budget),0);
+  const slowest=rows.slice().sort((a,b)=>b.t-a.t)[0];
+  const avgRight=(()=>{ const a=rows.filter(r=>r.right); return a.length?a.reduce((s,r)=>s+r.t,0)/a.length:0; })();
+  const avgWrong=(()=>{ const a=rows.filter(r=>r.answered&&!r.right); return a.length?a.reduce((s,r)=>s+r.t,0)/a.length:0; })();
+
+  let head;
+  if(unseen.length && recover>30){
+    head='You never reached <b>'+unseen.length+'</b> question'+(unseen.length===1?'':'s')+'. The '+sunk.length
+        +' you overspent on and still got wrong cost you <b>'+mmss(Math.round(recover))+'</b> — about <b>'
+        +Math.max(1,Math.round(recover/rows[0].budget))+'</b> questions\' worth of clock.';
+  } else if(unseen.length){
+    head='You never reached <b>'+unseen.length+'</b> question'+(unseen.length===1?'':'s')+'. Your time went fairly evenly, so this is about total speed rather than one question eating the clock.';
+  } else if(recover>60){
+    head='You reached everything, but sank <b>'+mmss(Math.round(recover))+'</b> into '+sunk.length
+        +' question'+(sunk.length===1?'':'s')+' you got wrong anyway. On a tighter day that is what runs the clock out.';
+  } else {
+    head='Your pacing held: you reached every question and nothing ran away with the clock.';
+  }
+
+  let h='<h2 style="font-family:var(--display);font-size:24px;margin:34px 0 6px">The clock</h2>'
+    +'<p style="color:var(--muted);font-size:13px;margin:0 0 16px">'+head+'</p>';
+
+  // stat strip
+  const card=(n,l)=>'<div class="bdc"><div class="n">'+n+'</div><div class="l">'+l+'</div></div>';
+  h+='<div class="bd">'
+    + card(mmss(Math.round(avgRight)), 'Average when right')
+    + card(avgWrong?mmss(Math.round(avgWrong)):'—', 'Average when wrong')
+    + card(slowest?mmss(slowest.t):'—', 'Slowest question')
+    + card(unseen.length, 'Never reached')
+    +'</div>';
+
+  // one bar per question, height = time, with the per-question budget drawn across
+  const secs=[...new Set(rows.map(r=>r.sec))];
+  secs.forEach(sec=>{
+    const rs=rows.filter(r=>r.sec===sec), budget=rs[0].budget;
+    // Scale each section to ITSELF. The two parts have different budgets (2:08 vs
+    // 2:55) so bar heights were never comparable across them anyway, and one slow
+    // question in Part B was squashing the whole of Part A into a flat strip.
+    const maxT=Math.max(rs.reduce((m,r)=>Math.max(m,r.t),0), budget*2, 1);
+    h+='<div class="pacesec"><div class="pacehd"><span>'+sec+'</span>'
+      +'<span class="pacebudget">'+mmss(Math.round(budget))+' per question</span></div>'
+      +'<div class="pacechart"><div class="paceline" style="bottom:'+(100*budget/maxT)+'%"></div>';
+    rs.forEach(r=>{
+      const cls=r.unseen?'unseen':(!r.answered?'skipped':(r.right?'right':'wrong'));
+      const lab='Q'+r.n+' · '+(r.t?mmss(r.t):'0:00')+' · '+
+        (r.unseen?'never reached':(!r.answered?'left blank':(r.right?'correct':'wrong')));
+      // A never-reached question drew no time, so by height it is an invisible
+      // sliver — yet it is the most important thing on the chart. Draw it as a
+      // full-height empty outline instead: a gap you can actually see.
+      const ht=r.unseen?100:Math.max(2,100*Math.min(r.t,maxT)/maxT);
+      h+='<i class="pb '+cls+'" style="height:'+ht+'%" title="'+lab+'"></i>';
+    });
+    h+='</div></div>';
+  });
+  h+='<div class="pacekey"><span><i class="pb right"></i>correct</span><span><i class="pb wrong"></i>wrong</span>'
+    +'<span><i class="pb skipped"></i>blank</span><span><i class="pb unseen"></i>never reached</span>'
+    +'<span><i class="paceline-key"></i>time budget</span></div>';
+
+  if(sunk.length){
+    h+='<div class="rules" style="margin-top:18px"><b style="color:var(--ink)">Where the clock went:</b><ul>';
+    sunk.slice().sort((a,b)=>b.t-a.t).slice(0,4).forEach(r=>{
+      h+='<li><b>'+r.sec.replace('Section I · ','')+', Q'+r.n+'</b> — '+mmss(r.t)+' spent, '
+        +(r.answered?'answered wrong':'left blank')+'. Budget was '+mmss(Math.round(r.budget))+'.</li>';
+    });
+    h+='<li style="color:var(--muted)">On the real exam the move is to mark these and come back. Two minutes past the budget with no route to the answer is two minutes borrowed from a question you could have had.</li>';
+    h+='</ul></div>';
+  }
+  return h;
+}
+
+/* ============================ RENDER ============================ */
+function renderQ(){
+  const s=E.sections[E.si], item=s.items[E.qi];
+  $('secName').textContent=s.name;
+  $('calcFlag').textContent=s.calc?'Calculator allowed':'No calculator';
+  const totalQ=s.items.length;
+  $('progBar').style.width=(100*(E.qi+1)/totalQ)+'%';
+  const host=$('qhost'); host.innerHTML='';
+
+  if(s.kind==='mc'){
+    const card=document.createElement('div'); card.className='qcard';
+    // 46 questions keep the function itself in a separate `math` block — "Find the
+    // average value of the function on the interval" is unanswerable without it.
+    card.innerHTML='<div class="qnum">Question '+(E.qi+1)+' of '+totalQ+'</div>'
+      +'<div class="qtext">'+mathify(item.prompt)+'</div>'
+      +(item.math?'<div class="qmath">'+texBlock(item.math)+'</div>':'')
+      +'<div class="opts"></div>';
+    const wrap=card.querySelector('.opts');
+    item.opts.forEach((o,i)=>{
+      const b=document.createElement('button'); b.className='opt';
+      if(E.answers[item.id]===i) b.classList.add('sel');
+      b.innerHTML='<span class="let">'+'ABCD'[i]+'</span><span>'+renderOpt(o.t)+'</span>';
+      b.onclick=()=>{ E.answers[item.id]=i; save(); renderQ(); };
+      wrap.appendChild(b);
+    });
+    host.appendChild(card);
+  } else {
+    const card=document.createElement('div'); card.className='qcard';
+    const totalPts=item.parts.reduce((t,p)=>t+(p.pts||0),0);
+    card.innerHTML='<div class="qnum">Free response '+(E.qi+1)+' of '+totalQ+' · '+totalPts+' points</div>'
+      +'<div class="qtext"><b>'+(item.title||'').replace(/&middot;/g,'·')+'</b><br><br>'
+      +mathify(item.intro||'')+frqGiven(item)+'</div>';
+    item.parts.forEach((p,pi)=>{
+      const key=item.id+'p'+pi;
+      const d=document.createElement('div'); d.className='frqbox';
+      d.innerHTML='<div class="ptag">'+(p.label||'')+' · '+(p.pts||0)+' point'+((p.pts||0)===1?'':'s')+'</div>'
+        +'<div class="qtext" style="font-size:15px">'+mathify(p.prompt||'')+'</div>';
+      const ta=document.createElement('textarea');
+      ta.placeholder='Show your work and justify your answer, as you would on the exam…';
+      ta.value=E.answers[key]||'';
+      ta.oninput=()=>{ E.answers[key]=ta.value; save(); };
+      d.appendChild(ta); card.appendChild(d);
+    });
+    host.appendChild(card);
+  }
+
+  // question grid
+  const g=$('grid'); g.innerHTML='';
+  s.items.forEach((it,i)=>{
+    const b=document.createElement('button'); b.className='gd'+(i===E.qi?' here':'');
+    const answered = s.kind==='mc' ? (E.answers[it.id]!=null)
+      : it.parts.some((p,pi)=>(E.answers[it.id+'p'+pi]||'').trim());
+    if(answered && i!==E.qi) b.classList.add('done');
+    b.textContent=i+1; b.onclick=()=>{ E.qi=i; renderQ(); };
+    g.appendChild(b);
+  });
+  $('prevB').disabled=E.qi===0;
+  $('nextB').textContent = (E.qi===totalQ-1)
+    ? (E.si===E.sections.length-1 ? 'Finish & score →' : 'End section →') : 'Next →';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+$('prevB').onclick=()=>{ if(E.qi>0){ E.qi--; renderQ(); } };
+$('nextB').onclick=()=>{
+  const s=E.sections[E.si];
+  if(E.qi<s.items.length-1){ E.qi++; renderQ(); }
+  else if(E.si===E.sections.length-1){ if(confirm('Submit your exam for scoring?')) finish(); }
+  else nextSection(false);
+};
+
+/* ============================ GRADING ============================ */
+async function gradePart(frq, part, answer){
+  const rubric=(part.rubric||[]).map(r=>'- '+String(r).replace(/<[^>]*>/g,'')).join('\n');
+  const sys='You are an experienced AP Calculus reader scoring one part of a free-response question. '
+    +'Score ONLY against the rubric supplied: each bullet is one point, and a bullet is earned ONLY if the '
+    +'student\'s own writing actually shows that specific step, value or justification. '
+    +'THE CRITICAL RULE: a correct final answer with no supporting work earns ONLY the bullet for the answer '
+    +'itself — never the bullets for method, setup or justification. AP readers do not award points for work '
+    +'the student did not write down, no matter how obviously they might have known it. If the student shows '
+    +'nothing, award 0. If a rubric bullet asks for a justification and the student only asserts a conclusion, '
+    +'that bullet is NOT earned. Do not be generous: award a bullet only when you can point to the words that earn it. '
+    +'Conversely, do not deduct for clumsy wording, poor notation or a different valid method, and never deduct twice '
+    +'for one mistake. You are given the OFFICIAL SOLUTION — treat it as ground truth and never contradict it. '
+    +'Reply with ONLY a compact JSON object, no prose, no markdown: '
+    +'{"earned":<integer 0..MAX>,"met":[<indices of rubric bullets the writing actually earns>],'
+    +'"work":<true only if the student wrote supporting steps, a computation or a reason; false if they merely asserted an answer>,'
+    +'"why":"<one short sentence to the student>"}. '
+    +'"earned" MUST equal the number of indices in "met" whenever a rubric was supplied. '
+    +'Judge "work" strictly and independently of whether the answer is right.';
+  // The grader was never shown the question's given data, so on 19 of 32 FRQs it
+  // was marking an answer to a problem it could not read — and still confidently
+  // awarding rubric points. The stem goes first now, exactly as the student saw it.
+  const stem=[String(frq&&frq.title||''), String(frq&&frq.intro||'').replace(/<[^>]*>/g,''),
+              frqGivenText(frq)].filter(s=>s&&s.trim()).join('\n');
+  const usr='THE QUESTION THE STUDENT WAS GIVEN:\n'+stem
+    +'\n\nQUESTION PART ('+(part.pts||0)+' points max):\n'+String(part.prompt||'').replace(/<[^>]*>/g,'')
+    +'\n\nRUBRIC (each bullet is one point, in order):\n'+(rubric||'- award full marks for a correct, justified answer')
+    +'\n\nOFFICIAL SOLUTION:\n'+String(part.sol||'').replace(/<[^>]*>/g,'')
+    +'\n\nTHE STUDENT WROTE:\n'+(answer&&answer.trim()?answer:'(left blank)');
+  try{
+    const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),24000);
+    const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},signal:ctrl.signal,
+      body:JSON.stringify({system:sys,messages:[{role:'user',text:usr}]})});
+    clearTimeout(to);
+    const d=await res.json();
+    const m=(d.text||'').match(/\{[\s\S]*\}/); if(!m) throw 0;
+    const o=JSON.parse(m[0]);
+    const max=part.pts||0;
+    const nR=(part.rubric||[]).length;
+    let met=Array.isArray(o.met)?o.met.filter(i=>Number.isInteger(i)&&i>=0&&i<nR):[];
+    met=[...new Set(met)];
+    // The bullets it can point to ARE the score. Don't let a stated "earned" drift from the evidence —
+    // that mismatch is exactly how an unjustified answer sneaks full marks.
+    let earned = nR ? met.length : Math.round(o.earned||0);
+    earned = Math.max(0, Math.min(max, earned));
+    if(!(answer&&answer.trim())) { earned=0; met=[]; }        // nothing written can never score
+
+    // When the PART ITSELF demands justification, a bare assertion earns nothing —
+    // that is how a real reader scores "justify your answer". Left to its own
+    // judgement the model handed such answers 1 of 3 in three runs out of four,
+    // because one rubric bullet names the value the student happened to state.
+    // The binary "did they show work" call is far steadier than rubric mapping,
+    // so we take that from the model and apply the consequence here.
+    const demands=/justif|show(?:ing)?\s+(?:your|all)?\s*work|explain|give a reason|support your/i
+                    .test(String(part.prompt||'')+' '+rubric);
+    // Zeroing someone is destructive, so it takes TWO independent signals agreeing.
+    // The model's `work` flag alone is too noisy — it conflates "did they finish"
+    // with "did they show anything", and on its own it wrongly zeroed a genuine
+    // partial answer (left limit found, right limit set up, ran out of time) in two
+    // runs out of three. So the text must ALSO look bare: fewer than two written
+    // relations and no reasoning language. A wrongly-zeroed student is a much worse
+    // failure than one unjustified answer slipping through with a point.
+    const a=String(answer||'');
+    const relations=(a.match(/=/g)||[]).length;
+    const reasons=/because|since|therefore|so that|thus|hence|which means|must (?:be|equal)|equate|agree|limit|derivative|continuous/i.test(a);
+    const looksBare = relations<2 && !(reasons && a.trim().length>60);
+    let zeroed=false;
+    if(demands && o.work===false && looksBare && earned>0){ earned=0; met=[]; zeroed=true; }
+    const why = zeroed
+      ? 'You stated an answer but wrote no supporting work, and this part asks you to justify it — a real AP reader awards 0 here.'
+      : String(o.why||'');
+    return { earned, met, why };
+  }catch(e){
+    return { earned:0, met:[], why:'Could not be graded automatically — compare your work with the solution below.', failed:true };
+  }
+}
+
+async function finish(){
+  clearInterval(timer);
+  $('exam').classList.add('hidden'); $('grading').classList.remove('hidden');
+
+  // --- multiple choice ---
+  const mcItems=E.sections.filter(s=>s.kind==='mc').flatMap(s=>s.items);
+  let mcRight=0; const perUnit={};
+  mcItems.forEach(q=>{
+    const pick=E.answers[q.id];
+    const right = pick!=null && q.opts[pick] && q.opts[pick].correct===true;
+    if(right) mcRight++;
+    const u=perUnit[q.unit]=perUnit[q.unit]||{right:0,total:0}; u.total++; if(right) u.right++;
+  });
+
+  // --- free response ---
+  const frqItems=E.sections.filter(s=>s.kind==='frq').flatMap(s=>s.items);
+  const jobs=[]; frqItems.forEach(f=>f.parts.forEach((p,pi)=>jobs.push({f,p,pi})));
+  const results={}; let done=0;
+  for(let i=0;i<jobs.length;i+=3){                       // small batches — free tier is rate-limited
+    const batch=jobs.slice(i,i+3);
+    await Promise.all(batch.map(async j=>{
+      const key=j.f.id+'p'+j.pi;
+      results[key]=await gradePart(j.f,j.p,E.answers[key]);
+      done++; $('gradeBar').style.width=(100*done/jobs.length)+'%';
+      $('gradeMsg').textContent='Reading your free response… '+done+' of '+jobs.length;
+    }));
+  }
+  // One retry pass, one at a time. Most failures here are a rate-limited or briefly
+  // unavailable free-tier endpoint, and they clear on a second ask — worth doing
+  // because an ungraded part is a real cost to the student (see below).
+  const retries=jobs.filter(j=>(results[j.f.id+'p'+j.pi]||{}).failed);
+  if(retries.length){
+    $('gradeMsg').textContent='Retrying '+retries.length+' part'+(retries.length===1?'':'s')+'…';
+    for(const j of retries){
+      const key=j.f.id+'p'+j.pi;
+      const again=await gradePart(j.f,j.p,E.answers[key]);
+      if(!again.failed) results[key]=again;
+    }
+  }
+
+  // --- composite, scaled to the real 108-point exam ---
+  const mcMax=mcItems.length;
+  let frEarned=0, frMax=0, ungraded=0, ungradedPts=0;
+  frqItems.forEach(f=>f.parts.forEach((p,pi)=>{
+    const r=results[f.id+'p'+pi]||{};
+    // A part we could not grade is OUR failure, not the student's. Scoring it 0
+    // while still counting its points in the denominator quietly lowers a real
+    // person's predicted score because of a network blip. Drop it from both sides
+    // and say so, so the percentage stays honest about what was actually read.
+    if(r.failed){ ungraded++; ungradedPts+=(p.pts||0); return; }
+    frEarned+=r.earned||0; frMax+=(p.pts||0);
+  }));
+  const mcWeighted = mcMax? (mcRight/mcMax)*54 : 0;
+  const frWeighted = frMax? (frEarned/frMax)*54 : 0;
+  const composite  = Math.round(mcWeighted+frWeighted);
+  const predicted  = (CUTS.find(c=>composite>=c.min)||{score:1}).score;
+
+  showResults({mcRight,mcMax,frEarned,frMax,composite,predicted,perUnit,results,mcItems,frqItems,ungraded,ungradedPts});
+  clearSave();
+}
+
+/* ============================ RESULTS ============================ */
+function showResults(R){
+  $('grading').classList.add('hidden');
+  const el=$('results'); el.classList.remove('hidden');
+  const pct=n=>Math.round(100*n);
+
+  let h='<div class="score"><div class="big">'+R.predicted+'</div>'
+    +'<div class="lab">Predicted AP score</div>'
+    +'<div class="comp">Composite <b style="color:var(--ink)">'+R.composite+'</b> out of 108'
+    +' &nbsp;·&nbsp; '+(E.mode==='half'?'half-length exam, scaled':'full-length exam')+'</div></div>';
+
+  h+='<div class="bd">'
+    +'<div class="bdc"><div class="n">'+R.mcRight+' / '+R.mcMax+'</div><div class="l">Multiple choice</div></div>'
+    +'<div class="bdc"><div class="n">'+R.frEarned+' / '+R.frMax+'</div><div class="l">Free response</div></div>'
+    +'<div class="bdc"><div class="n">'+pct(R.mcMax?R.mcRight/R.mcMax:0)+'%</div><div class="l">MCQ accuracy</div></div>'
+    +'<div class="bdc"><div class="n">'+pct(R.frMax?R.frEarned/R.frMax:0)+'%</div><div class="l">FRQ points earned</div></div>'
+    +'</div>';
+
+  // Be explicit when the grader could not read something. Silently dropping it
+  // would leave the student wondering why the free-response total looks short.
+  if(R.ungraded) h+='<p style="color:var(--muted);font-size:13px;margin:12px 0 0;border-left:2px solid rgba(240,180,41,.5);padding-left:11px">'
+    +'<b style="color:var(--ink)">'+R.ungraded+' part'+(R.ungraded===1?'':'s')+' couldn\'t be graded</b> — the grader was unreachable, '
+    +'not a problem with your answer. '+(R.ungradedPts?'Those '+R.ungradedPts+' point'+(R.ungradedPts===1?'':'s')+' were left out of '
+    +'the total entirely rather than marked wrong, so your score is not penalised for it. ':'')
+    +'The solution is still shown below so you can mark it yourself.</p>';
+
+  // where you actually lost it
+  const units=Object.keys(R.perUnit).map(Number).sort((a,b)=>
+    (R.perUnit[a].right/R.perUnit[a].total)-(R.perUnit[b].right/R.perUnit[b].total));
+  h+='<h2 style="font-family:var(--display);font-size:24px;margin:32px 0 6px">Where you lost points</h2>';
+  const mcTotal=Object.keys(R.perUnit).reduce((s,u)=>s+R.perUnit[u].total,0)||1;
+  h+='<p style="color:var(--muted);font-size:13px;margin:0 0 14px">College Board publishes each unit as a <i>range</i> of the exam '
+    +'(Series is 17&ndash;18%, Limits 4&ndash;7%). The last column is how many questions this exam gave each unit, and how many that '
+    +'blueprint allowed. Sit it again and the shape changes.</p>';
+  units.forEach(u=>{
+    const d=R.perUnit[u], p=Math.round(100*d.right/d.total);
+    // Show the COUNT the blueprint allowed, not a percentage. A whole number of
+    // questions can never sit inside a 1-point-wide band — 8 of 42 is 19.0% against
+    // Unit 10's published 17-18% — so a percentage here reads as a contradiction
+    // even when the exam is correct. These are the exact bounds allocateUnits used.
+    const lo=RANGE[u]?Math.round(RANGE[u][0]/100*mcTotal):0;
+    const hi=RANGE[u]?Math.round(RANGE[u][1]/100*mcTotal):0;
+    h+='<div class="unitrow"><span class="nm">Unit '+u+' · '+UNAME[u]+'</span>'
+      +'<span class="track"><i style="width:'+p+'%;background:'+(p<50?'#e0644f':p<75?'var(--approx)':'var(--teal)')+'"></i></span>'
+      +'<span class="pc">'+d.right+'/'+d.total+'</span>'
+      +'<span class="wt" title="College Board publishes Unit '+u+' as '+RANGE[u][0]+'-'+RANGE[u][1]+'% of the exam">'
+      +d.total+' q <span style="opacity:.6">of '+(lo===hi?lo:lo+'–'+hi)+'</span></span></div>';
+  });
+  // only name a weakest area if one actually dropped marks — otherwise this reads as a false criticism
+  const weakest=units.find(u=>R.perUnit[u].right<R.perUnit[u].total);
+  if(weakest!=null) h+='<p style="color:var(--muted);font-size:14px;margin-top:16px">Weakest area: <b style="color:var(--ink)">Unit '
+    +weakest+' — '+UNAME[weakest]+'</b>. <a href="unit'+weakest+'.html" style="color:var(--approx)">Go to that unit →</a></p>';
+  else h+='<p style="color:var(--muted);font-size:14px;margin-top:16px">Clean sweep on the multiple choice — every unit correct.</p>';
+
+  h+=pacingReport();
+
+  // the differentiator: computation vs justification
+  let blanks=0, partials=0;
+  R.frqItems.forEach(f=>f.parts.forEach((p,pi)=>{
+    const r=R.results[f.id+'p'+pi]||{}; const ans=(E.answers[f.id+'p'+pi]||'').trim();
+    if(!ans) blanks++; else if((r.earned||0)<(p.pts||0)) partials++;
+  }));
+  if(partials||blanks){
+    h+='<div class="rules" style="margin-top:22px"><b style="color:var(--ink)">On the free response:</b><ul>';
+    if(partials) h+='<li>'+partials+' part'+(partials===1?'':'s')+' you attempted did not earn full marks — usually a missing <i>justification</i>, not missing calculus. Read the rubric bullets below and notice which words earn the point.</li>';
+    if(blanks) h+='<li>'+blanks+' part'+(blanks===1?'':'s')+' left blank. On the real exam, writing the setup alone often earns a point.</li>';
+    h+='</ul></div>';
+  }
+
+  // review
+  h+='<h2 style="font-family:var(--display);font-size:24px;margin:34px 0 14px">Review — free response</h2>';
+  R.frqItems.forEach(f=>{
+    h+='<div class="rev"><b>'+(f.title||'').replace(/&middot;/g,'·')+'</b><div class="ex">'
+      +mathify(f.intro||'')+frqGiven(f)+'</div>';
+    f.parts.forEach((p,pi)=>{
+      const r=R.results[f.id+'p'+pi]||{earned:0,met:[]};
+      h+='<div style="margin-top:14px"><div class="ptag">'+(p.label||'')+' — earned <b style="color:'
+        +((r.earned>=(p.pts||0))?'var(--teal)':'#e0644f')+'">'+r.earned+'</b> of '+(p.pts||0)+'</div>';
+      if(r.why) h+='<div style="font-size:13.5px;color:var(--muted);margin:4px 0 8px">'+r.why+'</div>';
+      (p.rubric||[]).forEach((b,bi)=>{
+        const got=(r.met||[]).indexOf(bi)>=0;
+        h+='<div class="rbullet '+(got?'got':'miss')+'">'+(got?'✓':'✗')+' '+mathify(String(b))+'</div>';
+      });
+      h+='<div class="ex"><b>Solution.</b> '+mathify(p.sol||'')+'</div></div>';
+    });
+    h+='</div>';
+  });
+
+  h+='<h2 style="font-family:var(--display);font-size:24px;margin:34px 0 14px">Review — multiple choice</h2>';
+  R.mcItems.forEach((q,i)=>{
+    const pick=E.answers[q.id], right=pick!=null&&q.opts[pick]&&q.opts[pick].correct===true;
+    const ci=q.opts.findIndex(o=>o.correct);
+    h+='<div class="rev '+(right?'ok':'no')+'"><div class="ptag">Q'+(i+1)+' · Unit '+q.unit+' · '
+      +(right?'correct':(pick==null?'left blank':'incorrect'))+'</div>'
+      +'<div class="qtext" style="font-size:15px">'+mathify(q.prompt)+'</div>'
+      +'<div style="margin-top:10px;font-size:14px">Correct answer: <b>'+'ABCD'[ci]+'</b> '+renderOpt(q.opts[ci].t)
+      +(pick!=null&&!right?' &nbsp;·&nbsp; you chose <b>'+'ABCD'[pick]+'</b>':'')+'</div>'
+      +(right?'':'<div class="ex">'+mathify(q.explain||'')+'</div>')+'</div>';
+  });
+
+  h+='<div class="nav" style="margin-top:30px"><button class="btn" onclick="location.reload()">Take another exam</button>'
+    +'<a class="btn ghost" href="visualizer.html" style="text-decoration:none;display:inline-block">Visualize a problem you missed →</a></div>';
+
+  el.innerHTML=h;
+  window.scrollTo({top:0,behavior:'smooth'});
+  try{ if(window.goatcounter&&window.goatcounter.count)
+    window.goatcounter.count({path:'mock-exam-done/'+E.mode+'/score-'+R.predicted,title:'Mock exam completed',event:true}); }catch(e){}
+}
+</script>
+</body>
+</html>
