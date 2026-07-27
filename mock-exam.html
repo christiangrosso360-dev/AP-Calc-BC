@@ -123,6 +123,97 @@
   .coverage .cv-dim{color:var(--muted)} .coverage b{color:var(--ink)}
   .cv-reset{background:none;border:0;color:var(--approx);font:inherit;font-size:12.5px;
     text-decoration:underline;cursor:pointer;padding:0}
+
+/* ======================================================================
+   THE INSTRUMENT — the exam-runner skin.
+   From 2026 the exam is sat in an app, so for three hours this screen stops
+   being a study page and becomes testing equipment. Drafting language: hairlines
+   not cards, registration marks, nothing rounded, nothing decorative.
+
+   THE ONE RULE THAT MAKES IT WORK — amber is reserved. It marks the clock and
+   the student's own answer, and nothing else. Every other gold accent the site
+   normally uses (section label, question number, primary button, hover states)
+   is demoted to grey here. When the only warm thing on a cold screen is the time
+   and your own mark, both become impossible to ignore. Spending amber on a
+   "Next" button is what made the first pass read as decoration.
+
+   Scoped entirely to body.running, which is on only while a section is in
+   progress — the setup and results screens keep the site's normal voice.
+   ====================================================================== */
+  body.running{background:#08090b;overflow-x:hidden}
+  body.running::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+    background-size:32px 32px;
+    -webkit-mask-image:radial-gradient(ellipse 75% 55% at 50% 42%,#000 25%,transparent 100%);
+            mask-image:radial-gradient(ellipse 75% 55% at 50% 42%,#000 25%,transparent 100%)}
+  body.running .wrap{position:relative;z-index:1}
+  body.running .backlink{display:none}          /* a real exam app has no way out mid-section */
+
+  /* --- head-up bar: full-bleed, edge to edge, not a card in a column --- */
+  body.running .bar{background:#0b0c0e;border-bottom:1px solid rgba(255,255,255,.09);padding:16px 0 0;
+    margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);
+    padding-left:calc(50vw - 50%);padding-right:calc(50vw - 50%)}
+  body.running .barin{align-items:baseline;gap:14px}
+  body.running .sec{color:#6b6047;letter-spacing:.26em;font-size:10px}
+  body.running .calcflag{border-radius:0;border-color:rgba(255,255,255,.13);letter-spacing:.14em;
+    text-transform:uppercase;font-size:9px;padding:3px 8px;color:#6b6047}
+  /* the instrument. tabular figures so the digits never jitter as they count. */
+  body.running .clock{font-size:38px;font-weight:400;letter-spacing:0;color:var(--approx);
+    font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;line-height:1}
+  body.running .clock.warn{color:#e0644f}
+  body.running .ctot{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:#5a5344;
+    text-transform:uppercase;margin-left:-6px}
+  .tgauge{height:2px;background:rgba(255,255,255,.06);margin-top:14px;position:relative;display:none}
+  body.running .tgauge{display:block}
+  .tgauge i{display:block;height:100%;width:100%;background:var(--approx);transition:width 1s linear}
+  .tgauge.warn i{background:#e0644f}
+  /* quarter marks — the detail that reads as measurement rather than decoration */
+  .tgauge::after{content:'';position:absolute;inset:0;pointer-events:none;
+    background-image:repeating-linear-gradient(90deg,transparent,transparent calc(25% - 1px),
+      rgba(255,255,255,.22) calc(25% - 1px),rgba(255,255,255,.22) 25%)}
+
+  /* --- answer sheet --- */
+  body.running .prog{display:none}
+  body.running .sheet{display:flex;gap:2px;flex-wrap:wrap;padding:12px 0 13px;margin-left:0}
+  body.running .sheet .gd{width:19px;height:19px;border-radius:0;border:1px solid rgba(255,255,255,.10);
+    background:transparent;color:#5a5344;font-family:var(--mono);font-size:9.5px;padding:0;
+    display:grid;place-items:center;cursor:pointer;transition:border-color .12s,background .12s,color .12s}
+  body.running .sheet .gd:hover{border-color:rgba(255,255,255,.34);color:var(--ink)}
+  /* answered = the student's own mark, so it earns amber. unanswered stays cold. */
+  body.running .sheet .gd.done{background:rgba(240,180,41,.17);border-color:rgba(240,180,41,.38);color:var(--approx)}
+  body.running .sheet .gd.here{border-color:var(--approx);color:#08090b;background:var(--approx);font-weight:700}
+
+  /* --- the sheet --- */
+  body.running .qcard{background:transparent;border:0;border-top:1px solid rgba(255,255,255,.09);
+    border-bottom:1px solid rgba(255,255,255,.09);border-radius:0;padding:40px 0 34px;
+    position:relative;margin:8px 0 16px}
+  /* registration marks. Grey, not gold — they are furniture, not information. */
+  body.running .qcard::before,body.running .qcard::after{content:'';position:absolute;
+    width:11px;height:11px;border:1px solid rgba(255,255,255,.22)}
+  body.running .qcard::before{left:-1px;top:-1px;border-right:0;border-bottom:0}
+  body.running .qcard::after{right:-1px;bottom:-1px;border-left:0;border-top:0}
+  body.running .qnum{color:#5a5344;letter-spacing:.26em;font-size:9.5px;margin-bottom:20px}
+  body.running .qtext{font-size:17px;line-height:1.8}
+
+  /* --- options --- */
+  body.running .opts{margin-top:26px;gap:7px}
+  body.running .opt{border-radius:0;background:transparent;border:1px solid rgba(255,255,255,.10);
+    padding:14px 16px;align-items:center;gap:15px}
+  body.running .opt:hover{border-color:rgba(255,255,255,.32);background:rgba(255,255,255,.02)}
+  body.running .opt .let{width:22px;height:22px;min-width:22px;border:1px solid rgba(255,255,255,.14);
+    display:grid;place-items:center;font-size:10px;color:#5a5344;font-weight:400}
+  body.running .opt.sel{border-color:var(--approx);background:rgba(240,180,41,.055)}
+  body.running .opt.sel .let{background:var(--approx);color:#08090b;border-color:var(--approx);font-weight:700}
+
+  /* --- controls: deliberately quiet. The amber belongs to the clock. --- */
+  body.running .frqbox textarea{border-radius:0;border-color:rgba(255,255,255,.10)}
+  body.running .btn{border-radius:0;letter-spacing:.16em;text-transform:uppercase;font-size:10.5px;
+    background:transparent;border:1px solid rgba(255,255,255,.22);color:var(--ink);padding:12px 20px}
+  body.running .btn:hover{border-color:var(--ink);background:rgba(255,255,255,.04)}
+  body.running .btn.ghost{border-color:rgba(255,255,255,.12);color:#6b6047}
+  body.running .btn:disabled{opacity:.3}
+  body.running .nav{gap:8px}
   .hidden{display:none}
 </style>
 </head>
@@ -168,12 +259,17 @@
       <span class="sec" id="secName">Section I · Part A</span>
       <span class="calcflag" id="calcFlag">No calculator</span>
       <span class="clock" id="clock">60:00</span>
-    </div><div class="prog"><i id="progBar"></i></div></div>
+      <span class="ctot" id="clockTotal"></span>
+    </div>
+    <div class="tgauge" id="tgauge"><i id="timeBar"></i></div>
+    <div class="prog"><i id="progBar"></i></div>
+    <!-- the answer sheet: promoted out of the footer into the head-up bar, where
+         it doubles as the progress indicator and as jump-to-question -->
+    <div class="sheet grid" id="grid"></div></div>
     <div id="qhost"></div>
     <div class="nav">
       <button class="btn ghost" id="prevB">← Back</button>
       <button class="btn" id="nextB">Next →</button>
-      <div class="grid" id="grid"></div>
     </div>
   </div>
 
@@ -182,6 +278,7 @@
     <div style="font-family:var(--mono);font-size:14px;color:var(--approx)" id="gradeMsg">Scoring your exam…</div>
     <div class="prog" style="max-width:340px;margin:18px auto"><i id="gradeBar"></i></div>
     <p style="color:var(--muted);font-size:13px;margin-top:14px">Reading your free-response answers against the rubric.</p>
+    <p id="gradeNote" style="color:var(--faint,#6b6047);font-size:12px;margin-top:8px;font-family:var(--mono);min-height:16px"></p>
   </div>
 
   <div id="results" class="hidden"></div>
@@ -447,12 +544,19 @@ paintCoverage();
 
 function startExam(){
   $('setup').classList.add('hidden'); $('exam').classList.remove('hidden');
+  document.body.classList.add('running');    // the instrument skin is runner-only
   renderQ(); tick();
   clearInterval(timer); timer=setInterval(tick,1000);
 }
 function paintClock(){
+  const s=E.sections[E.si], total=(s&&s.secs)||1;
   $('clock').textContent=mmss(Math.max(0,E.left));
-  $('clock').classList.toggle('warn', E.left<=300);
+  const warn=E.left<=300;
+  $('clock').classList.toggle('warn', warn);
+  // the clock reads the number; the gauge reads the shape of what is left
+  const tb=$('timeBar'); if(tb) tb.style.width=(100*Math.max(0,E.left)/total)+'%';
+  const tg=$('tgauge');  if(tg) tg.classList.toggle('warn', warn);
+  const ct=$('clockTotal'); if(ct) ct.textContent='of '+mmss(total);
 }
 function currentItemId(){
   const s=E.sections[E.si]; if(!s) return null;
@@ -647,6 +751,70 @@ $('nextB').onclick=()=>{
 };
 
 /* ============================ GRADING ============================ */
+/* ==================== TALKING TO THE GRADER UNDER A RATE LIMIT ====================
+   The free tier caps requests per MINUTE, and one exam fires roughly 25 of them, so
+   two students finishing together can already exceed the cap. A rate-limit response
+   is therefore an EXPECTED condition here, not an error — the right move is to wait
+   and ask again, not to give up and tell the student their work couldn't be graded.
+
+   The cooldown is deliberately shared by every in-flight call: once one request has
+   been told to slow down, there is no sense in the rest of the batch hammering a
+   limit we already know about. */
+let GRADER_COOLDOWN = 0;                       // wall-clock ms; nothing calls out before this
+const sleep = ms => new Promise(r=>setTimeout(r, ms));
+
+/* A real rate limiter, not a guessed delay.
+   Spacing batches by a fixed pause only works if you know how long the model takes
+   — measured at a 0.7s response it still let one student fire 54 requests a minute,
+   comfortably over a 30/min cap. This tracks actual send times over a rolling
+   minute and simply refuses to exceed the budget, whatever the latency turns out
+   to be. A full exam is ~23 calls, so a lone student never waits; the cap only
+   bites when an exam is unusually long or the tab is doing something else. */
+const RATE_MAX = 25, RATE_WINDOW = 60000;      // 25/min leaves headroom under a 30/min cap
+const RATE_LOG = [];
+async function rateGate(){
+  for(;;){
+    const now = Date.now();
+    while(RATE_LOG.length && now - RATE_LOG[0] > RATE_WINDOW) RATE_LOG.shift();
+    if(RATE_LOG.length < RATE_MAX){ RATE_LOG.push(now); return; }
+    const waitFor = RATE_WINDOW - (now - RATE_LOG[0]) + 50;
+    gradeNote('Pacing requests so the grader is not overloaded…');
+    await sleep(waitFor);
+  }
+}
+function gradeNote(msg){ const el=$('gradeNote'); if(el) el.textContent=msg||''; }
+function looksRateLimited(status, body){
+  if(status===429 || status===503) return true;
+  const e = body && (body.error || body.message);   // only the error field — never the model's own text
+  return !!e && /rate.?limit|too many|quota|429/i.test(String(e));
+}
+async function callGrader(sys, usr){
+  for(let attempt=0; attempt<4; attempt++){
+    const wait = GRADER_COOLDOWN - Date.now();
+    if(wait > 0) await sleep(wait);
+    await rateGate();                            // never exceed our own budget
+    const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(), 24000);
+    let res=null, d=null;
+    try{
+      res = await fetch(AI_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},
+        signal:ctrl.signal, body:JSON.stringify({system:sys, messages:[{role:'user', text:usr}]})});
+      clearTimeout(to);
+      d = await res.json();
+    }catch(e){ clearTimeout(to); }
+    if(looksRateLimited(res && res.status, d)){
+      // exponential backoff with jitter — the jitter matters, or every queued call
+      // wakes at the same instant and trips the limit again together
+      const pause = Math.round(900 * Math.pow(2, attempt) * (0.75 + Math.random()*0.5));
+      GRADER_COOLDOWN = Math.max(GRADER_COOLDOWN, Date.now() + pause);
+      gradeNote('Busy right now — waiting '+Math.round(pause/1000)+'s and trying again…');
+      continue;
+    }
+    if(d && d.text){ gradeNote(''); return d; }
+    await sleep(400 * (attempt+1));             // transient blip: brief pause, ask again
+  }
+  throw new Error('grader unavailable');
+}
+
 async function gradePart(frq, part, answer){
   const rubric=(part.rubric||[]).map(r=>'- '+String(r).replace(/<[^>]*>/g,'')).join('\n');
   const sys='You are an experienced AP Calculus reader scoring one part of a free-response question. '
@@ -676,11 +844,7 @@ async function gradePart(frq, part, answer){
     +'\n\nOFFICIAL SOLUTION:\n'+String(part.sol||'').replace(/<[^>]*>/g,'')
     +'\n\nTHE STUDENT WROTE:\n'+(answer&&answer.trim()?answer:'(left blank)');
   try{
-    const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),24000);
-    const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},signal:ctrl.signal,
-      body:JSON.stringify({system:sys,messages:[{role:'user',text:usr}]})});
-    clearTimeout(to);
-    const d=await res.json();
+    const d=await callGrader(sys,usr);
     const m=(d.text||'').match(/\{[\s\S]*\}/); if(!m) throw 0;
     const o=JSON.parse(m[0]);
     const max=part.pts||0;
@@ -725,6 +889,7 @@ async function gradePart(frq, part, answer){
 
 async function finish(){
   clearInterval(timer);
+  document.body.classList.remove('running');   // grading and results return to the site's voice
   $('exam').classList.add('hidden'); $('grading').classList.remove('hidden');
 
   // --- multiple choice ---
@@ -740,9 +905,14 @@ async function finish(){
   // --- free response ---
   const frqItems=E.sections.filter(s=>s.kind==='frq').flatMap(s=>s.items);
   const jobs=[]; frqItems.forEach(f=>f.parts.forEach((p,pi)=>jobs.push({f,p,pi})));
+  /* rateGate() in callGrader is what actually enforces the budget, so this only
+     needs to keep the bursts small and the progress bar moving. Contention with
+     OTHER students is handled by the backoff, not here — the page cannot see them. */
+  const BATCH=3, GAP=250;
   const results={}; let done=0;
-  for(let i=0;i<jobs.length;i+=3){                       // small batches — free tier is rate-limited
-    const batch=jobs.slice(i,i+3);
+  for(let i=0;i<jobs.length;i+=BATCH){
+    if(i) await sleep(GAP);
+    const batch=jobs.slice(i,i+BATCH);
     await Promise.all(batch.map(async j=>{
       const key=j.f.id+'p'+j.pi;
       results[key]=await gradePart(j.f,j.p,E.answers[key]);
