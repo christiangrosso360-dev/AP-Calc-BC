@@ -75,6 +75,10 @@
   .r-open:hover{transform:translateY(-1px)}
   .r-note{font-size:12.5px;color:var(--faint,#6b6047);font-family:var(--mono)}
   .r-wrong{background:none;border:none;color:var(--muted);font-size:12.5px;font-family:var(--mono);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+  .r-share{background:#151006;border:1px solid var(--line);color:var(--muted);border-radius:10px;
+    font-family:var(--mono);font-size:12.5px;padding:11px 16px;cursor:pointer;transition:color .15s,border-color .15s}
+  .r-share:hover{color:var(--approx);border-color:var(--approx)}
+  .r-share.ok{color:#241a02;background:var(--approx);border-color:var(--approx);font-weight:700}
   /* archetype picker */
   #picker{margin-top:26px}
   .p-head{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint,#6b6047);margin-bottom:12px}
@@ -138,6 +142,7 @@
     </div>
     <div class="r-actions">
       <a class="r-open" id="rOpen" href="#" target="_blank" rel="noopener">⤢ Open fullscreen</a>
+      <button class="r-share" id="rShare">🔗 Copy link</button>
       <span class="r-note" id="rNote"></span>
       <button class="r-wrong" id="rWrong">not what you meant? pick manually ↓</button>
     </div>
@@ -515,6 +520,7 @@ function buildUrl(r){
   return 'index.html';
 }
 function show(r){
+  (function(){var b=document.getElementById("rShare"); if(b) b.style.display="";})();
   var _l=document.getElementById('rLoad'); if(_l) _l.style.display='none';
   const meta=ARCH_META[r.arch], R=document.getElementById('result');
   const fid=++_frameId;                    // nonce: only THIS embed's answer key may attach
@@ -546,6 +552,7 @@ function show(r){
 }
 /* universal-grapher render path — for anything that isn't one of the 4 signature archetypes */
 function showGraph(scene, raw){
+  (function(){var b=document.getElementById("rShare"); if(b) b.style.display="";})();
   var _l=document.getElementById('rLoad'); if(_l) _l.style.display='none';
   const R=document.getElementById('result');
   // fid: a nonce so a SLOW iframe from the previous problem can't post its answer key onto this one
@@ -724,6 +731,7 @@ function showFail(){
   hidePreview(); resetTutor();
   document.getElementById('rOpen').style.visibility='';
   document.getElementById('rWrong').style.visibility='hidden';
+  document.getElementById('rShare').style.display='none';      // nothing worth sharing
   document.getElementById('rTag').textContent='hmm';
   document.getElementById('rTitle').textContent='I couldn\'t read that one yet';
   document.getElementById('rRead').textContent='I handle revolution, area-between-curves, tangent lines, and classic related-rates problems. Try one of the examples above, or pick the problem type below.';
@@ -808,10 +816,49 @@ document.getElementById('picker').addEventListener('click',e=>{
   const r={arch, curves, iv, ax:arch==='solid'?extractAxis(raw):undefined};
   show(r);
 });
-/* homepage handoff: ?q= */
+/* ---------- shareable links ----------
+   A student stuck at 11pm sends a friend a link that just works. We carry the problem text (so the
+   tutor still has context) AND, for grapher results, the resolved scene — so the recipient sees the
+   IDENTICAL picture instantly, with no AI call and no chance of a different reading. */
+const b64enc=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+const b64dec=s=>JSON.parse(decodeURIComponent(escape(atob(s))));
+function shareUrl(){
+  // signature archetypes go through show(), which doesn't carry the raw text — the textarea always does
+  const raw=(LAST_R&&LAST_R.raw)||document.getElementById('q').value.trim();
+  if(!raw) return null;
+  const base=location.origin+location.pathname;
+  let u=base+'?q='+encodeURIComponent(raw);
+  if(LAST_R.scene){ try{ const s=b64enc(LAST_R.scene);
+    if(s.length<=1500) u+='&s='+encodeURIComponent(s); }catch(e){} }   // keep the URL sane
+  return u;
+}
+async function copyShare(){
+  const btn=document.getElementById('rShare'), url=shareUrl();
+  if(!url) return;
+  let ok=false;
+  try{ await navigator.clipboard.writeText(url); ok=true; }
+  catch(e){                                        // older browsers / insecure context
+    try{ const t=document.createElement('textarea'); t.value=url;
+      t.style.cssText='position:fixed;opacity:0'; document.body.appendChild(t); t.select();
+      ok=document.execCommand('copy'); document.body.removeChild(t); }catch(e2){}
+  }
+  btn.textContent=ok?'✓ Link copied':'press ⌘/Ctrl+C';
+  btn.classList.toggle('ok',ok);
+  if(!ok) window.prompt('Copy this link:', url);
+  clearTimeout(copyShare._t);
+  copyShare._t=setTimeout(()=>{ btn.textContent='🔗 Copy link'; btn.classList.remove('ok'); },1800);
+  try{ if(window.goatcounter&&window.goatcounter.count)
+    window.goatcounter.count({path:'viz-share',title:'Visualizer link copied',event:true}); }catch(e){}
+}
+document.getElementById('rShare').onclick=copyShare;
+
+/* arriving from a shared link (or the homepage box): ?q= , optionally with a resolved ?s= scene */
 (function(){
-  const q=new URLSearchParams(location.search).get('q');
-  if(q){ document.getElementById('q').value=q; run(); }
+  const p=new URLSearchParams(location.search), q=p.get('q'), s=p.get('s');
+  if(!q) return;
+  document.getElementById('q').value=q;
+  if(s){ try{ showGraph(b64dec(s), normalizeMath(q)); return; }catch(e){} }   // exact + instant
+  run();
 })();
 </script>
 </body>
