@@ -185,9 +185,28 @@ function looksLikeExpr(e){
   if(/[a-z]{2,}/i.test(stripped)) return false;         // leftover word = it's prose, not math
   return true;
 }
+// students paste LaTeX straight out of digital textbooks / Desmos — unwrap it before anything else,
+// otherwise "\sqrt{x}" survives as literal backslash-junk and curve extraction silently finds nothing
+function deLatex(s){
+  if(s.indexOf('\\')<0 && s.indexOf('{')<0) return s;            // fast path: no LaTeX here
+  let t=s.replace(/\$+/g,' ')
+         .replace(/\\left|\\right|\\!|\\,|\\;|\\:|\\quad|\\qquad/g,' ')
+         .replace(/\\dfrac|\\tfrac/g,'\\frac');
+  for(let i=0;i<4;i++) t=t.replace(/\\frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}/g,'(($1)/($2))');  // nested fractions
+  for(let i=0;i<3;i++) t=t.replace(/\\sqrt\s*\{([^{}]*)\}/g,'sqrt($1)');
+  t=t.replace(/\\(arcsin|arccos|arctan|sinh|cosh|tanh|sin|cos|tan|sec|csc|cot|ln|log|exp)\b/g,'$1')
+     .replace(/\\pi\b/g,'pi').replace(/\\theta\b/g,'theta').replace(/\\infty\b/g,'infinity')
+     .replace(/\\cdot|\\times/g,'*')
+     .replace(/\\int/g,' integral of ').replace(/\\sum/g,' sum of ')
+     .replace(/\\[a-zA-Z]+/g,' ')                                 // drop any remaining command
+     .replace(/\^\s*\{([^{}]*)\}/g,'^($1)')                       // x^{2} → x^(2)
+     .replace(/_\s*\{([^{}]*)\}/g,'_$1')                          // keep subscript contents (integral bounds)
+     .replace(/[{}]/g,'');
+  return t.replace(/\s{2,}/g,' ').trim();
+}
 // pretty math symbols (typed or tapped from the palette) → parser/AI-friendly text
 function normalizeMath(s){
-  return s
+  return deLatex(s)
     .replace(/√\s*\(/g,'sqrt(')
     .replace(/√\s*([a-zA-Z0-9.]+)/g,'sqrt($1)')
     .replace(/²/g,'^2').replace(/³/g,'^3').replace(/⁴/g,'^4').replace(/⁵/g,'^5').replace(/ⁿ/g,'^n')
@@ -222,6 +241,8 @@ function looksMathy(s){
   return /[0-9=^]/.test(s) ||
     /\bx\b|x\^|x\d|\dx|sqrt|sin|cos|tan|sec|csc|cot|\bln\b|log|exp|∫|√|π|\bpi\b|deriv|integral|tangent|slope|concav|inflect|riemann|\barea\b|volume|\blimit\b|function|f\(x\)|f'|series|converge|maclaurin|taylor|\bsum\b|Σ|polar|parametric|cardioid|theta|θ|slope field|differential|euler|dy\s*\/\s*dx|logistic/i.test(s);
 }
+// English words that can sit next to an expression in a problem statement (never inside one)
+const PROSE_WORDS=/\b(revolv\w*|rotat\w*|spun|spin\w*|generat\w*|swept|sweep|about|around|over|under|from|onto|into|between|bounded|enclosed|region|regions|curve|curves|axis|line|graph|graphs|plot|sketch|draw|shade|area|volume|find|the|and|for|with|please|thanks|help)\b/gi;
 function extractCurves(src){
   const out=[]; let m;
   FN_RE.lastIndex=0;
@@ -231,7 +252,9 @@ function extractCurves(src){
     for(const p of parts){
       const t=p.trim().replace(/^(the|region|between|curves?|by|of)\s+/gi,'');
       const cand=t.match(/[-+0-9a-zπ^*/().\s]+/i);
-      if(cand){ const e=clean(cand[0]); if(looksLikeExpr(e)) out.push(e); }
+      // strip surrounding prose ("sqrt(x) revolved" → "sqrt(x)"), otherwise one trailing
+      // English word makes the whole candidate look like prose and the curve is silently lost
+      if(cand){ const e=clean(cand[0].replace(PROSE_WORDS,' ')); if(looksLikeExpr(e)) out.push(e); }
     }
   }
   return out.slice(0,2);

@@ -121,7 +121,7 @@ function loadScene(){
 
 /* ================= RENDERER ================= */
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
-let W=0,H=0,DPR=1, SCENE=null, FNS_C=[], PSUM=null, PARAM=null, FIELD=null, IMPL=null, ANLZ=null, DOM=[-5,5], YR=[-5,5], M=null, T0=0, RAF=null, FINAL=false, SAFETY=null, ANIM_STATIC=null;
+let W=0,H=0,DPR=1, SCENE=null, FNS_C=[], BADFN=0, PSUM=null, PARAM=null, FIELD=null, IMPL=null, ANLZ=null, DOM=[-5,5], YR=[-5,5], M=null, T0=0, RAF=null, FINAL=false, SAFETY=null, ANIM_STATIC=null;
 
 function niceStep(range,target){ const raw=range/target, mag=Math.pow(10,Math.floor(Math.log10(raw))), n=raw/mag;
   const s=n<1.5?1:n<3?2:n<7?5:10; return s*mag; }
@@ -193,11 +193,16 @@ function drawGrid(){
 
 function funcPath(f,prog){
   const [a,b]=DOM; const N=600; const upto=a+(b-a)*prog;
-  ctx.beginPath(); let started=false, jumped=true;
+  // A pole (tan x, 1/x) is NOT a vertical line. Samples either side of it are finite and modest,
+  // so the only reliable tell is that ONE step jumps further than the whole plot is tall.
+  const plotH=Math.max(1,H-26-(M.padB||40)), MAXJUMP=plotH*1.2;
+  ctx.beginPath(); let started=false, jumped=true, prevPy=0;
   for(let i=0;i<=N;i++){ const x=a+(b-a)*i/N; if(x>upto+1e-9) break; const y=f(x);
     if(!isFinite(y)||M.sy(y)<-4000||M.sy(y)>4000){ jumped=true; continue; }
     const px=M.sx(x),py=M.sy(y);
-    if(jumped){ ctx.moveTo(px,py); jumped=false; } else ctx.lineTo(px,py); started=true; }
+    if(!jumped && Math.abs(py-prevPy)>MAXJUMP) jumped=true;    // lift the pen across the discontinuity
+    if(jumped){ ctx.moveTo(px,py); jumped=false; } else ctx.lineTo(px,py);
+    prevPy=py; started=true; }
   return started;
 }
 
@@ -473,7 +478,8 @@ function implicitSegments(f){
 function drawImplicit(prog){
   IMPL.forEach(c=>{
     if(!c._segs) c._segs=implicitSegments(c.f);
-    const segs=c._segs, n=Math.max(1,Math.floor(segs.length*prog));
+    const segs=c._segs; if(!segs.length) return;      // no real solutions → nothing to draw, don't index into []
+    const n=Math.max(1,Math.min(segs.length,Math.floor(segs.length*prog)));
     ctx.save(); ctx.strokeStyle=cget(c.color); ctx.lineWidth=3; ctx.lineCap='round';
     ctx.shadowColor=cget(c.color); ctx.shadowBlur=10; ctx.beginPath();
     for(let k=0;k<n;k++){ const s=segs[k];
@@ -553,6 +559,12 @@ function frame(now){
   const overlayP=Math.max(0,(t-0.9)/0.6), op=Math.min(1,overlayP);
   (SCENE.lines||[]).forEach(l=>drawLine(l, op));
   (SCENE.points||[]).forEach(p=>drawPoint(p, op));
+  // every expression failed and there's nothing else in the scene → say so, don't show a bare grid
+  if(BADFN && BADFN===SCENE.functions.length && !PARAM && !IMPL && !FIELD && !PSUM){
+    ctx.save(); ctx.font='15px '+getComputedStyle(document.body).getPropertyValue('--mono');
+    ctx.fillStyle='rgba(224,100,79,.95)'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText("couldn't read that expression", W/2, H/2); ctx.restore();
+  }
   if(SCENE.animate){
     let ap;
     if(ANIM_STATIC!=null) ap=ANIM_STATIC;                       // one-shot fallback frame (rAF throttled)
@@ -569,7 +581,20 @@ function frame(now){
 function build(){
   SCENE=loadScene();
   SCENE.functions=SCENE.functions||[];
-  FNS_C=SCENE.functions.map(f=>compile(f.expr));
+  // an unparseable expression must not take the whole page down — stub it (keeping indices aligned,
+  // since shade/lines/points/analysis all refer to functions by index) and carry on
+  BADFN=0;
+  const dm=SCENE.domain||[-5,5];
+  FNS_C=SCENE.functions.map(f=>{
+    let fn=null; try{ fn=compile(f.expr); }catch(e){}
+    if(!fn){ BADFN++; return ()=>NaN; }
+    // it can PARSE and still be unusable — "f(x)" compiles as a call to an unknown function.
+    // If nothing across the domain is finite, treat it as unreadable rather than drawing an empty grid.
+    let usable=false;
+    for(let k=0;k<=24;k++){ if(isFinite(fn(dm[0]+(dm[1]-dm[0])*k/24))){ usable=true; break; } }
+    if(!usable) BADFN++;
+    return fn;
+  });
   // series: precompute partial sums S_k of the term aₙ (term written in n)
   PSUM=null;
   if(SCENE.psum&&SCENE.psum.term){
