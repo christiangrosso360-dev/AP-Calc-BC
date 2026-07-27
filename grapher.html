@@ -448,6 +448,73 @@ function widenDomain(){
   if(lo<DOM[0]||hi>DOM[1]){ const pad=(hi-lo)*0.08; DOM=[lo-pad,hi+pad]; }
 }
 
+/* ============ THE ANSWER KEY ============
+   Everything below is computed from the ALREADY-VERIFIED scene, so the numbers inherit the
+   intersection/point corrections above. These get posted to the parent page and handed to the
+   tutor, so it never has to do arithmetic in its head and can never confirm a wrong answer. */
+const r4=v=>Math.round(v*1e4)/1e4;
+function simpson(f,a,b,n){                       // n even; plenty accurate for exam-sized numbers
+  n=Math.max(2,n-(n%2)); const h=(b-a)/n; let s=0;
+  for(let i=0;i<=n;i++){ const v=f(a+i*h); if(!isFinite(v)) return NaN;
+    s+=v*(i===0||i===n?1:(i%2?4:2)); }
+  return s*h/3;
+}
+function computeFacts(){
+  const F={};
+  try{
+    // area — between two curves, or under one — over the VERIFIED interval
+    const sh=SCENE.shade;
+    if(sh&&Array.isArray(sh.interval)){
+      const [a,b]=sh.interval;
+      let g=null, what='';
+      if(Array.isArray(sh.between)&&sh.between.length===2){
+        const fi=FNS_C[sh.between[0]], fj=FNS_C[sh.between[1]];
+        if(fi&&fj){ g=x=>Math.abs(fi(x)-fj(x)); what='area between the curves'; }
+      } else if(sh.under!=null&&FNS_C[sh.under]){
+        const fi=FNS_C[sh.under]; g=x=>fi(x); what='signed area under the curve';
+      }
+      if(g){ const v=simpson(g,a,b,400);
+        if(isFinite(v)) F.area={value:r4(v), interval:[r4(a),r4(b)], what}; }
+    }
+    // Riemann sum actually drawn, next to the exact integral it is approximating
+    if(SCENE.riemann&&FNS_C[SCENE.riemann.of||0]){
+      const rm=SCENE.riemann, f=FNS_C[rm.of||0], n=Math.max(1,Math.round(rm.n||8));
+      const a=rm.a, b=rm.b, dx=(b-a)/n, rule=rm.rule||'left';
+      let s=0,bad=false;
+      for(let i=0;i<n;i++){ const x=rule==='right'?a+(i+1)*dx:rule==='mid'?a+(i+0.5)*dx:a+i*dx;
+        const v=f(x); if(!isFinite(v)){bad=true;break;} s+=v*dx; }
+      const exact=simpson(f,a,b,400);
+      if(!bad&&isFinite(s)) F.riemann={rule,n,sum:r4(s),exact:isFinite(exact)?r4(exact):null,
+        error:isFinite(exact)?r4(Math.abs(exact-s)):null};
+    }
+    // critical / inflection points (already located and classified for the sign charts)
+    if(ANLZ){ if(!ANLZ._r) ANLZ._r=analyze();
+      F.critical=ANLZ._r.crit.map(c=>({x:r4(c.x),y:r4(c.y),kind:c.kind||'?'}));
+      F.inflection=ANLZ._r.infl.map(i=>({x:r4(i.x),y:r4(i.y)})); }
+    // implicit dy/dx at the (verified, on-curve) point
+    if(IMPL) IMPL.forEach(c=>{ if(!c.tangentAt) return;
+      const tx=c.tangentAt[0], ty=c.tangentAt[1], h=1e-5;
+      const Fx=(c.f(tx+h,ty)-c.f(tx-h,ty))/(2*h), Fy=(c.f(tx,ty+h)-c.f(tx,ty-h))/(2*h);
+      F.implicitSlope=(isFinite(Fx)&&isFinite(Fy)&&Math.abs(Fy)>1e-7)
+        ? {at:[r4(tx),r4(ty)], dydx:r4(-Fx/Fy)} : {at:[r4(tx),r4(ty)], dydx:'undefined (vertical tangent)'}; });
+    // series: where the partial sums actually go
+    if(PSUM){ const last=PSUM.pts[PSUM.pts.length-1];
+      F.series={term:PSUM.term, partialSumAt:last[0], partialSum:r4(last[1]),
+                limit:PSUM.limit!=null?r4(PSUM.limit):null,
+                verdict:PSUM.limit!=null?'converges':'diverges (partial sums keep growing)'}; }
+    // Euler vs the true solution at the same x
+    if(FIELD) FIELD.sols.forEach(sol=>{ if(!sol.euler) return;
+      const h=sol.euler.h, steps=sol.euler.steps; let x=sol.x0,y=sol.y0, ok=true;
+      for(let i=0;i<steps;i++){ const m=FIELD.f(x,y); if(!isFinite(m)){ok=false;break;} y+=h*m; x+=h; }
+      if(!ok) return;
+      const t=solveRK4(FIELD.f,sol.x0,sol.y0,1,Math.abs(h)/50,Math.round(50*steps));
+      const tl=t[t.length-1];
+      F.euler={h,steps,atX:r4(x),estimate:r4(y),
+               trueValue:(tl&&Math.abs(tl[0]-x)<1e-6)?r4(tl[1]):null}; });
+  }catch(e){}
+  return F;
+}
+
 /* Unit 5 — curve analysis: find where f' and f" change sign, mark and CLASSIFY them, and draw
    sign strips. The point is to ANSWER "where is it increasing / concave up", not make you squint. */
 function findRoots(g,a,b,steps){
@@ -741,6 +808,11 @@ function build(){
   const rp=document.getElementById('replay');
   if(ANLZ){ rp.style.left='auto'; rp.style.right='22px'; } else { rp.style.left=''; rp.style.right=''; }
   resize(); play();
+  // hand the verified numbers up to the page so the tutor can be grounded in them
+  // (after resize: the true-solution integration needs the final y-range)
+  try{ if(window.parent&&window.parent!==window){
+    const fid=+(new URLSearchParams(location.search).get('fid')||0);
+    window.parent.postMessage({vizFacts:computeFacts(), fid},'*'); } }catch(e){}
 }
 // start the reveal; a setTimeout safety net forces the COMPLETE frame even if rAF is throttled (embeds / this env)
 function play(){

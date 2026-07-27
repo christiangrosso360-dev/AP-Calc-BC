@@ -360,7 +360,7 @@ try{ cacheSweep(); }catch(e){}
 
 /* ---------- AI fallback: same Groq worker as the tutor ---------- */
 const AI_ENDPOINT=(()=>{ try{ return localStorage.getItem('tutor:endpoint')||'https://calc-tutor.christiangrosso360.workers.dev'; }catch(e){ return 'https://calc-tutor.christiangrosso360.workers.dev'; } })();
-const AI_SYS='You classify AP Calculus problems for a visualizer. Read the problem and output ONLY a compact JSON object — no prose, no markdown fences. Keys: archetype (one of: solid, area, tangent, rates), f (first function as a plain expression in x, or null), g (second function or null), a (lower x bound or null), b (upper x bound or null), axis (for solids only: "x" for the x-axis, "y" for the y-axis, "y=NUM" for a horizontal line, "x=NUM" for a vertical line; else null), at (for tangent: the x-value as a number, or null), scene (for rates: one of ladder, ripple, cone, shadow, balloon; else null). Use plain math notation like sqrt(x), x^2, e^(-x). If the problem names two curves (e.g. "between A and B", "bounded by A and B"), you MUST return BOTH f and g. If the region is bounded by two curves and you can find where they cross, fill a and b with those x-values. Only use archetype "solid" when the problem explicitly revolves or rotates a region about an axis or line — a "cross-section" volume (square, semicircular, or triangular cross sections) is NOT a solid of revolution. If the problem fits none of the four archetypes, set archetype to null.';
+const AI_SYS='You classify AP Calculus problems for a visualizer. Read the problem and output ONLY a compact JSON object — no prose, no markdown fences. Keys: archetype (one of: solid, area, tangent, rates), f (first function as a plain expression in x, or null), g (second function or null), a (lower x bound or null), b (upper x bound or null), axis (for solids only: "x" for the x-axis, "y" for the y-axis, "y=NUM" for a horizontal line, "x=NUM" for a vertical line; else null), at (for tangent: the x-value as a number, or null), scene (for rates: one of ladder, ripple, cone, shadow, balloon; else null). Use plain math notation like sqrt(x), x^2, e^(-x). If the problem names two curves (e.g. "between A and B", "bounded by A and B"), you MUST return BOTH f and g. Fill a and b ONLY when the problem itself states the bounds (e.g. "from x=0 to x=2", "on [1,4]"). If the region is simply ENCLOSED by the curves, leave a and b null — do NOT try to solve for the intersections; the renderer computes them exactly and a guessed bound produces a wrong picture and a wrong area. Only use archetype "solid" when the problem explicitly revolves or rotates a region about an axis or line — a "cross-section" volume (square, semicircular, or triangular cross sections) is NOT a solid of revolution. If the problem fits none of the four archetypes, set archetype to null.';
 
 async function askAI(raw){
   const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),20000);
@@ -517,7 +517,8 @@ function buildUrl(r){
 function show(r){
   var _l=document.getElementById('rLoad'); if(_l) _l.style.display='none';
   const meta=ARCH_META[r.arch], R=document.getElementById('result');
-  LAST_R=r; resetTutor();
+  const fid=++_frameId;                    // nonce: only THIS embed's answer key may attach
+  r.fid=fid; LAST_R=r; resetTutor();
   document.getElementById('rOpen').style.visibility='';
   document.getElementById('rWrong').style.visibility='';
   document.getElementById('rTag').textContent=meta.tag;
@@ -538,7 +539,7 @@ function show(r){
   const prev=document.getElementById('rPreview'), frame=document.getElementById('rFrame');
   const embed=(r.arch==='solid'||r.arch==='area')?'viz':'tool';  // Revolve uses viz; lesson tools use tool
   frame.style.height='520px';
-  frame.src=url+(url.indexOf('?')>=0?'&':'?')+'embed='+embed;
+  frame.src=url+(url.indexOf('?')>=0?'&':'?')+'embed='+embed+'&fid='+fid;
   prev.style.display='block';
   R.style.display='block';
   R.scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -547,7 +548,9 @@ function show(r){
 function showGraph(scene, raw){
   var _l=document.getElementById('rLoad'); if(_l) _l.style.display='none';
   const R=document.getElementById('result');
-  LAST_R={arch:'graph', raw, scene}; resetTutor();
+  // fid: a nonce so a SLOW iframe from the previous problem can't post its answer key onto this one
+  const fid=++_frameId;
+  LAST_R={arch:'graph', raw, scene, fid}; resetTutor();
   document.getElementById('rOpen').style.visibility='';
   document.getElementById('rWrong').style.visibility='';
   document.getElementById('rTag').textContent='graphed';
@@ -556,7 +559,7 @@ function showGraph(scene, raw){
   const P=document.getElementById('rParams'); P.innerHTML='';
   (scene.functions||[]).slice(0,3).forEach((f,i)=>addParam(P, i===0?'f(x)':(i===1?'g(x)':'h(x)'), f.expr));
   const b64=btoa(unescape(encodeURIComponent(JSON.stringify(scene))));
-  const url='grapher.html?s='+encodeURIComponent(b64);
+  const url='grapher.html?s='+encodeURIComponent(b64)+'&fid='+fid;
   document.getElementById('rOpen').href=url;
   document.getElementById('rNote').textContent='graphed from your problem';
   const prev=document.getElementById('rPreview'), frame=document.getElementById('rFrame');
@@ -580,6 +583,8 @@ function addParam(P,label,val){
 window.addEventListener('message',e=>{
   const h=e.data&&(e.data.revolveH||e.data.vizH);
   if(h){ const f=document.getElementById('rFrame'); if(f) f.style.height=Math.max(420,Math.min(820,h))+'px'; }
+  // the renderer's verified answer key — the tutor's equivalent of the exam pages' worked solution
+  if(e.data&&e.data.vizFacts&&LAST_R&&e.data.fid===LAST_R.fid) LAST_R.facts=e.data.vizFacts;
 });
 function hidePreview(){ const p=document.getElementById('rPreview'); if(p) p.style.display='none'; }
 
@@ -613,9 +618,33 @@ function groundText(r){
     return 'The graph shows: '+(fs||'the relevant function(s)')+'. Work out what the student\'s problem is actually asking (a derivative, where the function increases/decreases, concavity/inflection, an area or definite integral, a limit, a Taylor/Maclaurin approximation, or just reading the graph) and walk them through THAT step by step, using the graph and their numbers.'; }
   return '';
 }
+// The renderer's answer key, phrased for the tutor. This is the Visualizer's equivalent of the
+// AUTHORITATIVE WORKED SOLUTION the exam-practice pages hand their tutor — except computed, not authored.
+function factsText(r){
+  const F=r&&r.facts; if(!F) return '';
+  const L=[];
+  if(F.area) L.push('The '+F.area.what+' on ['+F.area.interval[0]+', '+F.area.interval[1]+'] is exactly '+F.area.value+'.');
+  if(F.volume) L.push('The volume by the '+F.volume.method+' method over ['+F.volume.interval[0]+', '+F.volume.interval[1]
+    +'] is exactly '+F.volume.value+' cubic units, i.e. '+F.volume.inTermsOfPi+'π.');
+  if(F.riemann) L.push('The '+F.riemann.rule+' Riemann sum with n='+F.riemann.n+' equals '+F.riemann.sum
+    +(F.riemann.exact!=null?('; the exact integral is '+F.riemann.exact+', so the approximation is off by '+F.riemann.error):'')+'.');
+  if(F.critical&&F.critical.length) L.push('Critical points: '+F.critical.map(c=>'('+c.x+', '+c.y+') is a local '+c.kind).join('; ')+'.');
+  if(F.inflection&&F.inflection.length) L.push('Inflection points: '+F.inflection.map(i=>'('+i.x+', '+i.y+')').join('; ')+'.');
+  if(F.implicitSlope) L.push('At ('+F.implicitSlope.at[0]+', '+F.implicitSlope.at[1]+'), dy/dx = '+F.implicitSlope.dydx+'.');
+  if(F.series) L.push('The series of '+F.series.term+' '+F.series.verdict+(F.series.limit!=null?(', with sum '+F.series.limit):'')
+    +' (partial sum S_'+F.series.partialSumAt+' = '+F.series.partialSum+').');
+  if(F.euler) L.push('Euler with h='+F.euler.h+' over '+F.euler.steps+' steps gives y('+F.euler.atX+') ≈ '+F.euler.estimate
+    +(F.euler.trueValue!=null?('; the true value is about '+F.euler.trueValue):'')+'.');
+  if(!L.length) return '';
+  return ' VERIFIED ANSWER KEY (computed exactly from the student\'s own functions — these numbers are CORRECT; '
+    +'never state anything that contradicts them, and never do this arithmetic yourself): '+L.join(' ')
+    +' Treat this as an answer key, NOT a script: do not volunteer these numbers. Use them to judge whether the '
+    +'student\'s own answer is right, to catch exactly where they went wrong, and to be sure any step you affirm is truly correct. '
+    +'If they give a number that matches, confirm it warmly; if it does not, say so plainly and ask a question that surfaces the slip.';
+}
 function tutorSystem(r,raw){
   return 'You are Larry, a warm, encouraging AP Calculus tutor. Walk the student through THEIR OWN problem using the Socratic method. RULES: ask ONE guiding question at a time and wait; NEVER dump the full solution; keep every reply short (2-4 sentences); use the student\'s exact numbers; if they are stuck give a small hint, not the answer; when they get a step right, affirm briefly and move on; be human, not robotic. Write math as simple LaTeX inside \\( \\) delimiters, e.g. \\(x^2\\). '+
-    'THE STUDENT PASTED: "'+raw+'". GROUND TRUTH (do not deviate): '+groundText(r)+' '+
+    'THE STUDENT PASTED: "'+raw+'". GROUND TRUTH (do not deviate): '+groundText(r)+factsText(r)+' '+
     'Begin now: in one short message, name what kind of problem this is, then ask what they think the very first step should be.';
 }
 function tutorHTML(text){
@@ -703,14 +732,23 @@ function showFail(){
   document.getElementById('rNote').textContent='';
   R.style.display='block';
 }
-let _runToken=0;
+let _runToken=0, _frameId=0;
 async function run(){
   const raw0=document.getElementById('q').value.trim();
   if(!raw0) return;
   const raw=normalizeMath(raw0);          // √ ² π ∫ Σ … → parser/AI-friendly text
   const token=++_runToken;
   const local=(isUnit9(raw)||isDiffEq(raw)||isImplicit(raw))?null:recognize(raw);   // Units 9 / 7 / implicit are never a y=f(x) signature tool
-  if(local && !looksLikeProse(raw)){ show(local); return; }   // confident local signature archetype → instant
+  // Prefer the DETERMINISTIC parse whenever it already has everything it needs. The word-count
+  // prose test is fooled by equations ("find the area enclosed by y = 4 - x^2 and y = x + 2" is
+  // 13 "words" but fully structured), and sending those to the classifier makes an identical
+  // input flip archetype between runs. Only ask the AI when local extraction is genuinely short.
+  const complete = local && (
+      (local.arch==='area'||local.arch==='solid') ? (local.curves&&local.curves.length>=2)
+    : (local.arch==='tangent')                    ? (local.curves&&local.curves.length>=1&&local.at!=null)
+    : (local.arch==='rates')                      ? (local.given!=null)
+    : false);
+  if(local && (complete || !looksLikeProse(raw))){ show(local); return; }   // instant + repeatable
   const bare = !hasSignatureHint(raw) ? localScene(raw) : null;   // pure "graph f(x)" → instant, free, no AI
   if(bare){ showGraph(bare, raw); return; }
   // seen this exact problem before? replay it with no spinner and no API call
@@ -727,6 +765,10 @@ async function run(){
       if((ai.arch==='solid'||ai.arch==='area') && ai.curves){
         for(const c of extractCurves(raw)){ if(ai.curves.length<2 && ai.curves.indexOf(c)<0) ai.curves.push(c); }
       }
+      // ENFORCE it: if the problem text never states bounds, discard whatever the AI guessed for
+      // them so revolve.html solves the intersections itself. A guessed bound = wrong region AND
+      // a wrong area handed to the tutor as fact.
+      if((ai.arch==='area'||ai.arch==='solid') && !extractInterval(raw)) ai.iv=null;
       if(ai.arch==='rates' && ai.given==null) ai.given=extractGivenRate(raw);
       cacheSet('arch',raw,ai); show(ai); return;
     }

@@ -572,6 +572,8 @@ function renderAnalysis(reg,topIsF,A){
     var tex=coeff+'\\int_{'+nk(A.a)+'}^{'+nk(A.b)+'}'+rad+'\\,'+hgt+'\\,dx';
   }
   document.getElementById('mTag').textContent=A.method+' method';
+  postFacts({volume:{value:+A.volume.toFixed(4), inTermsOfPi:+(A.volume/Math.PI).toFixed(4),
+                     method:A.method, interval:[+A.a.toFixed(4),+A.b.toFixed(4)]}});
   document.getElementById('mTitle').textContent=title;
   const whyEl=document.getElementById('mWhy'); whyEl.className='why'+warnCls; whyEl.innerHTML=why;
   const tx='V='+tex;
@@ -590,6 +592,8 @@ function renderAreaAnalysis(reg,topIsF){
   const topTex=topIsF?fT:gT, botTex=topIsF?gT:fT;
   const nk=v=>fmtNum(v);
   const area=Math.abs(simpson(x=>{const v=safe(reg.f,x)-safe(reg.g,x); return isFinite(v)?v:0;}, reg.a, reg.b, 2000));
+  postFacts({area:{value:+area.toFixed(4), interval:[+reg.a.toFixed(4),+reg.b.toFixed(4)],
+                   what:'area between the curves'}});
   document.getElementById('mTag').textContent='Area between curves';
   document.getElementById('mTitle').textContent='The area of your region';
   const whyEl=document.getElementById('mWhy'); whyEl.className='why';
@@ -656,6 +660,13 @@ document.getElementById('chips').addEventListener('click',e=>{ const c=e.target.
   AXIS_MODE=ax; [...document.querySelectorAll('.aseg')].forEach(el=>el.classList.toggle('on',el.dataset.axis===ax));
   run(); });
 
+/* hand the computed answer up to the Visualizer so its tutor is grounded in a real number
+   instead of doing the integral in its head (mirrors grapher.html's vizFacts) */
+function postFacts(f){
+  if(window.parent===window) return;
+  try{ const fid=+(new URLSearchParams(location.search).get('fid')||0);
+       parent.postMessage({vizFacts:f, fid},'*'); }catch(e){}
+}
 function postHeight(){ if(window.parent!==window){ try{ const w=document.querySelector('.wrap'); const h=w?w.getBoundingClientRect().bottom:document.body.scrollHeight; parent.postMessage({revolveH:Math.ceil(h)+8},'*'); }catch(e){} } }
 /* ---- The Visualizer hands problems here via URL params: ?f=&g=&a=&b=&axis=x|y|hk|vh&k=&mode=area ---- */
 function applyParams(){
