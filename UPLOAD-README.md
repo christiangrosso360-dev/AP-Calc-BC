@@ -1,72 +1,65 @@
-# Site-wide SEO pass — 88 files
+# The public embed — 4 files
 
-Upload **everything in this folder** to the repo root. It's a lot of files, but GitHub's
-**Add file → Upload files** lets you select them all and drag them in one go.
+Upload all four to the repo root.
 
-> **This folder supersedes the `...-26e-sharelinks` folder.** `visualizer.html` in here already
-> contains the share-link button, so you don't need to upload that one separately.
-
-Two of these are **brand new** files: `sitemap.xml` and `robots.txt`.
+- `embed.html` — **new page**, the embed builder
+- `grapher.html` — gains an `?embed=1` widget mode
+- `visualizer.html` — footer now links to the builder (+ two copy fixes, below)
+- `sitemap.xml` — includes the new page
 
 ---
 
-## What was wrong
+## What this is
 
-Your 87 pages are genuinely good content that search engines were barely equipped to find or
-show:
+Anyone — a teacher, a tutor, someone writing notes — can now type a function at
+**visualcalculus.org/embed.html**, and copy one line of HTML that puts a live, correct,
+interactive calculus graph on *their* page.
 
-| | before | after |
-|---|---|---|
-| Pages with a meta description | **2** | 85 |
-| Pages with a canonical URL | **0** | 85 |
-| Pages with social preview tags | **2** | 85 |
-| sitemap.xml | **missing** | ✅ 83 pages listed |
-| robots.txt | **missing** | ✅ points at the sitemap |
+Presets are one click: a cubic, f and f′, area between curves, Riemann sums, a cardioid, a slope
+field. Or type any function.
 
-Without a sitemap, Google has to stumble onto pages by following links. Without a meta
-description, Google invents its own snippet — usually by grabbing whatever text it finds first,
-which is often nothing useful.
+## Why this is the SEO play, not just a feature
 
-## What changed
+The snippet is deliberately **two** elements:
 
-Only the `<head>` of each page. **Nothing visible on any page changed.**
+```html
+<iframe src="https://visualcalculus.org/grapher.html?embed=1&s=..."></iframe>
+<a href="https://visualcalculus.org/">Made with Visual Calculus</a>
+```
 
-- **Meta descriptions** written from each page's own opening paragraph — never invented. The
-  page's topic is put first so a searcher immediately sees the page is about what they searched
-  for. (Your lead paragraphs are vivid but oblique — "Buckle in, you're in the front seat" is a
-  great opening line and a terrible search snippet on its own, so it now reads
-  *"Concavity & the Second Derivative — Buckle in, you're in the front seat…"*.)
-  Inline LaTeX was cleaned out of these so no snippet shows raw `\(p(t)=t^2\)`.
-- **Canonical URLs** on every page — tells Google which URL is the real one.
-- **Open Graph + Twitter cards** — links to your pages now show a proper title, description, and
-  your og-image when shared in Discord, iMessage, Slack, or on social.
-- **sitemap.xml** listing all 83 real pages, with the homepage and unit hubs weighted highest.
-- **robots.txt** pointing at the sitemap.
+**Search engines do not follow an iframe's `src`.** An iframe alone would give you exactly zero
+SEO benefit. The `<a>` underneath is a real backlink — and backlinks are the single thing standing
+between you and ranking, because that's the one advantage Khan Academy has that you can't
+shortcut. It's how Desmos and CodePen built their authority.
 
-## Two housekeeping notes
+Every person who embeds a graph gives you a permanent link. That's the flywheel.
 
-**1. Two stray duplicate files.** `index_6.html` and `unit1_4.html` look like accidental uploads —
-they're copies of `index.html` and `unit1.html`. Duplicate pages split your search ranking, so
-I've given them canonical tags pointing at the real pages and left them out of the sitemap, which
-neutralises the problem. **You may want to just delete those two files from the repo** — I didn't
-delete them since they're yours.
+Worth saying plainly though: **the embed doesn't spread on its own.** It converts attention into
+authority — it doesn't create attention. The Reddit launch at back-to-school is still what brings
+the first humans, and some fraction of those will be teachers who embed. This asset is ready and
+waiting for that moment.
 
-**2. `grapher.html` is marked `noindex`.** It's the bare renderer that only works with URL
-parameters, so a standalone search result for it would be a dead end for a student.
+## Two copy fixes that came along
 
-## After you upload
+While in there I corrected two things that were undercutting you:
 
-Worth doing once, takes 5 minutes and meaningfully speeds up indexing:
-
-1. Go to **Google Search Console** (search.google.com/search-console), add `visualcalculus.org`.
-2. Verify ownership — easiest is the DNS TXT record method via Porkbun.
-3. Submit `https://visualcalculus.org/sitemap.xml` under **Sitemaps**.
-
-That tells Google all 83 pages exist immediately, instead of waiting to be discovered. It also
-starts collecting the search terms people actually use to find you — which is real data for
-deciding what to build or write next.
+1. The Visualizer footer still said *"4 problem types now, more coming."* It now lists what it
+   actually does — derivatives, areas, volumes, Riemann sums, series, polar & parametric, slope
+   fields, implicit curves, curve analysis.
+2. Two problem-type cards still said *"custom soon"* — but tangent lines and related rates have
+   taken custom numbers for a while now. Both now correctly read *"live · your numbers."*
 
 ## Verified
 
-- All 87 pages structurally checked (one title each, tags inside `<head>`, no broken scripts).
-- The Visualizer still passes its full 69/69 corpus, plus the share-link round-trip test.
+- All five presets build a working snippet with a live widget.
+- **The real test:** the snippet was pasted into a blank third-party page — the graph rendered and
+  the attribution anchor was present and correct.
+- Confirmed the widget mode does **not** leak into the Visualizer's own inline preview (it doesn't
+  pass `embed=1`, so no footer bar, caption unchanged).
+- Corpus 69/69.
+
+## After uploading
+
+Try it yourself at `visualcalculus.org/embed.html` — and consider whether any of your own lesson
+pages would be better with an embedded live graph. Dogfooding it is also the fastest way to spot
+anything awkward before a teacher sees it.

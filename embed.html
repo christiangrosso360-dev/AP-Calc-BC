@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Embed a Live Calculus Graph — Free Interactive Math Widget</title>
+<meta name="description" content="Embed a free interactive calculus graph in any website, LMS or lesson page. Type a function, copy one line of HTML. Derivatives, area between curves, Riemann sums, polar and slope fields." />
+<link rel="canonical" href="https://visualcalculus.org/embed.html" />
+<meta property="og:title" content="Embed a Live Calculus Graph — Free Interactive Math Widget" />
+<meta property="og:description" content="Type a function, copy one line of HTML, and put a live interactive calculus graph on any page. Free, no account." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://visualcalculus.org/embed.html" />
+<meta property="og:image" content="https://visualcalculus.org/og-image.png" />
+<meta property="og:site_name" content="Visual AP Calculus BC" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://visualcalculus.org/og-image.png" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%231a1305%27%2F%3E%3Cpath%20d%3D%27M6%2024%20C%2014%2010%2C%2020%2010%2C%2026%2020%27%20fill%3D%27none%27%20stroke%3D%27%23f0b429%27%20stroke-width%3D%272.4%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E" />
+<link rel="stylesheet" href="styles.css">
+<script src="helpers.js"></script>
+<script data-goatcounter="https://visualcalculus.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<style>
+  :root{ --approx:#f0b429; --gold:#f0b429; --teal:#3fd0b0; --wrap-max:940px; }
+  .hero-lede{color:var(--muted);font-size:16px;margin-top:10px;max-width:660px;line-height:1.6}
+  .eb-box{margin-top:28px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}
+  .eb-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .eb-row input{flex:1;min-width:240px;background:#0e0b04;border:1px solid var(--line);border-radius:10px;
+    color:var(--ink);font-family:var(--mono);font-size:15px;padding:13px 15px;outline:none}
+  .eb-row input:focus{border-color:rgba(240,180,41,.55)}
+  .eb-go{background:var(--approx);color:#241a02;border:none;border-radius:10px;font-family:var(--mono);
+    font-weight:700;font-size:14px;padding:13px 22px;cursor:pointer;letter-spacing:.03em}
+  .eb-ex{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .eb-ex button{font-family:var(--mono);font-size:11.5px;color:var(--muted);background:#151006;
+    border:1px solid var(--line);border-radius:20px;padding:8px 14px;cursor:pointer}
+  .eb-ex button:hover{border-color:var(--approx);color:var(--ink)}
+  .eb-prev{margin-top:22px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0c0a05}
+  .eb-prev iframe{display:block;width:100%;height:420px;border:0}
+  .eb-lab{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--approx);margin:26px 0 8px}
+  .eb-code{position:relative;background:#0e0b04;border:1px solid var(--line);border-radius:12px;padding:16px 16px 16px;
+    font-family:var(--mono);font-size:12.5px;line-height:1.7;color:#cbbf9f;white-space:pre-wrap;word-break:break-all}
+  .eb-copy{position:absolute;top:10px;right:10px;background:#151006;border:1px solid var(--line);color:var(--muted);
+    border-radius:8px;font-family:var(--mono);font-size:11.5px;padding:8px 13px;cursor:pointer}
+  .eb-copy:hover{color:var(--approx);border-color:var(--approx)}
+  .eb-copy.ok{background:var(--approx);color:#241a02;border-color:var(--approx);font-weight:700}
+  .eb-note{color:var(--muted);font-size:13.5px;line-height:1.65;margin-top:12px}
+  .eb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:20px}
+  .eb-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .eb-card h3{font-family:var(--display);font-size:16px;margin-bottom:6px}
+  .eb-card p{color:var(--muted);font-size:13.5px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap" style="max-width:var(--wrap-max)">
+  <a class="backlink" href="index.html">← Visual Calculus</a>
+  <h1 style="font-family:var(--display);font-size:42px;margin:26px 0 0;letter-spacing:-0.02em">Embed a live calculus graph<span style="color:var(--approx)">.</span></h1>
+  <p class="hero-lede">Put a real, interactive, <b style="color:var(--ink)">correct</b> calculus visual on any page —
+    your class site, an LMS, a blog, a Notion doc. Type a function, copy one line of HTML. Free, no account,
+    no tracking of your readers.</p>
+
+  <div class="eb-box">
+    <div class="eb-row">
+      <input id="ebIn" value="x^3 - 3x" spellcheck="false" autocomplete="off" aria-label="function or problem" />
+      <button class="eb-go" id="ebGo">Build it →</button>
+    </div>
+    <div class="eb-ex" id="ebEx">
+      <button data-q="x^3 - 3x">a cubic</button>
+      <button data-q="derivative">f and f′</button>
+      <button data-q="area">area between curves</button>
+      <button data-q="riemann">Riemann sum</button>
+      <button data-q="polar">a cardioid</button>
+      <button data-q="field">slope field</button>
+    </div>
+  </div>
+
+  <div class="eb-lab">Live preview</div>
+  <div class="eb-prev"><iframe id="ebFrame" title="Live calculus graph preview" loading="lazy"></iframe></div>
+
+  <div class="eb-lab">Paste this into your page</div>
+  <div class="eb-code"><button class="eb-copy" id="ebCopy">Copy</button><span id="ebCode"></span></div>
+  <p class="eb-note">The link underneath is the attribution — please keep it. It is the only thing we ask
+    in return, and it is what lets other people find the tool.</p>
+
+  <div class="eb-grid">
+    <div class="eb-card"><h3>Correct by construction</h3>
+      <p>The picture is drawn by a deterministic engine from the actual function — not sketched by an AI.
+         Intersections, areas and tangents are solved, not guessed.</p></div>
+    <div class="eb-card"><h3>Actually interactive</h3>
+      <p>Curves draw themselves in, Riemann rectangles refine, points ride the curve. It is a live widget,
+         not a screenshot of a graph.</p></div>
+    <div class="eb-card"><h3>Works anywhere</h3>
+      <p>One iframe. No script to install, no account, nothing to configure. It resizes to whatever box
+         you put it in.</p></div>
+  </div>
+
+  <div class="eb-lab">Using it in your own tools</div>
+  <p class="eb-note">The widget is driven entirely by the URL, so you can generate embeds programmatically.
+    The <code style="color:var(--teal)">s</code> parameter is a base64-encoded scene: a small JSON object with
+    <code style="color:var(--teal)">functions</code>, an optional <code style="color:var(--teal)">domain</code>,
+    and optional extras like <code style="color:var(--teal)">shade</code>, <code style="color:var(--teal)">riemann</code>,
+    <code style="color:var(--teal)">polar</code>, <code style="color:var(--teal)">field</code> or
+    <code style="color:var(--teal)">analysis</code>. Build one here, then read the URL to see the shape.</p>
+</div>
+
+<script>
+const SITE = location.origin + location.pathname.replace(/embed\.html$/,'');
+const PRESETS = {
+  'derivative': {functions:[{expr:'x^3 - 3*x',color:'gold',label:'f = x³ − 3x'},{expr:'3*x^2 - 3',color:'teal',label:"f′ = 3x² − 3"}],
+                 domain:[-2.6,2.6], caption:'a function and its derivative'},
+  'area':       {functions:[{expr:'4 - x^2',color:'gold',label:'y = 4 − x²'},{expr:'x + 2',color:'teal',label:'y = x + 2'}],
+                 domain:[-4,3], shade:{between:[0,1],interval:'auto'}, caption:'the area between two curves'},
+  'riemann':    {functions:[{expr:'x^2',color:'gold',label:'y = x²'}], domain:[-0.3,2.3],
+                 riemann:{of:0,a:0,b:2,n:8,rule:'mid'}, caption:'a midpoint Riemann sum'},
+  'polar':      {functions:[], polar:[{r:'1 + cos(theta)',t:[0,6.28319],color:'gold',label:'r = 1 + cos θ'}],
+                 caption:'the cardioid r = 1 + cos θ'},
+  'field':      {functions:[], domain:[-3,3], yrange:[-3,3],
+                 field:{dydx:'x + y',solutions:[{x0:0,y0:1,color:'gold'}]}, caption:'a slope field and one solution'}
+};
+const enc = o => btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+function sceneFor(raw){
+  const key = raw.trim().toLowerCase();
+  if(PRESETS[key]) return PRESETS[key];
+  const expr = raw.trim() || 'x^2';
+  return {functions:[{expr, color:'gold', label:'y = '+expr}], caption:'y = '+expr};
+}
+function build(raw){
+  const url = SITE + 'grapher.html?embed=1&s=' + encodeURIComponent(enc(sceneFor(raw)));
+  document.getElementById('ebFrame').src = url;
+  // The <a> is what actually earns a link — search engines do not follow an iframe's src.
+  const snippet =
+    '<iframe src="' + url + '"\n'
+  + '        width="100%" height="420" style="border:0;border-radius:12px"\n'
+  + '        title="Interactive calculus graph" loading="lazy"></iframe>\n'
+  + '<a href="https://visualcalculus.org/">Made with Visual Calculus</a>';
+  document.getElementById('ebCode').innerHTML = esc(snippet);
+  document.getElementById('ebCode').dataset.raw = snippet;
+}
+document.getElementById('ebGo').onclick = () => build(document.getElementById('ebIn').value);
+document.getElementById('ebIn').addEventListener('keydown', e => { if(e.key==='Enter') build(e.target.value); });
+document.getElementById('ebEx').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  document.getElementById('ebIn').value = b.dataset.q; build(b.dataset.q);
+});
+document.getElementById('ebCopy').onclick = async function(){
+  const txt = document.getElementById('ebCode').dataset.raw || '';
+  let ok = false;
+  try{ await navigator.clipboard.writeText(txt); ok = true; }
+  catch(e){ try{ const t=document.createElement('textarea'); t.value=txt;
+    t.style.cssText='position:fixed;opacity:0'; document.body.appendChild(t); t.select();
+    ok=document.execCommand('copy'); document.body.removeChild(t); }catch(e2){} }
+  this.textContent = ok ? '✓ Copied' : 'select & copy';
+  this.classList.toggle('ok', ok);
+  setTimeout(()=>{ this.textContent='Copy'; this.classList.remove('ok'); }, 1700);
+  try{ if(window.goatcounter&&window.goatcounter.count)
+    window.goatcounter.count({path:'embed-copied',title:'Embed snippet copied',event:true}); }catch(e){}
+};
+build(document.getElementById('ebIn').value);
+</script>
+</body>
+</html>

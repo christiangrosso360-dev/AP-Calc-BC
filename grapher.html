@@ -19,6 +19,16 @@
   .lg .sw{width:16px;height:3px;border-radius:2px}
   .replay{position:absolute;left:22px;bottom:18px;font-family:var(--mono);font-size:12px;color:var(--mut);background:rgba(12,10,5,.7);border:1px solid var(--axis);border-radius:8px;padding:8px 14px;cursor:pointer}
   .replay:hover{color:var(--ink);border-color:var(--gold)}
+  /* ?embed=1 → a slim attribution footer, so the widget carries the brand on someone else's page */
+  .embed-bar{display:none;position:fixed;left:0;right:0;bottom:0;height:26px;align-items:center;
+    justify-content:space-between;padding:0 11px;background:#0b0904;border-top:1px solid rgba(240,180,41,.16);
+    font-family:var(--mono);font-size:11px;color:#8e836c;z-index:5}
+  .embed-bar a{color:var(--gold);text-decoration:none}
+  .embed-bar a:hover{text-decoration:underline}
+  body.embed .stage{height:calc(100vh - 26px)}
+  body.embed .embed-bar{display:flex}
+  body.embed .cap{display:none}            /* caption moves into the footer — keeps the canvas pure */
+  .embed-bar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:10px}
   /* narrow screens: a long caption top-left would collide with the legend top-right — drop it to the bottom */
   @media (max-width:460px){
     .legend{top:14px;right:14px}
@@ -34,6 +44,10 @@
   <div class="cap" id="cap"></div>
   <div class="legend" id="legend"></div>
   <button class="replay" id="replay">↺ replay</button>
+</div>
+<div class="embed-bar">
+  <span id="embedCap"></span>
+  <a href="https://visualcalculus.org/visualizer.html" target="_blank" rel="noopener">Visual Calculus ↗</a>
 </div>
 <script>
 /* ================= EXPRESSION PARSER (ported from Revolve) ================= */
@@ -674,6 +688,9 @@ function drawTrace(an,p){
 }
 
 const STATIC=/[?&]static/.test(location.search);   // ?static → render the final frame instantly (screenshots / fallback)
+// ?embed=1 → public-widget mode: slim attribution footer under the stage (set before any sizing happens)
+const EMBED=/[?&]embed=1/.test(location.search);
+if(EMBED) document.body.classList.add('embed');
 function frame(now){
   if(!T0) T0=now; const t=(STATIC||FINAL)?9:(now-T0)/1000;
   const drawP=Math.min(1, t/1.15);              // curves draw in over 1.15s
@@ -797,6 +814,7 @@ function build(){
   DOM=SCENE.domain||(PSUM?[0,PSUM.N+1]:[-5,5]);
   try{ verifyShade(); widenDomain(); verifyImplicitPoints(); }catch(e){}   // fact-check the AI's claims
   document.getElementById('cap').textContent=SCENE.caption||'';
+  const ec=document.getElementById('embedCap'); if(ec) ec.textContent=SCENE.caption||'';
   let lg=SCENE.functions.map(f=>
     '<div class="lg"><span class="sw" style="background:'+cget(f.color)+'"></span>'+(f.label||f.expr)+'</div>').join('');
   if(PARAM) lg+=PARAM.map(c=>'<div class="lg"><span class="sw" style="background:'+cget(c.color)+'"></span>'+c.label+'</div>').join('');
