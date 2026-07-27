@@ -379,6 +379,75 @@ function drawSolutions(prog){
   });
 }
 
+/* ============ VERIFICATION: the renderer fact-checks the director ============
+   The AI is good at reading a problem and bad at arithmetic. We have the actual functions and a
+   root-finder, so anything it CLAIMS about intersections or points we can just check ourselves.
+   A wrong shaded region is a wrong ANSWER, not a cosmetic issue. */
+
+// the true enclosed region between two curves = the adjacent pair of intersections
+// with the most area between them
+function enclosedInterval(g,lo,hi){
+  const roots=findRoots(g,lo,hi,1200);
+  if(roots.length<2) return null;
+  let best=null,bestA=-1;
+  for(let k=0;k<roots.length-1;k++){
+    const a=roots[k],b=roots[k+1]; let A=0; const N=40;
+    for(let t=0;t<N;t++){ const v=g(a+(b-a)*(t+0.5)/N); if(isFinite(v)) A+=Math.abs(v)*(b-a)/N; }
+    if(A>bestA){ bestA=A; best=[a,b]; }
+  }
+  return best;
+}
+function verifyShade(){
+  const sh=SCENE.shade; if(!sh) return;
+  let fi=null,fj=null;
+  if(Array.isArray(sh.between)&&sh.between.length===2){ fi=FNS_C[sh.between[0]]; fj=FNS_C[sh.between[1]]; }
+  else if(sh.under!=null){ fi=FNS_C[sh.under]; fj=()=>0; }
+  if(!fi||!fj) return;
+  const g=x=>fi(x)-fj(x), w=(DOM[1]-DOM[0]);
+  const iv=sh.interval;
+  const wantAuto = iv==null || iv==='auto' ||
+    !(Array.isArray(iv)&&isFinite(iv[0])&&isFinite(iv[1])&&iv[1]>iv[0]);
+  if(wantAuto){
+    const got=enclosedInterval(g,DOM[0]-w*0.6,DOM[1]+w*0.6);
+    if(got) sh.interval=got; else if(!Array.isArray(iv)) delete SCENE.shade;
+    return;
+  }
+  // numeric bounds given: snap endpoints that are ALMOST an intersection onto the exact one
+  // (the model routinely rounds 1.5874 to 1.6, which shades a visibly wrong sliver)
+  // 4% of the view: comfortably catches a rounded/approximated intersection, while a genuinely
+  // stated bound ("from 0 to 1" when the roots are 0 and 2) sits ~25% away and is left alone
+  const roots=findRoots(g,DOM[0]-w*0.6,DOM[1]+w*0.6,1200), tol=w*0.04;
+  sh.interval=iv.map(v=>{ let best=v,bd=tol;
+    for(const r of roots){ const d=Math.abs(r-v); if(d<bd){ bd=d; best=r; } }
+    return best; });
+}
+// a tangent drawn at a point that is NOT on the curve is nonsense — snap it on, or don't draw it
+function verifyImplicitPoints(){
+  if(!IMPL) return;
+  const yspan=(SCENE.yrange&&isFinite(SCENE.yrange[0]))?(SCENE.yrange[1]-SCENE.yrange[0]):(DOM[1]-DOM[0]);
+  IMPL.forEach(c=>{
+    if(!c.tangentAt) return;
+    const tx=c.tangentAt[0], ty=c.tangentAt[1], F=c.f, v=F(tx,ty);
+    const scale=Math.max(1e-9, Math.abs(F(tx+0.05,ty)-v)+Math.abs(F(tx,ty+0.05)-v))*20;
+    if(isFinite(v)&&Math.abs(v)<=scale*0.05) return;                 // already on the curve
+    const roots=findRoots(y=>F(tx,y), ty-yspan*0.6, ty+yspan*0.6, 600);
+    if(roots.length){ c.tangentAt=[tx, roots.reduce((p,r)=>Math.abs(r-ty)<Math.abs(p-ty)?r:p)]; }
+    else c.tangentAt=null;                                           // nowhere honest to put it
+  });
+}
+// never crop the thing the problem is about out of the picture
+function widenDomain(){
+  const vals=[];
+  if(SCENE.shade&&Array.isArray(SCENE.shade.interval)) vals.push(...SCENE.shade.interval);
+  if(SCENE.riemann) vals.push(SCENE.riemann.a,SCENE.riemann.b);
+  (SCENE.points||[]).forEach(p=>vals.push(p.x));
+  (SCENE.lines||[]).forEach(l=>{ if(l.type!=='horizontal'){ vals.push(l.at); if(l.from!=null) vals.push(l.from); } });
+  const fin=vals.filter(v=>typeof v==='number'&&isFinite(v));
+  if(!fin.length) return;
+  let lo=Math.min(DOM[0],...fin), hi=Math.max(DOM[1],...fin);
+  if(lo<DOM[0]||hi>DOM[1]){ const pad=(hi-lo)*0.08; DOM=[lo-pad,hi+pad]; }
+}
+
 /* Unit 5 — curve analysis: find where f' and f" change sign, mark and CLASSIFY them, and draw
    sign strips. The point is to ANSWER "where is it increasing / concave up", not make you squint. */
 function findRoots(g,a,b,steps){
@@ -658,6 +727,7 @@ function build(){
   // Unit 5: mark + classify the critical and inflection points of a function
   ANLZ=(SCENE.analysis&&FNS_C.length)?{of:Math.max(0,Math.min(FNS_C.length-1,Math.round(num(SCENE.analysis.of,0))))}:null;
   DOM=SCENE.domain||(PSUM?[0,PSUM.N+1]:[-5,5]);
+  try{ verifyShade(); widenDomain(); verifyImplicitPoints(); }catch(e){}   // fact-check the AI's claims
   document.getElementById('cap').textContent=SCENE.caption||'';
   let lg=SCENE.functions.map(f=>
     '<div class="lg"><span class="sw" style="background:'+cget(f.color)+'"></span>'+(f.label||f.expr)+'</div>').join('');

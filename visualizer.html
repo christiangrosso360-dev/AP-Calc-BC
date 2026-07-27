@@ -32,6 +32,15 @@
   .chips button{font-family:var(--mono);font-size:11.5px;color:var(--muted);background:#151006;border:1px solid var(--line);
     border-radius:20px;padding:8px 14px;cursor:pointer;transition:border-color .15s,color .15s}
   .chips button:hover{border-color:var(--approx);color:var(--ink)}
+  /* loading: three skeleton bars sweeping, so the wait reads as deliberate rather than stalled */
+  .vz-shim{margin:16px 0 4px;display:flex;flex-direction:column;gap:9px}
+  .vz-shim i{display:block;height:9px;border-radius:99px;background:linear-gradient(90deg,
+      rgba(240,180,41,.07) 0%,rgba(240,180,41,.30) 45%,rgba(240,180,41,.07) 90%);
+    background-size:260% 100%;animation:vzSweep 1.25s linear infinite}
+  .vz-shim i:nth-child(1){width:62%} .vz-shim i:nth-child(2){width:88%;animation-delay:.12s}
+  .vz-shim i:nth-child(3){width:44%;animation-delay:.24s}
+  @keyframes vzSweep{from{background-position:130% 0}to{background-position:-130% 0}}
+  @media (prefers-reduced-motion:reduce){ .vz-shim i{animation:none} }
   /* result card */
   #result{display:none;margin-top:22px;background:var(--panel);border:1px solid rgba(240,180,41,.35);border-radius:18px;padding:22px;animation:vzIn .35s ease}
   @keyframes vzIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -121,6 +130,7 @@
     <span class="r-tag" id="rTag">solid of revolution</span>
     <div class="r-title" id="rTitle"></div>
     <div class="r-read" id="rRead"></div>
+    <div class="vz-shim" id="rLoad" style="display:none"><i></i><i></i><i></i></div>
     <div class="r-params" id="rParams"></div>
     <div class="r-preview" id="rPreview" style="display:none">
       <div class="r-pvlab" id="rPvLab">your problem, live &darr;</div>
@@ -321,6 +331,33 @@ function hasSignatureHint(s){
   return /revolv|rotat|spun|spin|about\s+the\s+(?:line\s+)?[xy]|area\s+(?:between|of\s+the\s+region|enclosed)|region\s+(?:between|bounded|enclosed)|bounded\s+by|tangent|lineariz|linear\s+approx|ladder|how\s+fast|rate\s+of|shadow|lamppost|streetlight|ripple|conical|balloon/i.test(s);
 }
 
+/* ---------- answer cache: a repeated problem should be INSTANT and cost nothing ----------
+   Keyed on the normalized text and stamped with a version, so changing the prompts below
+   automatically retires every stale entry instead of serving scenes built by an older brain. */
+const CACHE_VER='c1';
+const cacheKey=(kind,raw)=>'viz:'+CACHE_VER+':'+kind+':'+raw.toLowerCase().replace(/\s+/g,' ').trim();
+function cacheSweep(){                       // drop other-version entries, then cap the newest 80
+  try{
+    const mine=[],stale=[];
+    for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(!k||k.slice(0,4)!=='viz:') continue;
+      (k.indexOf('viz:'+CACHE_VER+':')===0?mine:stale).push(k); }
+    stale.forEach(k=>localStorage.removeItem(k));
+    if(mine.length>80){
+      const scored=mine.map(k=>{ let t=0; try{ t=(JSON.parse(localStorage.getItem(k))||{}).t||0; }catch(e){} return {k,t}; });
+      scored.sort((a,b)=>a.t-b.t).slice(0,mine.length-80).forEach(o=>localStorage.removeItem(o.k));
+    }
+  }catch(e){}
+}
+function cacheGet(kind,raw){
+  try{ const s=localStorage.getItem(cacheKey(kind,raw)); if(!s) return null;
+       const o=JSON.parse(s); return o&&o.v!=null?o.v:null; }catch(e){ return null; }
+}
+function cacheSet(kind,raw,val){
+  try{ localStorage.setItem(cacheKey(kind,raw), JSON.stringify({t:Date.now(),v:val})); cacheSweep(); }
+  catch(e){ try{ cacheSweep(); }catch(e2){} }     // quota full → prune and move on
+}
+try{ cacheSweep(); }catch(e){}
+
 /* ---------- AI fallback: same Groq worker as the tutor ---------- */
 const AI_ENDPOINT=(()=>{ try{ return localStorage.getItem('tutor:endpoint')||'https://calc-tutor.christiangrosso360.workers.dev'; }catch(e){ return 'https://calc-tutor.christiangrosso360.workers.dev'; } })();
 const AI_SYS='You classify AP Calculus problems for a visualizer. Read the problem and output ONLY a compact JSON object — no prose, no markdown fences. Keys: archetype (one of: solid, area, tangent, rates), f (first function as a plain expression in x, or null), g (second function or null), a (lower x bound or null), b (upper x bound or null), axis (for solids only: "x" for the x-axis, "y" for the y-axis, "y=NUM" for a horizontal line, "x=NUM" for a vertical line; else null), at (for tangent: the x-value as a number, or null), scene (for rates: one of ladder, ripple, cone, shadow, balloon; else null). Use plain math notation like sqrt(x), x^2, e^(-x). If the problem names two curves (e.g. "between A and B", "bounded by A and B"), you MUST return BOTH f and g. If the region is bounded by two curves and you can find where they cross, fill a and b with those x-values. Only use archetype "solid" when the problem explicitly revolves or rotates a region about an axis or line — a "cross-section" volume (square, semicircular, or triangular cross sections) is NOT a solid of revolution. If the problem fits none of the four archetypes, set archetype to null.';
@@ -364,7 +401,7 @@ function aiToResult(j){
 /* ---------- UNIVERSAL GRAPHER: AI as scene DIRECTOR (long-tail problems) ---------- */
 const SCENE_SYS='You are a calculus visualization director. Read the problem and output ONLY a JSON object (no prose, no markdown fences) describing what to draw on a 2D graph. A deterministic renderer draws exactly what you specify — you choose WHAT to show, never how.\n'
 +'SCHEMA (include only keys you need): {"functions":[{"expr":"<in x>","color":"gold|teal|mag|coral","label":"<short>"}], "domain":[xmin,xmax], "shade":{"between":[i,j],"interval":[a,b]} OR {"under":i,"interval":[a,b]}, "riemann":{"of":<i>,"a":<x>,"b":<x>,"n":<count>,"rule":"left|right|mid"}, "animate":{"kind":"slidePoint","on":<i>,"from":<x1>,"to":<x2>} OR {"kind":"riemannN","of":<i>,"a":<x1>,"b":<x2>,"from":<n1>,"to":<n2>,"rule":"mid"}, "points":[{"x":<num>,"on":<i>,"label":"<short>"}], "lines":[{"type":"tangent","to":<i>,"at":<x>}|{"type":"secant","to":<i>,"from":<x1>,"at":<x2>}|{"type":"vertical","at":<x>}|{"type":"horizontal","at":<y>}], "psum":{"term":"<a_n written in n>","from":<int>,"N":<int>,"limit":<number or null>,"label":"<short>"}, "param":[{"x":"<x(t)>","y":"<y(t)>","t":[t0,t1],"color":"gold","label":"<short>"}], "polar":[{"r":"<r(theta)>","t":[t0,t1],"color":"gold","label":"<short>"}], "field":{"dydx":"<expr in x and y>","solutions":[{"x0":<num>,"y0":<num>,"color":"gold","euler":{"h":<num>,"steps":<int>}}]}, "implicit":[{"eq":"<F(x,y) with everything moved to one side>","color":"gold","label":"<short>","tangentAt":[<x>,<y>]}], "analysis":{"of":<i>}, "caption":"<one short phrase>"}\n'
-+'RULES: expr = plain math in x (^,*,sqrt(),sin(),cos(),tan(),ln(),exp() or e^(...),pi); no "y=". Main curve gold, second teal. Pick a domain that shows the key features. on/to/shade/riemann indices are 0-based into functions. DERIVATIVE problem: plot BOTH the function AND its derivative (you compute the derivative expression). TANGENT/linearization: plot the function, add a tangent line at the point, mark the point (do NOT add the linearization as a separate function). AREA UNDER a curve / definite INTEGRAL of a single function: shade {"under":0,"interval":[a,b]}, AND if the problem is about a Riemann sum or approximating the integral with rectangles, add "riemann" with a sensible n (e.g. 6-10). AREA BETWEEN two curves: plot both, shade {"between":[0,1]}. Add "animate" ONLY when motion truly illuminates: use slidePoint (a point rides the curve, its tangent slope shown live) when the problem is about how a rate/slope CHANGES across an interval; use riemannN (rectangles refine as n grows) when it is about a Riemann sum CONVERGING to the integral. Most problems need no animate. SERIES (Unit 10): for "does the series/sum a_n converge or diverge" → output "psum": term = a_n written in n (e.g. "1/n^2", "(1/2)^n", "1/n"), from = the starting index (default 1, use 0 when stated), N = 28 (use 40 for slow divergence like 1/n), limit = the exact sum as a plain DECIMAL when it converges (geometric: (first term AT n=from)/(1-r) — if from=0 the first term is a_0, e.g. sum of (1/2)^n from 0 = 1/(1-1/2) = 2; known sums like pi^2/6 = 1.6449; else null when it diverges), functions may be [] for pure series; the caption MUST state converges (and to what) or diverges. TAYLOR/MACLAURIN series or polynomials: do NOT use psum — plot the target function in gold PLUS 2-3 of its Taylor partial-sum POLYNOMIALS which you compute yourself (e.g. sin x -> "x", "x - x^3/6", "x - x^3/6 + x^5/120") in teal/mag/coral labeled P1, P3, P5, domain centered on the expansion point. RADIUS or INTERVAL of convergence of a power series in x: plot 2-3 partial-sum polynomials and add vertical lines at the interval endpoints; caption names the interval. POLAR (Unit 9): "r = f(theta)" curves (cardioid, rose, limacon, circle, spiral) → use "polar" with r written in theta, t = the theta range as decimals (full curve 0 to 6.28319; a 3-petal rose r=a·cos(3θ) needs only 0 to 3.14159; use 0 to 12.56637 for spirals). Area of a polar region / area between two polar curves → plot BOTH polar curves (gold outer, teal inner) and say the setup in the caption (A = ½∫r² dθ); do NOT use shade. PARAMETRIC (Unit 9): "x = f(t), y = g(t)" → use "param" with the t range; for particle-MOTION problems (position/velocity/speed at time t) also add "animate":{"kind":"traceParam","on":0} so a point rides the path. NEVER convert a polar or parametric curve into a y=f(x) function — use these fields, the renderer locks the aspect ratio so circles stay circular. DIFFERENTIAL EQUATIONS (Unit 7): any "dy/dx = …", slope field, particular solution, separation of variables, logistic or exponential growth model → use "field" with dydx exactly as given (it may contain BOTH x and y), functions:[], and ALWAYS give an explicit domain and yrange that comfortably contain the interesting behaviour. If an initial condition is stated (y(0)=1, "through the point (0,2)") add it to "solutions" — the renderer integrates the true curve for you, so never try to solve the ODE yourself. If the problem uses EULER\'S METHOD, put "euler":{"h":<step>,"steps":<count>} on that solution so the approximation is drawn against the true curve. For a logistic equation include a second solution starting ABOVE the carrying capacity so both approach directions show. IMPLICIT CURVES (Unit 3): an equation relating x and y that is NOT solved for y (x^2+y^2=25, an ellipse, x^3+y^3=3xy) is NOT a function — never force it into "functions". Move every term to one side and put that expression in "implicit" eq (so "x^2+y^2=25" becomes "x^2 + y^2 - 25"), give BOTH domain and yrange around the shape, and let functions be []. For IMPLICIT DIFFERENTIATION asking dy/dx at a point, add "tangentAt":[x,y] — the renderer computes the slope as -F_x/F_y and draws the tangent, so never solve for it yourself. CURVE ANALYSIS (Unit 5): for increasing/decreasing, concavity, inflection points, local max/min, or "sketch and describe the curve", plot f in gold and add "analysis":{"of":0} — the renderer locates and LABELS every critical and inflection point and draws sign charts for f-prime and f-double-prime underneath, which answers the question. Add analysis whenever the problem is about the SHAPE of one function. ALL numeric fields (domain, interval, at, x, from, y, a, b, n, N, limit, t) MUST be plain decimal numbers — never symbols (pi=3.14159, e=2.71828). Keep it minimal.\n'
++'RULES: expr = plain math in x (^,*,sqrt(),sin(),cos(),tan(),ln(),exp() or e^(...),pi); no "y=". Main curve gold, second teal. Pick a domain that shows the key features. on/to/shade/riemann indices are 0-based into functions. DERIVATIVE problem: plot BOTH the function AND its derivative (you compute the derivative expression). TANGENT/linearization: plot the function, add a tangent line at the point, mark the point (do NOT add the linearization as a separate function). AREA UNDER a curve / definite INTEGRAL of a single function: shade {"under":0,"interval":[a,b]}, AND if the problem is about a Riemann sum or approximating the integral with rectangles, add "riemann" with a sensible n (e.g. 6-10). AREA BETWEEN two curves: plot both, shade {"between":[0,1]}. IMPORTANT — when the region is ENCLOSED/BOUNDED BY the curves themselves (no explicit x-bounds are stated), set "interval":"auto" and do NOT guess the intersections: the renderer solves the equation exactly and shades the true region. Only give a numeric interval when the problem itself states the bounds ("from x=0 to x=1"). Add "animate" ONLY when motion truly illuminates: use slidePoint (a point rides the curve, its tangent slope shown live) when the problem is about how a rate/slope CHANGES across an interval; use riemannN (rectangles refine as n grows) when it is about a Riemann sum CONVERGING to the integral. Most problems need no animate. SERIES (Unit 10): for "does the series/sum a_n converge or diverge" → output "psum": term = a_n written in n (e.g. "1/n^2", "(1/2)^n", "1/n"), from = the starting index (default 1, use 0 when stated), N = 28 (use 40 for slow divergence like 1/n), limit = the exact sum as a plain DECIMAL when it converges (geometric: (first term AT n=from)/(1-r) — if from=0 the first term is a_0, e.g. sum of (1/2)^n from 0 = 1/(1-1/2) = 2; known sums like pi^2/6 = 1.6449; else null when it diverges), functions may be [] for pure series; the caption MUST state converges (and to what) or diverges. TAYLOR/MACLAURIN series or polynomials: do NOT use psum — plot the target function in gold PLUS 2-3 of its Taylor partial-sum POLYNOMIALS which you compute yourself (e.g. sin x -> "x", "x - x^3/6", "x - x^3/6 + x^5/120") in teal/mag/coral labeled P1, P3, P5, domain centered on the expansion point. RADIUS or INTERVAL of convergence of a power series in x: plot 2-3 partial-sum polynomials and add vertical lines at the interval endpoints; caption names the interval. POLAR (Unit 9): "r = f(theta)" curves (cardioid, rose, limacon, circle, spiral) → use "polar" with r written in theta, t = the theta range as decimals (full curve 0 to 6.28319; a 3-petal rose r=a·cos(3θ) needs only 0 to 3.14159; use 0 to 12.56637 for spirals). Area of a polar region / area between two polar curves → plot BOTH polar curves (gold outer, teal inner) and say the setup in the caption (A = ½∫r² dθ); do NOT use shade. PARAMETRIC (Unit 9): "x = f(t), y = g(t)" → use "param" with the t range; for particle-MOTION problems (position/velocity/speed at time t) also add "animate":{"kind":"traceParam","on":0} so a point rides the path. NEVER convert a polar or parametric curve into a y=f(x) function — use these fields, the renderer locks the aspect ratio so circles stay circular. DIFFERENTIAL EQUATIONS (Unit 7): any "dy/dx = …", slope field, particular solution, separation of variables, logistic or exponential growth model → use "field" with dydx exactly as given (it may contain BOTH x and y), functions:[], and ALWAYS give an explicit domain and yrange that comfortably contain the interesting behaviour. If an initial condition is stated (y(0)=1, "through the point (0,2)") add it to "solutions" — the renderer integrates the true curve for you, so never try to solve the ODE yourself. If the problem uses EULER\'S METHOD, put "euler":{"h":<step>,"steps":<count>} on that solution so the approximation is drawn against the true curve. For a logistic equation include a second solution starting ABOVE the carrying capacity so both approach directions show. IMPLICIT CURVES (Unit 3): an equation relating x and y that is NOT solved for y (x^2+y^2=25, an ellipse, x^3+y^3=3xy) is NOT a function — never force it into "functions". Move every term to one side and put that expression in "implicit" eq (so "x^2+y^2=25" becomes "x^2 + y^2 - 25"), give BOTH domain and yrange around the shape, and let functions be []. For IMPLICIT DIFFERENTIATION asking dy/dx at a point, add "tangentAt":[x,y] — the renderer computes the slope as -F_x/F_y and draws the tangent, so never solve for it yourself. CURVE ANALYSIS (Unit 5): for increasing/decreasing, concavity, inflection points, local max/min, or "sketch and describe the curve", plot f in gold and add "analysis":{"of":0} — the renderer locates and LABELS every critical and inflection point and draws sign charts for f-prime and f-double-prime underneath, which answers the question. Add analysis whenever the problem is about the SHAPE of one function. ALL numeric fields (domain, interval, at, x, from, y, a, b, n, N, limit, t) MUST be plain decimal numbers — never symbols (pi=3.14159, e=2.71828). Keep it minimal.\n'
 +'EXAMPLES:\n"find the derivative of x^3" -> {"functions":[{"expr":"x^3","color":"gold","label":"f = x^3"},{"expr":"3*x^2","color":"teal","label":"f\' = 3x^2"}],"domain":[-2.5,2.5],"caption":"a function and its derivative"}\n'
 +'"area under y=x^2 from 0 to 2" -> {"functions":[{"expr":"x^2","color":"gold","label":"y = x^2"}],"domain":[-0.5,2.5],"shade":{"under":0,"interval":[0,2]},"caption":"the area under the curve"}\n'
 +'"does the series 1/n^2 converge" -> {"functions":[],"psum":{"term":"1/n^2","from":1,"N":30,"limit":1.6449,"label":"S_n = sum of 1/n^2"},"caption":"the partial sums level off — converges to pi^2/6 = 1.645"}\n'
@@ -478,6 +515,7 @@ function buildUrl(r){
   return 'index.html';
 }
 function show(r){
+  var _l=document.getElementById('rLoad'); if(_l) _l.style.display='none';
   const meta=ARCH_META[r.arch], R=document.getElementById('result');
   LAST_R=r; resetTutor();
   document.getElementById('rOpen').style.visibility='';
@@ -507,6 +545,7 @@ function show(r){
 }
 /* universal-grapher render path — for anything that isn't one of the 4 signature archetypes */
 function showGraph(scene, raw){
+  var _l=document.getElementById('rLoad'); if(_l) _l.style.display='none';
   const R=document.getElementById('result');
   LAST_R={arch:'graph', raw, scene}; resetTutor();
   document.getElementById('rOpen').style.visibility='';
@@ -629,8 +668,9 @@ function showLoading(){
   const R=document.getElementById('result');
   hidePreview(); resetTutor();
   document.getElementById('rTag').textContent='reading…';
-  document.getElementById('rTitle').textContent='figuring out your problem…';
-  document.getElementById('rRead').textContent='Checking the AI reader for phrasing my quick rules didn\'t catch.';
+  document.getElementById('rTitle').textContent='reading your problem…';
+  document.getElementById('rRead').textContent='Working out what this is and what to draw.';
+  document.getElementById('rLoad').style.display='flex';
   document.getElementById('rParams').innerHTML='';
   document.getElementById('rOpen').style.visibility='hidden';
   document.getElementById('rWrong').style.visibility='hidden';
@@ -650,6 +690,7 @@ function logMiss(raw, stage){
   }catch(e){}
 }
 function showFail(){
+  var _l=document.getElementById('rLoad'); if(_l) _l.style.display='none';
   const R=document.getElementById('result');
   hidePreview(); resetTutor();
   document.getElementById('rOpen').style.visibility='';
@@ -672,6 +713,9 @@ async function run(){
   if(local && !looksLikeProse(raw)){ show(local); return; }   // confident local signature archetype → instant
   const bare = !hasSignatureHint(raw) ? localScene(raw) : null;   // pure "graph f(x)" → instant, free, no AI
   if(bare){ showGraph(bare, raw); return; }
+  // seen this exact problem before? replay it with no spinner and no API call
+  const hitScene=cacheGet('scene',raw); if(hitScene){ showGraph(hitScene, raw); return; }
+  const hitArch=cacheGet('arch',raw);   if(hitArch){ show(hitArch); return; }
   showLoading();
   // cross-section volumes have no axis of rotation — never a solid of revolution; let the grapher draw the base region
   const crossSection=/cross[\s-]*section/i.test(raw);
@@ -684,14 +728,14 @@ async function run(){
         for(const c of extractCurves(raw)){ if(ai.curves.length<2 && ai.curves.indexOf(c)<0) ai.curves.push(c); }
       }
       if(ai.arch==='rates' && ai.given==null) ai.given=extractGivenRate(raw);
-      show(ai); return;
+      cacheSet('arch',raw,ai); show(ai); return;
     }
   }
   // everything else → the universal grapher (AI directs a scene-spec, deterministic renderer draws it)
   const mathy=looksMathy(raw);
   const scene=mathy ? await getScene(raw) : null;   // no math signal at all → don't waste a call / hallucinate
   if(token!==_runToken) return;
-  if(scene){ showGraph(scene, raw); return; }
+  if(scene){ cacheSet('scene',raw,scene); showGraph(scene, raw); return; }
   if(local){ show(local); return; }                     // last resort: the local signature guess
   logMiss(raw0, mathy ? 'unrendered' : 'nonmath');      // log what the student ACTUALLY typed (pretty symbols intact)
   showFail();
