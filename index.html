@@ -77,6 +77,18 @@
   .brand .wordmark{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:-.01em;color:var(--text)}
   .brand .wordmark b{color:var(--gold);font-weight:600}
   .top-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+  /* ---- top navigation ---- */
+  .topnav{display:flex;align-items:center;gap:26px}
+  .topnav a{font-family:var(--mono);font-size:12.5px;color:var(--muted);text-decoration:none;
+    padding-bottom:3px;border-bottom:1px solid transparent;transition:color .15s,border-color .15s}
+  .topnav a:hover{color:var(--text);border-bottom-color:var(--gold)}
+  .topnav a.hi{color:var(--gold)}
+  @media (max-width:600px){
+    .topbar{flex-wrap:wrap;gap:10px}
+    .topnav{gap:18px;order:3;width:100%;padding-top:4px}
+    .topnav a{font-size:12px}
+    .top-tag{display:none}
+  }
 
   /* ---------- hero (graphing-calculator panel, framed like a card, beside confident type) ---------- */
   .hero{position:relative;min-height:82vh;display:grid;grid-template-columns:1.04fr 0.96fr;align-items:center;
@@ -144,6 +156,26 @@
   .vz-mini input:focus{border-color:rgba(216,184,115,.55)}
   .vz-mini button{background:var(--gold);color:#1c1206;border:none;border-radius:9px;font-family:var(--mono);font-weight:700;font-size:12px;padding:11px 16px;cursor:pointer;transition:filter .15s,transform .15s}
   .vz-mini button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  /* ---- The Visualizer: its own card, with room to breathe ---- */
+  .vzcard{background:linear-gradient(180deg,rgba(216,184,115,.07),rgba(216,184,115,.025));
+    border:1px solid rgba(216,184,115,.30);border-radius:18px;padding:26px 26px 22px;margin:6px 0 8px}
+  .vzcard .vztop{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .vzcard .nb{background:var(--gold);color:#1c1206;border-radius:10px;padding:2px 9px;font-family:var(--mono);
+    font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+  .vzcard h3{font-family:var(--display);font-weight:600;font-size:23px;letter-spacing:-.02em;margin:0}
+  .vzcard .vzsub{color:var(--muted);font-size:14.5px;line-height:1.65;max-width:640px;margin-bottom:18px}
+  .vzcard form{display:flex;gap:10px;flex-wrap:wrap}
+  .vzcard input{flex:1;min-width:240px;background:rgba(10,12,14,.85);border:1px solid var(--line);border-radius:11px;
+    color:inherit;font-family:var(--mono);font-size:13.5px;padding:14px 15px;outline:none}
+  .vzcard input:focus{border-color:rgba(216,184,115,.55)}
+  .vzcard button{background:var(--gold);color:#1c1206;border:none;border-radius:11px;font-family:var(--mono);
+    font-weight:700;font-size:13px;padding:14px 22px;cursor:pointer;transition:filter .15s,transform .15s;white-space:nowrap}
+  .vzcard button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .vzlinks{display:flex;gap:22px;flex-wrap:wrap;margin-top:16px;font-family:var(--mono);font-size:12.5px}
+  .vzlinks a{color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(216,184,115,.3);padding-bottom:2px}
+  .vzlinks a:hover{border-bottom-color:var(--gold)}
+  .vzlinks a.q{color:var(--muted);border-bottom-color:transparent}
+  .vzlinks a.q:hover{color:var(--text)}
   @keyframes heroRise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
   .kicker,.lede,.cta-row,.hero-chips,h1{opacity:0;animation:heroRise .8s cubic-bezier(.2,.7,.2,1) forwards}
   .kicker{animation-delay:.04s} h1{animation-delay:.14s} .lede{animation-delay:.34s} .cta-row{animation-delay:.5s} .hero-chips{animation-delay:.6s}
@@ -409,6 +441,15 @@
   footer{color:var(--muted);font-size:12.5px;margin:48px 0 40px;border-top:1px solid var(--line);padding-top:18px;line-height:1.7}
   footer b{color:var(--text);font-weight:600}
   footer .fnote{color:var(--faint);font-size:11.5px;margin-top:4px}
+  /* ---- footer link map ---- */
+  .fmap{display:grid;grid-template-columns:2fr 1fr;gap:34px;margin-bottom:26px}
+  .fmap .fh{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:12px}
+  .funits{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:7px 20px}
+  .fmap a{color:var(--muted);text-decoration:none;font-size:12.5px;line-height:1.75;display:block}
+  .fmap a:hover{color:var(--gold)}
+  .fmore a{display:block;margin-bottom:7px}
+  @media (max-width:700px){ .fmap{grid-template-columns:1fr;gap:26px} }
 
   /* fade-in groups */
   @keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
@@ -442,6 +483,10 @@
       </svg>
       <span class="wordmark">Visual <b>Calculus</b></span>
     </a>
+    <nav class="topnav" aria-label="Main">
+      <a href="#readyGroup">Units</a>
+      <a href="visualizer.html" class="hi">Visualizer</a>
+    </nav>
     <span class="top-tag">AP&nbsp;·&nbsp;BC</span>
   </div>
 
@@ -465,13 +510,6 @@
           <div><div class="n" data-count="49">49</div><div class="l">Lessons</div></div>
         </div>
       </div>
-      <div class="vz-mini">
-        <div class="vzlab"><span class="nb">New</span> The Visualizer &mdash; it does <i>your</i> homework, visually</div>
-        <form action="visualizer.html" method="get">
-          <input name="q" placeholder="paste a problem&hellip; e.g. revolve y=sqrt(x) and y=x^2 about the x-axis" autocomplete="off" spellcheck="false">
-          <button type="submit">Visualize &rarr;</button>
-        </form>
-      </div>
       <div class="hero-chips">
         <span class="hchip">Manipulable visuals</span>
         <span class="hchip">Why before what</span>
@@ -492,6 +530,25 @@
     </div>
   </section>
 
+  <!-- ===================== THE VISUALIZER ===================== -->
+  <div class="vzcard">
+    <div class="vztop">
+      <span class="nb">New</span>
+      <h3>The Visualizer &mdash; it does <i>your</i> homework, visually</h3>
+    </div>
+    <p class="vzsub">Paste any problem from your own homework &mdash; a function, a pair of curves, a word problem.
+      It works out what you were asked, draws it with <b>your</b> numbers, and then walks you through it
+      one question at a time.</p>
+    <form action="visualizer.html" method="get">
+      <input name="q" placeholder="paste a problem&hellip; e.g. revolve y=sqrt(x) and y=x^2 about the x-axis" autocomplete="off" spellcheck="false">
+      <button type="submit">Visualize &rarr;</button>
+    </form>
+    <div class="vzlinks">
+      <a href="visualizer.html">Open the Visualizer &rarr;</a>
+      <a class="q" href="embed.html">Teacher? Put these graphs on your own site &rarr;</a>
+    </div>
+  </div>
+
   <div class="continue" id="continueBar">
     <span class="ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 5l12 7-12 7z" fill="currentColor"/></svg></span>
     <div class="ct">
@@ -506,7 +563,7 @@
   <div class="group-fade" id="readyGroup">
     <div class="sec-head">
       <div class="t"><span class="sn">01</span>Start here</div>
-      <h2>Eight units, ready to use</h2>
+      <h2>Ten units, ready to use</h2>
       <p class="sub">Each is a complete guide &mdash; interactive lessons, a full exam-style practice set, and a one-page cheat sheet.</p>
     </div>
     <div class="router" id="router">
@@ -811,6 +868,28 @@
   </div>
 
   <footer>
+    <div class="fmap">
+      <div>
+        <div class="fh">The course</div>
+        <div class="funits">
+          <a href="unit1.html">1 &middot; Limits &amp; Continuity</a>
+          <a href="unit2.html">2 &middot; Definition &amp; Rules</a>
+          <a href="unit3.html">3 &middot; Composite &amp; Implicit</a>
+          <a href="unit4.html">4 &middot; Contextual Applications</a>
+          <a href="unit5.html">5 &middot; Analytical Applications</a>
+          <a href="unit6.html">6 &middot; Integration &amp; Accumulation</a>
+          <a href="unit7.html">7 &middot; Differential Equations</a>
+          <a href="unit8.html">8 &middot; Applications of Integration</a>
+          <a href="unit9.html">9 &middot; Parametric, Polar &amp; Vectors</a>
+          <a href="unit10.html">10 &middot; Sequences &amp; Series</a>
+        </div>
+      </div>
+      <div class="fmore">
+        <div class="fh">Tools</div>
+        <a href="visualizer.html">The Visualizer</a>
+        <a href="embed.html">Embed a graph</a>
+      </div>
+    </div>
     <b>Visual AP Calculus BC</b> &mdash; a free, student&#8209;built study guide, made one unit at a time.<br>
     <span class="fnote">Open in any browser, no install needed &middot; works on phone, tablet, or laptop.</span>
   </footer>
