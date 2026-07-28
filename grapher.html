@@ -303,6 +303,12 @@ function drawAnimate(an,p){
 }
 function drawLine(ln,prog){
   const [a,b]=DOM;
+  /* tangent/secant point at a curve BY INDEX, and that curve need not exist: an
+     implicit scene has functions:[] yet the model still emitted
+     lines:[{type:"tangent","to":0}], so f was undefined and f(x0) threw — killing
+     the entire render, circle and all. Same guard drawShade and drawRiemann carry.
+     A tangent we cannot compute is simply not drawn; everything else still is. */
+  if((ln.type==='tangent'||ln.type==='secant') && typeof FNS_C[ln.to]!=='function') return;
   ctx.save(); ctx.lineWidth=2.4; ctx.setLineDash([]);
   if(ln.type==='tangent'){ const f=FNS_C[ln.to], x0=ln.at, h=1e-4, m=(f(x0+h)-f(x0-h))/(2*h), y0=f(x0);
     const yA=y0+m*(a-x0), yB=y0+m*(b-x0); ctx.strokeStyle=cget(ln.color||'glow'); ctx.globalAlpha=prog;
@@ -318,11 +324,25 @@ function drawLine(ln,prog){
 }
 
 function drawPoint(pt,prog){
-  const f = pt.on!=null ? FNS_C[pt.on] : null; const y = pt.y!=null ? pt.y : (f?f(pt.x):0);
+  const f = pt.on!=null ? FNS_C[pt.on] : null;
+  let y = pt.y!=null ? pt.y : (typeof f==='function' ? f(pt.x) : null);
+  /* "on":0 with functions:[] used to fall through to y=0, dropping the marked
+     point onto the x-axis — a dot labelled "(3,4)" sitting at (3,0). On an
+     implicit scene the intended point is the one the curve is tangent at. */
+  if(y==null && Array.isArray(SCENE.implicit)){
+    const t=SCENE.implicit.map(c=>c.tangentAt).find(t=>Array.isArray(t)&&Math.abs(t[0]-pt.x)<1e-6);
+    if(t) y=t[1];
+  }
+  if(y==null || !isFinite(y)) return;                  // nothing honest to draw
   const px=M.sx(pt.x), py=M.sy(y); const r=6*prog;
   ctx.save(); ctx.shadowColor=COL.glow; ctx.shadowBlur=16*prog; ctx.fillStyle=COL.glow;
   ctx.beginPath(); ctx.arc(px,py,r,0,7); ctx.fill(); ctx.restore();
-  if(pt.label&&prog>0.6){ ctx.fillStyle=COL.ink; ctx.font='italic 15px Georgia,serif'; ctx.textAlign='left'; ctx.textBaseline='bottom';
+  /* the implicit tangent readout already prints "dy/dx = … at (3, 4)" right here;
+     a second "(3,4)" lands on top of it and both become unreadable */
+  const dup = Array.isArray(SCENE.implicit) &&
+              SCENE.implicit.some(c=>Array.isArray(c.tangentAt)&&Math.abs(c.tangentAt[0]-pt.x)<1e-6) &&
+              /^\s*\(?\s*-?[\d.]+\s*,\s*-?[\d.]+\s*\)?\s*$/.test(pt.label||'');
+  if(pt.label&&!dup&&prog>0.6){ ctx.fillStyle=COL.ink; ctx.font='italic 15px Georgia,serif'; ctx.textAlign='left'; ctx.textBaseline='bottom';
     ctx.globalAlpha=(prog-0.6)/0.4; ctx.fillText(prettyMath(pt.label), px+11, py-9); ctx.globalAlpha=1; }
 }
 
@@ -469,6 +489,56 @@ function verifyShade(){
   sh.interval=iv.map(v=>{ let best=v,bd=tol;
     for(const r of roots){ const d=Math.abs(r-v); if(d<bd){ bd=d; best=r; } }
     return best; });
+}
+/* Derivatives are the worst case measured so far: asked for d/dx of
+   ln(x^2+1)·e^(3x), the model produced the correct expression on 1 run out of 4
+   — the other three were plausible-looking and wrong, and one of those was the
+   ONLY curve drawn, so the student saw a confident graph of nothing.
+   The renderer never has to accept that: a derivative is computable exactly here.
+   Where the claimed f' disagrees with the numeric derivative of f, we keep the
+   curve but plot the TRUE slope instead of the model's algebra. */
+function verifyDerivative(){
+  if(!SCENE.functions || SCENE.functions.length<2 || FNS_C.length<2) return;
+  const isDeriv=l=>!/antideriv/i.test(l||'') && /deriv|f\s*['′]|dy\s*\/\s*dx/i.test(l||'');
+  /* Find f by LABEL, not position. One run returned the pair the other way round
+     — derivative first, original second — and an index-based check sailed
+     straight past a wrong curve sitting in slot 0. */
+  let base=-1;
+  for(let i=0;i<SCENE.functions.length;i++){
+    if(!isDeriv(SCENE.functions[i].label)){ base=i; break; }
+  }
+  if(base<0) return;
+  const f=FNS_C[base]; if(typeof f!=='function') return;
+  const a=DOM[0], b=DOM[1], h=Math.max(1e-6,(b-a)/2e5);
+  const numeric=x=>(f(x+h)-f(x-h))/(2*h);
+  for(let i=0;i<SCENE.functions.length;i++){
+    if(i===base) continue;
+    const spec=SCENE.functions[i], g=FNS_C[i];
+    const lab=spec.label||'';
+    /* "antiderivative" contains "derivative" — without this guard every
+       indefinite-integral graph would have its antiderivative silently replaced
+       by the derivative of the integrand, which is the integrand itself. */
+    if(!isDeriv(lab)) continue;                                         // not claimed as one
+    if(typeof g!=='function') continue;
+    let tried=0, agreed=0, slopeOK=0;
+    for(let k=1;k<40;k++){
+      const x=a+(b-a)*k/40, want=numeric(x), got=g(x);
+      if(!isFinite(want)) continue;
+      slopeOK++;                                   // f is differentiable here
+      if(!isFinite(got)) continue;                 // ...but the claim isn't a number
+      tried++;
+      if(Math.abs(got-want) <= 0.02*Math.max(1,Math.abs(want))) agreed++;
+    }
+    /* Two ways the claim fails, and both end the same way. It can be plain wrong,
+       or it can be unusable — one run returned "(ln(x^2+1)*e^(3x))' = ..." , which
+       is prose, not an expression, and compiles to nothing. Either way f is
+       differentiable right here, so draw the real thing. */
+    if(slopeOK>=12 && (tried<12 || agreed/tried < 0.8)){
+      FNS_C[i]=numeric;                                  // plot the real slope
+      spec.expr='d/dx of '+SCENE.functions[base].expr;   // base, not 0 — they are not always in that order
+      spec.label="f′(x) — computed from f";
+    }
+  }
 }
 /* The model is asked to compute the antiderivative itself on indefinite-integral
    problems, and it is not reliable at it: ∫x·e^x dx came back as "e^x" on one run
@@ -875,7 +945,7 @@ function build(){
   DOM=SCENE.domain||(PSUM?[0,PSUM.N+1]:[-5,5]);
   // fact-check the AI's claims. Antiderivative first: it can remove a curve, and
   // everything below (shading indices, the legend) is built from what survives.
-  try{ verifyAntiderivative(); verifyShade(); widenDomain(); verifyImplicitPoints(); }catch(e){}
+  try{ verifyDerivative(); verifyAntiderivative(); verifyShade(); widenDomain(); verifyImplicitPoints(); }catch(e){}
   document.getElementById('cap').textContent=prettyMath(SCENE.caption||'');
   const ec=document.getElementById('embedCap'); if(ec) ec.textContent=prettyMath(SCENE.caption||'');
   let lg=SCENE.functions.map(f=>
