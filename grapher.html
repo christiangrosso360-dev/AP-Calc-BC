@@ -54,11 +54,27 @@
 <script>
 /* ================= EXPRESSION PARSER (ported from Revolve) ================= */
 const FN_ALIAS={arcsin:'asin',arccos:'acos',arctan:'atan'};
+/* names the tokenizer must keep whole — everything else multi-letter is read as
+   implicit multiplication of single variables (see tokenize) */
+const KNOWN_ID={pi:1,theta:1,infinity:1,
+  sin:1,cos:1,tan:1,asin:1,acos:1,atan:1,arcsin:1,arccos:1,arctan:1,
+  sinh:1,cosh:1,tanh:1,sec:1,csc:1,cot:1,ln:1,log:1,log2:1,exp:1,
+  sqrt:1,cbrt:1,abs:1,fact:1};
 function tokenize(s){ s=s.replace(/\s+/g,''); if(!s) throw new Error('empty'); const T=[]; let i=0;
   const dig=c=>c>='0'&&c<='9', alp=c=>(c>='a'&&c<='z')||(c>='A'&&c<='Z');
   while(i<s.length){ const c=s[i];
     if(dig(c)||c==='.'){ let j=i+1; while(j<s.length&&(dig(s[j])||s[j]==='.'))j++; T.push({t:'num',v:parseFloat(s.slice(i,j))}); i=j; }
-    else if(alp(c)){ let j=i+1; while(j<s.length&&(alp(s[j])||dig(s[j])))j++; T.push({t:'id',v:s.slice(i,j).toLowerCase()}); i=j; }
+    else if(alp(c)){ let j=i+1; while(j<s.length&&(alp(s[j])||dig(s[j])))j++;
+      const nm=s.slice(i,j).toLowerCase();
+      /* "6xy" lexed as num 6 + id "xy" and died with "unknown xy" — so the folium
+         of Descartes, written the way every textbook writes it, drew nothing at
+         all. Adjacent variables are implicit multiplication. The PARSER already
+         inserts the multiply between two tokens; it just never got two tokens.
+         Split only unknown multi-letter names that aren't function calls, so
+         sin/sqrt/pi/arctan are all still lexed whole. */
+      if(nm.length>1 && s[j]!=='(' && !KNOWN_ID[nm]){ for(const ch of nm) T.push({t:'id',v:ch}); }
+      else T.push({t:'id',v:nm});
+      i=j; }
     else if('+-*/^()'.includes(c)){ T.push({t:c}); i++; } else throw new Error('bad char '+c); } return T; }
 function parse(str){ const T=tokenize(str); let p=0; const peek=()=>T[p], adv=()=>T[p++];
   function expr(){ let a=term(); while(peek()&&(peek().t==='+'||peek().t==='-')){ const o=adv().t; a={t:o==='+'?'add':'sub',a,b:term()}; } return a; }
@@ -80,9 +96,24 @@ const FNS={ sin:Math.sin,cos:Math.cos,tan:Math.tan,asin:Math.asin,acos:Math.acos
 function ev(n,x,y){ switch(n.t){ case 'num':return n.v; case 'var':return x; case 'vary':return y; case 'neg':return -ev(n.a,x,y);
   case 'add':return ev(n.a,x,y)+ev(n.b,x,y); case 'sub':return ev(n.a,x,y)-ev(n.b,x,y); case 'mul':return ev(n.a,x,y)*ev(n.b,x,y); case 'div':return ev(n.a,x,y)/ev(n.b,x,y);
   case 'pow':return Math.pow(ev(n.a,x,y),ev(n.b,x,y)); case 'call':{ const f=FNS[n.name]; if(!f) throw new Error('fn '+n.name); return f(ev(n.arg,x,y)); } } }
-function compile(expr){ const ast=parse(expr); return x=>{ try{ const v=ev(ast,x); return isFinite(v)?v:NaN; }catch(e){ return NaN; } }; }
+/* Models drop a closing bracket now and then — one run returned
+   "ln(abs(x-1))-ln(abs(x+2)" and the curve simply never appeared. The intent is
+   unambiguous when the count is off, so close it rather than lose the graph.
+   Applied inside compile so shared/embedded links get the repair too. */
+function balanceParens(s){
+  s=String(s==null?'':s);
+  let depth=0;
+  for(const c of s){ if(c==='(') depth++; else if(c===')') depth=Math.max(0,depth-1); }
+  if(depth>0) return s+')'.repeat(depth);
+  let open=0, close=0;
+  for(const c of s){ if(c==='(') open++; else if(c===')') close++; }
+  let t=s;
+  while(close>open && /\)\s*$/.test(t)){ t=t.replace(/\)\s*$/,''); close--; }   // stray trailing ")"
+  return t;
+}
+function compile(expr){ const ast=parse(balanceParens(expr)); return x=>{ try{ const v=ev(ast,x); return isFinite(v)?v:NaN; }catch(e){ return NaN; } }; }
 // two-variable form for slope fields: dy/dx = f(x, y)
-function compile2(expr){ const ast=parse(expr); return (x,y)=>{ try{ const v=ev(ast,x,y); return isFinite(v)?v:NaN; }catch(e){ return NaN; } }; }
+function compile2(expr){ const ast=parse(balanceParens(expr)); return (x,y)=>{ try{ const v=ev(ast,x,y); return isFinite(v)?v:NaN; }catch(e){ return NaN; } }; }
 
 /* ================= COLORS ================= */
 const COL={ gold:'#f0b429', glow:'#ffd66b', teal:'#3fd0b0', mag:'#e884ea', coral:'#e0644f', ink:'#f4efe2' };
@@ -415,7 +446,11 @@ function drawSolutions(prog){
     const back=solveRK4(FIELD.f,sol.x0,sol.y0,-1,(DOM[1]-DOM[0])/400,400).reverse();
     const fwd =solveRK4(FIELD.f,sol.x0,sol.y0, 1,(DOM[1]-DOM[0])/400,400);
     const pts=back.concat(fwd.slice(1));
-    const n=Math.max(2,Math.floor(pts.length*prog));
+    /* the solver stops early when the slope stops being finite, so pts can be
+       shorter than the 2-point floor below — pts[1] was then undefined and the
+       whole render died on a logistic equation. Never index past what we have. */
+    const n=Math.min(pts.length, Math.max(2,Math.floor(pts.length*prog)));
+    if(n<2) return;
     ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.lineCap='round';
     ctx.shadowColor=col; ctx.shadowBlur=12; ctx.beginPath();
     for(let i=0;i<n;i++){ const px=M.sx(pts[i][0]), py=M.sy(pts[i][1]); i?ctx.lineTo(px,py):ctx.moveTo(px,py); }

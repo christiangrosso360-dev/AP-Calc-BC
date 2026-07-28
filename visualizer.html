@@ -767,6 +767,179 @@ function pruneFunctions(scene, raw){
   return scene;
 }
 
+/* "functions" means y = f(x): an expression in x alone. Three separate runs of
+   x^3+y^3=6xy pushed things in there that can never be that — the whole equation
+   "x^(3)+y^(3)=6xy", the bare "x^3+y^3", and even "3x^2+3y^2*dy/dx" (differentiation
+   notation, not a function). Each compiles to nothing or to nonsense, and one run
+   came out an almost blank canvas. Anything mentioning y or = is not a curve here. */
+function dropUnplottable(scene){
+  if(!scene || !Array.isArray(scene.functions) || !scene.functions.length) return scene;
+  /* `functions` holds y = f(x): expressions in x and nothing else. The model
+     keeps putting other people's variables in here — "t^2" and "t^3-3t" from a
+     parametric problem, "x^n/n" from an interval-of-convergence one, "3y^2*dy/dx"
+     from implicit differentiation. None can be evaluated, so each renders as an
+     invisible curve on an otherwise convincing graph.
+     Rather than blacklist t, then n, then theta one bug at a time: allow x, e and
+     pi, treat anything followed by "(" as a function call, and reject every other
+     free name. */
+  /* "y = sin(3x^2+1)" and "dy/dx = 6x*cos(3x^2+1)" are curves wearing a label.
+     Dropping them for containing "=" threw away BOTH curves of a chain-rule
+     problem and left an empty graph. Keep the right-hand side; only a genuine
+     relation between x and y (handled by enforceImplicit above) is unusable. */
+  const strip=e=>{
+    const s=String(e||'');
+    const m=/^\s*(?:y|f\s*\(\s*x\s*\)|g\s*\(\s*x\s*\)|h\s*\(\s*x\s*\)|f\s*['′]\s*(?:\(\s*x\s*\))?|d\s*[a-z]\s*\/\s*d\s*[a-z])\s*=\s*([\s\S]+)$/i.exec(s);
+    return m ? m[1].trim() : s;
+  };
+  scene.functions=scene.functions.map(f=>Object.assign({}, f, {expr:strip(f.expr)}));
+
+  const bad=e=>{
+    const s=String(e||'');
+    if(s.indexOf('=')>=0) return true;                    // still an equation: not a curve
+    const re=/([A-Za-z]+)\s*(\(?)/g; let m;
+    while((m=re.exec(s))){
+      if(m[2]==='(') continue;                            // sin(, sqrt(, ln( …
+      const nm=m[1].toLowerCase();
+      if(nm==='x'||nm==='e'||nm==='pi') continue;
+      return true;                                        // a variable we cannot evaluate
+    }
+    return false;
+  };
+  const keep=scene.functions.filter(f=>!bad(f.expr));
+  if(keep.length===scene.functions.length) return scene;
+  scene.functions=keep;
+  const n=keep.length, stale=i=>!(typeof i==='number' && i>=0 && i<n);
+  if(scene.shade && (Array.isArray(scene.shade.between)?scene.shade.between.some(stale):stale(scene.shade.under))) delete scene.shade;
+  if(scene.riemann && stale(scene.riemann.on)) delete scene.riemann;
+  if(scene.analysis && stale(scene.analysis.of)) delete scene.analysis;
+  if(Array.isArray(scene.lines)) scene.lines=scene.lines.filter(l=>!(l&&(l.type==='tangent'||l.type==='secant')&&stale(l.to)));
+  (scene.points||[]).forEach(p=>{ if(p && p.on!=null && stale(p.on)) delete p.on; });
+  return scene;
+}
+
+/* An equation relating x and y that is NOT solved for y is an implicit curve —
+   the renderer has a marching-squares path for exactly this. The model reached
+   for it only 1 run in 3 on x^3+y^3=6xy; the others tried to force the equation
+   into a function slot, or decided it was a limit problem. The equation is right
+   there in the student's text, so this is not the model's call to get wrong. */
+function enforceImplicit(scene, raw){
+  if(!scene || scene.polar || scene.param || scene.psum || scene.field) return scene;
+  /* strip derivative notation first — "dy/dx" is full of y and would match below */
+  const t=String(raw||'').replace(/\(*\s*d\s*y\s*\)*\s*\/\s*\(*\s*d\s*x\s*\)*/gi,' ');
+  const m=/([^=]*)=([^=]*)/.exec(t.replace(/^[^:]*:/,''));   // drop any "instruction:" prefix
+  if(!m) return scene;
+  /* Keep only the MATHS either side of the "=". Taking the raw text turned
+     "graph y = x^2 and find the area under it" into an implicit curve called
+     "(graph y) - (x^2 and find...)" — the prose was being fed to the parser and
+     the ordinary function it should have plotted was thrown away. */
+  const isWord=k=>/^[A-Za-z]{3,}$/.test(k) || /^(of|the|is|and|for|at|in|to|by|on|or|if|as|be|it)$/i.test(k);
+  const tail=s=>{ const k=s.trim().split(/\s+/); let i=k.length;
+                  while(i>0 && !isWord(k[i-1])) i--; return k.slice(i).join(' ').trim(); };
+  const head=s=>{ const k=s.trim().split(/\s+/); let i=0;
+                  while(i<k.length && !isWord(k[i])) i++; return k.slice(0,i).join(' ').trim(); };
+  const L=tail(m[1]).replace(/^[^a-zA-Z0-9(]+/,''), R=head(m[2]);
+  const hasY=s=>/(^|[^a-zA-Z])y([^a-zA-Z(]|$)/.test(s);
+  if(!L || !R) return scene;
+  if(!(hasY(L)||hasY(R))) return scene;                      // no y anywhere: not implicit
+  if(/^y$/i.test(L) || /^y$/i.test(R)) return scene;         // y = f(x) is an ordinary curve
+  if(!/[a-zA-Z]/.test(L) || !/[0-9a-zA-Z]/.test(R)) return scene;
+  if(!Array.isArray(scene.implicit) || !scene.implicit.length){
+    scene.implicit=[{eq:'('+L+') - ('+R+')', color:'gold', label:L+' = '+R}];
+    /* a self-intersecting cubic needs room — the loop of the folium reaches (3,3)
+       and one run picked a domain of [-2,2], which cuts the shape in half */
+    const wide=[-6,6];
+    if(!Array.isArray(scene.domain) || (scene.domain[1]-scene.domain[0])<8) scene.domain=wide;
+    if(!Array.isArray(scene.yrange) || (scene.yrange[1]-scene.yrange[0])<8) scene.yrange=wide;
+  }
+  scene.functions=[];                                        // never both
+  delete scene.shade; delete scene.analysis; delete scene.riemann;
+
+  /* x^3+y^3=6xy was classified as a LIMIT problem on all three runs — captions
+     read "two-sided limit of x³+y³-6xy as x approaches 0" and one run drew a
+     horizontal line at y=10 across the folium. Neither belongs on an implicit
+     differentiation problem, and the student's own words say what this is. */
+  /* `eq` must be the expression F(x,y) alone — the renderer solves F = 0 itself.
+     One run returned "x^3+y^3-6xy=0" WITH the equals sign, which cannot compile,
+     so the curve silently vanished. Fold any "=" back into a single expression. */
+  (scene.implicit||[]).forEach(c=>{
+    const m=/^([^=]*)=([^=]*)$/.exec(String(c.eq||''));
+    if(m && m[1].trim() && m[2].trim()) c.eq='('+m[1].trim()+') - ('+m[2].trim()+')';
+  });
+  /* the renderer needs F(x,y)=0, but the LEGEND should show the equation the
+     student actually wrote — "x³+y³-6xy = 0" reads like a typo of their problem */
+  (scene.implicit||[]).forEach(c=>{
+    const l=String(c.label||'');
+    if(!/=/.test(l) || /=\s*0\s*$/.test(l)) c.label=L+' = '+R;
+  });
+
+  const wantsLine=/\blimit\b|asymptote|horizontal tangent|vertical tangent/i.test(t);
+  if(!wantsLine) delete scene.lines;
+  if(/\blimit\b/i.test(scene.caption||'')) scene.caption='implicit differentiation of '+L+' = '+R;
+
+  /* No point in the problem means no tangent to draw. Left alone the model
+     invented one — (-1,0), which is not on the curve at all, and (0,0), which on
+     the folium is the self-intersection where the slope isn't even defined. */
+  const givesPoint=/\(\s*-?[\d.]+\s*,\s*-?[\d.]+\s*\)/.test(t) || /\bat\s+x\s*=/i.test(t);
+  if(!givesPoint){
+    (scene.implicit||[]).forEach(c=>{ delete c.tangentAt; });
+    delete scene.points;
+  }
+  /* an implicit curve needs a y-window as much as an x-one; without it the
+     folium's loop runs off the top of a default range */
+  if(Array.isArray(scene.domain) && !Array.isArray(scene.yrange)) scene.yrange=scene.domain.slice();
+  /* with no functions left, any tangent/secant "to" a function index refers to
+     nothing — and a point pinned "on" one has no curve to sit on */
+  if(Array.isArray(scene.lines)) scene.lines=scene.lines.filter(l=>!(l&&(l.type==='tangent'||l.type==='secant')));
+  (scene.points||[]).forEach(p=>{ if(p && p.on!=null) delete p.on; });
+  return scene;
+}
+
+/* A differential equation names its own variables: in dP/dt the DEPENDENT one is
+   P (the thing being graphed, y) and the independent one is t (x). The renderer
+   speaks x and y, and "dP/dt = 0.5P(1 - P/100)" came back as
+   dydx:"0.5*x*(1 - x/100)" — the logistic rate made to depend on TIME instead of
+   population, which is a different equation with a completely different picture.
+   Rename from the student's own text rather than hoping. */
+function enforceFieldVars(scene, raw){
+  if(!scene || !scene.field || !scene.field.dydx) return scene;
+  const m=/\bd\s*([a-zA-Z])\s*\/\s*d\s*([a-zA-Z])\b/i.exec(String(raw||''));
+  if(!m) return scene;
+  const dep=m[1], ind=m[2];
+  if(dep.toLowerCase()==='y' && ind.toLowerCase()==='x') return scene;      // already right
+  let e=String(scene.field.dydx);
+  const swap=(s,from,to)=>s.replace(new RegExp('(^|[^a-zA-Z])'+from+'(?![a-zA-Z])','gi'),'$1'+to);
+  /* If the model already wrote the rate in x but the equation's independent
+     variable is t, the x it used IS the dependent variable — rename it to y. */
+  if(!/(^|[^a-zA-Z])y(?![a-zA-Z])/i.test(e) && ind.toLowerCase()!=='x'){
+    e=swap(e,'x','y');
+  }
+  e=swap(e,dep,'y'); e=swap(e,ind,'x');
+  /* "0.5y(1 - y/100)" would parse as a CALL to a function named y — the implicit
+     multiply has to be explicit before a parenthesis */
+  e=e.replace(/([xy])\s*\(/g,'$1*(');
+  scene.field=Object.assign({},scene.field,{dydx:e});
+  return scene;
+}
+
+/* "x = f(t), y = g(t)" is a parametric curve and belongs in `param`. One run of
+   "a particle moves with x = t^2, y = t^3 - 3t" omitted `param` entirely and put
+   both expressions in `functions`, where they are written in the wrong variable
+   and evaluate to nothing — two invisible curves. The parametrization is stated
+   in the problem, so it is recoverable without asking. */
+function enforceParametric(scene, raw){
+  if(!scene || scene.polar || scene.psum || scene.field || scene.implicit) return scene;
+  if(Array.isArray(scene.param) && scene.param.length) return scene;
+  const m=/x\s*(?:\(\s*t\s*\))?\s*=\s*([^,;]+?)\s*[,;]\s*(?:and\s+)?y\s*(?:\(\s*t\s*\))?\s*=\s*([^,;.]+)/i.exec(String(raw||''));
+  if(!m) return scene;
+  const xs=m[1].trim(), ys=m[2].trim();
+  const inT=s=>/(^|[^a-zA-Z])t([^a-zA-Z(]|$)/.test(s);
+  if(!inT(xs) || !inT(ys)) return scene;               // both sides must be in t
+  scene.param=[{x:xs, y:ys, t:[-3,3], color:'gold', label:'x = '+xs+',  y = '+ys}];
+  scene.functions=[];
+  delete scene.shade; delete scene.analysis; delete scene.riemann;
+  return scene;
+}
+
 /* A derivative problem that comes back with only the original curve answers
    nothing — the student asked for f', and one run in four omitted it entirely.
    Add the slot and let the renderer fill it: grapher.html verifies any curve
@@ -774,11 +947,28 @@ function pruneFunctions(scene, raw){
    one whenever the claim doesn't hold, so a deliberately wrong placeholder here
    is guaranteed to come out as the correct derivative. */
 function ensureDerivativeCurve(scene, raw){
-  if(!scene || !Array.isArray(scene.functions) || scene.functions.length!==1) return scene;
+  if(!scene || !Array.isArray(scene.functions) || !scene.functions.length) return scene;
   if(scene.polar||scene.param||scene.psum||scene.field||scene.implicit) return scene;
-  if(!/\bderivative\b|\bdifferentiate\b|\bd\s*\/\s*dx\b|f\s*['′]\s*\(/i.test(raw||'')) return scene;
-  if(/antideriv|integral|integrate/i.test(raw||'')) return scene;      // opposite problem
-  scene.functions.push({expr:'0', label:"f'(x)", color:'teal'});
+  const t=String(raw||'');
+  /* The old pattern looked for "d" immediately followed by a slash, so it never
+     matched "dy/dx" — the character after the d is a y. "Find dy/dx if
+     y = sin(3x^2+1)" was therefore not recognised as a derivative problem at all
+     and got no f-prime curve. Match d<letter> over d<letter> instead.
+     "dy/dx =" is a DIFFERENTIAL EQUATION, a different problem: skip those. */
+  if(/\bd[a-z]?\s*\/\s*d\s*[a-z]\s*=/i.test(t)) return scene;
+  if(!/\bderivative\b|\bdifferentiate\b|\bd[a-z]?\s*\/\s*d\s*[a-z]\b|f\s*['′]\s*\(/i.test(t)) return scene;
+  if(/antideriv|integral|integrate/i.test(t)) return scene;            // opposite problem
+  const isDeriv=l=>!/antideriv/i.test(l||'') && /deriv|f\s*['′]|dy\s*\/\s*dx/i.test(l||'');
+  if(scene.functions.some(f=>isDeriv(f.label))) return scene;          // already claimed
+  if(scene.functions.length===1){
+    scene.functions.push({expr:'0', label:"f'(x)", color:'teal'});
+  }else{
+    /* Two curves and NEITHER called a derivative — seen on "Find dy/dx if
+       y = sin(3x^2+1)". The verifier keys off that label, so without it a wrong
+       second curve sails through unchecked. Name it, and the renderer will prove
+       or replace it. */
+    scene.functions[1].label="f'(x)";
+  }
   return scene;
 }
 
@@ -794,12 +984,33 @@ function enforceStatedBounds(scene, raw){
     const t0=numLit(pm[1]), t1=numLit(pm[2]);
     if(isFinite(t0)&&isFinite(t1)&&t1>t0) scene.polar[0].t=[t0,t1];
   }
+  /* "one petal" with no range stated. The model returns 0 to pi/3 for
+     r = 2cos(3theta), which draws half of one petal and half of the NEXT while
+     the caption promises one petal — the student sees the wrong region for the
+     area they are computing. A rose r = a·cos(kθ) has a petal centred on θ = 0
+     spanning ±pi/(2k); r = a·sin(kθ) has one running 0 to pi/k. Computable, so
+     not the model's to guess. */
+  if(!pm && /\b(one|a|single)\s+petal\b/i.test(txt) && Array.isArray(scene.polar) && scene.polar.length){
+    const rs=String(scene.polar[0].r||'');
+    let mm=/cos\s*\(\s*(\d+(?:\.\d+)?)\s*\*?\s*theta\s*\)/i.exec(rs);
+    if(mm && +mm[1]>0){ const k=+mm[1]; scene.polar[0].t=[-Math.PI/(2*k), Math.PI/(2*k)]; }
+    else{
+      mm=/sin\s*\(\s*(\d+(?:\.\d+)?)\s*\*?\s*theta\s*\)/i.exec(rs);
+      if(mm && +mm[1]>0){ const k=+mm[1]; scene.polar[0].t=[0, Math.PI/k]; }
+    }
+  }
 
   /* A limit problem is about behaviour NEAR a point, not area. The prompt says
      never to shade one, and it mostly obeys — but "mostly" means a student
      occasionally gets a filled region implying a definite integral nobody asked
      for. It costs two lines to make that impossible. */
-  if(/\blim(it)?\b.*\bapproach/i.test(txt) && scene.shade && !scene.polar) delete scene.shade;
+  /* Anything about a value being APPROACHED is about behaviour near a point, not
+     area. Keying on the word "limit" alone missed "use l'hopital's rule on
+     (e^x-1)/x as x approaches 0", which came out shaded over [-0.1, 0.1] —
+     asserting a definite integral nobody asked for. The exclusions keep genuine
+     area/volume problems (which can also say "approaches") shaded. */
+  if(/\bapproach(es|ing)?\b/i.test(txt) && !/\bintegral\b|\barea\b|\bvolume\b|\briemann\b|average value/i.test(txt)
+     && scene.shade && !scene.polar) delete scene.shade;
 
   /* INDEFINITE integral — "integral of f dx" with no bounds anywhere in the
      text. There is no region to shade: the answer is a family of antiderivatives,
@@ -812,8 +1023,19 @@ function enforceStatedBounds(scene, raw){
      && scene.shade && scene.shade.between==null
      && !scene.polar && !scene.param) delete scene.shade;
 
-  const m=/integral from x=(\S+) to x=(\S+) of/.exec(txt); if(!m) return scene;
-  const a=numLit(m[1]), b=numLit(m[2]);
+  const m=/integral from x=(\S+) to x=(\S+) of/.exec(txt);
+  let a, b;
+  if(m){ a=numLit(m[1]); b=numLit(m[2]); }
+  else if(/\bintegral\b|\barea under\b|\baverage value\b|\briemann\b/i.test(txt)){
+    /* The bounds are just as often written AFTER the integrand — "the integral of
+       x^2 from 0 to 4", "the average value of f on [0,3]", "a midpoint Riemann sum
+       from 0 to 4". Only the "integral from x=a to x=b of" order was recognised, so
+       these came out unshaded: a definite integral drawn as if it had no limits.
+       extractInterval already knows every one of these phrasings. */
+    const iv=extractInterval(txt);
+    if(iv){ a=numLit(iv[0]); b=numLit(iv[1]); }
+  }
+  if(a==null||b==null) return scene;
   if(!isFinite(a)||!isFinite(b)||b<=a) return scene;
   if(!Array.isArray(scene.functions)||!scene.functions.length||scene.functions.length>2) return scene;
   if(scene.polar||scene.param||scene.psum||scene.field||scene.implicit) return scene;
@@ -833,7 +1055,9 @@ function enforceStatedBounds(scene, raw){
 }
 
 function showGraph(scene, raw){
-  scene=enforceStatedBounds(ensureDerivativeCurve(pruneFunctions(scene, raw), raw), raw);
+  // implicit first: it can empty `functions`, and everything after reads that array
+  scene=enforceStatedBounds(ensureDerivativeCurve(pruneFunctions(
+           dropUnplottable(enforceFieldVars(enforceImplicit(enforceParametric(scene, raw), raw), raw)), raw), raw), raw);
   (function(){var b=document.getElementById("rShare"); if(b) b.style.display="";})();
   var _l=document.getElementById('rLoad'); if(_l) _l.style.display='none';
   const R=document.getElementById('result');
