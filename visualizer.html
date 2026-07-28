@@ -49,6 +49,11 @@
     font-weight:700;font-size:14px;padding:13px 26px;cursor:pointer;letter-spacing:.04em;box-shadow:0 10px 22px -12px var(--approx);transition:transform .15s,filter .15s}
   .vz-go:hover{transform:translateY(-1px);filter:brightness(1.07)}
   .vz-hint{font-family:var(--mono);font-size:11.5px;color:var(--faint,#6b6047)}
+  .vz-cam{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:10px;
+    font-family:var(--mono);font-size:13px;padding:12px 18px;cursor:pointer;
+    transition:color .15s,border-color .15s}
+  .vz-cam:hover{color:var(--approx);border-color:rgba(240,180,41,.5)}
+  .vz-cam[disabled]{opacity:.55;cursor:default}
   .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
   .chips button{font-family:var(--mono);font-size:11.5px;color:var(--muted);background:#151006;border:1px solid var(--line);
     border-radius:20px;padding:8px 14px;cursor:pointer;transition:border-color .15s,color .15s}
@@ -172,7 +177,14 @@
     </div>
     <div class="vz-row">
       <button class="vz-go" id="go">Visualize →</button>
-      <span class="vz-hint">it reads plain english · beta</span>
+      <!-- capture="environment" opens the rear camera straight away on a phone,
+           which is the whole point: this exists to replace typing a long word
+           problem on a phone keyboard. -->
+      <input type="file" id="photoFile" accept="image/*" capture="environment" hidden>
+      <button class="vz-cam" id="photoBtn" type="button" title="Photograph a problem">
+        <span aria-hidden="true">📷</span> Photo
+      </button>
+      <span class="vz-hint" id="photoHint">it reads plain english · beta</span>
     </div>
     <div class="chips" id="chips">
       <button data-q="revolve the region between y=sqrt(x) and y=x^2 about the x-axis">revolve √x &amp; x² → a solid</button>
@@ -412,7 +424,7 @@ function hasSignatureHint(s){
    automatically retires every stale entry instead of serving scenes built by an older brain. */
 /* bump this whenever the prompts change — c2 adds the LIMIT rule, so every
    cached limit scene from c1 (which split quotients into two curves) is retired */
-const CACHE_VER='c5';
+const CACHE_VER='c6';
 const cacheKey=(kind,raw)=>'viz:'+CACHE_VER+':'+kind+':'+raw.toLowerCase().replace(/\s+/g,' ').trim();
 function cacheSweep(){                       // drop other-version entries, then cap the newest 80
   try{
@@ -890,7 +902,17 @@ async function run(){
       // a wrong area handed to the tutor as fact.
       if((ai.arch==='area'||ai.arch==='solid') && !extractInterval(raw)) ai.iv=null;
       if(ai.arch==='rates' && ai.given==null) ai.given=extractGivenRate(raw);
-      cacheSet('arch',raw,ai); show(ai); return;
+      /* "the area of the region UNDER one curve" is not an area-BETWEEN-curves
+         problem, but the phrase trips hasSignatureHint all the same. Sending it to
+         the two-curve tool left that tool pairing the student's curve with its own
+         leftover default (x^2): "area under y=x^2+1 from 0 to 3" drew a meaningless
+         sliver and reported 3 units² for a problem whose answer is 12. One curve →
+         fall through to the grapher, which shades under it and integrates the
+         bounds the student actually stated. A SOLID may legitimately have one
+         curve (a region revolved about an axis), so this guards 'area' only. */
+      if(ai.arch!=='area' || (ai.curves && ai.curves.length>=2)){
+        cacheSet('arch',raw,ai); show(ai); return;
+      }
     }
   }
   // everything else → the universal grapher (AI directs a scene-spec, deterministic renderer draws it)
@@ -972,6 +994,97 @@ document.getElementById('q').addEventListener('input',()=>{
   cur.end+=delta;
   for(let j=SLOT_I+1;j<SLOTS.length;j++){ SLOTS[j].start+=delta; SLOTS[j].end+=delta; }
 });
+
+/* ============================================================
+   PHOTO INPUT
+   The camera replaces the keyboard and nothing else: the vision model returns
+   TEXT ONLY, and that text then flows through the same recognizer, deterministic
+   verifier and answer-key tutor as anything typed. No new trust surface.
+   ============================================================ */
+const VISION_SYS='You read a photograph of a math problem and transcribe it. Output ONLY the problem text, exactly as written, as plain text on one line. No preamble, no commentary, no markdown, no code fences, no LaTeX delimiters — write x^2 not $x^2$. Keep every number, bound and instruction word ("evaluate", "find the volume", "about the x-axis"). If several problems are visible, transcribe only the one that is circled, ticked or otherwise marked; if none is marked, transcribe the first complete one. If the image contains no readable math problem, output exactly: NO_PROBLEM';
+
+/* Shrink before upload: a modern phone photo is 3-5MB, which is slow on cell
+   data and pointless — the text is legible far below that. Long edge 1600px
+   keeps small print readable while landing around 200-400KB. */
+function photoToDataURL(file, maxEdge){
+  return new Promise((resolve,reject)=>{
+    const fr=new FileReader();
+    fr.onerror=()=>reject(new Error('could not read the file'));
+    fr.onload=()=>{
+      const img=new Image();
+      img.onerror=()=>reject(new Error('that file is not an image'));
+      img.onload=()=>{
+        const scale=Math.min(1, maxEdge/Math.max(img.width,img.height));
+        const w=Math.max(1,Math.round(img.width*scale)), h=Math.max(1,Math.round(img.height*scale));
+        const c=document.createElement('canvas'); c.width=w; c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(c.toDataURL('image/jpeg',0.82));
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
+/* strip the wrappers a model reaches for even when told not to */
+function cleanTranscript(t){
+  return String(t||'')
+    .replace(/```[a-z]*|```/gi,' ')
+    .replace(/^\s*(problem|question)\s*[:.\)]\s*/i,'')
+    .replace(/\$+/g,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+
+(function photoInput(){
+  const btn=document.getElementById('photoBtn'), file=document.getElementById('photoFile'),
+        hint=document.getElementById('photoHint'), q=document.getElementById('q');
+  if(!btn||!file) return;
+  const HINT0=hint?hint.textContent:'';
+  const say=t=>{ if(hint) hint.textContent=t; };
+  const reset=()=>{ btn.disabled=false; btn.innerHTML='<span aria-hidden="true">📷</span> Photo'; };
+
+  btn.addEventListener('click',()=>file.click());
+  file.addEventListener('change',async ()=>{
+    const f=file.files&&file.files[0]; file.value='';      // so the same photo can be retried
+    if(!f) return;
+    btn.disabled=true; btn.textContent='reading…'; say('reading your photo…');
+    try{
+      const dataUrl=await photoToDataURL(f,1600);
+      const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),30000);
+      const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},signal:ctrl.signal,
+        body:JSON.stringify({system:VISION_SYS,image:dataUrl,
+          messages:[{role:'user',text:'Transcribe the math problem in this image.'}]})});
+      clearTimeout(to);
+      const d=await res.json().catch(()=>({}));
+
+      /* An OLD worker ignores the image and answers from the prompt alone — which
+         would look like it worked and be nonsense. Only trust a reply that says
+         it actually went down the vision route. */
+      if(!d.vision){
+        say(res.status===501?'photo input needs the worker updated':'photo input isn\'t enabled yet');
+        reset(); setTimeout(()=>say(HINT0),4000); return;
+      }
+      if(!res.ok||!d.text){
+        say(d.error==='rate'?'the reader is resting — try again in a minute':'couldn\'t read that photo');
+        reset(); setTimeout(()=>say(HINT0),4000); return;
+      }
+      const text=cleanTranscript(d.text);
+      if(!text||/^NO[_\s]?PROBLEM$/i.test(text)){
+        say('no math problem found in that photo');
+        reset(); setTimeout(()=>say(HINT0),4000); return;
+      }
+      q.value=text; clearSlots(); LASTLEN=text.length;
+      say('read from your photo — check it, then Visualize');
+      reset();
+      try{ if(window.goatcounter&&goatcounter.count) goatcounter.count({path:'viz-photo/used',title:'photo input',event:true}); }catch(e){}
+      run();
+    }catch(e){
+      say(e&&e.name==='AbortError'?'the reader timed out':'couldn\'t read that photo');
+      reset(); setTimeout(()=>say(HINT0),4000);
+    }
+  });
+})();
 document.getElementById('rWrong').onclick=()=>document.getElementById('picker').scrollIntoView({behavior:'smooth'});
 document.getElementById('tutorStart').onclick=startTutor;
 document.getElementById('tutorSend').onclick=tutorSendUser;
