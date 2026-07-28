@@ -113,13 +113,15 @@
   <div class="vz-box">
     <textarea id="q" placeholder="try:  revolve the region between y = sqrt(x) and y = x^2 about the x-axis" spellcheck="false" autocomplete="off"></textarea>
     <div class="syms" id="syms" aria-label="insert a math symbol">
-      <button type="button" data-ins="∫ ">∫</button>
+      <!-- a template, not a bare symbol: the bounds are the whole point of a
+           definite integral and there was previously no way to type them -->
+      <button type="button" data-ins="∫_0^1  dx" data-caret="3" title="definite integral with bounds">∫</button>
       <button type="button" data-ins="√()">√</button>
       <button type="button" data-ins="π">π</button>
       <button type="button" data-ins="²">x²</button>
       <button type="button" data-ins="³">x³</button>
       <button type="button" data-ins="ⁿ">xⁿ</button>
-      <button type="button" data-ins="Σ ">Σ</button>
+      <button type="button" data-ins="Σ_(n=1)^∞ " title="series with index and limits">Σ</button>
       <button type="button" data-ins="∞">∞</button>
       <button type="button" data-ins="θ">θ</button>
       <button type="button" data-ins="d/dx ">d/dx</button>
@@ -224,7 +226,9 @@ function deLatex(s){
   t=t.replace(/\\(arcsin|arccos|arctan|sinh|cosh|tanh|sin|cos|tan|sec|csc|cot|ln|log|exp)\b/g,'$1')
      .replace(/\\pi\b/g,'pi').replace(/\\theta\b/g,'theta').replace(/\\infty\b/g,'infinity')
      .replace(/\\cdot|\\times/g,'*')
-     .replace(/\\int/g,' integral of ').replace(/\\sum/g,' sum of ')
+     /* keep these as SYMBOLS here, not phrases: normalizeMath reads the bounds off
+        ∫_a^b and Σ_(n=1)^∞ below, so \int and ∫ go down one code path */
+     .replace(/\\int/g,'∫').replace(/\\sum/g,'Σ')
      .replace(/\\[a-zA-Z]+/g,' ')                                 // drop any remaining command
      .replace(/\^\s*\{([^{}]*)\}/g,'^($1)')                       // x^{2} → x^(2)
      .replace(/_\s*\{([^{}]*)\}/g,'_$1')                          // keep subscript contents (integral bounds)
@@ -239,6 +243,18 @@ function normalizeMath(s){
     .replace(/²/g,'^2').replace(/³/g,'^3').replace(/⁴/g,'^4').replace(/⁵/g,'^5').replace(/ⁿ/g,'^n')
     .replace(/π/g,'pi').replace(/∞/g,'infinity').replace(/θ/g,'theta')
     .replace(/[×·]/g,'*').replace(/−/g,'-').replace(/≤/g,'<=').replace(/≥/g,'>=')
+    /* ---- BOUNDS ----------------------------------------------------------
+       A student writes ∫_0^1 x^2 dx or Σ_(n=1)^∞ 1/n^2. Before this, the symbol
+       became a bare phrase and the bounds survived as dangling junk ("integral of
+       _0^1 x^2 dx"), so the classifier never saw them and every definite integral
+       came out indefinite. Rewrite them into the phrasing the prompt documents
+       ("from x=0 to x=2"). Braces/parens are optional because deLatex may already
+       have turned ^{1} into ^(1). MUST run before the bare replacements below. */
+    .replace(/∫\s*_\s*[\(\{]?\s*([^\s\(\)\{\}\^]+)\s*[\)\}]?\s*\^\s*[\(\{]?\s*([^\s\(\)\{\}]+)\s*[\)\}]?/g,
+             ' integral from x=$1 to x=$2 of ')
+    .replace(/Σ\s*_\s*[\(\{]?\s*([a-zA-Z])\s*=\s*([^\s\(\)\{\}\^]+)\s*[\)\}]?\s*\^\s*[\(\{]?\s*([^\s\(\)\{\}]+)\s*[\)\}]?/g,
+             ' sum from $1=$2 to $3 of ')
+    /* anything still bare (no bounds given) keeps the old behaviour */
     .replace(/Σ/g,' sum of ').replace(/∫/g,' integral of ')
     .replace(/\s{2,}/g,' ').trim();
 }
@@ -814,7 +830,10 @@ document.getElementById('syms').addEventListener('click',e=>{
   const q=document.getElementById('q'), ins=b.dataset.ins;
   const st=q.selectionStart!=null?q.selectionStart:q.value.length, en=q.selectionEnd!=null?q.selectionEnd:st;
   q.value=q.value.slice(0,st)+ins+q.value.slice(en);
-  const pos=st+(ins==='√()'?2:ins.length);
+  /* data-caret = how many characters back from the end to drop the cursor, so a
+     template can land it where you actually type (inside √(), before the " dx") */
+  const back=b.dataset.caret!=null?parseInt(b.dataset.caret,10):(ins==='√()'?1:0);
+  const pos=st+ins.length-back;
   q.focus(); q.setSelectionRange(pos,pos);
 });
 document.getElementById('rWrong').onclick=()=>document.getElementById('picker').scrollIntoView({behavior:'smooth'});
