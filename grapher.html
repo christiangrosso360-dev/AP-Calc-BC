@@ -225,6 +225,11 @@ function drawShade(sh,prog){
   const iv=sh.interval||DOM; const [a,b]=iv; const N=200; const col=cget(sh.color);
   const top = sh.between!=null ? FNS_C[sh.between[0]] : FNS_C[sh.under];
   const bot = sh.between!=null ? FNS_C[sh.between[1]] : (()=>0);
+  /* A scene can ask to shade a curve that isn't there — a polar scene has
+     functions:[], so FNS_C[0] is undefined and top(x) threw "top is not a
+     function", which aborted the ENTIRE render and left a blank canvas. Skip the
+     shading instead; drawRiemann below already guards the same way. */
+  if(typeof top!=='function' || typeof bot!=='function') return;
   const end=a+(b-a)*Math.min(1,prog*1.15);
   ctx.beginPath(); let first=true;
   for(let i=0;i<=N;i++){ const x=a+(end-a)*i/N; const y=top(x); if(!isFinite(y))continue; if(first){ctx.moveTo(M.sx(x),M.sy(y));first=false;} else ctx.lineTo(M.sx(x),M.sy(y)); }

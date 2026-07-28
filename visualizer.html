@@ -29,10 +29,21 @@
   textarea#q{width:100%;background:#0e0b04;border:1px solid var(--line);border-radius:12px;color:var(--ink);
     font-family:var(--mono);font-size:15.5px;line-height:1.55;padding:16px;min-height:96px;resize:vertical;outline:none}
   textarea#q:focus{border-color:rgba(240,180,41,.5)}
-  .syms{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .syms{margin-top:10px}
+  .symrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
   .syms button{font-family:var(--mono);font-size:14px;line-height:1;color:var(--muted);background:#0e0b04;
-    border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;transition:color .15s,border-color .15s}
+    border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;transition:color .15s,border-color .15s;
+    display:inline-flex;align-items:center;gap:1px}
   .syms button:hover{color:var(--approx);border-color:rgba(240,180,41,.5)}
+  /* stacked limits on the key face, so ∫ and Σ look like the notation they insert */
+  .bd{display:inline-flex;flex-direction:column;justify-content:center;font-size:8.5px;line-height:1.05;
+      margin-left:1px;text-align:left}
+  .bd sup,.bd sub{font-size:inherit;position:static;vertical-align:baseline}
+  .bdl{justify-content:flex-end;padding-bottom:1px}
+  /* the differential on the key face — upright, not italic, with a hair of space */
+  .dxi{font-style:normal;margin-left:2px}
+  /* the slot you're currently filling, highlighted inside the textarea */
+  #q.slotting{caret-color:var(--approx)}
   .vz-row{display:flex;gap:12px;align-items:center;margin-top:14px;flex-wrap:wrap}
   .vz-go{background:var(--approx);color:#241a02;border:none;border-radius:10px;font-family:var(--mono);
     font-weight:700;font-size:14px;padding:13px 26px;cursor:pointer;letter-spacing:.04em;box-shadow:0 10px 22px -12px var(--approx);transition:transform .15s,filter .15s}
@@ -112,20 +123,52 @@
 
   <div class="vz-box">
     <textarea id="q" placeholder="try:  revolve the region between y = sqrt(x) and y = x^2 about the x-axis" spellcheck="false" autocomplete="off"></textarea>
+    <!-- ============================================================
+         SYMBOL PALETTE
+         Buttons carry TEMPLATES, not bare glyphs. {{...}} marks a fillable
+         slot: on insert the first one is selected, and Tab walks to the next,
+         so a definite integral's bounds are typed over rather than hunted for
+         in the middle of a string. Button faces use real sup/sub markup so
+         the key looks like the notation it produces.
+         ============================================================ -->
     <div class="syms" id="syms" aria-label="insert a math symbol">
-      <!-- a template, not a bare symbol: the bounds are the whole point of a
-           definite integral and there was previously no way to type them -->
-      <button type="button" data-ins="∫_0^1  dx" data-caret="3" title="definite integral with bounds">∫</button>
-      <button type="button" data-ins="√()">√</button>
-      <button type="button" data-ins="π">π</button>
-      <button type="button" data-ins="²">x²</button>
-      <button type="button" data-ins="³">x³</button>
-      <button type="button" data-ins="ⁿ">xⁿ</button>
-      <button type="button" data-ins="Σ_(n=1)^∞ " title="series with index and limits">Σ</button>
-      <button type="button" data-ins="∞">∞</button>
-      <button type="button" data-ins="θ">θ</button>
-      <button type="button" data-ins="d/dx ">d/dx</button>
-      <button type="button" data-ins="f'(x)">f′</button>
+      <div class="symrow">
+        <!-- the dx belongs on the key face: the polar key reads ½∫r²dθ, so these
+             should read ∫dx and ∫ᵇₐdx rather than a bare hook -->
+        <button type="button" data-ins="∫ {{f(x)}} dx" title="indefinite integral">∫<i class="dxi">dx</i></button>
+        <button type="button" data-ins="∫_{{0}}^{{1}} {{f(x)}} dx" title="definite integral — Tab between the bounds"
+          >∫<span class="bd"><sup>b</sup><sub>a</sub></span><i class="dxi">dx</i></button>
+        <button type="button" data-ins="Σ_({{n}}={{1}})^{{∞}} {{1/n^2}}" title="series — Tab between index, start and limit"
+          >Σ<span class="bd"><sup>∞</sup><sub>n=1</sub></span></button>
+        <button type="button" data-ins="lim_({{x}}→{{0}}) {{f(x)}}" title="limit"
+          >lim<span class="bd bdl"><sub>x→a</sub></span></button>
+        <button type="button" data-ins="d/dx {{f(x)}}" title="derivative">d/dx</button>
+        <button type="button" data-ins="dy/dx = {{x*y}}" title="differential equation">dy/dx</button>
+        <button type="button" data-ins="f'({{x}})" title="derivative of f">f′</button>
+      </div>
+      <div class="symrow">
+        <button type="button" data-ins="sqrt({{x}})" title="square root">√</button>
+        <button type="button" data-ins="^2">x²</button>
+        <button type="button" data-ins="^3">x³</button>
+        <button type="button" data-ins="^{{n}}">xⁿ</button>
+        <button type="button" data-ins="e^({{x}})" title="exponential">e<sup>x</sup></button>
+        <button type="button" data-ins="ln({{x}})" title="natural log">ln</button>
+        <button type="button" data-ins="abs({{x}})" title="absolute value">|x|</button>
+        <button type="button" data-ins="π">π</button>
+        <button type="button" data-ins="∞">∞</button>
+        <button type="button" data-ins="θ">θ</button>
+        <button type="button" data-ins="Δ">Δ</button>
+      </div>
+      <div class="symrow">
+        <button type="button" data-ins="r = {{2 + 2cos(θ)}}" title="polar curve">r = f(θ)</button>
+        <button type="button" data-ins="x = {{cos(t)}}, y = {{sin(t)}}" title="parametric pair">x(t), y(t)</button>
+        <!-- -pi/6 to pi/6 traces exactly ONE petal of the 3-petal rose. From 0 to
+             pi/3 the radius goes negative halfway and you get half of one petal
+             plus half of the next, which is not the region the caption claims. -->
+        <button type="button" data-ins="area of r = {{2cos(3θ)}} from θ={{-pi/6}} to θ={{pi/6}}"
+          title="polar area">½∫r²dθ</button>
+        <button type="button" data-ins="revolve {{y=sqrt(x)}} about the {{x}}-axis" title="solid of revolution">revolve</button>
+      </div>
     </div>
     <div class="vz-row">
       <button class="vz-go" id="go">Visualize →</button>
@@ -367,7 +410,9 @@ function hasSignatureHint(s){
 /* ---------- answer cache: a repeated problem should be INSTANT and cost nothing ----------
    Keyed on the normalized text and stamped with a version, so changing the prompts below
    automatically retires every stale entry instead of serving scenes built by an older brain. */
-const CACHE_VER='c1';
+/* bump this whenever the prompts change — c2 adds the LIMIT rule, so every
+   cached limit scene from c1 (which split quotients into two curves) is retired */
+const CACHE_VER='c5';
 const cacheKey=(kind,raw)=>'viz:'+CACHE_VER+':'+kind+':'+raw.toLowerCase().replace(/\s+/g,' ').trim();
 function cacheSweep(){                       // drop other-version entries, then cap the newest 80
   try{
@@ -434,7 +479,7 @@ function aiToResult(j){
 /* ---------- UNIVERSAL GRAPHER: AI as scene DIRECTOR (long-tail problems) ---------- */
 const SCENE_SYS='You are a calculus visualization director. Read the problem and output ONLY a JSON object (no prose, no markdown fences) describing what to draw on a 2D graph. A deterministic renderer draws exactly what you specify — you choose WHAT to show, never how.\n'
 +'SCHEMA (include only keys you need): {"functions":[{"expr":"<in x>","color":"gold|teal|mag|coral","label":"<short>"}], "domain":[xmin,xmax], "shade":{"between":[i,j],"interval":[a,b]} OR {"under":i,"interval":[a,b]}, "riemann":{"of":<i>,"a":<x>,"b":<x>,"n":<count>,"rule":"left|right|mid"}, "animate":{"kind":"slidePoint","on":<i>,"from":<x1>,"to":<x2>} OR {"kind":"riemannN","of":<i>,"a":<x1>,"b":<x2>,"from":<n1>,"to":<n2>,"rule":"mid"}, "points":[{"x":<num>,"on":<i>,"label":"<short>"}], "lines":[{"type":"tangent","to":<i>,"at":<x>}|{"type":"secant","to":<i>,"from":<x1>,"at":<x2>}|{"type":"vertical","at":<x>}|{"type":"horizontal","at":<y>}], "psum":{"term":"<a_n written in n>","from":<int>,"N":<int>,"limit":<number or null>,"label":"<short>"}, "param":[{"x":"<x(t)>","y":"<y(t)>","t":[t0,t1],"color":"gold","label":"<short>"}], "polar":[{"r":"<r(theta)>","t":[t0,t1],"color":"gold","label":"<short>"}], "field":{"dydx":"<expr in x and y>","solutions":[{"x0":<num>,"y0":<num>,"color":"gold","euler":{"h":<num>,"steps":<int>}}]}, "implicit":[{"eq":"<F(x,y) with everything moved to one side>","color":"gold","label":"<short>","tangentAt":[<x>,<y>]}], "analysis":{"of":<i>}, "caption":"<one short phrase>"}\n'
-+'RULES: expr = plain math in x (^,*,sqrt(),sin(),cos(),tan(),ln(),exp() or e^(...),pi); no "y=". Main curve gold, second teal. Pick a domain that shows the key features. on/to/shade/riemann indices are 0-based into functions. DERIVATIVE problem: plot BOTH the function AND its derivative (you compute the derivative expression). TANGENT/linearization: plot the function, add a tangent line at the point, mark the point (do NOT add the linearization as a separate function). AREA UNDER a curve / definite INTEGRAL of a single function: shade {"under":0,"interval":[a,b]}, AND if the problem is about a Riemann sum or approximating the integral with rectangles, add "riemann" with a sensible n (e.g. 6-10). AREA BETWEEN two curves: plot both, shade {"between":[0,1]}. IMPORTANT — when the region is ENCLOSED/BOUNDED BY the curves themselves (no explicit x-bounds are stated), set "interval":"auto" and do NOT guess the intersections: the renderer solves the equation exactly and shades the true region. Only give a numeric interval when the problem itself states the bounds ("from x=0 to x=1"). Add "animate" ONLY when motion truly illuminates: use slidePoint (a point rides the curve, its tangent slope shown live) when the problem is about how a rate/slope CHANGES across an interval; use riemannN (rectangles refine as n grows) when it is about a Riemann sum CONVERGING to the integral. Most problems need no animate. SERIES (Unit 10): for "does the series/sum a_n converge or diverge" → output "psum": term = a_n written in n (e.g. "1/n^2", "(1/2)^n", "1/n"), from = the starting index (default 1, use 0 when stated), N = 28 (use 40 for slow divergence like 1/n), limit = the exact sum as a plain DECIMAL when it converges (geometric: (first term AT n=from)/(1-r) — if from=0 the first term is a_0, e.g. sum of (1/2)^n from 0 = 1/(1-1/2) = 2; known sums like pi^2/6 = 1.6449; else null when it diverges), functions may be [] for pure series; the caption MUST state converges (and to what) or diverges. TAYLOR/MACLAURIN series or polynomials: do NOT use psum — plot the target function in gold PLUS 2-3 of its Taylor partial-sum POLYNOMIALS which you compute yourself (e.g. sin x -> "x", "x - x^3/6", "x - x^3/6 + x^5/120") in teal/mag/coral labeled P1, P3, P5, domain centered on the expansion point. RADIUS or INTERVAL of convergence of a power series in x: plot 2-3 partial-sum polynomials and add vertical lines at the interval endpoints; caption names the interval. POLAR (Unit 9): "r = f(theta)" curves (cardioid, rose, limacon, circle, spiral) → use "polar" with r written in theta, t = the theta range as decimals (full curve 0 to 6.28319; a 3-petal rose r=a·cos(3θ) needs only 0 to 3.14159; use 0 to 12.56637 for spirals). Area of a polar region / area between two polar curves → plot BOTH polar curves (gold outer, teal inner) and say the setup in the caption (A = ½∫r² dθ); do NOT use shade. PARAMETRIC (Unit 9): "x = f(t), y = g(t)" → use "param" with the t range; for particle-MOTION problems (position/velocity/speed at time t) also add "animate":{"kind":"traceParam","on":0} so a point rides the path. NEVER convert a polar or parametric curve into a y=f(x) function — use these fields, the renderer locks the aspect ratio so circles stay circular. DIFFERENTIAL EQUATIONS (Unit 7): any "dy/dx = …", slope field, particular solution, separation of variables, logistic or exponential growth model → use "field" with dydx exactly as given (it may contain BOTH x and y), functions:[], and ALWAYS give an explicit domain and yrange that comfortably contain the interesting behaviour. If an initial condition is stated (y(0)=1, "through the point (0,2)") add it to "solutions" — the renderer integrates the true curve for you, so never try to solve the ODE yourself. If the problem uses EULER\'S METHOD, put "euler":{"h":<step>,"steps":<count>} on that solution so the approximation is drawn against the true curve. For a logistic equation include a second solution starting ABOVE the carrying capacity so both approach directions show. IMPLICIT CURVES (Unit 3): an equation relating x and y that is NOT solved for y (x^2+y^2=25, an ellipse, x^3+y^3=3xy) is NOT a function — never force it into "functions". Move every term to one side and put that expression in "implicit" eq (so "x^2+y^2=25" becomes "x^2 + y^2 - 25"), give BOTH domain and yrange around the shape, and let functions be []. For IMPLICIT DIFFERENTIATION asking dy/dx at a point, add "tangentAt":[x,y] — the renderer computes the slope as -F_x/F_y and draws the tangent, so never solve for it yourself. CURVE ANALYSIS (Unit 5): for increasing/decreasing, concavity, inflection points, local max/min, or "sketch and describe the curve", plot f in gold and add "analysis":{"of":0} — the renderer locates and LABELS every critical and inflection point and draws sign charts for f-prime and f-double-prime underneath, which answers the question. Add analysis whenever the problem is about the SHAPE of one function. ALL numeric fields (domain, interval, at, x, from, y, a, b, n, N, limit, t) MUST be plain decimal numbers — never symbols (pi=3.14159, e=2.71828). Keep it minimal.\n'
++'RULES: expr = plain math in x (^,*,sqrt(),sin(),cos(),tan(),ln(),exp() or e^(...),pi); no "y=". Main curve gold, second teal. Pick a domain that shows the key features. on/to/shade/riemann indices are 0-based into functions. DERIVATIVE problem: plot BOTH the function AND its derivative (you compute the derivative expression). LIMIT problem ("lim as x approaches a of EXPR"): plot the SINGLE function EXPR exactly as written — never split a quotient into its numerator and denominator as two curves, the whole point is the shape of the combined expression near a. Centre the domain on a. Mark the approach using exactly these fields: "lines":[{"type":"horizontal","at":L}] where L is the Y-VALUE THE FUNCTION APPROACHES — compute it, and never reuse the x-value a (for (x^2-4)/(x-2) as x approaches 2 the limit is 4, so at:4, NOT at:2; for sin(x)/x as x approaches 0 it is 1) — include it only when finite, and "points":[{"x":a,"on":0}] to sit on the curve at a — for a removable discontinuity like (x^2-4)/(x-2) at x=2 that point is the hole. NEVER use "shade" on a limit problem, and state the two-sided limit in the caption unless the problem itself says left or right. If the limit is one-sided or infinite, still plot the one expression and say so in the caption. TANGENT/linearization: plot the function, add a tangent line at the point, mark the point (do NOT add the linearization as a separate function). AREA UNDER a curve / definite INTEGRAL of a single function: shade {"under":0,"interval":[a,b]}, AND if the problem is about a Riemann sum or approximating the integral with rectangles, add "riemann" with a sensible n (e.g. 6-10). AREA BETWEEN two curves: plot both, shade {"between":[0,1]}. IMPORTANT — when the region is ENCLOSED/BOUNDED BY the curves themselves (no explicit x-bounds are stated), set "interval":"auto" and do NOT guess the intersections: the renderer solves the equation exactly and shades the true region. Only give a numeric interval when the problem itself states the bounds ("from x=0 to x=1"). Add "animate" ONLY when motion truly illuminates: use slidePoint (a point rides the curve, its tangent slope shown live) when the problem is about how a rate/slope CHANGES across an interval; use riemannN (rectangles refine as n grows) when it is about a Riemann sum CONVERGING to the integral. Most problems need no animate. SERIES (Unit 10): for "does the series/sum a_n converge or diverge" → output "psum": term = a_n written in n (e.g. "1/n^2", "(1/2)^n", "1/n"), from = the starting index (default 1, use 0 when stated), N = 28 (use 40 for slow divergence like 1/n), limit = the exact sum as a plain DECIMAL when it converges (geometric: (first term AT n=from)/(1-r) — if from=0 the first term is a_0, e.g. sum of (1/2)^n from 0 = 1/(1-1/2) = 2; known sums like pi^2/6 = 1.6449; else null when it diverges), functions may be [] for pure series; the caption MUST state converges (and to what) or diverges. TAYLOR/MACLAURIN series or polynomials: do NOT use psum — plot the target function in gold PLUS 2-3 of its Taylor partial-sum POLYNOMIALS which you compute yourself (e.g. sin x -> "x", "x - x^3/6", "x - x^3/6 + x^5/120") in teal/mag/coral labeled P1, P3, P5, domain centered on the expansion point. RADIUS or INTERVAL of convergence of a power series in x: plot 2-3 partial-sum polynomials and add vertical lines at the interval endpoints; caption names the interval. POLAR (Unit 9): "r = f(theta)" curves (cardioid, rose, limacon, circle, spiral) → use "polar" with r written in theta, t = the theta range as decimals (full curve 0 to 6.28319; a 3-petal rose r=a·cos(3θ) needs only 0 to 3.14159; use 0 to 12.56637 for spirals). Area of a polar region / area between two polar curves → plot BOTH polar curves (gold outer, teal inner) and say the setup in the caption (A = ½∫r² dθ); do NOT use shade. PARAMETRIC (Unit 9): "x = f(t), y = g(t)" → use "param" with the t range; for particle-MOTION problems (position/velocity/speed at time t) also add "animate":{"kind":"traceParam","on":0} so a point rides the path. NEVER convert a polar or parametric curve into a y=f(x) function — use these fields, the renderer locks the aspect ratio so circles stay circular. DIFFERENTIAL EQUATIONS (Unit 7): any "dy/dx = …", slope field, particular solution, separation of variables, logistic or exponential growth model → use "field" with dydx exactly as given (it may contain BOTH x and y), functions:[], and ALWAYS give an explicit domain and yrange that comfortably contain the interesting behaviour. If an initial condition is stated (y(0)=1, "through the point (0,2)") add it to "solutions" — the renderer integrates the true curve for you, so never try to solve the ODE yourself. If the problem uses EULER\'S METHOD, put "euler":{"h":<step>,"steps":<count>} on that solution so the approximation is drawn against the true curve. For a logistic equation include a second solution starting ABOVE the carrying capacity so both approach directions show. IMPLICIT CURVES (Unit 3): an equation relating x and y that is NOT solved for y (x^2+y^2=25, an ellipse, x^3+y^3=3xy) is NOT a function — never force it into "functions". Move every term to one side and put that expression in "implicit" eq (so "x^2+y^2=25" becomes "x^2 + y^2 - 25"), give BOTH domain and yrange around the shape, and let functions be []. For IMPLICIT DIFFERENTIATION asking dy/dx at a point, add "tangentAt":[x,y] — the renderer computes the slope as -F_x/F_y and draws the tangent, so never solve for it yourself. CURVE ANALYSIS (Unit 5): for increasing/decreasing, concavity, inflection points, local max/min, or "sketch and describe the curve", plot f in gold and add "analysis":{"of":0} — the renderer locates and LABELS every critical and inflection point and draws sign charts for f-prime and f-double-prime underneath, which answers the question. Add analysis whenever the problem is about the SHAPE of one function. ALL numeric fields (domain, interval, at, x, from, y, a, b, n, N, limit, t) MUST be plain decimal numbers — never symbols (pi=3.14159, e=2.71828). Keep it minimal.\n'
 +'EXAMPLES:\n"find the derivative of x^3" -> {"functions":[{"expr":"x^3","color":"gold","label":"f = x^3"},{"expr":"3*x^2","color":"teal","label":"f\' = 3x^2"}],"domain":[-2.5,2.5],"caption":"a function and its derivative"}\n'
 +'"area under y=x^2 from 0 to 2" -> {"functions":[{"expr":"x^2","color":"gold","label":"y = x^2"}],"domain":[-0.5,2.5],"shade":{"under":0,"interval":[0,2]},"caption":"the area under the curve"}\n'
 +'"does the series 1/n^2 converge" -> {"functions":[],"psum":{"term":"1/n^2","from":1,"N":30,"limit":1.6449,"label":"S_n = sum of 1/n^2"},"caption":"the partial sums level off — converges to pi^2/6 = 1.645"}\n'
@@ -579,7 +624,46 @@ function show(r){
   R.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 /* universal-grapher render path — for anything that isn't one of the 4 signature archetypes */
+/* Evaluate a stated bound like "2", "-pi/6", "1/3". Digits and operators only —
+   anything else is rejected rather than executed. */
+function numLit(s){
+  if(s==null) return NaN;
+  const t=String(s).trim().toLowerCase()
+    .replace(/\bpi\b/g,'3.141592653589793').replace(/\be\b/g,'2.718281828459045');
+  if(!/^[-+*/(). 0-9]+$/.test(t)) return NaN;
+  try{ const v=Function('"use strict";return ('+t+')')(); return isFinite(v)?v:NaN; }
+  catch(e){ return NaN; }
+}
+
+/* When the student WROTE the bounds (∫_0^2 …), those bounds are not the model's
+   to decide. normalizeMath has already parsed them, so pin the shaded interval to
+   what was typed. Without this the classifier occasionally answered
+   interval:"auto" for a plainly definite integral, and verifyShade — finding no
+   enclosed region under a single curve — dropped the shading altogether. */
+function enforceStatedBounds(scene, raw){
+  if(!scene) return scene;
+  const txt=raw||'';
+
+  /* θ-range on a polar curve. Measured 1 run in 3 coming back as ±pi/3 for a
+     stated ±pi/6 — double the sweep, so the drawn region is not the one asked
+     for. The bounds are in the text, so they are not the model's to choose. */
+  const pm=/from theta\s*=\s*(\S+)\s+to theta\s*=\s*(\S+)/i.exec(txt);
+  if(pm && Array.isArray(scene.polar) && scene.polar.length){
+    const t0=numLit(pm[1]), t1=numLit(pm[2]);
+    if(isFinite(t0)&&isFinite(t1)&&t1>t0) scene.polar[0].t=[t0,t1];
+  }
+
+  const m=/integral from x=(\S+) to x=(\S+) of/.exec(txt); if(!m) return scene;
+  const a=numLit(m[1]), b=numLit(m[2]);
+  if(!isFinite(a)||!isFinite(b)||b<=a) return scene;
+  if(!Array.isArray(scene.functions)||scene.functions.length!==1) return scene;
+  if(scene.polar||scene.param||scene.psum||scene.field||scene.implicit) return scene;
+  scene.shade=Object.assign({},scene.shade,{under:0,interval:[a,b]});
+  return scene;
+}
+
 function showGraph(scene, raw){
+  scene=enforceStatedBounds(scene, raw);
   (function(){var b=document.getElementById("rShare"); if(b) b.style.display="";})();
   var _l=document.getElementById('rLoad'); if(_l) _l.style.display='none';
   const R=document.getElementById('result');
@@ -824,17 +908,69 @@ document.getElementById('chips').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
   document.getElementById('q').value=b.dataset.q; run();
 });
-// symbol palette: insert at the cursor, keep typing flow (√() parks the cursor inside the parens)
+/* ============================================================
+   SYMBOL PALETTE — fill-in-the-blank templates.
+
+   A button's data-ins may contain {{slots}}. On insert the braces are stripped,
+   the default text stays as a starting value, and the FIRST slot is selected so
+   typing replaces it. Tab moves to the next slot, Shift+Tab back, Escape leaves.
+   That's what makes a definite integral usable: the bounds are fields you fill,
+   not characters you have to hunt for in the middle of a string.
+   ============================================================ */
+let SLOTS=[], SLOT_I=-1, LASTLEN=0;
+const qEl=()=>document.getElementById('q');
+
+function clearSlots(){ SLOTS=[]; SLOT_I=-1; qEl().classList.remove('slotting'); }
+
+function selectSlot(i){
+  const q=qEl();
+  if(!SLOTS.length || i<0 || i>=SLOTS.length){ clearSlots(); return; }
+  SLOT_I=i;
+  /* clamp: the user may have edited outside a slot and shifted everything */
+  const L=q.value.length;
+  const a=Math.max(0,Math.min(SLOTS[i].start,L)), b=Math.max(a,Math.min(SLOTS[i].end,L));
+  q.focus(); q.setSelectionRange(a,b);
+  q.classList.add('slotting');
+}
+
 document.getElementById('syms').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
-  const q=document.getElementById('q'), ins=b.dataset.ins;
-  const st=q.selectionStart!=null?q.selectionStart:q.value.length, en=q.selectionEnd!=null?q.selectionEnd:st;
-  q.value=q.value.slice(0,st)+ins+q.value.slice(en);
-  /* data-caret = how many characters back from the end to drop the cursor, so a
-     template can land it where you actually type (inside √(), before the " dx") */
-  const back=b.dataset.caret!=null?parseInt(b.dataset.caret,10):(ins==='√()'?1:0);
-  const pos=st+ins.length-back;
-  q.focus(); q.setSelectionRange(pos,pos);
+  const q=qEl(), tpl=b.dataset.ins||'';
+  const st=q.selectionStart!=null?q.selectionStart:q.value.length;
+  const en=q.selectionEnd!=null?q.selectionEnd:st;
+
+  /* strip {{ }} and remember where each default landed */
+  let text='', slots=[], last=0, m;
+  const re=/\{\{([^{}]*)\}\}/g;
+  while((m=re.exec(tpl))!==null){
+    text+=tpl.slice(last,m.index);
+    const s=st+text.length;
+    text+=m[1];
+    slots.push({start:s,end:s+m[1].length});
+    last=re.lastIndex;
+  }
+  text+=tpl.slice(last);
+
+  q.value=q.value.slice(0,st)+text+q.value.slice(en);
+  LASTLEN=q.value.length;
+  q.focus();
+  if(slots.length){ SLOTS=slots; selectSlot(0); }
+  else { clearSlots(); const p=st+text.length; q.setSelectionRange(p,p); }
+});
+
+document.getElementById('q').addEventListener('keydown',e=>{
+  if(e.key==='Tab' && SLOTS.length){ e.preventDefault(); selectSlot(SLOT_I+(e.shiftKey?-1:1)); }
+  else if(e.key==='Escape') clearSlots();
+});
+
+/* keep the remaining slots aligned as the current one grows or shrinks */
+document.getElementById('q').addEventListener('input',()=>{
+  const q=qEl(), delta=q.value.length-LASTLEN;
+  LASTLEN=q.value.length;
+  if(!SLOTS.length || !delta || SLOT_I<0) return;
+  const cur=SLOTS[SLOT_I]; if(!cur) return;
+  cur.end+=delta;
+  for(let j=SLOT_I+1;j<SLOTS.length;j++){ SLOTS[j].start+=delta; SLOTS[j].end+=delta; }
 });
 document.getElementById('rWrong').onclick=()=>document.getElementById('picker').scrollIntoView({behavior:'smooth'});
 document.getElementById('tutorStart').onclick=startTutor;
