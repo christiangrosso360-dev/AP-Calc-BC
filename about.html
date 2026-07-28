@@ -37,6 +37,7 @@
     text-transform:uppercase;padding:13px 20px;text-decoration:none}
   .cta.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
   .ctas{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+  .sig{font-family:var(--display);font-size:16px;color:var(--muted);margin:22px 0 0}
 </style>
 </head>
 <body>
@@ -48,27 +49,24 @@
 
   <div class="ab">
 
-    <!-- ================================================================
-         CHRISTIAN — REWRITE EVERYTHING BETWEEN HERE AND THE NEXT MARKER.
-         This is my placeholder, not your story. It is deliberately plain so
-         it doesn't put words in your mouth. Say what actually happened: the
-         topic that didn't click, what you were looking at when it did, why
-         you kept going after the first unit. Specific beats generic every
-         time, and this is the page a stranger reads before deciding whether
-         to trust the rest of the site.
-         ================================================================ -->
+    <!-- Written from Christian's own account. Two things still to decide:
+         (1) whether to sign it with his name, and (2) a contact route — see below. -->
 
-    <p class="ab-lede">I'm a high school student, and I built this while taking AP Calculus BC.</p>
+    <p class="ab-lede">I took AP Calculus BC, and the whole time I was studying for it I could never
+    find a good website to learn from.</p>
 
-    <p>Most of what I could find online was a wall of symbols. The steps were all there, and I could
-    follow them, and I still couldn't picture what was happening. A Riemann sum was a formula before
-    it was ever a shape. So I started making the pictures I wanted — first for myself, then for the
-    whole course.</p>
+    <p>It was always review videos. Someone works through <i>their</i> problems on a whiteboard, and
+    you either follow along or you don't &mdash; and if the thing you're stuck on isn't the thing
+    they happened to pick, you're on your own. None of it was tailored to me, or to what I was
+    actually struggling with.</p>
 
-    <p>Everything here is built around that idea: if you can see it move, you understand it in a way
-    that memorising the formula never gets you.</p>
+    <p>The bigger problem was that there was no way to <b>picture</b> the course. Calculus is about
+    things moving and changing, and it kept being handed to me as a page of symbols.</p>
 
-    <!-- ================= END OF THE PART TO REWRITE ================= -->
+    <p>So the summer after I finished the class &mdash; before starting mechanical engineering at
+    the University of Miami &mdash; I built Unit&nbsp;10, sequences and series, mostly for fun. Then
+    I looked at it and realized I could build something that didn't exist yet. So I kept going until
+    the whole course was done.</p>
 
     <div class="stats">
       <div class="stat"><div class="n">10</div><div class="l">units</div></div>
@@ -77,19 +75,22 @@
       <div class="stat"><div class="n">0</div><div class="l">cost</div></div>
     </div>
 
-    <h2>What's actually here</h2>
-    <p>All ten College Board units, with 49 lessons built around interactive visuals rather than
-    static diagrams — you drag things and the maths responds. Every unit has its own exam-practice
-    page and a cheat sheet.</p>
+    <h2>Everything here follows from that</h2>
+    <p>All ten College Board units, 49 lessons, and every one of them built around something you can
+    actually move rather than a diagram you look at. Drag a point and the math responds. That's the
+    part the videos couldn't give me.</p>
 
-    <p>There's a <a href="visualizer.html" style="color:var(--approx)">Visualizer</a> that takes a
-    problem you paste in — your homework, not a canned example — draws it, and then walks you
-    through it Socratically instead of handing you the answer.</p>
+    <p>The rest of it comes from the other complaint &mdash; that nothing was tailored to me. So the
+    two biggest things on the site work on <b>your</b> problem, not somebody else's:</p>
 
-    <p>And there's a <a href="mock-exam.html" style="color:var(--approx)">full timed mock exam</a> in
-    the real 2027 format. It reads your written free-response answers against the actual rubric,
-    scores you out of 108, predicts a 1–5, and tells you how many questions the clock cost you —
-    which is the part a paper practice test physically cannot do.</p>
+    <p>The <a href="visualizer.html" style="color:var(--approx)">Visualizer</a> takes a problem you
+    paste in &mdash; your homework, the question you're actually stuck on &mdash; draws it with your
+    numbers, and then walks you through it instead of just handing over the answer.</p>
+
+    <p>And the <a href="mock-exam.html" style="color:var(--approx)">mock exam</a> reads what
+    <i>you</i> wrote. It marks your free-response against the real rubric point by point, scores you
+    out of 108, predicts a 1&ndash;5, and tells you how many questions the clock cost you &mdash;
+    which is the one thing a paper practice test physically cannot do.</p>
 
     <div class="pull">A correct answer with no work earns nothing here, because that's how real
     readers score it in May.</div>
@@ -103,8 +104,14 @@
     answer, a broken graph or an explanation that doesn't make sense, I genuinely want to know —
     that's how it gets better.</p>
 
-    <!-- CHRISTIAN: put a real contact route here — an email, a form, a Reddit handle.
-         A page that says "tell me" with no way to tell you is worse than not asking. -->
+    <!-- The address is assembled in JS rather than written into the HTML. A plain
+         mailto: on a public page gets harvested by scrapers within weeks; this stays
+         one click for a human and invisible to a bot reading the source. -->
+    <p class="muted" style="margin-top:-6px">Found something wrong?
+      <a id="contact" href="#" style="color:var(--approx)">Email me</a>.
+      <noscript>(christiangrosso360 at gmail dot com)</noscript></p>
+
+    <p class="sig">&mdash; Christian Grosso</p>
 
     <div class="ctas">
       <a class="cta" href="index.html">Start with a unit →</a>
@@ -113,5 +120,18 @@
 
   </div>
 </div>
+<script>
+/* Assemble the address at runtime so it never appears in the page source.
+   Harvesters read HTML, not rendered DOM, so this keeps the inbox usable
+   while making it a much poorer target. */
+(function(){
+  var a = document.getElementById('contact');
+  if (!a) return;
+  var user = ['christian','grosso','360'].join('');
+  var host = ['gmail','com'].join('.');
+  a.href = 'mail' + 'to:' + user + '@' + host;
+  a.textContent = user + '@' + host;
+})();
+</script>
 </body>
 </html>
