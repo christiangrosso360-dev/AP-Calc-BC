@@ -271,10 +271,40 @@ function looksLikeExpr(e){
 }
 // students paste LaTeX straight out of digital textbooks / Desmos — unwrap it before anything else,
 // otherwise "\sqrt{x}" survives as literal backslash-junk and curve extraction silently finds nothing
+/* ---- prettyMath: the way OUT ------------------------------------------------
+   normalizeMath turns what a student types into something the parser and the
+   model can read (x², √, π → x^2, sqrt, pi). Everything downstream then speaks
+   that flattened ASCII — and it was being shown to the student unchanged, so
+   captions and legends read "x^2 * sqrt(pi)" like source code instead of maths.
+   This is the inverse, applied at the last moment before text hits the screen.
+   Unicode rather than KaTeX on purpose: the graph legend is drawn into a canvas,
+   where a typeset DOM node cannot go, and this keeps one notation everywhere. */
+var SUP={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹',
+         '+':'⁺','-':'⁻','(':'⁽',')':'⁾','n':'ⁿ','x':'ˣ','a':'ᵃ','b':'ᵇ','c':'ᶜ','d':'ᵈ',
+         'e':'ᵉ','f':'ᶠ','g':'ᵍ','h':'ʰ','i':'ⁱ','j':'ʲ','k':'ᵏ','l':'ˡ','m':'ᵐ','o':'ᵒ',
+         'p':'ᵖ','r':'ʳ','s':'ˢ','t':'ᵗ','u':'ᵘ','v':'ᵛ','w':'ʷ','y':'ʸ','z':'ᶻ'};
+function prettyMath(s){
+  return String(s==null?'':s)
+    /* sqrt(x) → √x, but keep the parentheses when the contents are compound */
+    .replace(/\bsqrt\s*\(([^()]*)\)/g,(m,g)=>'√'+(/^[A-Za-z0-9.]+$/.test(g)?g:'('+g+')'))
+    .replace(/\bexp\s*\(([^()]*)\)/g,'e^($1)')
+    .replace(/\bpi\b/g,'π').replace(/\binfinity\b/gi,'∞').replace(/\btheta\b/g,'θ')
+    .replace(/\*/g,'·').replace(/<=/g,'≤').replace(/>=/g,'≥').replace(/!=/g,'≠')
+    .replace(/->|=>/g,'→')
+    /* exponents last, so e^(x) produced just above gets raised too. Bail out
+       whole rather than half-convert anything without a superscript glyph. */
+    .replace(/\^\s*\(([^()]{1,12})\)|\^\s*([A-Za-z0-9]{1,4})/g,(m,par,bare)=>{
+      const body=par!=null?par:bare; let out='';
+      for(const ch of body){ const g=SUP[ch.toLowerCase()]; if(!g) return m; out+=g; }
+      return out;
+    });
+}
 function deLatex(s){
   if(s.indexOf('\\')<0 && s.indexOf('{')<0) return s;            // fast path: no LaTeX here
   let t=s.replace(/\$+/g,' ')
-         .replace(/\\left|\\right|\\!|\\,|\\;|\\:|\\quad|\\qquad/g,' ')
+         /* \b on left/right: without it "\rightarrow" loses its "\right" prefix
+            and survives as the word "arrow", which no later rule can recognise */
+         .replace(/\\left\b|\\right\b|\\!|\\,|\\;|\\:|\\quad|\\qquad/g,' ')
          .replace(/\\dfrac|\\tfrac/g,'\\frac');
   for(let i=0;i<4;i++) t=t.replace(/\\frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}/g,'(($1)/($2))');  // nested fractions
   for(let i=0;i<3;i++) t=t.replace(/\\sqrt\s*\{([^{}]*)\}/g,'sqrt($1)');
@@ -284,6 +314,11 @@ function deLatex(s){
      /* keep these as SYMBOLS here, not phrases: normalizeMath reads the bounds off
         ∫_a^b and Σ_(n=1)^∞ below, so \int and ∫ go down one code path */
      .replace(/\\int/g,'∫').replace(/\\sum/g,'Σ')
+     /* Same reasoning for limits, and this one only shows up on PHOTOS: nobody
+        types "\lim_{x \to 3}", but that is exactly what the camera reads off a
+        printed page. Both commands were being swallowed by the catch-all below,
+        which left "x 3" and no way to tell a limit problem from anything else. */
+     .replace(/\\lim/g,'lim').replace(/\\(?:to|rightarrow|longrightarrow)\b/g,'->')
      .replace(/\\[a-zA-Z]+/g,' ')                                 // drop any remaining command
      .replace(/\^\s*\{([^{}]*)\}/g,'^($1)')                       // x^{2} → x^(2)
      .replace(/_\s*\{([^{}]*)\}/g,'_$1')                          // keep subscript contents (integral bounds)
@@ -305,6 +340,20 @@ function normalizeMath(s){
        came out indefinite. Rewrite them into the phrasing the prompt documents
        ("from x=0 to x=2"). Braces/parens are optional because deLatex may already
        have turned ^{1} into ^(1). MUST run before the bare replacements below. */
+    /* The camera sometimes drops the backslash and hands back the bare command
+       word: "sum_{n=1}^{infty}", "int_0^2 x^2 dx". Observed on repeat reads of
+       the SAME photo — the model picks a notation afresh each time. Without this
+       the bounds below never match and a definite integral silently loses its
+       limits. The trailing _ is what makes it safe: "point", "interval" and
+       "sum of" are untouched. */
+    .replace(/\binfty\b/g,'infinity')
+    .replace(/\bint\s*_/g,'∫_').replace(/\bsum\s*_/g,'Σ_')
+    /* LIMITS in arrow form — "lim_{x->3}", "lim x→0", "lim_(n->infinity)". A
+       student typing by hand writes "limit as x approaches 3", so this only ever
+       arrives from a PHOTO, and without it the classifier saw no limit at all:
+       one test shaded a degenerate interval [3,3] under a limit graph. */
+    .replace(/lim\s*_?\s*[\(\{]?\s*([a-zA-Z])\s*(?:->|→)\s*([^\s\)\}\,]+)\s*[\)\}]?/g,
+             ' limit as $1 approaches $2 of ')
     .replace(/∫\s*_\s*[\(\{]?\s*([^\s\(\)\{\}\^]+)\s*[\)\}]?\s*\^\s*[\(\{]?\s*([^\s\(\)\{\}]+)\s*[\)\}]?/g,
              ' integral from x=$1 to x=$2 of ')
     .replace(/Σ\s*_\s*[\(\{]?\s*([a-zA-Z])\s*=\s*([^\s\(\)\{\}\^]+)\s*[\)\}]?\s*\^\s*[\(\{]?\s*([^\s\(\)\{\}]+)\s*[\)\}]?/g,
@@ -424,7 +473,7 @@ function hasSignatureHint(s){
    automatically retires every stale entry instead of serving scenes built by an older brain. */
 /* bump this whenever the prompts change — c2 adds the LIMIT rule, so every
    cached limit scene from c1 (which split quotients into two curves) is retired */
-const CACHE_VER='c6';
+const CACHE_VER='c8';
 const cacheKey=(kind,raw)=>'viz:'+CACHE_VER+':'+kind+':'+raw.toLowerCase().replace(/\s+/g,' ').trim();
 function cacheSweep(){                       // drop other-version entries, then cap the newest 80
   try{
@@ -491,7 +540,7 @@ function aiToResult(j){
 /* ---------- UNIVERSAL GRAPHER: AI as scene DIRECTOR (long-tail problems) ---------- */
 const SCENE_SYS='You are a calculus visualization director. Read the problem and output ONLY a JSON object (no prose, no markdown fences) describing what to draw on a 2D graph. A deterministic renderer draws exactly what you specify — you choose WHAT to show, never how.\n'
 +'SCHEMA (include only keys you need): {"functions":[{"expr":"<in x>","color":"gold|teal|mag|coral","label":"<short>"}], "domain":[xmin,xmax], "shade":{"between":[i,j],"interval":[a,b]} OR {"under":i,"interval":[a,b]}, "riemann":{"of":<i>,"a":<x>,"b":<x>,"n":<count>,"rule":"left|right|mid"}, "animate":{"kind":"slidePoint","on":<i>,"from":<x1>,"to":<x2>} OR {"kind":"riemannN","of":<i>,"a":<x1>,"b":<x2>,"from":<n1>,"to":<n2>,"rule":"mid"}, "points":[{"x":<num>,"on":<i>,"label":"<short>"}], "lines":[{"type":"tangent","to":<i>,"at":<x>}|{"type":"secant","to":<i>,"from":<x1>,"at":<x2>}|{"type":"vertical","at":<x>}|{"type":"horizontal","at":<y>}], "psum":{"term":"<a_n written in n>","from":<int>,"N":<int>,"limit":<number or null>,"label":"<short>"}, "param":[{"x":"<x(t)>","y":"<y(t)>","t":[t0,t1],"color":"gold","label":"<short>"}], "polar":[{"r":"<r(theta)>","t":[t0,t1],"color":"gold","label":"<short>"}], "field":{"dydx":"<expr in x and y>","solutions":[{"x0":<num>,"y0":<num>,"color":"gold","euler":{"h":<num>,"steps":<int>}}]}, "implicit":[{"eq":"<F(x,y) with everything moved to one side>","color":"gold","label":"<short>","tangentAt":[<x>,<y>]}], "analysis":{"of":<i>}, "caption":"<one short phrase>"}\n'
-+'RULES: expr = plain math in x (^,*,sqrt(),sin(),cos(),tan(),ln(),exp() or e^(...),pi); no "y=". Main curve gold, second teal. Pick a domain that shows the key features. on/to/shade/riemann indices are 0-based into functions. DERIVATIVE problem: plot BOTH the function AND its derivative (you compute the derivative expression). LIMIT problem ("lim as x approaches a of EXPR"): plot the SINGLE function EXPR exactly as written — never split a quotient into its numerator and denominator as two curves, the whole point is the shape of the combined expression near a. Centre the domain on a. Mark the approach using exactly these fields: "lines":[{"type":"horizontal","at":L}] where L is the Y-VALUE THE FUNCTION APPROACHES — compute it, and never reuse the x-value a (for (x^2-4)/(x-2) as x approaches 2 the limit is 4, so at:4, NOT at:2; for sin(x)/x as x approaches 0 it is 1) — include it only when finite, and "points":[{"x":a,"on":0}] to sit on the curve at a — for a removable discontinuity like (x^2-4)/(x-2) at x=2 that point is the hole. NEVER use "shade" on a limit problem, and state the two-sided limit in the caption unless the problem itself says left or right. If the limit is one-sided or infinite, still plot the one expression and say so in the caption. TANGENT/linearization: plot the function, add a tangent line at the point, mark the point (do NOT add the linearization as a separate function). AREA UNDER a curve / definite INTEGRAL of a single function: shade {"under":0,"interval":[a,b]}, AND if the problem is about a Riemann sum or approximating the integral with rectangles, add "riemann" with a sensible n (e.g. 6-10). AREA BETWEEN two curves: plot both, shade {"between":[0,1]}. IMPORTANT — when the region is ENCLOSED/BOUNDED BY the curves themselves (no explicit x-bounds are stated), set "interval":"auto" and do NOT guess the intersections: the renderer solves the equation exactly and shades the true region. Only give a numeric interval when the problem itself states the bounds ("from x=0 to x=1"). Add "animate" ONLY when motion truly illuminates: use slidePoint (a point rides the curve, its tangent slope shown live) when the problem is about how a rate/slope CHANGES across an interval; use riemannN (rectangles refine as n grows) when it is about a Riemann sum CONVERGING to the integral. Most problems need no animate. SERIES (Unit 10): for "does the series/sum a_n converge or diverge" → output "psum": term = a_n written in n (e.g. "1/n^2", "(1/2)^n", "1/n"), from = the starting index (default 1, use 0 when stated), N = 28 (use 40 for slow divergence like 1/n), limit = the exact sum as a plain DECIMAL when it converges (geometric: (first term AT n=from)/(1-r) — if from=0 the first term is a_0, e.g. sum of (1/2)^n from 0 = 1/(1-1/2) = 2; known sums like pi^2/6 = 1.6449; else null when it diverges), functions may be [] for pure series; the caption MUST state converges (and to what) or diverges. TAYLOR/MACLAURIN series or polynomials: do NOT use psum — plot the target function in gold PLUS 2-3 of its Taylor partial-sum POLYNOMIALS which you compute yourself (e.g. sin x -> "x", "x - x^3/6", "x - x^3/6 + x^5/120") in teal/mag/coral labeled P1, P3, P5, domain centered on the expansion point. RADIUS or INTERVAL of convergence of a power series in x: plot 2-3 partial-sum polynomials and add vertical lines at the interval endpoints; caption names the interval. POLAR (Unit 9): "r = f(theta)" curves (cardioid, rose, limacon, circle, spiral) → use "polar" with r written in theta, t = the theta range as decimals (full curve 0 to 6.28319; a 3-petal rose r=a·cos(3θ) needs only 0 to 3.14159; use 0 to 12.56637 for spirals). Area of a polar region / area between two polar curves → plot BOTH polar curves (gold outer, teal inner) and say the setup in the caption (A = ½∫r² dθ); do NOT use shade. PARAMETRIC (Unit 9): "x = f(t), y = g(t)" → use "param" with the t range; for particle-MOTION problems (position/velocity/speed at time t) also add "animate":{"kind":"traceParam","on":0} so a point rides the path. NEVER convert a polar or parametric curve into a y=f(x) function — use these fields, the renderer locks the aspect ratio so circles stay circular. DIFFERENTIAL EQUATIONS (Unit 7): any "dy/dx = …", slope field, particular solution, separation of variables, logistic or exponential growth model → use "field" with dydx exactly as given (it may contain BOTH x and y), functions:[], and ALWAYS give an explicit domain and yrange that comfortably contain the interesting behaviour. If an initial condition is stated (y(0)=1, "through the point (0,2)") add it to "solutions" — the renderer integrates the true curve for you, so never try to solve the ODE yourself. If the problem uses EULER\'S METHOD, put "euler":{"h":<step>,"steps":<count>} on that solution so the approximation is drawn against the true curve. For a logistic equation include a second solution starting ABOVE the carrying capacity so both approach directions show. IMPLICIT CURVES (Unit 3): an equation relating x and y that is NOT solved for y (x^2+y^2=25, an ellipse, x^3+y^3=3xy) is NOT a function — never force it into "functions". Move every term to one side and put that expression in "implicit" eq (so "x^2+y^2=25" becomes "x^2 + y^2 - 25"), give BOTH domain and yrange around the shape, and let functions be []. For IMPLICIT DIFFERENTIATION asking dy/dx at a point, add "tangentAt":[x,y] — the renderer computes the slope as -F_x/F_y and draws the tangent, so never solve for it yourself. CURVE ANALYSIS (Unit 5): for increasing/decreasing, concavity, inflection points, local max/min, or "sketch and describe the curve", plot f in gold and add "analysis":{"of":0} — the renderer locates and LABELS every critical and inflection point and draws sign charts for f-prime and f-double-prime underneath, which answers the question. Add analysis whenever the problem is about the SHAPE of one function. ALL numeric fields (domain, interval, at, x, from, y, a, b, n, N, limit, t) MUST be plain decimal numbers — never symbols (pi=3.14159, e=2.71828). Keep it minimal.\n'
++'RULES: expr = plain math in x (^,*,sqrt(),sin(),cos(),tan(),ln(),exp() or e^(...),pi); no "y=". Main curve gold, second teal. Pick a domain that shows the key features. on/to/shade/riemann indices are 0-based into functions. DERIVATIVE problem: plot BOTH the function AND its derivative (you compute the derivative expression). LIMIT problem ("lim as x approaches a of EXPR"): plot the SINGLE function EXPR exactly as written — never split a quotient into its numerator and denominator as two curves, the whole point is the shape of the combined expression near a. Centre the domain on a. Mark the approach using exactly these fields: "lines":[{"type":"horizontal","at":L}] where L is the Y-VALUE THE FUNCTION APPROACHES — compute it, and never reuse the x-value a (for (x^2-4)/(x-2) as x approaches 2 the limit is 4, so at:4, NOT at:2; for sin(x)/x as x approaches 0 it is 1) — include it only when finite, and "points":[{"x":a,"on":0}] to sit on the curve at a — for a removable discontinuity like (x^2-4)/(x-2) at x=2 that point is the hole. NEVER use "shade" on a limit problem, and state the two-sided limit in the caption unless the problem itself says left or right. If the limit is one-sided or infinite, still plot the one expression and say so in the caption. TANGENT/linearization: plot the function, add a tangent line at the point, mark the point (do NOT add the linearization as a separate function). INDEFINITE INTEGRAL — this rule applies ONLY when NO bounds are given anywhere; the moment the problem says "from x=a to x=b" it is a DEFINITE integral, so ignore this rule, plot ONLY the integrand and follow the AREA UNDER rule below. "∫ f(x) dx" or "find the antiderivative" with NO bounds stated, however the method is named (integration by parts, u-substitution, partial fractions): there is no region and no area, so NEVER output "shade" or "riemann" and never invent an interval. Plot at most TWO functions: the integrand in gold, and the antiderivative YOU compute in teal labelled "antiderivative". NEVER plot the machinery of the method itself — u, du, dv, v are algebra, not curves — and never plot a constant. The caption states the antiderivative plus C. AREA UNDER a curve / definite INTEGRAL of a single function: shade {"under":0,"interval":[a,b]}, AND if the problem is about a Riemann sum or approximating the integral with rectangles, add "riemann" with a sensible n (e.g. 6-10). AREA BETWEEN two curves: plot both, shade {"between":[0,1]}. IMPORTANT — when the region is ENCLOSED/BOUNDED BY the curves themselves (no explicit x-bounds are stated), set "interval":"auto" and do NOT guess the intersections: the renderer solves the equation exactly and shades the true region. Only give a numeric interval when the problem itself states the bounds ("from x=0 to x=1"). Add "animate" ONLY when motion truly illuminates: use slidePoint (a point rides the curve, its tangent slope shown live) when the problem is about how a rate/slope CHANGES across an interval; use riemannN (rectangles refine as n grows) when it is about a Riemann sum CONVERGING to the integral. Most problems need no animate. SERIES (Unit 10): for "does the series/sum a_n converge or diverge" → output "psum": term = a_n written in n (e.g. "1/n^2", "(1/2)^n", "1/n"), from = the starting index (default 1, use 0 when stated), N = 28 (use 40 for slow divergence like 1/n), limit = the exact sum as a plain DECIMAL when it converges (geometric: (first term AT n=from)/(1-r) — if from=0 the first term is a_0, e.g. sum of (1/2)^n from 0 = 1/(1-1/2) = 2; known sums like pi^2/6 = 1.6449; else null when it diverges), functions may be [] for pure series; the caption MUST state converges (and to what) or diverges. TAYLOR/MACLAURIN series or polynomials: do NOT use psum — plot the target function in gold PLUS 2-3 of its Taylor partial-sum POLYNOMIALS which you compute yourself (e.g. sin x -> "x", "x - x^3/6", "x - x^3/6 + x^5/120") in teal/mag/coral labeled P1, P3, P5, domain centered on the expansion point. RADIUS or INTERVAL of convergence of a power series in x: plot 2-3 partial-sum polynomials and add vertical lines at the interval endpoints; caption names the interval. POLAR (Unit 9): "r = f(theta)" curves (cardioid, rose, limacon, circle, spiral) → use "polar" with r written in theta, t = the theta range as decimals (full curve 0 to 6.28319; a 3-petal rose r=a·cos(3θ) needs only 0 to 3.14159; use 0 to 12.56637 for spirals). Area of a polar region / area between two polar curves → plot BOTH polar curves (gold outer, teal inner) and say the setup in the caption (A = ½∫r² dθ); do NOT use shade. PARAMETRIC (Unit 9): "x = f(t), y = g(t)" → use "param" with the t range; for particle-MOTION problems (position/velocity/speed at time t) also add "animate":{"kind":"traceParam","on":0} so a point rides the path. NEVER convert a polar or parametric curve into a y=f(x) function — use these fields, the renderer locks the aspect ratio so circles stay circular. DIFFERENTIAL EQUATIONS (Unit 7): any "dy/dx = …", slope field, particular solution, separation of variables, logistic or exponential growth model → use "field" with dydx exactly as given (it may contain BOTH x and y), functions:[], and ALWAYS give an explicit domain and yrange that comfortably contain the interesting behaviour. If an initial condition is stated (y(0)=1, "through the point (0,2)") add it to "solutions" — the renderer integrates the true curve for you, so never try to solve the ODE yourself. If the problem uses EULER\'S METHOD, put "euler":{"h":<step>,"steps":<count>} on that solution so the approximation is drawn against the true curve. For a logistic equation include a second solution starting ABOVE the carrying capacity so both approach directions show. IMPLICIT CURVES (Unit 3): an equation relating x and y that is NOT solved for y (x^2+y^2=25, an ellipse, x^3+y^3=3xy) is NOT a function — never force it into "functions". Move every term to one side and put that expression in "implicit" eq (so "x^2+y^2=25" becomes "x^2 + y^2 - 25"), give BOTH domain and yrange around the shape, and let functions be []. For IMPLICIT DIFFERENTIATION asking dy/dx at a point, add "tangentAt":[x,y] — the renderer computes the slope as -F_x/F_y and draws the tangent, so never solve for it yourself. CURVE ANALYSIS (Unit 5): for increasing/decreasing, concavity, inflection points, local max/min, or "sketch and describe the curve", plot f in gold and add "analysis":{"of":0} — the renderer locates and LABELS every critical and inflection point and draws sign charts for f-prime and f-double-prime underneath, which answers the question. Add analysis whenever the problem is about the SHAPE of one function. ALL numeric fields (domain, interval, at, x, from, y, a, b, n, N, limit, t) MUST be plain decimal numbers — never symbols (pi=3.14159, e=2.71828). Keep it minimal.\n'
 +'EXAMPLES:\n"find the derivative of x^3" -> {"functions":[{"expr":"x^3","color":"gold","label":"f = x^3"},{"expr":"3*x^2","color":"teal","label":"f\' = 3x^2"}],"domain":[-2.5,2.5],"caption":"a function and its derivative"}\n'
 +'"area under y=x^2 from 0 to 2" -> {"functions":[{"expr":"x^2","color":"gold","label":"y = x^2"}],"domain":[-0.5,2.5],"shade":{"under":0,"interval":[0,2]},"caption":"the area under the curve"}\n'
 +'"does the series 1/n^2 converge" -> {"functions":[],"psum":{"term":"1/n^2","from":1,"N":30,"limit":1.6449,"label":"S_n = sum of 1/n^2"},"caption":"the partial sums level off — converges to pi^2/6 = 1.645"}\n'
@@ -613,7 +662,7 @@ function show(r){
   document.getElementById('rOpen').style.visibility='';
   document.getElementById('rWrong').style.visibility='';
   document.getElementById('rTag').textContent=meta.tag;
-  document.getElementById('rTitle').textContent=meta.title;
+  document.getElementById('rTitle').textContent=prettyMath(meta.title);
   document.getElementById('rRead').textContent=meta.read+(r.unsure?' (I guessed the problem type — if that\'s wrong, pick below.)':'');
   const P=document.getElementById('rParams'); P.innerHTML='';
   if(r.curves&&r.curves[0]) addParam(P,'f(x)',r.curves[0]);
@@ -652,6 +701,48 @@ function numLit(s){
    what was typed. Without this the classifier occasionally answered
    interval:"auto" for a plainly definite integral, and verifyShade — finding no
    enclosed region under a single curve — dropped the shading altogether. */
+/* Integration by parts makes the model draw its own scratch work. A real
+   photographed worksheet ("Evaluate ∫ x e^x dx using integration by parts")
+   came back as FOUR curves — u = x, u' = 1, v = e^x, v' = 0 — including the
+   constant 0 as a line across the axis. u and dv are algebra; nothing about
+   them is worth a picture, and duplicates make the legend unreadable.
+   Keep the integrand and, if offered, its antiderivative. Nothing else. */
+function pruneFunctions(scene, raw){
+  if(!scene || !Array.isArray(scene.functions) || scene.functions.length<2) return scene;
+  const key=f=>String(f.expr||'').replace(/\s+/g,'').toLowerCase();
+  /* Duplicates are always a mistake — the same curve drawn twice in two colours
+     tells the student nothing. Safe to drop on any scene. */
+  const seen=Object.create(null);
+  let fns=scene.functions.filter(f=>{ const k=key(f);
+    if(!k || seen[k]) return false; seen[k]=1; return true; });
+
+  /* Everything below is ONLY for integration by parts. A constant is a perfectly
+     good curve in general — "the area between y = x^2 and y = 4" needs that 4 —
+     so it may be dropped only here, where the constant is the model's leftover
+     scratch work (v' = 0) rather than part of the problem. */
+  const book=/^\s*(d?[uv])\s*['′]?\s*=/i;
+  if(/\bby parts\b/i.test(raw||'') || fns.some(f=>book.test(f.label||''))){
+    fns=fns.filter(f=>!/^[-+]?\d*\.?\d+$/.test(key(f))).slice(0,2);
+    if(fns[0]) fns[0].label='f(x) = '+fns[0].expr;
+    if(fns[1]) fns[1].label='antiderivative';
+  }
+  if(!fns.length || fns.length===scene.functions.length) return scene;   // nothing removed
+  scene.functions=fns;
+  /* shade/riemann/analysis hold 0-based indices INTO functions. Dropping a curve
+     shifts that array, so an index that outran it would point at nothing and the
+     renderer would bail out of the whole draw. Drop what no longer resolves. */
+  const n=fns.length, bad=i=>!(typeof i==='number' && i>=0 && i<n);
+  if(scene.shade){
+    if(Array.isArray(scene.shade.between)){ if(scene.shade.between.some(bad)) delete scene.shade; }
+    else if(bad(scene.shade.under)) delete scene.shade;
+  }
+  if(scene.riemann && bad(scene.riemann.on)) delete scene.riemann;
+  if(scene.analysis && bad(scene.analysis.of)) delete scene.analysis;
+  if(scene.animate && scene.animate.on!=null && bad(scene.animate.on)) delete scene.animate;
+  (scene.points||[]).forEach(p=>{ if(p && p.on!=null && bad(p.on)) delete p.on; });
+  return scene;
+}
+
 function enforceStatedBounds(scene, raw){
   if(!scene) return scene;
   const txt=raw||'';
@@ -665,17 +756,45 @@ function enforceStatedBounds(scene, raw){
     if(isFinite(t0)&&isFinite(t1)&&t1>t0) scene.polar[0].t=[t0,t1];
   }
 
+  /* A limit problem is about behaviour NEAR a point, not area. The prompt says
+     never to shade one, and it mostly obeys — but "mostly" means a student
+     occasionally gets a filled region implying a definite integral nobody asked
+     for. It costs two lines to make that impossible. */
+  if(/\blim(it)?\b.*\bapproach/i.test(txt) && scene.shade && !scene.polar) delete scene.shade;
+
+  /* INDEFINITE integral — "integral of f dx" with no bounds anywhere in the
+     text. There is no region to shade: the answer is a family of antiderivatives,
+     not an area. Left to itself the model invents an interval and shades it
+     ([0,3], [-2,0], [0,pi/2] all observed on real photographed worksheets), so
+     the picture asserts a definite value the problem never asked for.
+     Only single-curve `under` shading is dropped — a region *between* two curves
+     is genuinely enclosed, and there the renderer solves its own intersections. */
+  if(/\bintegral of\b/.test(txt) && !/integral from x=/.test(txt)
+     && scene.shade && scene.shade.between==null
+     && !scene.polar && !scene.param) delete scene.shade;
+
   const m=/integral from x=(\S+) to x=(\S+) of/.exec(txt); if(!m) return scene;
   const a=numLit(m[1]), b=numLit(m[2]);
   if(!isFinite(a)||!isFinite(b)||b<=a) return scene;
-  if(!Array.isArray(scene.functions)||scene.functions.length!==1) return scene;
+  if(!Array.isArray(scene.functions)||!scene.functions.length||scene.functions.length>2) return scene;
   if(scene.polar||scene.param||scene.psum||scene.field||scene.implicit) return scene;
+  /* Two curves are allowed here because the model likes to draw the antiderivative
+     alongside the integrand, and that must not cost the student the shading.
+     But it then shades BETWEEN the two — for ∫₀² x² dx that fills the gap between
+     x² and x³/3, a region whose area is not the integral anyone asked for.
+     "Between" is only ever right when the PROBLEM is about a region between
+     curves; a definite integral of one function means the area down to the axis. */
+  const between=/\bbetween\b|\bbounded by\b|\benclosed\b/i.test(txt);
+  if(between && scene.shade && Array.isArray(scene.shade.between)) return scene;
+  /* drop `between` explicitly — the renderer tests it before `under`, so merging
+     `under` in on top of it would change nothing at all */
   scene.shade=Object.assign({},scene.shade,{under:0,interval:[a,b]});
+  delete scene.shade.between;
   return scene;
 }
 
 function showGraph(scene, raw){
-  scene=enforceStatedBounds(scene, raw);
+  scene=enforceStatedBounds(pruneFunctions(scene, raw), raw);
   (function(){var b=document.getElementById("rShare"); if(b) b.style.display="";})();
   var _l=document.getElementById('rLoad'); if(_l) _l.style.display='none';
   const R=document.getElementById('result');
@@ -685,7 +804,7 @@ function showGraph(scene, raw){
   document.getElementById('rOpen').style.visibility='';
   document.getElementById('rWrong').style.visibility='';
   document.getElementById('rTag').textContent='graphed';
-  document.getElementById('rTitle').textContent=scene.caption||'Your problem, visualized';
+  document.getElementById('rTitle').textContent=prettyMath(scene.caption)||'Your problem, visualized';
   document.getElementById('rRead').textContent='Here it is, graphed — the function(s) and whatever the problem is really about. Hit "walk me through it" to go step by step.';
   const P=document.getElementById('rParams'); P.innerHTML='';
   (scene.functions||[]).slice(0,3).forEach((f,i)=>addParam(P, i===0?'f(x)':(i===1?'g(x)':'h(x)'), f.expr));
@@ -716,6 +835,16 @@ window.addEventListener('message',e=>{
   if(h){ const f=document.getElementById('rFrame'); if(f) f.style.height=Math.max(420,Math.min(820,h))+'px'; }
   // the renderer's verified answer key — the tutor's equivalent of the exam pages' worked solution
   if(e.data&&e.data.vizFacts&&LAST_R&&e.data.fid===LAST_R.fid) LAST_R.facts=e.data.vizFacts;
+  /* the renderer may have thrown out a curve it could prove wrong (a claimed
+     antiderivative that doesn't differentiate back). Re-list the chips from what
+     it actually drew, so the card never names a function the graph doesn't show. */
+  if(e.data&&Array.isArray(e.data.fns)&&LAST_R&&e.data.fid===LAST_R.fid&&LAST_R.arch==='graph'){
+    const P=document.getElementById('rParams');
+    if(P && e.data.fns.length && e.data.fns.length!==P.children.length){
+      P.innerHTML='';
+      e.data.fns.slice(0,3).forEach((ex,i)=>addParam(P, i===0?'f(x)':(i===1?'g(x)':'h(x)'), ex));
+    }
+  }
 });
 function hidePreview(){ const p=document.getElementById('rPreview'); if(p) p.style.display='none'; }
 
@@ -1031,6 +1160,11 @@ function cleanTranscript(t){
   return String(t||'')
     .replace(/```[a-z]*|```/gi,' ')
     .replace(/^\s*(problem|question)\s*[:.\)]\s*/i,'')
+    /* worksheets are numbered, and the camera reads the number: "5. Evaluate
+       ∫ x e^x dx". That leading 5 is not part of the maths — it just gives the
+       model a stray constant to explain. Only strip a SHORT leading number so a
+       problem that genuinely opens with a value ("2x + 1 = ...") survives. */
+    .replace(/^\s*\(?\d{1,2}\s*[\.\)]\s+/,'')
     .replace(/\$+/g,' ')
     .replace(/\s+/g,' ')
     .trim();

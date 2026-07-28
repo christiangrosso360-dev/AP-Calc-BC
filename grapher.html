@@ -14,7 +14,9 @@
   .stage{position:relative;width:100%;height:100vh;background:radial-gradient(circle at 50% 44%,var(--bg1),var(--bg0) 78%)}
   #cv{display:block;width:100%;height:100%}
   .cap{position:absolute;left:22px;top:18px;font-family:var(--mono);font-size:13px;color:var(--mut);letter-spacing:.02em;pointer-events:none}
-  .legend{position:absolute;right:22px;top:18px;display:flex;flex-direction:column;gap:7px;align-items:flex-end;pointer-events:none}
+  /* max-width so a long label (an antiderivative can be wordy) wraps inward
+     rather than running under the caption or off the right edge */
+  .legend{position:absolute;right:22px;top:18px;display:flex;flex-direction:column;gap:7px;align-items:flex-end;pointer-events:none;max-width:52%;text-align:right}
   .lg{font-family:var(--mono);font-size:13px;display:flex;align-items:center;gap:8px}
   .lg .sw{width:16px;height:3px;border-radius:2px}
   .replay{position:absolute;left:22px;bottom:18px;font-family:var(--mono);font-size:12px;color:var(--mut);background:rgba(12,10,5,.7);border:1px solid var(--axis);border-radius:8px;padding:8px 14px;cursor:pointer}
@@ -97,6 +99,33 @@ const DEFAULT_SCENE={
   caption:'the region between two curves, and a tangent'
 };
 // coerce any numeric field to a real number, even if the AI wrote "pi", "e^(1)", "2*pi"
+/* Expressions travel through here as parser-ASCII ("x^2*sqrt(pi)") because that
+   is what compile() eats. Printing that straight into the legend showed students
+   source code where they expect maths, so raise it to real notation on the way
+   out. Kept identical to prettyMath in visualizer.html so one page never
+   disagrees with the other about how a formula looks. */
+var SUP={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹',
+         '+':'⁺','-':'⁻','(':'⁽',')':'⁾','n':'ⁿ','x':'ˣ','a':'ᵃ','b':'ᵇ','c':'ᶜ','d':'ᵈ',
+         'e':'ᵉ','f':'ᶠ','g':'ᵍ','h':'ʰ','i':'ⁱ','j':'ʲ','k':'ᵏ','l':'ˡ','m':'ᵐ','o':'ᵒ',
+         'p':'ᵖ','r':'ʳ','s':'ˢ','t':'ᵗ','u':'ᵘ','v':'ᵛ','w':'ʷ','y':'ʸ','z':'ᶻ'};
+function prettyMath(s){
+  return String(s==null?'':s)
+    .replace(/\bsqrt\s*\(([^()]*)\)/g,(m,g)=>'√'+(/^[A-Za-z0-9.]+$/.test(g)?g:'('+g+')'))
+    .replace(/\bexp\s*\(([^()]*)\)/g,'e^($1)')
+    .replace(/\bpi\b/g,'π').replace(/\binfinity\b/gi,'∞').replace(/\btheta\b/g,'θ')
+    .replace(/\*/g,'·').replace(/<=/g,'≤').replace(/>=/g,'≥').replace(/!=/g,'≠')
+    .replace(/->|=>/g,'→')
+    .replace(/\^\s*\(([^()]{1,12})\)|\^\s*([A-Za-z0-9]{1,4})/g,(m,par,bare)=>{
+      const body=par!=null?par:bare; let out='';
+      for(const ch of body){ const g=SUP[ch.toLowerCase()]; if(!g) return m; out+=g; }
+      return out;
+    });
+}
+/* the legend is built with innerHTML and the scene arrives base64'd in the URL,
+   so a hand-crafted link could otherwise post markup straight into the page */
+function lab(s){
+  return prettyMath(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
 function num(v,dflt){
   if(typeof v==='number'&&isFinite(v)) return v;
   if(typeof v==='string'){ try{ const y=compile(v)(0); if(isFinite(y)) return y; }catch(e){} const f=parseFloat(v); if(isFinite(f)) return f; }
@@ -294,7 +323,7 @@ function drawPoint(pt,prog){
   ctx.save(); ctx.shadowColor=COL.glow; ctx.shadowBlur=16*prog; ctx.fillStyle=COL.glow;
   ctx.beginPath(); ctx.arc(px,py,r,0,7); ctx.fill(); ctx.restore();
   if(pt.label&&prog>0.6){ ctx.fillStyle=COL.ink; ctx.font='italic 15px Georgia,serif'; ctx.textAlign='left'; ctx.textBaseline='bottom';
-    ctx.globalAlpha=(prog-0.6)/0.4; ctx.fillText(pt.label, px+11, py-9); ctx.globalAlpha=1; }
+    ctx.globalAlpha=(prog-0.6)/0.4; ctx.fillText(prettyMath(pt.label), px+11, py-9); ctx.globalAlpha=1; }
 }
 
 /* series: partial sums Sₙ plotted as glowing dots marching toward (or away from) the limit */
@@ -440,6 +469,33 @@ function verifyShade(){
   sh.interval=iv.map(v=>{ let best=v,bd=tol;
     for(const r of roots){ const d=Math.abs(r-v); if(d<bd){ bd=d; best=r; } }
     return best; });
+}
+/* The model is asked to compute the antiderivative itself on indefinite-integral
+   problems, and it is not reliable at it: ∫x·e^x dx came back as "e^x" on one run
+   and the correct "x·e^x - e^x" on the next. A wrong curve labelled
+   "antiderivative" is worse than no curve at all — the student has no way to know.
+   So check it the only way that is actually decisive: differentiate what was
+   claimed and see whether it reproduces the integrand. Compared as derivatives
+   because an antiderivative is only ever fixed up to +C. */
+function verifyAntiderivative(){
+  if(!SCENE.functions || SCENE.functions.length!==2 || FNS_C.length!==2) return;
+  if(!/antideriv|^\s*F\(x\)/i.test(SCENE.functions[1].label||'')) return;   // not a claim we can test
+  const f=FNS_C[0], F=FNS_C[1];
+  if(typeof f!=='function' || typeof F!=='function') return;
+  const a=DOM[0], b=DOM[1], h=(b-a)/2000;
+  let tried=0, agreed=0;
+  for(let i=1;i<40;i++){
+    const x=a+(b-a)*i/40;
+    const d=(F(x+h)-F(x-h))/(2*h), want=f(x);          // central difference
+    if(!isFinite(d)||!isFinite(want)) continue;
+    tried++;
+    // scale-relative, with an absolute floor so values near zero don't fail on noise
+    if(Math.abs(d-want) <= 0.02*Math.max(1,Math.abs(want))) agreed++;
+  }
+  if(tried>=12 && agreed/tried < 0.8){
+    SCENE.functions.splice(1,1); FNS_C.splice(1,1);    // drop the false claim, keep the integrand
+    if(SCENE.shade && Array.isArray(SCENE.shade.between)) delete SCENE.shade;
+  }
 }
 // a tangent drawn at a point that is NOT on the curve is nonsense — snap it on, or don't draw it
 function verifyImplicitPoints(){
@@ -817,16 +873,18 @@ function build(){
   // Unit 5: mark + classify the critical and inflection points of a function
   ANLZ=(SCENE.analysis&&FNS_C.length)?{of:Math.max(0,Math.min(FNS_C.length-1,Math.round(num(SCENE.analysis.of,0))))}:null;
   DOM=SCENE.domain||(PSUM?[0,PSUM.N+1]:[-5,5]);
-  try{ verifyShade(); widenDomain(); verifyImplicitPoints(); }catch(e){}   // fact-check the AI's claims
-  document.getElementById('cap').textContent=SCENE.caption||'';
-  const ec=document.getElementById('embedCap'); if(ec) ec.textContent=SCENE.caption||'';
+  // fact-check the AI's claims. Antiderivative first: it can remove a curve, and
+  // everything below (shading indices, the legend) is built from what survives.
+  try{ verifyAntiderivative(); verifyShade(); widenDomain(); verifyImplicitPoints(); }catch(e){}
+  document.getElementById('cap').textContent=prettyMath(SCENE.caption||'');
+  const ec=document.getElementById('embedCap'); if(ec) ec.textContent=prettyMath(SCENE.caption||'');
   let lg=SCENE.functions.map(f=>
-    '<div class="lg"><span class="sw" style="background:'+cget(f.color)+'"></span>'+(f.label||f.expr)+'</div>').join('');
-  if(PARAM) lg+=PARAM.map(c=>'<div class="lg"><span class="sw" style="background:'+cget(c.color)+'"></span>'+c.label+'</div>').join('');
-  if(IMPL) lg+=IMPL.map(c=>'<div class="lg"><span class="sw" style="background:'+cget(c.color)+'"></span>'+c.label+'</div>').join('');
-  if(FIELD){ lg+='<div class="lg"><span class="sw" style="background:#8fbfd0"></span>dy/dx = '+SCENE.field.dydx+'</div>';
+    '<div class="lg"><span class="sw" style="background:'+cget(f.color)+'"></span>'+lab(f.label||f.expr)+'</div>').join('');
+  if(PARAM) lg+=PARAM.map(c=>'<div class="lg"><span class="sw" style="background:'+cget(c.color)+'"></span>'+lab(c.label)+'</div>').join('');
+  if(IMPL) lg+=IMPL.map(c=>'<div class="lg"><span class="sw" style="background:'+cget(c.color)+'"></span>'+lab(c.label)+'</div>').join('');
+  if(FIELD){ lg+='<div class="lg"><span class="sw" style="background:#8fbfd0"></span>dy/dx = '+lab(SCENE.field.dydx)+'</div>';
     if(FIELD.sols.some(s=>s.euler)) lg+='<div class="lg"><span class="sw" style="background:'+cget('coral')+'"></span>Euler approximation</div>'; }
-  if(PSUM) lg+='<div class="lg"><span class="sw" style="background:'+cget('gold')+'"></span>'+(SCENE.psum.label||('Sₙ = Σ '+PSUM.term))+'</div>';
+  if(PSUM) lg+='<div class="lg"><span class="sw" style="background:'+cget('gold')+'"></span>'+lab(SCENE.psum.label||('Sₙ = Σ '+PSUM.term))+'</div>';
   document.getElementById('legend').innerHTML=lg;
   // the sign strips live in the bottom-left band — get the replay button out of their way
   const rp=document.getElementById('replay');
@@ -836,7 +894,12 @@ function build(){
   // (after resize: the true-solution integration needs the final y-range)
   try{ if(window.parent&&window.parent!==window){
     const fid=+(new URLSearchParams(location.search).get('fid')||0);
-    window.parent.postMessage({vizFacts:computeFacts(), fid},'*'); } }catch(e){}
+    /* `fns` = the curves that SURVIVED verification. The parent lists the scene's
+       functions as chips the moment it has the JSON, which is before this frame
+       has had a chance to disprove any of them — so a rejected antiderivative
+       would still be advertised above a graph that no longer draws it. */
+    window.parent.postMessage({vizFacts:computeFacts(), fid,
+      fns:(SCENE.functions||[]).map(f=>f.expr)},'*'); } }catch(e){}
 }
 // start the reveal; a setTimeout safety net forces the COMPLETE frame even if rAF is throttled (embeds / this env)
 function play(){
