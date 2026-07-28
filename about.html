@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Why I Built This — Visual AP Calculus BC</title>
-<meta name="description" content="A high school student built this free AP Calculus BC site: 49 visual lessons, 529 practice questions, a full timed mock exam that grades your free response, and a tool that draws any problem you paste in. No account, no ads." />
+<meta name="description" content="A student built this free AP Calculus BC site: 49 visual lessons, 529 practice questions, a full timed mock exam that grades your free response, and a tool that draws any problem you paste in. No account, no ads." />
 <link rel="canonical" href="https://visualcalculus.org/about.html" />
 <meta property="og:title" content="Why I Built This — Visual AP Calculus BC" />
 <meta property="og:description" content="A student-built AP Calculus BC site. 49 visual lessons, 529 questions, a full graded mock exam. Free, no account." />
@@ -16,121 +16,768 @@
 <meta name="twitter:image" content="https://visualcalculus.org/og-image.png" />
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%231a1305%27%2F%3E%3Cpath%20d%3D%27M6%2024%20C%2014%2010%2C%2020%2010%2C%2026%2020%27%20fill%3D%27none%27%20stroke%3D%27%23f0b429%27%20stroke-width%3D%272.4%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E" />
 <link rel="stylesheet" href="styles.css">
-<script src="helpers.js"></script>
 <script data-goatcounter="https://visualcalculus.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <style>
-  :root{ --approx:#f0b429; --gold:#f0b429; --teal:#3fd0b0; --wrap-max:760px; }
-  .ab-lede{color:var(--muted);font-size:17px;line-height:1.75;margin-top:14px}
-  .ab h2{font-family:var(--display);font-size:23px;letter-spacing:-0.01em;margin:38px 0 12px}
-  .ab p{font-size:15.5px;line-height:1.8;color:var(--text);margin:0 0 16px}
-  .ab p.muted{color:var(--muted)}
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:30px 0 6px}
-  @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
-  .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 14px;text-align:center}
-  .stat .n{font-family:var(--display);font-size:26px;color:var(--approx);line-height:1}
-  .stat .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
-    color:var(--muted);margin-top:7px}
-  .pull{border-left:2px solid var(--approx);padding:2px 0 2px 18px;margin:26px 0;
-    font-family:var(--display);font-size:19px;line-height:1.6}
-  .cta{display:inline-flex;align-items:center;gap:8px;margin-top:10px;background:var(--approx);color:#241a02;
-    border-radius:11px;font-family:var(--mono);font-weight:700;font-size:12.5px;letter-spacing:.06em;
-    text-transform:uppercase;padding:13px 20px;text-decoration:none}
-  .cta.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
-  .ctas{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
-  .sig{font-family:var(--display);font-size:16px;color:var(--muted);margin:22px 0 0}
+/* ============================================================================
+   ONE CANVAS, FOUR LAYERS — hand-rolled 3D, no library.
+
+   CSS 3D could only ever be flat divs at fixed depths: no trails, no bloom, no
+   real geometry. Everything here is drawn per frame into a single 2D canvas with
+   additive blending ('lighter'), which buys the glow and streaks for free:
+
+     1. background   slow drifting colour fields, palette shifts per story beat
+     2. hyperspace   a 3D point field streaking past camera, speed ramps with
+                     how fast YOU scroll
+     3. surface      a wireframe math surface morphing in fog
+     4. set pieces   unit constellation, the Miami sunset, the closing integral
+
+   Trails come from painting a translucent rect over the previous frame instead of
+   clearing it, so bright things smear along their own motion. Glow comes from ONE
+   pre-rendered sprite drawn scaled — canvas shadowBlur is ruinously slow and this
+   costs a single drawImage per particle.
+
+   Headlines assemble word by word (CSS transition + per-word delay). Cheap, and
+   it's the only part that isn't canvas.
+   ========================================================================== */
+  :root{ --gold:#f0b429; --glow:#ffd66b; --teal:#3fd0b0; }
+
+  html{scroll-behavior:auto}
+  body{margin:0;background:#04050a;overflow-x:hidden}
+
+  #fx{position:fixed;inset:0;z-index:0;display:block;pointer-events:none}
+
+  /* ---------- the copy, riding along ---------- */
+  main{position:relative;z-index:1}
+  .beat{min-height:120vh;display:flex;align-items:flex-end;justify-content:center;
+    padding:0 18px 12vh;box-sizing:border-box}
+  @media(min-width:900px){
+    .beat{justify-content:flex-start;padding-left:6vw;align-items:center}
+  }
+  .beat .inner{max-width:430px;width:100%;box-sizing:border-box;
+    padding:24px 26px 26px;border-radius:18px;
+    background:rgba(10,10,18,.55);border:1px solid rgba(255,255,255,.14);
+    -webkit-backdrop-filter:blur(12px) saturate(1.25);backdrop-filter:blur(12px) saturate(1.25);
+    box-shadow:0 26px 70px rgba(0,0,0,.6);
+    opacity:0;transform:translateY(28px);
+    transition:opacity .6s ease,transform .6s cubic-bezier(.16,.8,.3,1)}
+  .beat.on .inner{opacity:1;transform:none}
+  /* Live backdrop blur is the most expensive thing here and phone GPUs punish it
+     hardest. A near-opaque panel reads the same at this size. */
+  @media(max-width:899px){
+    .beat .inner{-webkit-backdrop-filter:none;backdrop-filter:none;
+      background:rgba(9,9,16,.86)}
+  }
+
+  /* kinetic headlines — each word flies up and settles, staggered */
+  .w{display:inline-block;opacity:0;transform:translateY(28px) rotateX(-55deg);
+    transition:opacity .5s ease,transform .62s cubic-bezier(.16,.9,.3,1)}
+  .beat.on .w{opacity:1;transform:none}
+
+  .beat p{font-size:15.5px;line-height:1.62;color:#e8edf2;margin:0 0 12px}
+  .beat p.small{font-size:13.5px;line-height:1.6;color:#a9b3bd;margin:0 0 10px}
+  .kicker{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.24em;
+    text-transform:uppercase;color:var(--gold);margin:0 0 10px}
+  h1,h2{font-family:Georgia,'Times New Roman',serif;line-height:1.08;
+    letter-spacing:-.015em;margin:0 0 12px;color:#fff;perspective:600px}
+  h1{font-size:clamp(27px,3.4vw,38px)}
+  h2{font-size:clamp(24px,3vw,33px)}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0 4px}
+  .stat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+    border-radius:10px;padding:10px 4px;text-align:center}
+  .stat .n{font-family:Georgia,serif;font-size:22px;color:var(--gold);line-height:1}
+  .stat .l{font-family:ui-monospace,Menlo,monospace;font-size:8.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:#98a2ac;margin-top:5px}
+
+  .inl{color:var(--gold);text-decoration:underline;text-underline-offset:2px}
+  .pull{font-family:Georgia,serif;font-size:16px;line-height:1.45;color:#fff;
+    border-left:3px solid var(--gold);padding-left:14px;margin:14px 0}
+  .sig{font-family:Georgia,serif;font-size:15px;color:#98a2ac;margin:12px 0 0}
+  .ctas{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+  .cta{display:inline-block;padding:11px 18px;border-radius:11px;background:var(--gold);
+    color:#1a1305;font-family:ui-monospace,Menlo,monospace;font-size:12px;font-weight:700;
+    letter-spacing:.06em;text-decoration:none}
+  .cta.ghost{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2);color:#eef2f5}
+
+  .backlink{position:fixed;top:16px;left:16px;z-index:3;
+    font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#cfd6dd;text-decoration:none;
+    background:rgba(10,10,18,.6);border:1px solid rgba(255,255,255,.16);
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    padding:8px 13px;border-radius:999px}
+  /* on desktop the copy card owns the left, so keep the link clear of it */
+  @media(min-width:900px){ .backlink{left:auto;right:18px} }
+
+  .hint{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:2;
+    font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.22em;
+    text-transform:uppercase;color:rgba(255,255,255,.6);transition:opacity .5s}
+  .hint b{display:block;width:1px;height:22px;margin:8px auto 0;
+    background:linear-gradient(rgba(255,255,255,.6),transparent);animation:dr 1.9s ease-in-out infinite}
+  @keyframes dr{0%,100%{transform:scaleY(.4);opacity:.35}50%{transform:scaleY(1);opacity:.9}}
+
+  /* Anyone who asks for less motion gets the whole story as a plain document. */
+  @media (prefers-reduced-motion:reduce){
+    #fx{display:none}
+    .beat{min-height:0;padding:26px 20px;align-items:flex-start}
+    .beat .inner{opacity:1;transform:none;transition:none;max-width:640px;
+      background:none;border:none;backdrop-filter:none;-webkit-backdrop-filter:none;
+      box-shadow:none;padding:0}
+    .w{opacity:1;transform:none;transition:none}
+    .hint{display:none}
+    body{background:#0c0e10}
+  }
 </style>
 </head>
 <body>
-<div class="wrap" style="max-width:var(--wrap-max)">
-  <a class="backlink" href="index.html">← Visual Calculus</a>
+<a class="backlink" href="index.html">← Visual Calculus</a>
+<canvas id="fx" aria-hidden="true"></canvas>
 
-  <h1 style="font-family:var(--display);font-size:38px;margin:26px 0 0;letter-spacing:-0.02em">
-    Why this exists<span style="color:var(--approx)">.</span></h1>
-
-  <div class="ab">
-
-    <!-- Written from Christian's own account. Two things still to decide:
-         (1) whether to sign it with his name, and (2) a contact route — see below. -->
-
-    <p class="ab-lede">I took AP Calculus BC, and the whole time I was studying for it I could never
-    find a good website to learn from.</p>
-
-    <p>It was always review videos. Someone works through <i>their</i> problems on a whiteboard, and
-    you either follow along or you don't &mdash; and if the thing you're stuck on isn't the thing
-    they happened to pick, you're on your own. None of it was tailored to me, or to what I was
+<main>
+  <section class="beat"><div class="inner">
+    <p class="kicker">Why this exists</p>
+    <h1>I couldn't find anywhere good to learn this.</h1>
+    <p>I took AP Calculus BC, and the whole time I was studying for it I could never find a
+    website that actually helped.</p>
+    <p class="small">It was always review videos. Someone works through <i>their</i> problems on a
+    whiteboard, and you either follow along or you don't — and if the thing you're stuck on isn't the
+    thing they happened to pick, you're on your own. None of it was tailored to me, or to what I was
     actually struggling with.</p>
+  </div></section>
 
-    <p>The bigger problem was that there was no way to <b>picture</b> the course. Calculus is about
-    things moving and changing, and it kept being handed to me as a page of symbols.</p>
+  <section class="beat"><div class="inner">
+    <h2>And there was no way to picture any of it.</h2>
+    <p>Calculus is about things moving and changing. It kept being handed to me as a page of
+    symbols.</p>
+    <p class="small">A curve doing something is a completely different object in your head than the
+    formula that describes it. I wanted the first one and kept being given the second.</p>
+  </div></section>
 
-    <p>So the summer after I finished the class &mdash; before starting mechanical engineering at
-    the University of Miami &mdash; I built Unit&nbsp;10, sequences and series, mostly for fun. Then
-    I looked at it and realized I could build something that didn't exist yet. So I kept going until
-    the whole course was done.</p>
+  <section class="beat"><div class="inner">
+    <p class="kicker">Summer, after the course</p>
+    <h2>So I built Unit 10 first — for fun.</h2>
+    <p>Sequences and series. No plan behind it, I just wanted to see convergence actually
+    converge instead of reading that it did.</p>
+  </div></section>
 
+  <section class="beat"><div class="inner">
+    <h2>Then I realized I could build the whole thing.</h2>
+    <p>So I kept going until the entire course was done.</p>
     <div class="stats">
       <div class="stat"><div class="n">10</div><div class="l">units</div></div>
       <div class="stat"><div class="n">49</div><div class="l">lessons</div></div>
       <div class="stat"><div class="n">529</div><div class="l">questions</div></div>
       <div class="stat"><div class="n">0</div><div class="l">cost</div></div>
     </div>
+    <p class="small" style="margin-top:14px">Every lesson is built around something you can move
+    rather than a diagram you look at. And because the thing I hated was that nothing was tailored
+    to me, the two biggest features work on <b>your</b> problem: the
+    <a class="inl" href="visualizer.html">Visualizer</a> draws whatever you paste in, and the
+    <a class="inl" href="mock-exam.html">mock exam</a> grades what you actually wrote.</p>
+  </div></section>
 
-    <h2>Everything here follows from that</h2>
-    <p>All ten College Board units, 49 lessons, and every one of them built around something you can
-    actually move rather than a diagram you look at. Drag a point and the math responds. That's the
-    part the videos couldn't give me.</p>
+  <section class="beat"><div class="inner">
+    <p class="kicker">What's next</p>
+    <h2>Now I'm off to study mechanical engineering.</h2>
+    <p>I built this the summer before starting college in Miami. It stays online, and it stays
+    free.</p>
+    <p class="small">No account, no ads, no email wall, nothing to buy. If it's useful, tell someone
+    in your class. That's the whole business model.</p>
+  </div></section>
 
-    <p>The rest of it comes from the other complaint &mdash; that nothing was tailored to me. So the
-    two biggest things on the site work on <b>your</b> problem, not somebody else's:</p>
-
-    <p>The <a href="visualizer.html" style="color:var(--approx)">Visualizer</a> takes a problem you
-    paste in &mdash; your homework, the question you're actually stuck on &mdash; draws it with your
-    numbers, and then walks you through it instead of just handing over the answer.</p>
-
-    <p>And the <a href="mock-exam.html" style="color:var(--approx)">mock exam</a> reads what
-    <i>you</i> wrote. It marks your free-response against the real rubric point by point, scores you
-    out of 108, predicts a 1&ndash;5, and tells you how many questions the clock cost you &mdash;
-    which is the one thing a paper practice test physically cannot do.</p>
-
+  <section class="beat"><div class="inner">
+    <h2>It won't be perfect.</h2>
+    <p class="small">One person built this, so there will be mistakes in it. If you find a wrong
+    answer, a broken graph, or an explanation that doesn't make sense, I genuinely want to know —
+    that's how it gets better.</p>
+    <p class="small">Found something wrong? <a class="inl" id="contact" href="#">Email me</a>.
+      <noscript>(christiangrosso360 at gmail dot com)</noscript></p>
     <div class="pull">A correct answer with no work earns nothing here, because that's how real
     readers score it in May.</div>
-
-    <h2>Free, and staying free</h2>
-    <p class="muted">No account, no ads, no email wall, nothing to buy. If it's useful, tell someone
-    in your class. That's the whole business model.</p>
-
-    <h2>It won't be perfect</h2>
-    <p class="muted">One person built this, so there will be mistakes in it. If you find a wrong
-    answer, a broken graph or an explanation that doesn't make sense, I genuinely want to know —
-    that's how it gets better.</p>
-
-    <!-- The address is assembled in JS rather than written into the HTML. A plain
-         mailto: on a public page gets harvested by scrapers within weeks; this stays
-         one click for a human and invisible to a bot reading the source. -->
-    <p class="muted" style="margin-top:-6px">Found something wrong?
-      <a id="contact" href="#" style="color:var(--approx)">Email me</a>.
-      <noscript>(christiangrosso360 at gmail dot com)</noscript></p>
-
-    <p class="sig">&mdash; Christian Grosso</p>
-
+    <p class="sig">— Christian Grosso</p>
     <div class="ctas">
       <a class="cta" href="index.html">Start with a unit →</a>
       <a class="cta ghost" href="mock-exam.html">Sit the exam</a>
     </div>
+  </div></section>
+</main>
 
-  </div>
-</div>
+<div class="hint" id="hint">scroll<b></b></div>
+
 <script>
-/* Assemble the address at runtime so it never appears in the page source.
-   Harvesters read HTML, not rendered DOM, so this keeps the inbox usable
-   while making it a much poorer target. */
 (function(){
-  var a = document.getElementById('contact');
-  if (!a) return;
-  var user = ['christian','grosso','360'].join('');
-  var host = ['gmail','com'].join('.');
-  a.href = 'mail' + 'to:' + user + '@' + host;
-  a.textContent = user + '@' + host;
+  /* contact address assembled at runtime so it is never a literal in the source */
+  var a=document.getElementById('contact');
+  if(a){ var u='christiangrosso360', d='gmail.com';
+         a.href='mailto:'+u+'@'+d; a.textContent=u+'@'+d; }
+
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var beats  = [].slice.call(document.querySelectorAll('.beat'));
+  var hint   = document.getElementById('hint');
+
+  /* ---- kinetic headlines: split into words so they can land one by one ---- */
+  beats.forEach(function(b){
+    var h = b.querySelector('h1,h2');
+    if (!h) return;
+    var words = h.textContent.split(/\s+/).filter(Boolean);
+    h.textContent = '';
+    words.forEach(function(w, i){
+      var s = document.createElement('span');
+      s.className = 'w'; s.textContent = w;
+      s.style.transitionDelay = (0.05 + i*0.045).toFixed(3) + 's';
+      h.appendChild(s);
+      if (i < words.length-1) h.appendChild(document.createTextNode(' '));
+    });
+  });
+
+  /* Reveal whatever is already on screen at load, before the observer reports. */
+  function showIfVisible(b){
+    var r = b.getBoundingClientRect();
+    if (r.top < innerHeight * 0.85 && r.bottom > 0) b.classList.add('on');
+  }
+  beats.forEach(showIfVisible);
+
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('on'); });
+    }, { threshold:.25 });
+    beats.forEach(function(b){ io.observe(b); });
+  } else beats.forEach(function(b){ b.classList.add('on'); });
+
+  if (reduce) return;
+
+  /* ====================== the canvas ====================== */
+  var cv = document.getElementById('fx'), ctx = cv.getContext('2d', { alpha:false });
+  /* phone must be known before the starting quality level is picked, not after */
+  /* DPR starts at 0 so the first applyQuality() always builds the backing store */
+  var W=0, H=0, cx=0, cy=0, DPR=0, phone = innerWidth < 900;
+
+  var aur, aurW, aurH, aurTick = 0, skyGrad = null;
+
+  function resize(){
+    phone = innerWidth < 900;
+    /* This page is entirely soft glows, so extra device pixels buy nothing you can
+       see and cost real frames. 1.25 on phones was the difference between 10fps
+       and 60fps on a throttled device. */
+    /* Every full-screen op scales with DPR^2, and this is a field of soft glows on
+       a dark background — the one kind of content where rendering BELOW CSS
+       resolution and letting the browser upscale it is invisible. */
+    DPR = Math.min(devicePixelRatio || 1, Q().dpr);
+    W = innerWidth; H = innerHeight;
+    cv.width = Math.round(W*DPR); cv.height = Math.round(H*DPR);
+    cv.style.width = W+'px'; cv.style.height = H+'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    cx = W/2; cy = H/2;
+
+    /* the colour wash lives in a quarter-size buffer. It's a slow blur, so nobody
+       can tell it's upscaled, and it turns three full-screen gradient fills per
+       frame into one drawImage. */
+    aur = document.createElement('canvas');
+    aurW = Math.max(64, Math.round(W/4)); aurH = Math.max(48, Math.round(H/4));
+    aur.width = aurW; aur.height = aurH;
+    aurTick = 0;
+
+    /* built once per resize instead of allocated 60 times a second */
+    /* built once per resize instead of allocated 60 times a second */
+    skyGrad = ctx.createLinearGradient(0,0,0,H);
+    skyGrad.addColorStop(0.00,'#120a2e'); skyGrad.addColorStop(0.16,'#2b1050');
+    skyGrad.addColorStop(0.30,'#5e1a60'); skyGrad.addColorStop(0.42,'#a82a68');
+    skyGrad.addColorStop(0.50,'#dd4a33'); skyGrad.addColorStop(0.555,'#f77f2b');
+    skyGrad.addColorStop(0.575,'#ffd08a');
+    skyGrad.addColorStop(0.582,'#8a4560'); skyGrad.addColorStop(0.66,'#46224e');
+    skyGrad.addColorStop(0.80,'#241234'); skyGrad.addColorStop(1.00,'#0a0518');
+  }
+  /* not called yet — resize() reads Q(), which is defined further down */
+
+  /* Neon dusk. The horizon stop MUST line up with hy (0.63) or the U floats off the
+     ground. Built per-context because the retro sun's bands are punched out by
+     refilling with this same gradient, and the baked backdrop needs its own copy. */
+  function paintAurora(time){
+    var g = aur.getContext('2d');
+    g.setTransform(1,0,0,1,0,0);
+    g.clearRect(0,0,aurW,aurH);
+    g.globalCompositeOperation = 'lighter';
+    for (var i=0;i<3;i++){
+      var ax = aurW/2 + Math.sin(time*0.11 + i*2.1) * aurW*0.34;
+      var ay = aurH/2 + Math.cos(time*0.09 + i*1.7) * aurH*0.30;
+      var ar = Math.min(aurW,aurH) * (0.52 + 0.12*Math.sin(time*0.13+i));
+      var ag = g.createRadialGradient(ax,ay,0,ax,ay,ar);
+      var c1 = i===0 ? '240,180,41' : i===1 ? '63,208,176' : '200,80,220';
+      ag.addColorStop(0, "rgba("+c1+",0.24)");
+      ag.addColorStop(1, 'rgba('+c1+',0)');
+      g.fillStyle = ag; g.fillRect(0,0,aurW,aurH);
+    }
+  }
+
+  /* ---- one pre-rendered glow sprite, drawn scaled per particle ----
+     canvas shadowBlur re-blurs on every draw and collapses to single-digit fps
+     with a few hundred particles; a cached sprite is one drawImage each. */
+  function glowSprite(rgb){
+    var s = 64, c = document.createElement('canvas');
+    c.width = c.height = s;
+    var g = c.getContext('2d'), grd = g.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2);
+    grd.addColorStop(0,   'rgba('+rgb+',1)');
+    grd.addColorStop(0.25,'rgba('+rgb+',0.55)');
+    grd.addColorStop(0.6, 'rgba('+rgb+',0.13)');
+    grd.addColorStop(1,   'rgba('+rgb+',0)');
+    g.fillStyle = grd; g.fillRect(0,0,s,s);
+    return c;
+  }
+  var SP_GOLD = glowSprite('255,214,107'),
+      SP_WHITE= glowSprite('255,255,255'),
+      SP_TEAL = glowSprite('63,208,176'),
+      SP_PINK = glowSprite('255,120,190');
+
+  /* ---- adaptive quality ----
+     Device speed here spans an order of magnitude and no fixed setting is right for
+     all of it: a laptop wants the full field, a tired phone needs a third of it.
+     So the page times its own frames and steps quality up or down to hold ~60fps.
+     Everything expensive is driven off this: pixel density, how many things exist,
+     and how often the colour wash is repainted. */
+  /* water = world spacing between wave rows (bigger = fewer rows on screen),
+     extrude = how many offset copies build the monument's side wall */
+  var QUAL = [
+    { dpr:0.75, stars:50,  glyphs:10, aurEvery:10, aurSkip:true,  water:130, extrude:5  },
+    { dpr:1.00, stars:110, glyphs:18, aurEvery:8,  aurSkip:false, water:96,  extrude:9  },
+    { dpr:1.50, stars:190, glyphs:30, aurEvery:6,  aurSkip:false, water:74,  extrude:10 }
+  ];
+  var qi = phone ? 1 : 2;
+  function Q(){ return QUAL[qi]; }
+
+  /* One pre-rendered light shaft, drawn rotated N times around the sun. Building a
+     gradient per ray per frame would be the expensive way to do this. */
+  var SP_RAY = (function(){
+    var w = 256, h = 46, c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    var g = c.getContext('2d');
+    var lg = g.createLinearGradient(0,0,w,0);
+    lg.addColorStop(0,   'rgba(255,236,190,0.85)');
+    lg.addColorStop(0.35,'rgba(255,212,146,0.32)');
+    lg.addColorStop(1,   'rgba(255,190,110,0)');
+    g.fillStyle = lg; g.fillRect(0,0,w,h);
+    g.globalCompositeOperation = 'destination-in';   /* feather the long edges */
+    var vg = g.createLinearGradient(0,0,0,h);
+    vg.addColorStop(0,'rgba(0,0,0,0)');
+    vg.addColorStop(0.5,'rgba(0,0,0,1)');
+    vg.addColorStop(1,'rgba(0,0,0,0)');
+    g.fillStyle = vg; g.fillRect(0,0,w,h);
+    return c;
+  })();
+
+  /* Embers off the statue. Positions are in a unit space centred on the U (0.43,
+     0.52 is its middle) which the scene maps onto wherever the sculpture currently
+     sits, so they keep clinging to it as the push-in grows. */
+  var sparks = [];
+  function spawnSpark(){
+    var a = Math.random()*6.283;
+    return { x: 0.43 + Math.cos(a)*0.21*0.92, y: 0.52 + Math.sin(a)*0.40*0.92,
+             vx:(Math.random()-0.5)*0.02, vy:-(0.02+Math.random()*0.05),
+             life:0, max:0.7+Math.random()*0.9, s:0.5+Math.random() };
+  }
+  for (var s0=0; s0<28; s0++){ var sp0 = spawnSpark(); sp0.life = Math.random()*sp0.max; sparks.push(sp0); }
+
+  /* ---- the hyperspace field ---- */
+  var FOV = 520, ZFAR = 1900;
+  var stars = [];
+  function seedStar(s, atFar){
+    s.x = (Math.random()-0.5) * 2600;
+    s.y = (Math.random()-0.5) * 1800;
+    s.z = atFar ? ZFAR : 40 + Math.random()*ZFAR;
+    s.r = 0.6 + Math.random()*2.2;
+    s.k = Math.random();               /* colour pick + per-star variation */
+    return s;
+  }
+  /* glyphs ride the same field so the storm is made of actual maths */
+  var MARKS = ['∫','Σ','lim','dx','dy','f′','∂','θ','Δ','≈','∞','π','e','√','d/dx','≤','∮'];
+  var glyphs = [];
+
+  /* grow or trim the populations in place when quality changes */
+  function stock(){
+    var q = Q(), i;
+    while (stars.length  < q.stars)  stars.push(seedStar({}, false));
+    if    (stars.length  > q.stars)  stars.length  = q.stars;
+    while (glyphs.length < q.glyphs){
+      var g = seedStar({}, false);
+      g.t = MARKS[glyphs.length % MARKS.length];
+      g.s = 26 + Math.random()*54;
+      glyphs.push(g);
+    }
+    if (glyphs.length > q.glyphs) glyphs.length = q.glyphs;
+  }
+
+  /* ---- the wireframe surface ---- */
+  var GX = phone ? 16 : 26, GZ = phone ? 12 : 18;
+
+  /* ---- the ten units ---- */
+  var HUE = ['255,95,176','158,227,79','255,138,60','210,100,255','255,196,31',
+             '111,140,255','255,95,111','63,224,160','66,200,238','183,155,255'];
+  /* One tinted glow per unit, built once. Using the white sprite for all ten blew
+     them out to identical white blobs and threw away the colour coding. */
+  var SP_UNIT = HUE.map(function(c){ return glowSprite(c); });
+
+  /* ---- story palettes: the background colour shifts beat to beat ---- */
+  /* Deliberately dark. Everything drawn on top is additive, so it accumulates —
+     a bright base blew the whole frame out to pastel white. */
+  var PAL = [
+    [6,6,16], [7,10,21], [6,13,19], [10,7,21], [24,9,27], [7,6,17]
+  ];
+
+  /* ---- scroll state ---- */
+  var p = 0, pSmooth = 0, vel = 0, lastY = scrollY, total = 1;
+  function measure(){ total = Math.max(1, document.body.scrollHeight - innerHeight); }
+  measure();
+
+  addEventListener('scroll', function(){
+    var y = scrollY;
+    vel += Math.abs(y - lastY);          /* feeds the speed ramp */
+    lastY = y;
+    p = Math.min(1, Math.max(0, y/total));
+  }, {passive:true});
+  addEventListener('resize', function(){ resize(); measure(); });
+
+  /* smooth 0..1 bump over [a,b] with soft edges — how each layer fades in/out */
+  function bump(x, a, b, edge){
+    if (x <= a || x >= b) return 0;
+    var t = (x - a) / (b - a);
+    return Math.min(1, t/edge, (1-t)/edge);
+  }
+  function lerp(u,v,t){ return u + (v-u)*t; }
+
+  /* now that QUAL, the populations and resize() all exist, build the first frame */
+  applyQuality();
+
+  var t0 = performance.now(), prev = t0;
+
+  function frame(now){
+    var dt = Math.min(0.05, (now - prev)/1000); prev = now;
+    var time = (now - t0)/1000;
+
+    /* ease the scroll position so the camera glides instead of snapping */
+    pSmooth += (p - pSmooth) * Math.min(1, dt*6);
+    vel *= Math.pow(0.02, dt);            /* velocity decays back to rest */
+
+    /* --- layer weights across the six beats --- */
+    /* Each beat gets ONE dominant visual and the others get out of the way. The
+       star field and glyphs used to run at every scroll position, so no matter what
+       was layered on top every scene read as the same thing. They now belong to the
+       opening beat, with a faint reprise under the sign-off. */
+    /* named because the Miami beat needs its own progress, not just a fade weight */
+    var MIA0 = 0.65, MIA1 = 0.87;
+    /* A steep edge (0.12) on purpose. This beat is a full-screen photograph, so
+       while it is semi-transparent the previous scene reads straight through it as
+       a double exposure — it needs to take the screen quickly rather than dissolve. */
+    var wMiami   = bump(pSmooth, MIA0, MIA1, 0.12);
+    /* Miami paints an OPAQUE sky, so anything drawn after it lands on top of the
+       sunset. The closing integral and the glyph reprise share the tail of its
+       window, and both were showing through the monument. They yield to it. */
+    var damp     = 1 - Math.min(1, wMiami*3);
+
+    var wField   = Math.max(bump(pSmooth,-0.10, 0.24, 0.34),
+                            bump(pSmooth, 0.84, 1.001, 0.30) * 0.5 * damp);
+    var wSurface = bump(pSmooth, 0.13, 0.37, 0.30);
+    var wSeries  = bump(pSmooth, 0.30, 0.54, 0.30);
+    var wUnits   = bump(pSmooth, 0.46, 0.655, 0.26);
+    var wSig     = bump(pSmooth, 0.86, 1.001, 0.24) * damp;
+
+    /* --- 1. background: trail-preserving fade, tinted by the current beat --- */
+    var seg = Math.min(PAL.length-1.001, pSmooth * (PAL.length-1));
+    var si = Math.floor(seg), sf = seg - si;
+    var bg = [ lerp(PAL[si][0],PAL[si+1][0],sf),
+               lerp(PAL[si][1],PAL[si+1][1],sf),
+               lerp(PAL[si][2],PAL[si+1][2],sf) ];
+    /* The neon beat lays an OPAQUE full-screen backdrop over everything, so both the
+       trail fade and the colour wash get drawn and then immediately buried. That's
+       two whole-screen operations per frame thrown straight away — skip them. */
+    var buried = wMiami > 0.98;
+
+    if (!buried){
+      ctx.globalCompositeOperation = 'source-over';
+      /* A lighter alpha leaves longer trails, and scrolling fast smears more. But
+         too light and additive light never gets cleared: the frame saturates to
+         white and fast glyphs leave stepped ghost copies instead of a smooth
+         streak. */
+      var fade = 0.46 - Math.min(0.16, vel*0.0011);
+      ctx.fillStyle = 'rgba('+(bg[0]|0)+','+(bg[1]|0)+','+(bg[2]|0)+','+fade.toFixed(3)+')';
+      ctx.fillRect(0,0,W,H);
+
+      /* --- 2. drifting colour fields (the "shader" wash) ---
+         repainted every 6th frame into the small buffer, blitted every frame */
+      if ((aurTick++ % Q().aurEvery) === 0) paintAurora(time);
+      ctx.globalCompositeOperation = 'lighter';
+      /* A full-screen 'lighter' blit is the costliest op here. Because the canvas is
+         faded rather than cleared the previous blit is still on screen, so at low
+         quality every other frame looks the same and costs half as much. */
+      if (!Q().aurSkip || (aurTick & 1) === 0){
+        ctx.globalAlpha = Q().aurSkip ? 0.34 : 0.26;
+        ctx.drawImage(aur, 0, 0, aurW, aurH, 0, 0, W, H);
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    /* --- 3. the wireframe surface, morphing in fog --- */
+    if (wSurface > 0.01){
+      var amp = 150, spread = 150, zbase = 260;
+      ctx.lineWidth = 1.15;
+      for (var gz=0; gz<GZ; gz++){
+        var zz = zbase + gz*88;
+        var fz = FOV/zz;
+        if (fz <= 0) continue;
+        var fog = Math.max(0, 1 - gz/GZ);
+        ctx.beginPath();
+        for (var gx=0; gx<GX; gx++){
+          var wx = (gx-(GX-1)/2) * spread;
+          var wy = Math.sin(wx*0.0045 + time*0.9) * Math.cos(zz*0.006 - time*0.7) * amp + 210;
+          var sx = cx + wx*fz, sy = cy + wy*fz;
+          if (gx===0) ctx.moveTo(sx,sy); else ctx.lineTo(sx,sy);
+        }
+        ctx.strokeStyle = 'rgba(63,208,176,'+(0.5*fog*wSurface).toFixed(3)+')';
+        ctx.stroke();
+      }
+      /* a few lengthwise ribs so it reads as a surface, not stacked lines */
+      for (gx=0; gx<GX; gx+=3){
+        ctx.beginPath();
+        for (gz=0; gz<GZ; gz++){
+          zz = zbase + gz*88; fz = FOV/zz;
+          wx = (gx-(GX-1)/2) * spread;
+          wy = Math.sin(wx*0.0045 + time*0.9) * Math.cos(zz*0.006 - time*0.7) * amp + 210;
+          sx = cx + wx*fz; sy = cy + wy*fz;
+          if (gz===0) ctx.moveTo(sx,sy); else ctx.lineTo(sx,sy);
+        }
+        ctx.strokeStyle = 'rgba(255,214,107,'+(0.20*wSurface).toFixed(3)+')';
+        ctx.stroke();
+      }
+    }
+
+    /* --- 4. hyperspace: points streak toward the camera (opening beat only) --- */
+    var speed = (150 + vel*11) * (0.5 + pSmooth*0.9);
+    if (wField > 0.02)
+    for (i=0;i<stars.length;i++){
+      var s = stars[i];
+      var zPrev = s.z;
+      s.z -= speed * dt;
+      if (s.z < 30){ seedStar(s, true); continue; }
+      var f = FOV/s.z, fp = FOV/zPrev;
+      var x1 = cx + s.x*fp, y1 = cy + s.y*fp;
+      var x2 = cx + s.x*f,  y2 = cy + s.y*f;
+      if (x2 < -200 || x2 > W+200 || y2 < -200 || y2 > H+200) continue;
+      var depth = 1 - s.z/ZFAR;
+      var alpha = Math.min(1, depth*1.5) * wField;
+      var sprite = s.k < 0.62 ? SP_WHITE : s.k < 0.86 ? SP_GOLD : SP_TEAL;
+      /* streak */
+      ctx.strokeStyle = 'rgba(255,240,200,'+(alpha*0.5).toFixed(3)+')';
+      ctx.lineWidth = Math.max(0.5, s.r*f*1.6);
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      /* head */
+      var rad = Math.max(1.5, s.r*f*5);
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(sprite, x2-rad, y2-rad, rad*2, rad*2);
+      ctx.globalAlpha = 1;
+    }
+
+    /* --- glyphs on the same field --- */
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if (wField > 0.02)
+    for (i=0;i<glyphs.length;i++){
+      var q = glyphs[i];
+      q.z -= speed * dt * 0.82;
+      if (q.z < 40){ seedStar(q, true); continue; }
+      var qf = FOV/q.z;
+      var qx = cx + q.x*qf, qy = cy + q.y*qf;
+      if (qx < -300 || qx > W+300 || qy < -300 || qy > H+300) continue;
+      var qa = Math.min(0.95, (1 - q.z/ZFAR)*1.4);
+      ctx.font = '700 ' + Math.max(8, q.s*qf*2.4).toFixed(0) + 'px Georgia, serif';
+      ctx.fillStyle = 'rgba(255,214,107,'+(qa*0.5*wField).toFixed(3)+')';
+      ctx.fillText(q.t, qx, qy);
+    }
+
+    /* --- 4b. a series actually converging (the Unit 10 beat) ---
+       Partial sums of 1/2 + 1/4 + 1/8 ... climbing toward a dashed limit they never
+       reach. Deliberately flat, rhythmic and geometric so it looks nothing like the
+       depth-flight beats on either side of it. */
+    if (wSeries > 0.01){
+      var nT   = phone ? 9 : 14;
+      var spanX= Math.min(W*0.78, 980);
+      var baseY= cy + Math.min(H*0.20, 190);
+      var limY = cy - Math.min(H*0.16, 150);
+      var x0   = cx - spanX/2;
+      var colW = spanX/nT;
+
+      ctx.globalAlpha = wSeries;
+      /* the limit */
+      ctx.setLineDash([11,9]);
+      ctx.strokeStyle = 'rgba(63,208,176,0.95)';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(x0-24, limY); ctx.lineTo(x0+spanX+24, limY); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font = '600 13px ui-monospace, Menlo, monospace';
+      ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+      ctx.fillStyle = 'rgba(63,208,176,0.95)';
+      ctx.fillText('the limit', x0-20, limY-9);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+
+      /* a pulse walks the terms so the convergence reads as a process */
+      var lead = (time*1.6) % (nT + 3);
+      var acc = 0;
+      for (var k=0;k<nT;k++){
+        acc += 1/Math.pow(2,k+1);                 /* partial sum -> 1 */
+        var bx = x0 + k*colW + colW*0.5;
+        var bw = colW*0.54;
+        var by = baseY - (baseY-limY)*acc;
+        var hot = Math.max(0, 1 - Math.abs(lead - k)*0.85);
+        ctx.fillStyle = 'rgba(255,214,107,'+(0.30 + hot*0.55).toFixed(3)+')';
+        ctx.fillRect(bx-bw/2, by, bw, baseY-by);
+        /* bright cap where each partial sum lands */
+        var capR = 9 + hot*13;
+        ctx.drawImage(hot > 0.15 ? SP_WHITE : SP_GOLD, bx-capR, by-capR, capR*2, capR*2);
+      }
+      /* the floor the bars stand on */
+      ctx.strokeStyle = 'rgba(255,255,255,0.28)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(x0-24, baseY); ctx.lineTo(x0+spanX+24, baseY); ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
+    /* --- 5. the ten units as a linked network ---
+       Ten loose dots looked like more star field. Wiring them into a ring that
+       joins up unit by unit makes it a different object: a course being built. */
+    if (wUnits > 0.01){
+      var R  = Math.min(W,H) * (phone ? 0.34 : 0.33);
+      /* nudged right on desktop so the copy card doesn't swallow two of the nodes */
+      var nx = phone ? cx : cx + W*0.10;
+      var px = [], py = [];
+      for (i=0;i<10;i++){
+        var ang = i*0.6283 - 1.57 + time*0.06;
+        px.push(nx + Math.cos(ang)*R*1.30);
+        py.push(cy + Math.sin(ang)*R*0.82);
+      }
+      /* links draw in over the beat, so the ring completes as you read */
+      var built = Math.min(10, wUnits*13);
+      ctx.globalAlpha = wUnits;
+      ctx.lineWidth = 1.6;
+      for (i=0;i<10;i++){
+        var j = (i+1) % 10;
+        if (i >= built) break;
+        ctx.strokeStyle = 'rgba('+HUE[i]+',0.5)';
+        ctx.beginPath(); ctx.moveTo(px[i],py[i]); ctx.lineTo(px[j],py[j]); ctx.stroke();
+      }
+      /* a couple of chords across the middle so it reads as a web, not a wheel */
+      ctx.strokeStyle = 'rgba(255,255,255,0.13)'; ctx.lineWidth = 1;
+      for (i=0;i<10;i+=2){
+        var j2 = (i+4) % 10;
+        ctx.beginPath(); ctx.moveTo(px[i],py[i]); ctx.lineTo(px[j2],py[j2]); ctx.stroke();
+      }
+      for (i=0;i<10;i++){
+        var pulse = 1 + 0.18*Math.sin(time*2 + i);
+        var orr = Math.min(W,H)*0.048*pulse;
+        ctx.drawImage(SP_UNIT[i], px[i]-orr, py[i]-orr, orr*2, orr*2);
+        ctx.fillStyle = 'rgba(255,255,255,0.92)';
+        ctx.beginPath(); ctx.arc(px[i],py[i],orr*0.17,0,6.2832); ctx.fill();
+        if (!phone){
+          ctx.font = '600 12px ui-monospace, Menlo, monospace';
+          ctx.fillStyle = 'rgba(255,255,255,0.85)';
+          ctx.fillText('UNIT ' + (i<9?'0':'') + (i+1), px[i], py[i] + orr + 14);
+        }
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    /* --- 6. Miami: painted flat over everything, so it also clears the trails --- */
+    if (wMiami > 0.01){
+      var hy = H*0.58;                              /* horizon */
+      var ux = phone ? cx : cx + W*0.13;
+
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = wMiami;
+      ctx.fillStyle = skyGrad; ctx.fillRect(0,0,W,H);
+
+      ctx.globalCompositeOperation = 'lighter';
+      /* the sun, sitting on the horizon — two cached sprites, no per-frame gradient */
+      var sr = Math.min(W,H)*0.30;
+      ctx.drawImage(SP_GOLD, ux-sr, hy-sr, sr*2, sr*2);
+      ctx.drawImage(SP_WHITE, ux-sr*0.42, hy-sr*0.42, sr*0.84, sr*0.84);
+
+      /* the sun's road on the water. Rows bunch up near the horizon and thin out
+         toward you, each drifting on its own phase — evenly spaced rows read as a
+         ladder rather than water. */
+      var ROWS = 40;
+      for (var r2=0; r2<ROWS; r2++){
+        var f2 = r2/ROWS;
+        var ry = hy + 3 + f2*f2*H*0.44;
+        if (ry > H) break;
+        var half = sr*0.46 * (1 - f2*0.72) * (0.62 + 0.38*Math.sin(time*2.2 + r2*0.55));
+        var la = 0.34 * (1-f2) * (1-f2);
+        ctx.strokeStyle = 'rgba(255,228,164,'+la.toFixed(3)+')';
+        ctx.lineWidth = 1 + (1-f2)*1.6;
+        var jx = Math.sin(time*1.3 + r2*0.9) * 5;
+        ctx.beginPath(); ctx.moveTo(ux-half+jx, ry); ctx.lineTo(ux+half+jx, ry); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+
+      /* palm silhouettes, drawn as strokes so they stay crisp at any size */
+      ctx.strokeStyle = 'rgba(7,3,13,'+wMiami.toFixed(2)+')';
+      ctx.lineCap = 'round';
+      drawPalm(W*0.13, H*1.02, Math.min(W,H)*0.34, 1);
+      drawPalm(W*0.88, H*1.02, Math.min(W,H)*0.34, -1);
+      ctx.globalCompositeOperation = 'lighter';
+    }
+
+    /* --- 7. the closing integral, the site's own mark --- */
+    if (wSig > 0.01){
+      var bigR = Math.min(W,H)*0.55;
+      /* halo kept low: the glow and the glyph are both additive, and at full
+         strength they summed past gold into flat white */
+      ctx.globalAlpha = wSig*0.26;
+      ctx.drawImage(SP_GOLD, cx+W*0.16-bigR, cy-bigR, bigR*2, bigR*2);
+      ctx.globalAlpha = 1;
+      ctx.font = '700 ' + Math.round(Math.min(W,H)*(phone?0.62:0.78)) + 'px Georgia, serif';
+      ctx.fillStyle = 'rgba(240,180,41,'+(wSig*0.62).toFixed(3)+')';
+      ctx.fillText('∫', cx + W*0.16, cy);
+    }
+
+    if (hint) hint.style.opacity = p > 0.02 ? 0 : 1;
+
+    /* --- the governor: hold ~60fps by trading detail for frames ---
+       Judged on a median so one GC pause or a scene's first raster can't demote the
+       whole page. It only ever steps DOWN: promoting again risks oscillating, and
+       every change that alters DPR has to rebuild the canvas, which wipes the trail
+       buffer and shows as a visible flash. One-way plus a cooldown means at most
+       two barely-perceptible adjustments in a session. */
+    fq.push(dt*1000);
+    if (fq.length >= 48){
+      fq.sort(function(u,v){ return u-v; });
+      var med = fq[fq.length>>1];
+      fq.length = 0;
+      if (med > 26 && qi > 0 && (now - lastQ) > 3000){ qi--; lastQ = now; applyQuality(); }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  var fq = [], lastQ = -1e9;
+  function applyQuality(){
+    var want = Math.min(devicePixelRatio || 1, Q().dpr);
+    stock();
+    /* only rebuild the backing store if the pixel density actually moved */
+    if (Math.abs(want - DPR) > 0.01) resize();
+  }
+  /* a palm as pure strokes: trunk plus seven drooping fronds */
+  function drawPalm(bx, by, size, dir){
+    var tx = bx + dir*size*0.10, ty = by - size*1.30;
+    ctx.lineWidth = Math.max(3, size*0.035);
+    ctx.beginPath();
+    ctx.moveTo(bx, by);
+    ctx.quadraticCurveTo(bx + dir*size*0.02, by - size*0.7, tx, ty);
+    ctx.stroke();
+    ctx.lineWidth = Math.max(2, size*0.024);
+    for (var pi=0; pi<7; pi++){
+      var a = (-2.55 + pi*0.52);
+      var ex = tx + Math.cos(a)*size*0.62*dir;
+      var ey = ty + Math.sin(a)*size*0.42 + size*0.10;
+      var mx = tx + Math.cos(a)*size*0.34*dir;
+      var my = ty + Math.sin(a)*size*0.34 - size*0.10;
+      ctx.beginPath();
+      ctx.moveTo(tx,ty); ctx.quadraticCurveTo(mx,my,ex,ey); ctx.stroke();
+    }
+  }
+
+  requestAnimationFrame(frame);
 })();
 </script>
 </body>
