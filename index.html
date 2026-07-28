@@ -263,6 +263,42 @@
     .card.exam .card-body{padding:18px 20px 20px}
     .card.exam .uname{font-size:22px}
   }
+  /* The two non-unit cards, each with its OWN identity. The ten units already own
+     most of the wheel — and u5 is literally the same gold as the exam — so these
+     take the two gaps left: an electric aqua no unit uses, and a pale parchment
+     that reads as paper rather than as another accent colour.
+     NB: never write var(--ink) here. This page does not define it, and an invalid
+     custom property falls back silently to gold, which belongs to the exam. */
+  .viz{--cardc:#2ee6c8;--cardglow:rgba(46,230,200,.18)}
+  .viz:hover .card-art{border-color:rgba(46,230,200,.28)}
+  .viz:hover .card-art svg{filter:drop-shadow(0 0 13px rgba(46,230,200,.5))}
+  .viz:hover .uname{text-shadow:0 0 22px rgba(46,230,200,.45)}
+  .viz:hover .chip{border-color:rgba(46,230,200,.34);color:#9ff0e2}
+
+  /* Larry sits on top of a small curve, both inside the art panel. `screen` drops
+     his dark ground out against the panel without touching his alpha — cutting the
+     background out destroys his glasses and cap, which are the same near-black. */
+  /* z-index:auto is load-bearing. The base .card-art sets z-index:1, which makes it
+     a stacking context — and `screen` then blends against THAT context's transparent
+     background rather than the card's gradient, so the black ground never drops out.
+     The card already forms a context of its own (it has a transform), so removing the
+     z-index here lets the blend reach the real backdrop. */
+  .story .card-art{position:relative;z-index:auto;overflow:hidden}
+  /* A fixed 150x118 stage so Larry can be placed in the SVG's own coordinate space —
+     the art panel is far wider than the drawing, so positioning him against the panel
+     would drift as the card resizes. Floor line is at y=101, hence bottom:17px. */
+  .story .scene{position:relative;width:150px;height:118px}
+  .story .larry{position:absolute;left:13px;bottom:17px;height:72px;width:auto;
+    mix-blend-mode:screen;transform-origin:50% 100%;
+    transition:transform .5s cubic-bezier(.16,.8,.3,1)}
+  .story:hover .larry{transform:translateY(-3px) rotate(-2deg)}
+  @media (prefers-reduced-motion:reduce){.story:hover .larry{transform:none}}
+
+  .story{--cardc:#dcd3bd;--cardglow:rgba(220,211,189,.13)}
+  .story:hover .card-art{border-color:rgba(220,211,189,.26)}
+  .story:hover .card-art svg{filter:drop-shadow(0 0 12px rgba(220,211,189,.35))}
+  .story:hover .uname{text-shadow:0 0 22px rgba(220,211,189,.32)}
+  .story:hover .chip{border-color:rgba(220,211,189,.3);color:#e7e0d0}
   /* per-card color binding */
   .u1{--cardc:var(--u1);--cardglow:rgba(232,106,180,.20)}
   .u2{--cardc:var(--u2);--cardglow:rgba(141,204,78,.20)}
@@ -813,6 +849,74 @@
           <p class="udesc">When do infinitely many terms add to something finite? Convergence tests, power series, and Taylor approximations &mdash; made tangible.</p>
           <div class="chips"><span class="chip">Convergence</span><span class="chip">Power series</span><span class="chip">Taylor</span><span class="chip">Error bounds</span></div>
           <span class="go">Open unit <span class="arr">&#8594;</span></span>
+        </div>
+      </a>
+
+      <!-- Ten units leave two empty cells in the last row. These two fill them and
+           finish the grid at 12. They are NOT units, so they share one neutral ink
+           accent instead of taking a colour of their own — the ten colours belong to
+           the ten units, and gold belongs to the exam. -->
+      <a class="card viz" href="visualizer.html">
+        <div class="card-art" aria-hidden="true">
+          <!-- A SOLID OF REVOLUTION, not another 2-D plot. Nothing else in the grid
+               is three-dimensional, so this is distinct at a glance — and it is what
+               the tool actually does when you hand it a curve to spin. -->
+          <svg viewBox="0 0 150 118" width="150" height="118" fill="none">
+            <path d="M20 70 H132" stroke="currentColor" stroke-width="1.5" opacity=".3"
+                  stroke-linecap="round" stroke-dasharray="5 4"/>
+            <path d="M28 80 C 52 102, 96 100, 126 84" stroke="currentColor" stroke-width="1.8"
+                  opacity=".3" stroke-linecap="round"/>
+            <ellipse cx="46" cy="70" rx="6" ry="23" stroke="currentColor" stroke-width="1.6" opacity=".45"/>
+            <ellipse cx="77" cy="70" rx="7" ry="29" stroke="currentColor" stroke-width="1.6" opacity=".45"/>
+            <ellipse cx="108" cy="70" rx="6" ry="20" stroke="currentColor" stroke-width="1.6" opacity=".45"/>
+            <path class="cdraw" pathLength="1" d="M28 60 C 52 38, 96 40, 126 56"
+                  stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+            <ellipse cx="126" cy="70" rx="5" ry="14" stroke="currentColor" stroke-width="2.2" opacity=".8"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="unum">The tool</div>
+          <h3 class="uname">The Visualizer</h3>
+          <p class="udesc">Paste in a problem &mdash; yours, not an example &mdash; and it draws it with your numbers, then walks you through it instead of just handing over the answer.</p>
+          <div class="chips"><span class="chip">Any problem</span><span class="chip">Your numbers</span><span class="chip">Step by step</span></div>
+          <span class="go">Try it <span class="arr">&#8594;</span></span>
+        </div>
+      </a>
+
+      <a class="card story" href="about.html">
+        <div class="card-art" aria-hidden="true">
+          <!-- LARRY. The only character on the page, on the only card that is about a
+               person. He keeps his own dark ground; `mix-blend-mode: screen` in the CSS
+               drops it out against the panel, which preserves his dark glasses and cap
+               (cutting them out with alpha destroys them — they are the same near-black
+               as his background). The curve behind is drawn small so he stays the
+               subject rather than competing with it. -->
+          <!-- Larry teaching at a chalkboard. He stands on the LEFT so his raised
+               arm gestures toward the board rather than away from it. Everything
+               except Larry himself is drawn here; he is the untouched raster. -->
+          <div class="scene">
+            <svg viewBox="0 0 150 118" width="150" height="118" fill="none">
+              <path d="M6 101 H144" stroke="currentColor" stroke-width="1.6" opacity=".3" stroke-linecap="round"/>
+              <rect x="55" y="15" width="86" height="69" rx="2.5" fill="#000" fill-opacity=".26"
+                    stroke="currentColor" stroke-width="2" stroke-opacity=".38"/>
+              <rect x="51" y="85" width="94" height="4" rx="2" fill="currentColor" opacity=".3"/>
+              <path class="cfill" d="M64 68 C 76 66, 82 36, 96 36 C 110 36, 116 56, 128 50 L128 68 Z"
+                    fill="currentColor" opacity=".12"/>
+              <path class="cdraw" pathLength="1" d="M64 68 C 76 66, 82 36, 96 36 C 110 36, 116 56, 128 50"
+                    stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity=".65"/>
+              <path d="M62 68 H132" stroke="currentColor" stroke-width="1.4" opacity=".35" stroke-linecap="round"/>
+              <path d="M76 68 V56 M88 68 V40 M100 68 V37 M112 68 V44" stroke="currentColor"
+                    stroke-width="1.2" opacity=".3"/>
+            </svg>
+            <img class="larry" src="larry.png" alt="" width="288" height="633" loading="lazy" decoding="async">
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="unum">The story</div>
+          <h3 class="uname">Why this exists</h3>
+          <p class="udesc">A high school student built this while taking the course, because every explanation he found was a wall of symbols with no picture.</p>
+          <div class="chips"><span class="chip">Student-built</span><span class="chip">Free</span><span class="chip">No account</span></div>
+          <span class="go">Read more <span class="arr">&#8594;</span></span>
         </div>
       </a>
 
