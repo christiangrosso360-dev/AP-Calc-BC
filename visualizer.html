@@ -702,18 +702,15 @@ function aiToResult(j){
 }
 
 /* ---------- UNIVERSAL GRAPHER: AI as scene DIRECTOR (long-tail problems) ---------- */
-const SCENE_SYS='You are a calculus visualization director. Read the problem and output ONLY a JSON object (no prose, no markdown fences) describing what to draw on a 2D graph. A deterministic renderer draws exactly what you specify — you choose WHAT to show, never how.\n'
-+'SCHEMA (include only keys you need): {"functions":[{"expr":"<in x>","color":"gold|teal|mag|coral","label":"<short>"}], "domain":[xmin,xmax], "shade":{"between":[i,j],"interval":[a,b]} OR {"under":i,"interval":[a,b]}, "riemann":{"of":<i>,"a":<x>,"b":<x>,"n":<count>,"rule":"left|right|mid"}, "animate":{"kind":"slidePoint","on":<i>,"from":<x1>,"to":<x2>} OR {"kind":"riemannN","of":<i>,"a":<x1>,"b":<x2>,"from":<n1>,"to":<n2>,"rule":"mid"}, "points":[{"x":<num>,"on":<i>,"label":"<short>"}], "lines":[{"type":"tangent","to":<i>,"at":<x>}|{"type":"secant","to":<i>,"from":<x1>,"at":<x2>}|{"type":"vertical","at":<x>}|{"type":"horizontal","at":<y>}], "psum":{"term":"<a_n written in n>","from":<int>,"N":<int>,"limit":<number or null>,"label":"<short>"}, "param":[{"x":"<x(t)>","y":"<y(t)>","t":[t0,t1],"color":"gold","label":"<short>"}], "polar":[{"r":"<r(theta)>","t":[t0,t1],"color":"gold","label":"<short>"}], "field":{"dydx":"<expr in x and y>","solutions":[{"x0":<num>,"y0":<num>,"color":"gold","euler":{"h":<num>,"steps":<int>}}]}, "implicit":[{"eq":"<F(x,y) with everything moved to one side>","color":"gold","label":"<short>","tangentAt":[<x>,<y>]}], "analysis":{"of":<i>}, "caption":"<one short phrase>"}\n'
-+'RULES: expr = plain math in x (^,*,sqrt(),sin(),cos(),tan(),ln(),exp() or e^(...),pi); no "y=". Main curve gold, second teal. Pick a domain that shows the key features. on/to/shade/riemann indices are 0-based into functions. DERIVATIVE problem: functions[0] MUST be the ORIGINAL function exactly as the problem states it — this is not optional, and a scene whose first curve is the derivative is wrong. functions[1] is the derivative you compute, labelled "f\'(x)". Never output the derivative alone: without the original curve beside it the picture cannot be checked or understood. LIMIT problem ("lim as x approaches a of EXPR"): plot the SINGLE function EXPR exactly as written — never split a quotient into its numerator and denominator as two curves, the whole point is the shape of the combined expression near a. Centre the domain on a. Mark the approach using exactly these fields: "lines":[{"type":"horizontal","at":L}] where L is the Y-VALUE THE FUNCTION APPROACHES — compute it, and never reuse the x-value a (for (x^2-4)/(x-2) as x approaches 2 the limit is 4, so at:4, NOT at:2; for sin(x)/x as x approaches 0 it is 1) — include it only when finite, and "points":[{"x":a,"on":0}] to sit on the curve at a — for a removable discontinuity like (x^2-4)/(x-2) at x=2 that point is the hole. NEVER use "shade" on a limit problem, and state the two-sided limit in the caption unless the problem itself says left or right. If the limit is one-sided or infinite, still plot the one expression and say so in the caption. TANGENT/linearization: plot the function, add a tangent line at the point, mark the point (do NOT add the linearization as a separate function). INDEFINITE INTEGRAL — this rule applies ONLY when NO bounds are given anywhere; the moment the problem says "from x=a to x=b" it is a DEFINITE integral, so ignore this rule, plot ONLY the integrand and follow the AREA UNDER rule below. "∫ f(x) dx" or "find the antiderivative" with NO bounds stated, however the method is named (integration by parts, u-substitution, partial fractions): there is no region and no area, so NEVER output "shade" or "riemann" and never invent an interval. Plot at most TWO functions: the integrand in gold, and the antiderivative YOU compute in teal labelled "antiderivative". NEVER plot the machinery of the method itself — u, du, dv, v are algebra, not curves — and never plot a constant. The caption states the antiderivative plus C. AREA UNDER a curve / definite INTEGRAL of a single function: shade {"under":0,"interval":[a,b]}, AND if the problem is about a Riemann sum or approximating the integral with rectangles, add "riemann" with a sensible n (e.g. 6-10). AREA BETWEEN two curves: plot both, shade {"between":[0,1]}. IMPORTANT — when the region is ENCLOSED/BOUNDED BY the curves themselves (no explicit x-bounds are stated), set "interval":"auto" and do NOT guess the intersections: the renderer solves the equation exactly and shades the true region. Only give a numeric interval when the problem itself states the bounds ("from x=0 to x=1"). Add "animate" ONLY when motion truly illuminates: use slidePoint (a point rides the curve, its tangent slope shown live) when the problem is about how a rate/slope CHANGES across an interval; use riemannN (rectangles refine as n grows) when it is about a Riemann sum CONVERGING to the integral. Most problems need no animate. SERIES (Unit 10): for "does the series/sum a_n converge or diverge" → output "psum": term = a_n written in n (e.g. "1/n^2", "(1/2)^n", "1/n"), from = the starting index (default 1, use 0 when stated), N = 28 (use 40 for slow divergence like 1/n), limit = the exact sum as a plain DECIMAL when it converges (geometric: (first term AT n=from)/(1-r) — if from=0 the first term is a_0, e.g. sum of (1/2)^n from 0 = 1/(1-1/2) = 2; known sums like pi^2/6 = 1.6449; else null when it diverges), functions may be [] for pure series; the caption MUST state converges (and to what) or diverges. TAYLOR/MACLAURIN series or polynomials: do NOT use psum — plot the target function in gold PLUS 2-3 of its Taylor partial-sum POLYNOMIALS which you compute yourself (e.g. sin x -> "x", "x - x^3/6", "x - x^3/6 + x^5/120") in teal/mag/coral labeled P1, P3, P5, domain centered on the expansion point. RADIUS or INTERVAL of convergence of a power series in x: plot 2-3 partial-sum polynomials and add vertical lines at the interval endpoints; caption names the interval. POLAR (Unit 9): "r = f(theta)" curves (cardioid, rose, limacon, circle, spiral) → use "polar" with r written in theta, t = the theta range as decimals (full curve 0 to 6.28319; a 3-petal rose r=a·cos(3θ) needs only 0 to 3.14159; use 0 to 12.56637 for spirals). Area of a polar region / area between two polar curves → plot BOTH polar curves (gold outer, teal inner) and say the setup in the caption (A = ½∫r² dθ); do NOT use shade. PARAMETRIC (Unit 9): "x = f(t), y = g(t)" → use "param" with the t range; for particle-MOTION problems (position/velocity/speed at time t) also add "animate":{"kind":"traceParam","on":0} so a point rides the path. NEVER convert a polar or parametric curve into a y=f(x) function — use these fields, the renderer locks the aspect ratio so circles stay circular. DIFFERENTIAL EQUATIONS (Unit 7): any "dy/dx = …", slope field, particular solution, separation of variables, logistic or exponential growth model → use "field" with dydx exactly as given (it may contain BOTH x and y), functions:[], and ALWAYS give an explicit domain and yrange that comfortably contain the interesting behaviour. If an initial condition is stated (y(0)=1, "through the point (0,2)") add it to "solutions" — the renderer integrates the true curve for you, so never try to solve the ODE yourself. If the problem uses EULER\'S METHOD, put "euler":{"h":<step>,"steps":<count>} on that solution so the approximation is drawn against the true curve. For a logistic equation include a second solution starting ABOVE the carrying capacity so both approach directions show. IMPLICIT CURVES (Unit 3): an equation relating x and y that is NOT solved for y (x^2+y^2=25, an ellipse, x^3+y^3=3xy) is NOT a function — never force it into "functions". Move every term to one side and put that expression in "implicit" eq (so "x^2+y^2=25" becomes "x^2 + y^2 - 25"), give BOTH domain and yrange around the shape, and let functions be []. For IMPLICIT DIFFERENTIATION asking dy/dx at a point, add "tangentAt":[x,y] — the renderer computes the slope as -F_x/F_y and draws the tangent, so never solve for it yourself. CURVE ANALYSIS (Unit 5): for increasing/decreasing, concavity, inflection points, local max/min, or "sketch and describe the curve", plot f in gold and add "analysis":{"of":0} — the renderer locates and LABELS every critical and inflection point and draws sign charts for f-prime and f-double-prime underneath, which answers the question. Add analysis whenever the problem is about the SHAPE of one function. ALL numeric fields (domain, interval, at, x, from, y, a, b, n, N, limit, t) MUST be plain decimal numbers — never symbols (pi=3.14159, e=2.71828). Keep it minimal.\n'
-+'EXAMPLES:\n"find the derivative of x^3" -> {"functions":[{"expr":"x^3","color":"gold","label":"f = x^3"},{"expr":"3*x^2","color":"teal","label":"f\' = 3x^2"}],"domain":[-2.5,2.5],"caption":"a function and its derivative"}\n'
-+'"area under y=x^2 from 0 to 2" -> {"functions":[{"expr":"x^2","color":"gold","label":"y = x^2"}],"domain":[-0.5,2.5],"shade":{"under":0,"interval":[0,2]},"caption":"the area under the curve"}\n'
-+'"does the series 1/n^2 converge" -> {"functions":[],"psum":{"term":"1/n^2","from":1,"N":30,"limit":1.6449,"label":"S_n = sum of 1/n^2"},"caption":"the partial sums level off — converges to pi^2/6 = 1.645"}\n'
-+'"find dy/dx for x^2 + y^2 = 25 at the point (3,4)" -> {"functions":[],"domain":[-6,6],"yrange":[-6,6],"implicit":[{"eq":"x^2 + y^2 - 25","color":"gold","label":"x^2 + y^2 = 25","tangentAt":[3,4]}],"caption":"the circle and its tangent at (3, 4)"}\n'
-+'"where is x^3 - 3x increasing or decreasing?" -> {"functions":[{"expr":"x^3 - 3*x","color":"gold","label":"f(x) = x^3 - 3x"}],"domain":[-2.6,2.6],"analysis":{"of":0},"caption":"critical points, concavity, and the sign charts"}\n'
-+'"sketch the slope field for dy/dx = x + y with y(0)=1" -> {"functions":[],"domain":[-3,3],"yrange":[-3,4],"field":{"dydx":"x + y","solutions":[{"x0":0,"y0":1,"color":"gold"}]},"caption":"the slope field and the solution through (0, 1)"}\n'
-+'"graph the cardioid r = 1 + cos theta" -> {"functions":[],"polar":[{"r":"1 + cos(theta)","t":[0,6.28319],"color":"gold","label":"r = 1 + cos θ"}],"caption":"the cardioid r = 1 + cos θ"}\n'
-+'"maclaurin series for sin x" -> {"functions":[{"expr":"sin(x)","color":"gold","label":"sin x"},{"expr":"x","color":"teal","label":"P1"},{"expr":"x - x^3/6","color":"mag","label":"P3"},{"expr":"x - x^3/6 + x^5/120","color":"coral","label":"P5"}],"domain":[-6.5,6.5],"yrange":[-3,3],"caption":"Taylor polynomials hugging sin x near 0"}\n'
-+'If the input is NOT a graphable calculus problem — it names no function and no mathematical relationship (e.g. small talk, a non-math question) — output exactly {"functions":[]} and nothing else. Never invent a function that was not asked for.\nNow output ONLY the JSON scene-spec for the problem.';
+const SCENE_SYS='You are a calculus visualization director. Output ONLY a JSON object (no prose, no markdown fences) saying what to draw on a 2D graph. A deterministic renderer draws exactly what you specify.\n'
++'SCHEMA (include only the keys you need): {"functions":[{"expr":"<in x>","color":"gold|teal|mag|coral","label":"<short>"}], "domain":[xmin,xmax], "yrange":[ymin,ymax], "shade":{"between":[i,j],"interval":[a,b]} OR {"under":i,"interval":[a,b]}, "riemann":{"of":i,"a":x,"b":x,"n":count,"rule":"left|right|mid"}, "points":[{"x":num,"on":i,"label":"<short>"}], "lines":[{"type":"tangent","to":i,"at":x}|{"type":"vertical","at":x}|{"type":"horizontal","at":y}], "psum":{"term":"<a_n in n>","from":int,"N":int,"limit":<decimal or null>,"label":"<short>"}, "param":[{"x":"<x(t)>","y":"<y(t)>","t":[t0,t1],"color":"gold","label":"<short>"}], "polar":[{"r":"<r(theta)>","t":[t0,t1],"color":"gold","label":"<short>"}], "field":{"dydx":"<expr in x and y>","solutions":[{"x0":num,"y0":num,"color":"gold","euler":{"h":num,"steps":int}}]}, "implicit":[{"eq":"<F(x,y)=0, one side>","color":"gold","label":"<short>","tangentAt":[x,y]}], "analysis":{"of":i}, "animate":{"kind":"slidePoint|riemannN|traceParam","on":i}, "caption":"<one short phrase>"}\n'
++'BASICS: expr is plain math in x (^ * sqrt() sin() cos() tan() ln() exp() or e^(...) pi); no "y=". First curve gold, second teal. Choose a domain that shows the key features. Indices are 0-based into functions. Numbers, not symbols.\n'
++'LIMIT ("lim as x approaches a of EXPR"): plot the SINGLE expression as written — never split a quotient into numerator and denominator. Centre the domain on a. Add "lines":[{"type":"horizontal","at":L}] where L is the Y-VALUE APPROACHED — compute it, never reuse the x-value a: for (x^2-4)/(x-2) as x approaches 2 the limit is 4, so at:4 NOT at:2; for sin(x)/x at 0 it is 1. Include it only when finite. Add "points":[{"x":a,"on":0}] to mark the hole. No shade.\n'
++'DERIVATIVE: functions[0] = the original function as stated, functions[1] = its derivative, labelled "f\'(x)". INDEFINITE INTEGRAL (no bounds anywhere): integrand in gold, the antiderivative you compute in teal labelled "antiderivative"; no shade. DEFINITE INTEGRAL / area under one curve: shade {"under":0,"interval":[a,b]}; add "riemann" (n 6-10) if the problem is about rectangles. AREA BETWEEN two curves: plot both, shade {"between":[0,1]} with "interval":"auto" unless the problem states the bounds. TANGENT/linearization: plot f, add a tangent line at the point, mark the point.\n'
++'SERIES (Unit 10): "does sum a_n converge" -> "psum": term = a_n in n, from = starting index (default 1), N = 28 (40 for slow divergence like 1/n), limit = the sum as a plain DECIMAL when it converges (geometric: first term/(1-r); pi^2/6 = 1.6449) or null when it diverges; functions may be []. The caption must say converges (and to what) or diverges. TAYLOR/MACLAURIN: do NOT use psum — plot the target function in gold plus 2-3 partial-sum polynomials you compute (sin x -> "x", "x - x^3/6", "x - x^3/6 + x^5/120") labelled P1,P3,P5, domain centred on the expansion point. INTERVAL OF CONVERGENCE: partial sums plus vertical lines at the endpoints.\n'
++'CONTAINERS — use the right one and leave functions []: polar for r = f(theta); param for x=f(t), y=g(t) (add "animate":{"kind":"traceParam","on":0} for motion problems); field for any dy/dx = … slope field, separation, logistic or growth model (add "solutions" for a stated initial condition, "euler":{"h","steps"} for Euler\'s method, and a second solution above the carrying capacity for logistic); implicit for an equation in x and y not solved for y (add "tangentAt":[x,y] when a point is given). Give both domain and yrange for field and implicit. CURVE ANALYSIS (Unit 5): increasing/decreasing, concavity, inflection, local max/min or "sketch the curve" -> plot ONLY f, one single curve, and add "analysis":{"of":0}. The renderer finds and labels every critical and inflection point and draws the f\' and f\'\' sign charts underneath by itself — so never plot the derivatives as extra curves; that is what answers the question.\n'
++'EXAMPLES:\n"find the derivative of x^3" -> {"functions":[{"expr":"x^3","color":"gold","label":"f = x^3"},{"expr":"3*x^2","color":"teal","label":"f\' = 3x^2"}],"domain":[-2.5,2.5],"caption":"a function and its derivative"}\n"area under y=x^2 from 0 to 2" -> {"functions":[{"expr":"x^2","color":"gold","label":"y = x^2"}],"domain":[-0.5,2.5],"shade":{"under":0,"interval":[0,2]},"caption":"the area under the curve"}\n"does the series 1/n^2 converge" -> {"functions":[],"psum":{"term":"1/n^2","from":1,"N":30,"limit":1.6449,"label":"S_n"},"caption":"converges to pi^2/6 = 1.645"}\n"find dy/dx for x^2 + y^2 = 25 at (3,4)" -> {"functions":[],"domain":[-6,6],"yrange":[-6,6],"implicit":[{"eq":"x^2 + y^2 - 25","color":"gold","label":"x^2 + y^2 = 25","tangentAt":[3,4]}],"caption":"the circle and its tangent at (3, 4)"}\n"slope field for dy/dx = x + y with y(0)=1" -> {"functions":[],"domain":[-3,3],"yrange":[-3,4],"field":{"dydx":"x + y","solutions":[{"x0":0,"y0":1,"color":"gold"}]},"caption":"the slope field and the solution through (0, 1)"}\n"graph the cardioid r = 1 + cos theta" -> {"functions":[],"polar":[{"r":"1 + cos(theta)","t":[0,6.28319],"color":"gold","label":"r = 1 + cos θ"}],"caption":"the cardioid"}\n'
++'If the input names no function and no mathematical relationship (small talk, a non-math question), output exactly {"functions":[]} and nothing else. Never invent a function that was not asked for.\nNow output ONLY the JSON scene-spec for the problem.';
 function jsonRepair(str){
   let out='',q=false,e=false;
   for(const c of str){ if(q){out+=c; if(e)e=false; else if(c==='\\')e=true; else if(c==='"')q=false; continue;} if(c==='"'){q=true;out+=c;continue;} out+=c; }
@@ -1070,6 +1067,26 @@ function enforceFieldVars(scene, raw){
   return scene;
 }
 
+/* A shape question — concavity, inflection, increasing/decreasing, local extrema,
+   "sketch the curve" — is answered by ONE curve plus the renderer's own analysis:
+   it finds and labels the critical and inflection points and draws the f' and f''
+   sign charts underneath. The model keeps helpfully plotting f' and f'' as extra
+   curves instead (3 to 5 of them), which buries the shape it was asked about and
+   omits the analysis entirely. Measured at 1-in-3 wrong before the prompt was
+   strengthened and still not reliable after, so it is settled here rather than
+   argued about. Derivative problems are excluded — there, two curves is the point. */
+function enforceAnalysis(scene, raw){
+  if(!scene || !Array.isArray(scene.functions) || !scene.functions.length) return scene;
+  if(scene.polar||scene.param||scene.psum||scene.field||scene.implicit) return scene;
+  const t=String(raw||'');
+  if(!/\b(concav|inflection|increasing|decreasing|local (maximum|minimum|max|min)|critical point|sketch the curve|describe (its|the) (shape|curve))\b/i.test(t)) return scene;
+  if(/\bderivative\b|\bdifferentiate\b|\bd[a-z]?\s*\/\s*d\s*[a-z]\b/i.test(t)) return scene;
+  scene.functions=[scene.functions[0]];
+  scene.analysis={of:0};
+  delete scene.shade; delete scene.riemann;      // indices would dangle, and neither answers a shape question
+  return scene;
+}
+
 /* "x = f(t), y = g(t)" is a parametric curve and belongs in `param`. One run of
    "a particle moves with x = t^2, y = t^3 - 3t" omitted `param` entirely and put
    both expressions in `functions`, where they are written in the wrong variable
@@ -1237,8 +1254,10 @@ function enforceStatedBounds(scene, raw){
 
 function showGraph(scene, raw){
   // implicit first: it can empty `functions`, and everything after reads that array
-  scene=enforceStatedBounds(ensureDerivativeCurve(pruneFunctions(
-           dropUnplottable(enforceFieldVars(enforceImplicit(enforceParametric(scene, raw), raw), raw)), raw), raw), raw);
+  // enforceAnalysis last: it collapses to a single curve, so it must run after the
+  // guards that add or verify curves, not before them
+  scene=enforceAnalysis(enforceStatedBounds(ensureDerivativeCurve(pruneFunctions(
+           dropUnplottable(enforceFieldVars(enforceImplicit(enforceParametric(scene, raw), raw), raw)), raw), raw), raw), raw);
   (function(){var b=document.getElementById("rShare"); if(b) b.style.display="";})();
   var _l=document.getElementById('rLoad'); if(_l) _l.style.display='none';
   const R=document.getElementById('result');
@@ -1429,6 +1448,18 @@ function logMiss(raw, stage){
    off rewriting a perfectly good question. Free-tier limits are hit often enough
    that this distinction is the difference between "busy" and "broken". */
 let RATE_LIMITED=false;
+
+/* Report a rate limit to analytics. The plan is to stay on the free tier until
+   it actually bites — which only works if hitting it is VISIBLE. Without this a
+   student sees "the reader is busy", shrugs, and leaves, and the owner never
+   learns it happened. Shows up in GoatCounter as viz-rate/<where>. */
+function noteRateLimit(where){
+  try{
+    if(window.goatcounter && typeof window.goatcounter.count==='function')
+      window.goatcounter.count({path:'viz-rate/'+where, title:'Rate limited ('+where+')', event:true});
+  }catch(e){}
+}
+
 function showFail(){
   var _l=document.getElementById('rLoad'); if(_l) _l.style.display='none';
   const R=document.getElementById('result');
@@ -1437,6 +1468,7 @@ function showFail(){
   document.getElementById('rWrong').style.visibility='hidden';
   document.getElementById('rShare').style.display='none';      // nothing worth sharing
   if(RATE_LIMITED){
+    noteRateLimit('typed');
     document.getElementById('rTag').textContent='busy';
     document.getElementById('rTitle').textContent='The reader is busy right now';
     document.getElementById('rRead').textContent='Too many problems came through at once, so the free reader is taking a breather. Your problem is fine — give it a minute and press Visualize again.';
@@ -1514,7 +1546,10 @@ async function run(){
   if(token!==_runToken) return;
   if(scene){ cacheSet('scene',raw,scene); showGraph(scene, raw); return; }
   if(local){ show(local); return; }                     // last resort: the local signature guess
-  logMiss(raw0, mathy ? 'unrendered' : 'nonmath');      // log what the student ACTUALLY typed (pretty symbols intact)
+  /* A rate limit is not a miss. Logging it as one fills viz-miss — the list used
+     to find problems the site genuinely cannot draw — with problems it handles
+     perfectly well and was merely too busy to answer. */
+  if(!RATE_LIMITED) logMiss(raw0, mathy ? 'unrendered' : 'nonmath');   // what the student ACTUALLY typed
   showFail();
 }
 document.getElementById('go').onclick=run;
@@ -1775,6 +1810,7 @@ const PHOTO_ENABLED=false;
          is exhausted regularly enough that this is the message they will see
          most, so it has to be the true one. */
       if(res.status===429||d.error==='rate'){
+        noteRateLimit('photo');
         say('the reader is busy right now — try again in a minute');
         reset(); setTimeout(()=>say(HINT0),6000); return;
       }
