@@ -245,9 +245,18 @@
         <!-- -pi/6 to pi/6 traces exactly ONE petal of the 3-petal rose. From 0 to
              pi/3 the radius goes negative halfway and you get half of one petal
              plus half of the next, which is not the region the caption claims. -->
-        <button type="button" data-ins="area of r = {{2cos(3θ)}} from θ={{-pi/6}} to θ={{pi/6}}"
-          title="polar area">½∫r²dθ</button>
-        <button type="button" data-ins="revolve {{y=sqrt(x)}} about the {{x}}-axis" title="solid of revolution">revolve</button>
+        <!-- Renders as the real setup, ½∫r²dθ with stacked limits. normalizeMath
+             turns it back into the "area of r = … from theta=… to theta=…" phrasing
+             the polar router already understands, so the notation improved without
+             the routing changing. -->
+        <button type="button" data-tex="\frac{1}{2}\int_{\placeholder{}}^{\placeholder{}}\left(\placeholder{}\right)^2\,d\theta"
+          data-ins="area of r = {{2cos(3θ)}} from θ={{-pi/6}} to θ={{pi/6}}"
+          title="polar area — bounds are θ">½∫r²dθ</button>
+        <!-- No standard notation says "revolve this about that", so this one mixes
+             \text with the maths: it types like a field, renders cleanly, and still
+             normalizes to the sentence that routes to the solid-of-revolution page. -->
+        <button type="button" data-tex="\text{revolve }\placeholder{}\text{ about the }\placeholder{}\text{-axis}"
+          data-ins="revolve {{y=sqrt(x)}} about the {{x}}-axis" title="solid of revolution">revolve</button>
       </div>
     </div>
     <div class="vz-row">
@@ -415,8 +424,33 @@ function deLatex(s){
    pi, infinity, or a single letter. Three capture groups; whichever matched is
    the bound. Deliberately NOT a greedy run of non-space characters, which is
    what let "^0x^2" read as an upper limit of "0x^2". */
-const BOUND='(?:\\{\\s*([^{}]+?)\\s*\\}|\\(\\s*([^()]+?)\\s*\\)|'+
-            '([-+]?\\d+(?:\\.\\d+)?(?:\\s*\\/\\s*\\d+)?|[-+]?\\d*\\s*pi(?:\\s*\\/\\s*\\d+)?|infinity|[a-zA-Z]))';
+const BOUND='(?:\\{\\s*([^{}]+?)\\s*\\}'+
+            /* a bracketed bound, possibly signed and possibly nested one level:
+               "-\frac{\pi}{6}" arrives here as "-((pi)/(6))" after deLatex, and a
+               flat [^()]+ could never match it — the polar-area key produces
+               exactly that shape, so it has to be handled. */
+            /* two nested levels: "^{\frac{\pi}{6}}" becomes "(((pi)/(6)))" —
+               \frac supplies one layer and the ^{…} conversion adds another */
+            '|([-+]?\\((?:[^()]|\\((?:[^()]|\\([^()]*\\))*\\))*\\))'+
+            '|([-+]?\\d+(?:\\.\\d+)?(?:\\s*\\/\\s*\\d+)?|[-+]?\\d*\\s*pi(?:\\s*\\/\\s*\\d+)?|infinity|[a-zA-Z]))';
+
+/* A bound captured with its brackets reads back as "theta=(2pi)", which numLit
+   cannot evaluate. Peel off wrappers that enclose the WHOLE thing — but never
+   the ones inside "((pi)/(6))", where the first "(" closes before the end. */
+function unwrapBound(v){
+  let s=String(v==null?'':v).trim();
+  for(let i=0;i<4;i++){
+    if(!/^\(.*\)$/.test(s)) break;
+    let d=0, whole=true;
+    for(let k=0;k<s.length;k++){
+      if(s[k]==='(') d++;
+      else if(s[k]===')'){ d--; if(d===0 && k<s.length-1){ whole=false; break; } }
+    }
+    if(!whole || d!==0) break;
+    s=s.slice(1,-1).trim();
+  }
+  return s;
+}
 
 // pretty math symbols (typed or tapped from the palette) → parser/AI-friendly text
 function normalizeMath(s){
@@ -453,8 +487,20 @@ function normalizeMath(s){
        multiple of pi, infinity, or a single letter — unless it is bracketed, in
        which case the brackets say where it ends. Match exactly that. */
     .replace(new RegExp('∫\\s*_\\s*'+BOUND+'\\s*\\^\\s*'+BOUND,'g'),
-             (m,a1,a2,a3,b1,b2,b3)=>' integral from x='+String(a1||a2||a3||'').trim()+
-                                    ' to x='+String(b1||b2||b3||'').trim()+' of ')
+             (m,a1,a2,a3,b1,b2,b3)=>' integral from x='+unwrapBound(a1||a2||a3)+
+                                    ' to x='+unwrapBound(b1||b2||b3)+' of ')
+    /* ½∫r²dθ, straight off the palette. The limits on a dθ integral are ANGLES —
+       the rule above has just called them x-values, which would send a polar area
+       problem to the ordinary grapher with the wrong axis. Rewrite the whole thing
+       into the phrasing the polar router already reads. Greedy inside the bracket
+       on purpose, so a nested r like 2cos(3θ) survives whole. */
+    .replace(/(?:\(\(1\)\/\(2\)\)|\(1\/2\)|1\/2|½)?\s*integral from x=(\S+) to x=(\S+) of\s*\((.+)\)\s*\^\s*2\s*d\s*theta/i,
+             (m,a,b,r)=>'area of r = '+r.trim()+' from theta='+a+' to theta='+b)
+    .replace(/(?:\(\(1\)\/\(2\)\)|\(1\/2\)|1\/2|½)?\s*integral from x=(\S+) to x=(\S+) of\s*([^\s]+?)\s*\^\s*2\s*d\s*theta/i,
+             (m,a,b,r)=>'area of r = '+r.trim()+' from theta='+a+' to theta='+b)
+    /* \text{ about the }x\text{-axis} leaves "x -axis" once the braces go. The
+       axis matcher tolerates it, but the student sees it in the box. */
+    .replace(/\s+-\s*axis/gi,'-axis')
     .replace(/Σ\s*_\s*[\(\{]?\s*([a-zA-Z])\s*=\s*([^\s\(\)\{\}\^]+)\s*[\)\}]?\s*\^\s*[\(\{]?\s*([^\s\(\)\{\}]+)\s*[\)\}]?/g,
              ' sum from $1=$2 to $3 of ')
     /* anything still bare (no bounds given) keeps the old behaviour */
@@ -809,8 +855,15 @@ function show(r){
    anything else is rejected rather than executed. */
 function numLit(s){
   if(s==null) return NaN;
-  const t=String(s).trim().toLowerCase()
-    .replace(/\bpi\b/g,'3.141592653589793').replace(/\be\b/g,'2.718281828459045');
+  let t=String(s).trim().toLowerCase();
+  /* Implicit multiplication first. "2pi" is how every student writes a full
+     sweep, and \bpi\b could never match inside it — 2 and p are both word
+     characters, so there is no boundary between them. The bound came back NaN
+     and was quietly dropped, leaving the polar range unenforced. */
+  t=t.replace(/(\d)\s*(pi|e)\b/g,'$1*$2')
+     .replace(/(\d|\))\s*\(/g,'$1*(')
+     .replace(/\)\s*(?=\d|pi\b|e\b)/g,')*');
+  t=t.replace(/pi/g,'3.141592653589793').replace(/\be\b/g,'2.718281828459045');
   if(!/^[-+*/(). 0-9]+$/.test(t)) return NaN;
   try{ const v=Function('"use strict";return ('+t+')')(); return isFinite(v)?v:NaN; }
   catch(e){ return NaN; }
