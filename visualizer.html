@@ -26,9 +26,71 @@
   .hero-lede{color:var(--muted);font-size:16px;margin-top:10px;max-width:640px;line-height:1.6}
   .vz-box{margin-top:30px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 20px 50px -30px rgba(0,0,0,.8)}
   .vz-box:focus-within{border-color:rgba(240,180,41,.55)}
-  textarea#q{width:100%;background:#0e0b04;border:1px solid var(--line);border-radius:12px;color:var(--ink);
+  /* ---- fillable slots ---------------------------------------------------
+     .slotlayer mirrors the textarea's text invisibly and draws a box behind
+     each {{slot}}, so tapping ∫ₐᵇ gives visible mini-fields to Tab between
+     instead of bare text. EVERY metric here must match textarea#q exactly —
+     font, size, line-height, padding, border width — or the boxes drift away
+     from the characters they belong to. The background lives on .qwrap rather
+     than the layer, so the field still looks right even if the layer never
+     renders. Boxes use an inset shadow, not a border, because a border would
+     shift the glyphs underneath. */
+  .qwrap{position:relative;background:#0e0b04;border-radius:12px}
+  /* The math field is sized larger than the textarea on purpose: typeset maths
+     renders small, and stacked integral limits need vertical room. */
+  /* padding-right reserves the strip the controls sit in, so a long expression
+     scrolls rather than sliding underneath the keyboard and abc buttons */
+  math-field#mf{display:block;width:100%;background:transparent;color:var(--ink);
+    border:1px solid var(--line);border-radius:12px;padding:16px 104px 16px 16px;min-height:96px;
+    font-size:21px;outline:none;
+    --caret-color:#f0b429;
+    --selection-background-color:rgba(240,180,41,.30);
+    --placeholder-color:rgba(236,231,221,.42);
+    --contains-highlight-background-color:rgba(240,180,41,.12);
+    --smart-fence-color:#f0b429}
+  math-field#mf:focus-within{border-color:rgba(240,180,41,.5)}
+  /* MathLive ships its own chrome in its shadow DOM, in its own blue. The menu
+     duplicates things the palette already does, so it goes; the keyboard toggle
+     earns its place on phones and is recoloured to match the site. */
+  /* MathLive's on-screen maths keyboard is the reason this is worth having on a
+     phone — no hunting for ^ on the iOS keyboard. It ships light grey, which is
+     glaring against this page, so it is repainted here. The keyboard is appended
+     to <body>, so these variables have to live at the top level, not on the field. */
+  body{
+    --keyboard-background:#15120a;
+    --keyboard-text:#ece7dd;
+    --keyboard-border:#332e25;
+    --keyboard-accent-color:#f0b429;
+    --keycap-background:#221c11;
+    --keycap-background-hover:#2c2415;
+    --keycap-background-active:#f0b429;
+    --keycap-text:#ece7dd;
+    --keycap-text-active:#15120a;
+    --keycap-border:#3a3226;
+    --keycap-secondary-background:#1a160d;
+    --keycap-secondary-text:#9a9183;
+    --keyboard-toolbar-text:#9a9183;
+    --keyboard-toolbar-text-active:#f0b429;
+    --keyboard-horizontal-rule:#332e25;
+  }
+  math-field#mf::part(menu-toggle){display:none}
+  math-field#mf::part(virtual-keyboard-toggle){color:var(--muted)}
+  math-field#mf::part(virtual-keyboard-toggle):hover{color:var(--approx)}
+  /* sits in the reserved strip beside the keyboard toggle — never over the maths */
+  .modebtn{position:absolute;right:52px;top:50%;transform:translateY(-50%);z-index:3;
+    font-family:var(--mono);font-size:12px;color:var(--muted);background:#0e0b04;
+    border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer;
+    transition:color .15s,border-color .15s}
+  .modebtn:hover{color:var(--approx);border-color:rgba(240,180,41,.5)}
+  textarea#q{width:100%;background:transparent;position:relative;z-index:1;
+    border:1px solid var(--line);border-radius:12px;color:var(--ink);
     font-family:var(--mono);font-size:15.5px;line-height:1.55;padding:16px;min-height:96px;resize:vertical;outline:none}
   textarea#q:focus{border-color:rgba(240,180,41,.5)}
+  /* The OS blue selection lands on top of the active slot and makes a tidy field
+     look like a rendering fault. Tint it to match, so a selected slot reads as
+     one focused box rather than two overlapping highlights. */
+  textarea#q::selection{background:rgba(240,180,41,.34);color:var(--ink)}
+  textarea#q::-moz-selection{background:rgba(240,180,41,.34);color:var(--ink)}
   .syms{margin-top:10px}
   .symrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
   .syms button{font-family:var(--mono);font-size:14px;line-height:1;color:var(--muted);background:#0e0b04;
@@ -127,7 +189,17 @@
     The Visualizer figures out what it is and shows it to you <b style="color:var(--ink)">with your numbers</b>, not the textbook's.</p>
 
   <div class="vz-box">
-    <textarea id="q" placeholder="try:  revolve the region between y = sqrt(x) and y = x^2 about the x-axis" spellcheck="false" autocomplete="off"></textarea>
+    <!-- Two inputs share this box and only one is ever visible:
+           #q  — the plain textarea, for word problems, pasting, the photo path
+           #mf — a real MathLive field, for anything with a symbol in it
+         Tapping a symbol button switches to #mf and inserts there; the "abc"
+         button switches back. Prose stays first-class because that is most of
+         what students actually paste. -->
+    <div class="qwrap">
+      <textarea id="q" placeholder="try:  revolve the region between y = sqrt(x) and y = x^2 about the x-axis" spellcheck="false" autocomplete="off"></textarea>
+      <math-field id="mf" style="display:none"></math-field>
+      <button type="button" id="modeBtn" class="modebtn" style="display:none" title="back to plain text">abc</button>
+    </div>
     <!-- ============================================================
          SYMBOL PALETTE
          Buttons carry TEMPLATES, not bare glyphs. {{...}} marks a fillable
@@ -140,29 +212,32 @@
       <div class="symrow">
         <!-- the dx belongs on the key face: the polar key reads ½∫r²dθ, so these
              should read ∫dx and ∫ᵇₐdx rather than a bare hook -->
-        <button type="button" data-ins="∫ {{f(x)}} dx" title="indefinite integral">∫<i class="dxi">dx</i></button>
-        <button type="button" data-ins="∫_{{0}}^{{1}} {{f(x)}} dx" title="definite integral — Tab between the bounds"
+        <!-- data-tex drives the typeset field (\placeholder{} = an empty square
+             you tab through); data-ins is the plain-text fallback used only when
+             MathLive cannot be reached. Keep the two in step. -->
+        <button type="button" data-tex="\int \placeholder{}\,dx" data-ins="∫ {{f(x)}} dx" title="indefinite integral">∫<i class="dxi">dx</i></button>
+        <button type="button" data-tex="\int_{\placeholder{}}^{\placeholder{}} \placeholder{}\,dx" data-ins="∫_{{0}}^{{1}} {{f(x)}} dx" title="definite integral — Tab between the bounds"
           >∫<span class="bd"><sup>b</sup><sub>a</sub></span><i class="dxi">dx</i></button>
-        <button type="button" data-ins="Σ_({{n}}={{1}})^{{∞}} {{1/n^2}}" title="series — Tab between index, start and limit"
+        <button type="button" data-tex="\sum_{n=\placeholder{}}^{\placeholder{}} \placeholder{}" data-ins="Σ_({{n=1}})^{{∞}} {{1/n^2}}" title="series — Tab between the bounds and the term"
           >Σ<span class="bd"><sup>∞</sup><sub>n=1</sub></span></button>
-        <button type="button" data-ins="lim_({{x}}→{{0}}) {{f(x)}}" title="limit"
+        <button type="button" data-tex="\lim_{x\to\placeholder{}} \placeholder{}" data-ins="lim_({{x→0}}) {{f(x)}}" title="limit"
           >lim<span class="bd bdl"><sub>x→a</sub></span></button>
-        <button type="button" data-ins="d/dx {{f(x)}}" title="derivative">d/dx</button>
-        <button type="button" data-ins="dy/dx = {{x*y}}" title="differential equation">dy/dx</button>
-        <button type="button" data-ins="f'({{x}})" title="derivative of f">f′</button>
+        <button type="button" data-tex="\frac{d}{dx}\placeholder{}" data-ins="d/dx {{f(x)}}" title="derivative">d/dx</button>
+        <button type="button" data-tex="\frac{dy}{dx}=\placeholder{}" data-ins="dy/dx = {{x*y}}" title="differential equation">dy/dx</button>
+        <button type="button" data-tex="f'(\placeholder{})" data-ins="f'({{x}})" title="derivative of f">f′</button>
       </div>
       <div class="symrow">
-        <button type="button" data-ins="sqrt({{x}})" title="square root">√</button>
-        <button type="button" data-ins="^2">x²</button>
-        <button type="button" data-ins="^3">x³</button>
-        <button type="button" data-ins="^{{n}}">xⁿ</button>
-        <button type="button" data-ins="e^({{x}})" title="exponential">e<sup>x</sup></button>
-        <button type="button" data-ins="ln({{x}})" title="natural log">ln</button>
-        <button type="button" data-ins="abs({{x}})" title="absolute value">|x|</button>
-        <button type="button" data-ins="π">π</button>
-        <button type="button" data-ins="∞">∞</button>
-        <button type="button" data-ins="θ">θ</button>
-        <button type="button" data-ins="Δ">Δ</button>
+        <button type="button" data-tex="\sqrt{\placeholder{}}" data-ins="sqrt({{x}})" title="square root">√</button>
+        <button type="button" data-tex="\placeholder{}^2" data-ins="^2">x²</button>
+        <button type="button" data-tex="\placeholder{}^3" data-ins="^3">x³</button>
+        <button type="button" data-tex="\placeholder{}^{\placeholder{}}" data-ins="^{{n}}">xⁿ</button>
+        <button type="button" data-tex="e^{\placeholder{}}" data-ins="e^({{x}})" title="exponential">e<sup>x</sup></button>
+        <button type="button" data-tex="\ln(\placeholder{})" data-ins="ln({{x}})" title="natural log">ln</button>
+        <button type="button" data-tex="\left|\placeholder{}\right|" data-ins="abs({{x}})" title="absolute value">|x|</button>
+        <button type="button" data-tex="\pi" data-ins="π">π</button>
+        <button type="button" data-tex="\infty" data-ins="∞">∞</button>
+        <button type="button" data-tex="\theta" data-ins="θ">θ</button>
+        <button type="button" data-tex="\Delta" data-ins="Δ">Δ</button>
       </div>
       <div class="symrow">
         <button type="button" data-ins="r = {{2 + 2cos(θ)}}" title="polar curve">r = f(θ)</button>
@@ -180,11 +255,15 @@
       <!-- capture="environment" opens the rear camera straight away on a phone,
            which is the whole point: this exists to replace typing a long word
            problem on a phone keyboard. -->
+      <!-- PHOTO INPUT IS OFF. It works, but the free vision tier runs out and the
+           button then reports "busy" — a feature that fails half the time reads as
+           a broken site. Everything below stays wired; flip PHOTO_ENABLED to true
+           (one line, in the script) once the reader is on a paid or higher quota. -->
       <input type="file" id="photoFile" accept="image/*" capture="environment" hidden>
-      <button class="vz-cam" id="photoBtn" type="button" title="Photograph a problem">
+      <button class="vz-cam" id="photoBtn" type="button" title="Photograph a problem" style="display:none">
         <span aria-hidden="true">📷</span> Photo
       </button>
-      <span class="vz-hint" id="photoHint">it reads plain english · beta</span>
+      <span class="vz-hint" id="photoHint">it reads plain english</span>
     </div>
     <div class="chips" id="chips">
       <button data-q="revolve the region between y=sqrt(x) and y=x^2 about the x-axis">revolve √x &amp; x² → a solid</button>
@@ -331,6 +410,14 @@ function deLatex(s){
      .replace(/[{}]/g,'');
   return t.replace(/\s{2,}/g,' ').trim();
 }
+/* One integration bound. Either bracketed — {…} or (…), where the bracket marks
+   the end — or a bare token: a signed number, a simple fraction, a multiple of
+   pi, infinity, or a single letter. Three capture groups; whichever matched is
+   the bound. Deliberately NOT a greedy run of non-space characters, which is
+   what let "^0x^2" read as an upper limit of "0x^2". */
+const BOUND='(?:\\{\\s*([^{}]+?)\\s*\\}|\\(\\s*([^()]+?)\\s*\\)|'+
+            '([-+]?\\d+(?:\\.\\d+)?(?:\\s*\\/\\s*\\d+)?|[-+]?\\d*\\s*pi(?:\\s*\\/\\s*\\d+)?|infinity|[a-zA-Z]))';
+
 // pretty math symbols (typed or tapped from the palette) → parser/AI-friendly text
 function normalizeMath(s){
   return deLatex(s)
@@ -360,8 +447,14 @@ function normalizeMath(s){
        one test shaded a degenerate interval [3,3] under a limit graph. */
     .replace(/lim\s*_?\s*[\(\{]?\s*([a-zA-Z])\s*(?:->|→)\s*([^\s\)\}\,]+)\s*[\)\}]?/g,
              ' limit as $1 approaches $2 of ')
-    .replace(/∫\s*_\s*[\(\{]?\s*([^\s\(\)\{\}\^]+)\s*[\)\}]?\s*\^\s*[\(\{]?\s*([^\s\(\)\{\}]+)\s*[\)\}]?/g,
-             ' integral from x=$1 to x=$2 of ')
+    /* Bounds run straight into the integrand when nothing separates them —
+       "∫_1^0x^2 dx" (what a maths field and many photos produce) was read as an
+       upper bound of "0x^2". A bound is a short thing: a number, a fraction, a
+       multiple of pi, infinity, or a single letter — unless it is bracketed, in
+       which case the brackets say where it ends. Match exactly that. */
+    .replace(new RegExp('∫\\s*_\\s*'+BOUND+'\\s*\\^\\s*'+BOUND,'g'),
+             (m,a1,a2,a3,b1,b2,b3)=>' integral from x='+String(a1||a2||a3||'').trim()+
+                                    ' to x='+String(b1||b2||b3||'').trim()+' of ')
     .replace(/Σ\s*_\s*[\(\{]?\s*([a-zA-Z])\s*=\s*([^\s\(\)\{\}\^]+)\s*[\)\}]?\s*\^\s*[\(\{]?\s*([^\s\(\)\{\}]+)\s*[\)\}]?/g,
              ' sum from $1=$2 to $3 of ')
     /* anything still bare (no bounds given) keeps the old behaviour */
@@ -531,6 +624,7 @@ async function askAI(raw){
     const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},signal:ctrl.signal,
       body:JSON.stringify({system:AI_SYS,messages:[{role:'user',text:raw}]})});
     clearTimeout(to);
+    if(res.status===429) RATE_LIMITED=true;          // busy, not an unsupported problem
     const d=await res.json();
     if(!res.ok||!d.text) return null;
     const m=d.text.match(/\{[\s\S]*\}/); if(!m) return null;
@@ -618,7 +712,9 @@ async function getSceneOnce(raw){
   try{
     const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},signal:ctrl.signal,
       body:JSON.stringify({system:SCENE_SYS,messages:[{role:'user',text:raw}]})});
-    clearTimeout(to); const d=await res.json();
+    clearTimeout(to);
+    if(res.status===429) RATE_LIMITED=true;          // busy, not an unsupported problem
+    const d=await res.json();
     if(!res.ok||!d.text) return null;
     const src=firstJsonObject(d.text)||(d.text.match(/\{[\s\S]*\}/)||[null])[0];
     if(!src) return null;
@@ -940,6 +1036,28 @@ function enforceParametric(scene, raw){
   return scene;
 }
 
+/* Pull the ORIGINAL function out of a derivative question — "find the derivative
+   of x^2 sin(x)", "f(x) = ln(x^2+1)*e^(3x)", "if y = sin(3x^2+1)". Used only when
+   the model hands back f' alone, which leaves the graph unanswerable: there is
+   nothing to compare the slope against, and no f for the renderer to verify it
+   from. looksLikeExpr is the gate — it rejects anything with a leftover English
+   word, so prose can never be mistaken for a curve. */
+function originalFromText(raw, notThis){
+  const t=String(raw||'');
+  const cand=[];
+  const m=/(?:derivative|differentiate|d\s*[a-z]?\s*\/\s*d\s*[a-z])\s*(?:of\s+)?(?:the\s+)?(?:following\s+)?(?:function\s*)?[:\s]*(?:f\s*\(\s*x\s*\)\s*=\s*|y\s*=\s*)?([^,;.]+)/i.exec(t);
+  if(m) cand.push(m[1]);
+  FN_RE.lastIndex=0; let k;
+  while((k=FN_RE.exec(t))!==null) cand.push(k[1]);          // "y = …" / "f(x) = …"
+  const junk=/\b(derivative|differentiate|of|using|the|following|function|with|respect|to|where|when|at|if|and|for|rule|chain|product|quotient|find)\b/gi;
+  const already=clean(String(notThis||''));
+  for(const c of cand){
+    const e=clean(String(c).replace(junk,' '));
+    if(e && e!==already && looksLikeExpr(e)) return e;
+  }
+  return null;
+}
+
 /* A derivative problem that comes back with only the original curve answers
    nothing — the student asked for f', and one run in four omitted it entirely.
    Add the slot and let the renderer fill it: grapher.html verifies any curve
@@ -959,7 +1077,17 @@ function ensureDerivativeCurve(scene, raw){
   if(!/\bderivative\b|\bdifferentiate\b|\bd[a-z]?\s*\/\s*d\s*[a-z]\b|f\s*['′]\s*\(/i.test(t)) return scene;
   if(/antideriv|integral|integrate/i.test(t)) return scene;            // opposite problem
   const isDeriv=l=>!/antideriv/i.test(l||'') && /deriv|f\s*['′]|dy\s*\/\s*dx/i.test(l||'');
-  if(scene.functions.some(f=>isDeriv(f.label))) return scene;          // already claimed
+  if(scene.functions.some(f=>isDeriv(f.label))){
+    /* A derivative curve is present — but if it is the ONLY one, the student is
+       shown f' with nothing to compare it against, and the renderer has no f to
+       check it against either. The original function is in the problem text.
+       (Seen on "Find the derivative of x^2 sin(x)" and the ln·e^3x problem.) */
+    if(scene.functions.length===1){
+      const f0=originalFromText(t, scene.functions[0].expr);
+      if(f0) scene.functions.unshift({expr:f0, label:'f(x) = '+f0, color:'gold'});
+    }
+    return scene;
+  }
   if(scene.functions.length===1){
     scene.functions.push({expr:'0', label:"f'(x)", color:'teal'});
   }else{
@@ -1199,7 +1327,9 @@ async function tutorTurn(isKick){
     const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},signal:ctrl.signal,
       body:JSON.stringify({system:TUTOR.sys,messages})});
     clearTimeout(to); const d=await res.json(); TUTOR.busy=false; if(sendBtn) sendBtn.disabled=false;
-    TUTOR.msgs.push({role:'tutor',text:(res.ok&&d.text)?d.text:'⚠ I couldn\'t reach my brain just now — try sending again.'});
+    TUTOR.msgs.push({role:'tutor',text:(res.ok&&d.text)?d.text:(res.status===429
+      ?'⚠ too many questions at once — give me a minute and ask again.'
+      :'⚠ I couldn\'t reach my brain just now — try sending again.')});
     renderTutorLog();
   }catch(e){ clearTimeout(to); TUTOR.busy=false; if(sendBtn) sendBtn.disabled=false;
     TUTOR.msgs.push({role:'tutor',text:'⚠ '+(e.name==='AbortError'?'that took too long — try again.':'connection hiccup — try again.')}); renderTutorLog(); }
@@ -1241,6 +1371,11 @@ function logMiss(raw, stage){
     }
   }catch(e){}
 }
+/* Set when the reader answers 429. A rate limit is NOT the student writing an
+   unsupported problem, and telling them "I couldn't read that one" sends them
+   off rewriting a perfectly good question. Free-tier limits are hit often enough
+   that this distinction is the difference between "busy" and "broken". */
+let RATE_LIMITED=false;
 function showFail(){
   var _l=document.getElementById('rLoad'); if(_l) _l.style.display='none';
   const R=document.getElementById('result');
@@ -1248,6 +1383,16 @@ function showFail(){
   document.getElementById('rOpen').style.visibility='';
   document.getElementById('rWrong').style.visibility='hidden';
   document.getElementById('rShare').style.display='none';      // nothing worth sharing
+  if(RATE_LIMITED){
+    document.getElementById('rTag').textContent='busy';
+    document.getElementById('rTitle').textContent='The reader is busy right now';
+    document.getElementById('rRead').textContent='Too many problems came through at once, so the free reader is taking a breather. Your problem is fine — give it a minute and press Visualize again.';
+    document.getElementById('rParams').innerHTML='';
+    document.getElementById('rOpen').href='#picker';
+    document.getElementById('rNote').textContent='';
+    R.style.display='block';
+    return;
+  }
   document.getElementById('rTag').textContent='hmm';
   document.getElementById('rTitle').textContent='I couldn\'t read that one yet';
   document.getElementById('rRead').textContent='I handle revolution, area-between-curves, tangent lines, and classic related-rates problems. Try one of the examples above, or pick the problem type below.';
@@ -1258,7 +1403,10 @@ function showFail(){
 }
 let _runToken=0, _frameId=0;
 async function run(){
-  const raw0=document.getElementById('q').value.trim();
+  RATE_LIMITED=false;                                // fresh verdict for this attempt
+  /* whichever input is showing is the question. MathLive hands back LaTeX, which
+     deLatex already understands, so both paths meet at the same normalizer. */
+  const raw0=(MATH_MODE?mathText():document.getElementById('q').value).trim();
   if(!raw0) return;
   const raw=normalizeMath(raw0);          // √ ² π ∫ Σ … → parser/AI-friendly text
   const token=++_runToken;
@@ -1320,6 +1468,7 @@ document.getElementById('go').onclick=run;
 document.getElementById('q').addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); run(); } });
 document.getElementById('chips').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
+  if(MATH_MODE) exitMath('');                      // an example is prose: leave the maths field
   document.getElementById('q').value=b.dataset.q; run();
 });
 /* ============================================================
@@ -1347,8 +1496,103 @@ function selectSlot(i){
   q.classList.add('slotting');
 }
 
-document.getElementById('syms').addEventListener('click',e=>{
+/* ============================================================
+   MATH MODE — a real typeset field for anything with a symbol in it.
+
+   Two inputs share the box: the textarea for prose (most of what students
+   paste is a word problem) and a MathLive field for maths. Tapping a symbol
+   switches to the field and inserts there, so ∫ arrives with stacked limits
+   and empty squares to tab through rather than as "∫_0^1" characters.
+
+   MathLive is ~213KB over the wire, so it is fetched ONLY on the first symbol
+   tap — anyone who just pastes a sentence never downloads it. Its output is
+   LaTeX, which is exactly what deLatex/normalizeMath already read, so nothing
+   downstream needed to change.
+   ============================================================ */
+let MATH_MODE=false, _mlLoading=null;
+const mfEl=()=>document.getElementById('mf');
+
+function ensureMathLive(){
+  if(window.MathfieldElement||customElements.get('math-field')) return Promise.resolve(true);
+  if(_mlLoading) return _mlLoading;
+  _mlLoading=new Promise(res=>{
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/mathlive@0.101.0/dist/mathlive.min.js';
+    s.crossOrigin='anonymous';
+    s.onload=()=>res(true);
+    s.onerror=()=>res(false);                    // offline: stay in text mode, still usable
+    document.head.appendChild(s);
+  });
+  return _mlLoading;
+}
+
+/* LaTeX out of the field → the plain text the rest of the page speaks. */
+function mathText(){
+  const mf=mfEl(); if(!mf) return '';
+  let tex=''; try{ tex=mf.value||''; }catch(e){}
+  return deLatex(String(tex).replace(/\\placeholder\{\}/g,'').replace(/\\differentialD/g,'d'));
+}
+
+function exitMath(seed){
+  const mf=mfEl(), q=qEl(), btn=document.getElementById('modeBtn');
+  const carry=seed!=null?seed:mathText();
+  MATH_MODE=false;
+  if(mf) mf.style.display='none';
+  if(btn) btn.style.display='none';
+  q.style.display='';
+  if(carry.trim()) q.value=carry.trim();
+  LASTLEN=q.value.length; clearSlots();
+  q.focus();
+}
+
+/* Returns false when MathLive could not load, so the caller falls back to the
+   plain-text template it has always used. Offline must not mean no palette. */
+async function enterMath(tex){
+  const ok=await ensureMathLive();
+  const mf=mfEl(), q=qEl(), btn=document.getElementById('modeBtn');
+  if(!ok||!mf) return false;
+  if(!MATH_MODE){
+    MATH_MODE=true;
+    q.style.display='none';
+    mf.style.display='block';
+    if(btn) btn.style.display='';
+    /* carry over anything already typed, so switching never loses work */
+    const had=q.value.trim();
+    try{ mf.value=had && !/[a-z]{4,}/i.test(had) ? had : ''; }catch(e){}
+  }
+  try{
+    mf.focus();
+    if(tex) mf.executeCommand(['insert',tex,{focus:true,select:'placeholder'}]);
+  }catch(e){}
+  return true;
+}
+
+document.addEventListener('click',e=>{
+  if(e.target && e.target.id==='modeBtn') exitMath();
+});
+/* Enter submits from the maths field too — the same reflex as the text box.
+   Shift+Enter is left alone in case a student wants a second line. */
+document.addEventListener('keydown',e=>{
+  if(!MATH_MODE || e.key!=='Enter' || e.shiftKey) return;
+  if(!e.target || e.target.id!=='mf') return;
+  e.preventDefault(); run();
+});
+
+
+document.getElementById('syms').addEventListener('click',async e=>{
   const b=e.target.closest('button'); if(!b) return;
+
+  /* A symbol means maths, so go to the typeset field. data-tex is the LaTeX to
+     insert; \placeholder{} becomes an empty square the student tabs through.
+     If MathLive cannot load we fall straight through to the old text template,
+     so the palette still works with no network. */
+  const tex=b.dataset.tex;
+  if(tex && await enterMath(tex)) return;
+  /* The polar/parametric/revolve keys insert a SENTENCE ("revolve … about the
+     x-axis"), which is prose, not maths — so they belong in the text box. If we
+     are in the maths field, step back out first and keep whatever was written. */
+  if(MATH_MODE) exitMath();
+
   const q=qEl(), tpl=b.dataset.ins||'';
   const st=q.selectionStart!=null?q.selectionStart:q.value.length;
   const en=q.selectionEnd!=null?q.selectionEnd:st;
@@ -1438,10 +1682,22 @@ function cleanTranscript(t){
     .trim();
 }
 
+/* ── PHOTO INPUT MASTER SWITCH ──────────────────────────────────────────────
+   Set to true to bring the camera button back. It is OFF because the free
+   vision tier has a daily cap: once it is spent every photo answers "busy",
+   and a student meeting that twice concludes the site is broken. The reader
+   itself is verified working (14/14 transcription on handwriting, tilt, glare,
+   notebook paper, multi-problem pages). This is a quota decision, not a code
+   one — turn it on when the reader is on a paid or higher-quota key.
+   ─────────────────────────────────────────────────────────────────────────── */
+const PHOTO_ENABLED=false;
+
 (function photoInput(){
   const btn=document.getElementById('photoBtn'), file=document.getElementById('photoFile'),
         hint=document.getElementById('photoHint'), q=document.getElementById('q');
   if(!btn||!file) return;
+  if(!PHOTO_ENABLED){ btn.style.display='none'; file.disabled=true; return; }
+  btn.style.display='';
   const HINT0=hint?hint.textContent:'';
   const say=t=>{ if(hint) hint.textContent=t; };
   const reset=()=>{ btn.disabled=false; btn.innerHTML='<span aria-hidden="true">📷</span> Photo'; };
@@ -1460,6 +1716,15 @@ function cleanTranscript(t){
       clearTimeout(to);
       const d=await res.json().catch(()=>({}));
 
+      /* RATE LIMIT FIRST. A 429 carries no `vision` flag, so the check below used
+         to catch it and report "photo input isn't enabled yet" — telling the
+         student the feature doesn't exist when it was simply busy. The free tier
+         is exhausted regularly enough that this is the message they will see
+         most, so it has to be the true one. */
+      if(res.status===429||d.error==='rate'){
+        say('the reader is busy right now — try again in a minute');
+        reset(); setTimeout(()=>say(HINT0),6000); return;
+      }
       /* An OLD worker ignores the image and answers from the prompt alone — which
          would look like it worked and be nonsense. Only trust a reply that says
          it actually went down the vision route. */
@@ -1468,7 +1733,7 @@ function cleanTranscript(t){
         reset(); setTimeout(()=>say(HINT0),4000); return;
       }
       if(!res.ok||!d.text){
-        say(d.error==='rate'?'the reader is resting — try again in a minute':'couldn\'t read that photo');
+        say('couldn\'t read that photo');
         reset(); setTimeout(()=>say(HINT0),4000); return;
       }
       const text=cleanTranscript(d.text);
